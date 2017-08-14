@@ -1,0 +1,7 @@
+filter -c $LEPHAREDIR/config/me.para 
+#sedtolib -t G -c $LEPHAREDIR/config/me.para
+#sedtolib -t S -c $LEPHAREDIR/config/me.para
+#mag_star -c $LEPHAREDIR/config/me.para
+#mag_gal -t G -c $LEPHAREDIR/config/me.para
+#zphota -c $LEPHAREDIR/config/me.para  -CAT_IN /tmp/MACS1423+24out.cat -CAT_OUT /tmp/zs 
+#zphota -c $LEPHAREDIR/config/me.para  -CAT_IN /tmp/MACS0018+16out.cat -CAT_OUT /nfs/slac/g/ki/ki04/pkelly/specta.zsout 

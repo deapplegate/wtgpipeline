@@ -1,0 +1,46 @@
+# configuration file for SuprimeCam images
+#
+
+#"$Id: SUBARU.ini.raw,v 1.5 2009-02-06 22:47:19 anja Exp $"
+
+. progs.ini
+
+
+INSTRUMENT=SUBARU
+export INSTRUMENT
+
+# typical prefix of files
+PREFIX=SUP
+export PREFIX
+
+# need to define per configuration: NCHIPS, CHIPGEOMETRY
+
+# maximum number of chips used during preprocessing
+# steps (this should be chosen so that NFRAMES chips
+# fit into the virtual memory of your machine)
+NFRAMES=20
+
+
+# the latitude and longitude of the observatory in degrees
+# *west* (here: Mauna Kea)
+# (needed for calculating airmass of the observation and
+# timezone of the observatory)
+OBSLAT=19.82861111
+OBSLONG=155.48055556
+
+REFERENCETIME=22:00:00
+
+
+# statistics sections (for mode calculations etc.)
+# the first two values are the centers, the second two
+# the extension (in pixels); is the same for all chips
+
+STATSALLIM=([1]=1000 [2]=2000 [3]=1000 [4]=3000)
+
+STATSXMIN=$(( ${STATSALLIM[1]} - ${STATSALLIM[3]} / 2 ))
+STATSXMAX=$(( ${STATSALLIM[1]} + ${STATSALLIM[3]} / 2 ))
+STATSYMIN=$(( ${STATSALLIM[2]} - ${STATSALLIM[4]} / 2 ))
+STATSYMAX=$(( ${STATSALLIM[2]} + ${STATSALLIM[4]} / 2 ))
+
+
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+##################
+# Part of the BonnLogger.py system
+#
+# Source at start of script to enable logging with no blocking
+###################
+
+#$Id: log_force_start,v 1.1 2008-07-09 00:12:23 dapple Exp $
+
+bonn_logger_id=$(./BonnLogger.py forceLog $0 $@)
+if [ $? -ne 0 ]; then
+    exit 1
+fi

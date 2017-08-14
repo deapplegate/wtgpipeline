@@ -1,0 +1,91 @@
+#
+# This is the configuration file for the make_ssc program in pairs mode.
+# Each line following contains a parameter that controls the actions of
+# the program
+#
+# Program screen output:
+#    VERBOSE [DEBUG|VERBOSE|NORMAL|NONE] directs the programs verbosity
+#    if VERBOSE=DEBUG the program will output a map of the background
+#    and the corrected image into wo separate fits file in the curr_dir
+#
+VERBOSE = NORMAL 
+#
+#    One parameter controls the operation of the make_ssc program.
+#    MAKE_PAIRS - Create a pairs catalog or a regular source catalog
+#
+#    This parameter is set to YES whenever one would like a complete
+#    set of pairs from an associated catalog. In fact such a pairs file
+#    is used by the relphotom program.
+#
+# MAKE_PAIRS = NO
+#
+#    The remainder of this file is constructed bye a searies of four keywords
+#    that are repeated for each individual output column. The block of
+#    four keywords consist of COL_NAME, COL_INPUT, COL_MERGE, and COL_CHAN.
+#    The have the following meaning:
+#    COL_NAME  - The name of the output column
+#    COL_INPUT - The name of the input column
+#    COL_MERGE - The merging type which can be:
+#                AVE_REG:  Perform regular averaging
+#                          (AVERAGE has the same functionality)
+#                AVE_ERR:  Error propagation of regular average
+#                AVE_PHOT: Photometric averaging (ignoring dummy values)
+#    COL_CHAN  - The channel number from which to extract the information
+#                #    - The single channel number
+#                ALL  - Merge all channels
+#                   
+#  HISTORY E.R.Deul - dd 11-02-1998  Added Flag and IMAFLAGS_ISO columns
+#
+
+# 10.01.2004:
+# The IMAFLAGS_ISO key is required for using Flags
+# (relphotom step).
+# Using the Flag key instead led to byte swap problems
+# under little endian machines
+
+MAKE_PAIRS= YES
+#
+COL_NAME  = MAG_AUTO
+COL_INPUT = MAG_AUTO
+COL_MERGE = AVERAGE
+COL_CHAN  = 0
+#
+COL_NAME  = MAGERR_AUTO
+COL_INPUT = MAGERR_AUTO
+COL_MERGE = AVERAGE
+COL_CHAN  = 0
+#
+COL_NAME  = MAG_APER
+COL_INPUT = MAG_APER
+COL_MERGE = AVERAGE
+COL_CHAN  = 0
+#
+COL_NAME  = MAGERR_APER
+COL_INPUT = MAGERR_APER
+COL_MERGE = AVERAGE
+COL_CHAN  = 0
+#
+COL_NAME  = MAG_ISO
+COL_INPUT = MAG_ISO
+COL_MERGE = AVERAGE
+COL_CHAN  = 0
+#
+COL_NAME  = MAGERR_ISO
+COL_INPUT = MAGERR_ISO
+COL_MERGE = AVERAGE
+COL_CHAN  = 0
+#
+COL_NAME  = Field
+COL_INPUT = FIELD_POS
+COL_MERGE = AVERAGE
+COL_CHAN  = ALL
+#
+COL_NAME  = Flag
+COL_INPUT = Flag
+COL_MERGE = AVERAGE
+COL_CHAN  = ALL
+#
+COL_NAME  = IMAFLAGS_ISO
+COL_INPUT = IMAFLAGS_ISO
+COL_MERGE = AVERAGE
+COL_CHAN  = ALL

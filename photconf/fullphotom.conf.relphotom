@@ -1,0 +1,115 @@
+#****** relphotom.conf ***************************************************
+# 
+#   NAME
+#       relphotom configuration file
+# 
+#   SYNOPSIS
+# 
+#   FUNCTION
+#       This configuration file allows dynamic configuration of the relphotom
+#       program. The parameters in this file can also be used as command
+#       line arguments on the program call.
+#       The parameters allowed are the following
+#
+#
+#       - Program screen output:
+#            VERBOSE [DEBUG|NORMAL|NONE] directs the programs verbosity
+#            if VERBOSE=DEBUG the program will output a map of the background
+#            and the corrected image into wo separate fits file in the curr_dir
+#       - General configuration parameters
+#            COEFS        (FARRAY) Sets estimate values for the extinction 
+#                                  coefficients for the individual channels
+#            ZP_ESTIMATES (FARRAY) Sets estimate values for the instrumental 
+#                                  zero-points for the individual channels
+#        - General FIELDS table column names
+#            ROW    Name of the column containing the x patch position
+#                   Default: EISROW
+#            COL    Name of the column containing the y patch position
+#                   Default: EISCOL
+# 
+#        - FIXED table column names
+#            XPOS   Name of the column that contains the patch x position
+#                   Default: Xpos
+#            YPOS   Name of the column that contains the patch x position
+#                   Default: Ypos
+#            ZP     Name of the column containing the zeropoint values
+#                   Default: ZP
+#            COEF   Name of the column containing the extinction coeffs
+#                   Default: COEF
+#
+#        - Parameter for the polynomial fitting of the relative photometry
+#            XPOL   The degree of polynomail freedom in the x direction
+#                   Default: 1
+#            YPOL   The degree of polynomail freedom in the y direction
+#                   Default: 1
+#
+#
+#   INPUTS
+#      None
+# 
+#   RESULTS
+#      None
+# 
+#   RETURNS
+# 
+#   MODIFIED GLOBALS
+# 
+#   NOTES
+# 
+#   BUGS
+# 
+#   AUTHOR
+#       E.R. Deul - dd 23-07-1997
+# 
+#******************************************************************************#
+# 10.01.2004:
+# The IMAFLAGS_ISO key is required for using Flags.
+# Using the Flag key instead led to byte swap problems
+# under little endian machines
+#
+# 24.11.2004:
+# The name for the extinction coefficient is now
+# COEFF
+
+#
+VERBOSE = DEBUG
+#
+MINMAG=-10.5
+MAXMAG=-4.5
+MAGDIFF=0.5
+#MINMAG=-15.5
+#MAXMAG=-2.5
+#MAGDIFF=1.0
+#
+NITER=3
+#
+AIRMASS=AIRMASS
+#
+#MAG=MAG_APER
+#MAGERR=MAGERR_APER
+#MAG=MAG_ISO
+#MAGERR=MAGERR_ISO
+MAG=MAG_AUTO
+MAGERR=MAGERR_AUTO
+#
+#  USE_FLAG  [YES|NO] (Default NO) tells rephotom to use a flagging scheme
+#                     for selecting stars to participate in the determination
+#  FLAG               The name of the PAIRS column containing the flag
+#
+#  MASK               The masking value te exclude objects 
+#                     Flag & mask != 0 will exclude
+#
+USE_FLAG=YES
+FLAG=Flag
+FLAG_MASK=255
+IMAFLAGS=IMAFLAGS_ISO
+IMAFLAG_MASK=255
+COEF=COEFF
+#
+#NPOL_PARAM=1 2 3 0 
+NPOL_PARAM=1 0 0 0 
+#
+ROW=MAPNAXS1
+COL=MAPNAXS2
+
+

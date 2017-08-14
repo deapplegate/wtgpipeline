@@ -1,0 +1,168 @@
+#!/usr/bin/perl -w
+##############################
+# @file configure
+# @author Douglas Applegate
+# @date 4/8/2008
+#
+# @brief Script to generate a Makefile from a template, given that
+#          libraries need to be specified.
+##############################
+
+#CVSID $Id: configure,v 1.2 2008-04-09 01:12:07 dapple Exp $
+
+use Getopt::Long;
+
+
+########################################
+#PACKAGE SPECIFIC
+my %defines = ( 'name','SpikeFinder',
+		'version','0.1');
+
+#these are external packages that are needed
+my @packages = qw(cfitsio gsl);
+
+###########################################
+
+
+###########################################
+# Build Usage Statement
+my $usage_options_template = "  
+--with-!package!=dir           topdir location of the /package/ package
+--with-!package!-include=dir   Specify particular include directory for !package!
+--with-!package!-libdir=dir    Specify particular lib directory for !package!
+";
+
+my $options = "";
+
+foreach $pack (@packages) {
+    my $package_options = $usage_options_template;
+    $package_options =~ s/!package!/$pack/g;
+    $options = "$options $package_options";
+
+}
+
+$defines{'options'} = $options;
+$defines{'packages'} = join("\n  ",@packages);
+
+$usage = "
+configure [options]
+
+!name! version: !version!
+
+Options:
+   !options!
+Configure customizes !name! to your local environment.
+
+After running this program, call:
+
+  make
+
+to build the program.
+
+!name! depends on the following external packages:
+
+  !packages!
+
+Please ensure that these packages are installed before running this script. Configure will by default look for these packages in
+
+  /usr/local
+
+If a package is not installed in these locations, specify directories with the 
+
+  --with-package=dir
+
+commands listed above.
+";
+$usage =~ s/!(\w+)!/${defines{$1}}/g;
+
+#########################################
+
+#########################################
+#Build Command Line Arguments
+
+my @optionArgs = ();
+foreach $pack (@packages) {
+
+    push @optionArgs,"with-$pack=s";
+    push @optionArgs,"with-$pack-include=s";
+    push @optionArgs,"with-$pack-libdir=s";
+
+}
+
+my %Options;
+my $ok = GetOptions(\%Options, 
+		 @optionArgs, 
+                 'h');
+$ok or die "Problems parsing command line.";
+defined($Options{'h'}) and die $usage;
+
+##########################################
+
+##########################################
+#Define variables for substitution
+
+
+my %subVariables;
+my @incs = ();
+my @libs = ();
+foreach $pack (@packages) {
+
+    $capPackage = uc($pack);
+    $includeKey = "${capPackage}_INCLUDE";
+    $libKey = "${capPackage}_LIBDIR";
+    
+    $include = "";
+    $lib = "";
+
+    if (defined($Options{"with-$pack"})){
+	$loc = $Options{"with-$pack"};
+	$include = "-I$loc/include";
+	$lib = "-L$loc/lib -Wl,-rpath,$loc/lib";
+	
+    } elsif (defined($Options{"with-${pack}-include"}) and \
+	     defined($Options{"with-${pack}-libdir"})){
+	$includeLoc = $Options{"with-${pack}-include"};
+	$libLoc = $Options{"with-${pack}-libdir"};
+	$include = "-I$includeLoc";
+	$lib = "-L$libLoc -Wl,-rpath,$libLoc";
+    }
+
+    $subVariables{$includeKey} = $include;
+    $subVariables{$libKey} = $lib;
+
+    push @incs,$include;
+    push @libs,$lib;
+
+}
+
+$subVariables{'INCS'} = removeDuplicates(@incs);
+$subVariables{'LDFLAGS'} = removeDuplicates(@libs);
+
+##################################################
+#Create Makefile from template
+
+
+open(INPUT_MAKEFILE, "Makefile.dac") or die "Cannot Open Makefile.dac";
+my $makefile; {local $/; $makefile = <INPUT_MAKEFILE>};
+close(INPUT_MAKEFILE);
+
+
+$makefile =~ s/@(\w+)@/${subVariables{$1}}/g;
+
+open(OUTPUT_MAKEFILE, "> Makefile") or die "Cannot Open Makefile for writing";
+print OUTPUT_MAKEFILE $makefile, "\n";
+close(OUTPUT_MAKEFILE);
+
+##################################################
+
+
+sub removeDuplicates {
+
+    my %hash = map {$_ => 1} @_;
+
+    @keys = keys %hash;
+
+    return "@keys";
+
+};
+

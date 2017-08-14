@@ -1,0 +1,28 @@
+# Image par image Configuration file for WeightWatcher V1.0
+# EB 12/08/97
+# M.N. added 32 to POLY_OUTFLAGS
+#--------------------------------- Weights ------------------------------------
+
+WEIGHT_NAMES	weight.blank.fits,cosmic.fits,ima.fits # filename(s) of the input WEIGHT map(s)
+
+WEIGHT_MIN	-1e9,-1e9,0		# pixel below those thresholds will be flagged
+WEIGHT_MAX	1e9,0.1,62000		# pixels above those thresholds will be flagged
+WEIGHT_OUTFLAGS	8,16,32			# FLAG values for thresholded pixels
+
+
+#---------------------------------- Flags -------------------------------------
+
+FLAG_NAMES	flag.fits	# filename(s) of the input FLAG map(s)
+
+FLAG_WMASKS	0x0		# bits which will nullify the WEIGHT-map pixels
+FLAG_MASKS	0x07		# bits which will be converted as output FLAGs
+FLAG_OUTFLAGS	1,2,4		# translation of the INPUT_MASKS bits
+
+#---------------------------------- Polygons -------------------------------------
+POLY_NAMES	""		# filename of the regions
+POLY_OUTFLAGS	64
+
+#---------------------------------- Output ------------------------------------
+
+OUTWEIGHT_NAME	weight.fits	# output WEIGHT-map filename 
+OUTFLAG_NAME	flag.fits	# output FLAG-map filename

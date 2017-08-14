@@ -1,0 +1,73 @@
+# Default configuration file for SExtractor V1.2
+# EB 01/06/97
+#
+# sex-config that we use also for EIS (TE)
+
+#-------------------------------- Catalog ------------------------------------
+
+CATALOG_NAME	SEXOUTCAT	# name of the output catalog
+CATALOG_TYPE	FITS_LDAC	# "ASCII_HEAD","ASCII","FITS_1.0" or "FITS_LDAC"
+
+PARAMETERS_NAME	 ${PHOTCONF}/singleastrom_std.param.sex	# name of the file containing catalog contents
+
+#------------------------------- Extraction ----------------------------------
+
+DETECT_TYPE	CCD		# "CCD" or "PHOTO"
+DETECT_MINAREA	3		# minimum number of pixels above threshold
+DETECT_THRESH	1.0		# <sigmas> or <threshold>,<ZP> in mag.arcsec-2
+ANALYSIS_THRESH	1.0		# <sigmas> or <threshold>,<ZP> in mag.arcsec-2
+
+FILTER		Y		# apply filter for detection ("Y" or "N")?
+FILTER_NAME	${DATACONF}/gauss_4.0_7x7.conv	# name of the file containing the filter
+
+DEBLEND_NTHRESH	32		# Number of deblending sub-thresholds
+DEBLEND_MINCONT	0.00005             # Minimum contrast parameter for deblending
+
+CLEAN		Y		# Clean spurious detections (Y or N)?
+CLEAN_PARAM	1.0		# Cleaning efficiency
+
+#------------------------------ Photometry -----------------------------------
+
+PHOT_APERTURES	10,15,20,25,30,53	# MAG_APER aperture diameter(s) in pixels
+PHOT_AUTOPARAMS	2.5, 3.5	# MAG_AUTO parameters: <Kron_fact>,<min_radius>
+
+SATUR_LEVEL	20000.0		# level (in ADUs) at which arises saturation
+
+MAG_ZEROPOINT	25.0		# magnitude zero-point
+MAG_GAMMA	4.0		# gamma of emulsion (for photographic scans)
+GAIN		2.25		# detector gain in e-/ADU.
+PIXEL_SCALE	0.0		# size of pixel in arcsec (0=use FITS WCS info)..1
+
+#------------------------- Star/Galaxy Separation ----------------------------
+
+SEEING_FWHM	1.5		# stellar FWHM in arcsec
+STARNNW_NAME	${DATACONF}/singleastrom.nnw.sex	# Neural-Network_Weight table filename
+
+#------------------------------ Background -----------------------------------
+
+BACK_SIZE	250		# Background mesh: <size> or <width>,<height>
+BACK_FILTERSIZE	10		# Background filter: <size> or <width>,<height>
+
+BACKPHOTO_TYPE	GLOBAL # can be "GLOBAL" or "LOCAL"
+BACKPHOTO_THICK	24		# thickness of the background LOCAL annulus
+
+#------------------------------ Check Image ----------------------------------
+
+CHECKIMAGE_TYPE	NONE		# can be one of "NONE", "BACKGROUND",
+				# "MINIBACKGROUND", "-BACKGROUND", "OBJECTS",
+				# "SEGMENTATION", "APERTURES" or "FILTERED"
+CHECKIMAGE_NAME	SEX_OUT_IMAGE_NAME	# Filename for the check-image
+
+#--------------------- Memory (change with caution!) -------------------------
+
+MEMORY_OBJSTACK	2000		# Size of the buffer containing objects
+MEMORY_PIXSTACK	100000		# number of pixels in stack
+MEMORY_BUFSIZE	512		# number of lines in buffer
+
+#----------------------------- Miscellaneous ---------------------------------
+
+VERBOSE_TYPE	NORMAL		# can be "QUIET", "NORMAL" or "FULL"
+
+#------------------------------- New Stuff -----------------------------------
+
+# Surprise!!

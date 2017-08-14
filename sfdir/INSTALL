@@ -1,0 +1,6 @@
+To Install:
+Run configure with appropriate packages specified, then make.
+
+./configure [options]
+make
+

@@ -1,0 +1,86 @@
+# Background-subtraction configuration file for SExtractor V1.2
+# (*) indicates parameters which can be omitted from this config file.
+# EB 26/10/97
+# EB 28/10/97 added FILTERing, FILTERED, BACKGROUND, MINIBACK and MINIBACK_RMS
+#              check-images.
+# EB 03/11/97 DETECT_IMAGE (obsolete) keyword removed
+# LO 08/11/97 corrected list of check-images according to script
+#             (-BACKGROUND and BACKGROUND was interchanged)
+# EB 20/01/98 Changed CHECKIMAGE_TYPE list and turned FILTER to N
+# MN: changed BACK_FILTERSIZE   3 -> 5  09-07-1998
+# TE: 14/07/00: changed BACK: 64->196 for high resolution SUSI 2 data.
+
+#-------------------------------- Catalog ------------------------------------
+
+CATALOG_NAME	STDOUT		# name of the output catalog
+CATALOG_TYPE	ASCII_HEAD	# "ASCII_HEAD","ASCII","FITS_1.0" or "FITS_LDAC"
+
+PARAMETERS_NAME	${DATACONF}/point_back.param.sex	# name of the file containing catalog contents
+
+#------------------------------- Extraction ----------------------------------
+
+DETECT_TYPE	CCD		# "CCD" or "PHOTO" (*)
+FLAG_IMAGE	flag.fits	# filename for an input FLAG-image
+DETECT_MINAREA	1000		# minimum number of pixels above threshold
+DETECT_THRESH	10000		# <sigmas> or <threshold>,<ZP> in mag.arcsec-2
+ANALYSIS_THRESH	100		# <sigmas> or <threshold>,<ZP> in mag.arcsec-2
+
+FILTER		N		# apply filter for detection ("Y" or "N")?
+FILTER_NAME	${DATACONF}/gauss_4.0_7x7.conv	# name of the file containing the filter
+
+DEBLEND_NTHRESH	32		# Number of deblending sub-thresholds
+DEBLEND_MINCONT	0.005		# Minimum contrast parameter for deblending
+
+CLEAN		N		# Clean spurious detections? (Y or N)?
+CLEAN_PARAM	1.0		# Cleaning efficiency
+
+MASK_TYPE	NONE		# Type of masking applied to detected objects
+				# (NONE, BLANK or CORRECT)
+
+#------------------------------ Photometry -----------------------------------
+
+PHOT_APERTURES	5		# MAG_APER aperture diameter(s) in pixels
+PHOT_AUTOPARAMS	2.5, 3.5	# MAG_AUTO parameters: <Kron_fact>,<min_radius>
+
+SATUR_LEVEL	50000.0		# level (in ADUs) at which arises saturation
+
+MAG_ZEROPOINT	0.0		# magnitude zero-point
+MAG_GAMMA	4.0		# gamma of emulsion (for photographic scans)
+GAIN		0.0		# detector gain in e-/ADU.
+PIXEL_SCALE	1.0		# size of pixel in arcsec (0=use FITS WCS info).
+
+#------------------------- Star/Galaxy Separation ----------------------------
+
+SEEING_FWHM	1.2		# stellar FWHM in arcsec
+STARNNW_NAME	${DATACONF}/point_back.nnw.sex	# Neural-Network_Weight table filename
+
+#------------------------------ Background -----------------------------------
+
+BACK_SIZE	64		# Background mesh: <size> or <width>,<height>
+BACK_FILTERSIZE	5		# Background filter: <size> or <width>,<height>
+
+BACKPHOTO_TYPE	GLOBAL		# can be "GLOBAL" or "LOCAL" (*)
+BACKPHOTO_THICK	24		# thickness of the background LOCAL annulus (*)
+
+#------------------------------ Check Image ----------------------------------
+
+CHECKIMAGE_TYPE	BACKGROUND
+				# can be one of "NONE", "BACKGROUND",
+				# "MINIBACKGROUND", "-BACKGROUND", "OBJECTS",
+				# "-OBJECTS", "SEGMENTATION", "APERTURES",
+				# or "FILTERED" (*)
+CHECKIMAGE_NAME	check.fits	# Filename for the check-image (*)
+
+#--------------------- Memory (change with caution!) -------------------------
+
+MEMORY_OBJSTACK	2000		# number of objects in stack
+MEMORY_PIXSTACK	100000		# number of pixels in stack
+MEMORY_BUFSIZE	256		# number of lines in buffer
+
+#----------------------------- Miscellaneous ---------------------------------
+
+VERBOSE_TYPE	NORMAL		# can be "QUIET", "NORMAL" or "FULL" (*)
+
+#------------------------------- New Stuff -----------------------------------
+
+# Surprise!!

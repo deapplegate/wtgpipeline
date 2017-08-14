@@ -1,0 +1,94 @@
+###############################
+## table of contents ##########
+###############################
+0.) Utilities for working with region files and weight/flag files
+1.) Individual chip masking
+2.) First pass coadd backmasking
+3.) Second pass coadd masking
+
+#NOTE: all files with *reg* or *mask* and many others are included
+#
+#NOTE: There are some non-files that I should note here as well
+# in ~awright/bonnpipeline/adam-badcol_10_3/ there are regions that should be added to the region files for all 10_3 exposures in ccd#9, because there is that one column that is offset from where it should be (the "dragged" column)
+#
+# also, to mask out asteroids use: ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits -green ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -blue ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg &
+
+###############################
+0.) Utilities for working with region files and weight/flag files
+###############################
+## add regions to weight/flag fits files
+adam_fix_regionmasks.sh "start weights/flags over. Use if you remove any regions."
+add_regionmasks.sh "add regions into weights/flags"
+adam_reg2weights-maybe_coadd_catchup.sh "runs these 5 in order: convertRegion2Poly.py transform_ds9_reg_alt.sh clean_empty_regionfiles.sh add_regionmasks.sh. Then has option to redo coadds."
+
+## add regions to other regions or change region properties
+transferMasks.py "APPEARS LIKE: this could be a very useful utility to transfer a mask in one image to other images without having to copy and paste in ds9. Ex. can be used to place stellar halo suppression rings. Just place rings in one image from each rotation, then itll transfer those regions to the other images (Final adjustment with imageflipper?)."
+backup_reg.sh "makes a dir with backups of region files"
+convertRegion2Poly.py "makes regions readable by rest of pipeline. converts `box` regions to `polygon`"
+transform_ds9_reg_alt.sh "makes regions readable by rest of pipeline. changes `polygon` to `POLYGON`"
+clean_empty_regionfiles.sh "makes regions readable by rest of pipeline. deletes region files that are empty"
+adam_reg_phys2wcs.sh "convert from physical coords to wcs"
+adam_reg_wcs2phys.sh "convert from wcs coords to physical"
+transform_ds9_reg.sh "APPEARS LIKE: REPLACED by transform_ds9_reg_alt.sh"
+transform_regions_phys-wcs.sh "uses ciao region format. convert from physical coords to wcs."
+
+## perl scripts dealing with regions
+mkreg.pl "PURPOSE: Make a ds9 region file (circles or ellipses) from an object catalogue. USAGE: mkreg.pl [flags] [options] \$project.cat \$other.cat ..."
+maskImages.pl "Do by-hand masking for lensing band images. This is the last step in all of the following files: adam_do_masking_master.sh do_Subaru_template_masking.sh do_masking.sh instructions.sh"
+mark_badpixel_regions.pl "APPEARS LIKE: like maskImages.pl but uses IRAF to draw lines, mark rows or columns, and draw boxes."
+create_badpixel_mask.sh "APPEARS LIKE: Creates a mask file from an imask txt file (from drawRegions.pl)"
+
+###############################
+1.) Individual chip masking
+###############################
+adam_do_masking_master.sh "My main masking code. Has 3 parts: (1) distributes sets, runs spikefinder, runs CRNitshke, creates weights (2) by-hand masking (3) incorporate regions into weights/flags and consolidate directories"
+maskBadOverscans.py "RUN THIS IF STAR ON OS MAKES OBVIOUS MARK IN IMAGE. Checks the overscan region of an image for electron bleedthrough from an image obj (ie star) near the edge. Creates a mask with the appropriate row eliminated."
+maskAutotracker.py "give it a list of exposures and it'll add a guider shadow mask into the top portion of the image by placing the region directly into the .reg files (see cd /nfs/slac/g/ki/ki05/anja/SUBARU; ds9e 2003-09-25_W-J-V/SCIENCE/SUPA0024303_7OCFS.fits -regions load 2003-09-25_W-J-V/SCIENCE/reg/SUPA0024303_7.reg 2003-09-25_W-J-V/SCIENCE/SUPA0024303_8OCFS.fits -regions load 2003-09-25_W-J-V/SCIENCE/reg/SUPA0024303_8.reg 2003-09-25_W-J-V/SCIENCE/SUPA0024303_9OCFS.fits -regions load 2003-09-25_W-J-V/SCIENCE/reg/SUPA0024303_9.reg &)"
+adam_apply_RADIAL_MASK_para.sh "masks the radial region surrounding the edges of the FOV of the image. Included in adam_do_masking_master.sh (formerly had another name: mv apply_ringmask_para.sh apply_RADIAL_MASK_para.sh)"
+WeightMasker.py "mask out features in the flat fields. Called by preprocessing scripts."
+spikefinder_para.sh "finds saturation spikes, sattelites, and shadow from guider cam. Called by adam_do_masking_master.sh and all of the preprocessing master scripts."
+apply_ringmask_para.sh "REPLACED BY ADAM_APPLY_RADIAL_MASK_PARA.SH! masks the radial region surrounding the edges of the FOV of the image. (formerly had another name: mv apply_ringmask_para.sh apply_RADIAL_MASK_para.sh)"
+do_masking.sh "REPLACED BY ADAM_DO_MASKING_MASTER.SH. Did that same thing, but older."
+do_Subaru_template_masking.sh "REPLACED BY ADAM_DO_MASKING_MASTER.SH. Did that same thing, but older."
+
+
+###############################
+2.) First pass coadd backmasking. Weve made the initial coadd and using the backmask utility to update the individual chip masks to try to catch really bad things that should be masked.
+###############################
+## backmasking of reflections/ghosts
+adam_make_backmask_ims.py "make images that bring out features you want to pick out when backmasking"
+backmask.py "mask out subtle reflections/ghosts by hand in the coadds that will then be transfered back into the SUPA_chip regions"
+
+## stellar halo suppression rings:
+adam_make_autosuppression_ims.py "make images that bring out features you want to pick out when masking stellar halo rings"
+backup_rings.sh "makes backups of stellar halo suppression regions"
+create_rings.py "makes stellar halo suppression regions"
+makeRingMaskFlag.py "deals with stellar halo suppression regions"
+rings.reg "stellar halo suppression region template"
+ringsR.reg "stellar halo suppression region template"
+
+
+###############################
+3.) Second pass coadd masking. Things that we still want to mask out from the catalog, but we dont want to go back and alter the coadd to remove. Some of this could be done BEFORE catalog creation and just included in the coadd.weight.fits and coadd.flag.fits files via weightwatchers. In case we want to keep those objects around and/or we forgot to mask stuff until after catalog creation. Thats where run_lensingcat_masking.py comes in.
+###############################
+
+## masking after catalog creation
+run_lensingcat_masking.py "Applies masks (from (1) detection and lensing coadd.weight.fits and coadd.flag.fits files (2) type #1 edgemask (3) type #2 edgemask (4) generic catch-all mask in ~/data/${cluster}/masks/coadd_${lensing_filter}_good.mask.reg (5) masks at the stellar halo jumps ) to the lensing catalog and then runs compile_masking.py, which is a wrapper around weight watchers. MORE DETAILS BELOW"
+#Lets look at run_lensingcat_masking.py: Youll note that it works with masks in the $cluster/masks directory and produces a file called  "%(clusterdir)s/LENSING_%(detect_filter)s_%(lensing_filter)s_%(mode)s/%(image)s/flagandweightvals.cat". That catalog is presumably merged in to the main catalog in one of Anjas scripts.
+# 	1st: looks for the detection image and lensing image weight and flag files.
+# 	2nd: then looks for the "edgemask", which is an automatic masking of 8 pixels in the x & y directions around all flagged and 0 pixels in the lensing image.
+# 	3rd: It also takes in the region file that masks all of the noisy area around the edge of the image ("%(clusterdir)s/masks/%(lensing_base)s_%(lensing_filter)s_%(image)s.edgemask.reg") and adds that to the mask.
+# 	4th: Next, run_lensingcat_masking.py looks for a region file called "%(clusterdir)s/masks/%(lensing_base)s_%(lensing_filter)s_%(image)s.mask.reg". I assume this is anything that youve masked by hand that you want to exclude from the lensing catalog. For example, large regions of galactic cirrus or things that you didnt notice in previous rounds of masking. I know we sometimes used the ds9 rgb feature where we assigned the median and mean coadds to the r g b channels, to find things that arent really removed in the lensing image.  Then run_lensingcat_masking.py grabs all the flags from the individual exposures and propagates those as masks to the lensing catalog. Ie, if a pixel was bad on an individual exposure, we mark it as bad in the coadd.
+# 	5th: Finally, it adds in the masks at the stellar halo jumps.
+# 	Lastly: run_lensingcat_masking.py calls compile_masking.py, which is a wrapper around weight watchers.  run_lensingcat_masking.py looks like it tries to be smart. It generates flag files for the individual components. If you rerun and certain individual components dont need to be rerun, it skips generating those steps. I think thats because some steps, like the edgemask, are quite expensive.
+compile_masking.py "run_lensingcat_masking.py calls compile_masking.py, which is a wrapper around weight watchers."
+make_edgemask.py "automatic masking of 8 pixels in the x & y directions around all flagged and 0 pixels in the lensing image."
+
+## masking coadd stars
+mask_coadd.sh "if ${subarudir}/${cluster}/masks/coadd.stars.reg doesn't exist, it runs maskstars.sh, if it does, then it adds coadd.stars.reg to the weight/flag files"
+maskstars.sh "create ds9 region files for masks around bright stars. Does this automatically, then you go and fix the masks in ${subarudir}/${cluster}/masks/coadd.stars.reg"
+
+## "arc" mask, which I don't understand and probably don't need
+mask_arc.py "adding arc (2 small patches straddling the center of the image) into weights/flags for MACS2243-09"
+mask_arc.save.py "adding arc (2 small patches straddling the center of the image) into weights/flags for MACS2243-09"
+mask_arc.save2.py "adding arc (2 small patches straddling the center of the image) into weights/flags for MACS2243-09"

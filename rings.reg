@@ -1,0 +1,9 @@
+# # Region file format: DS9 version 4.0
+# # Filename: /a/wain023/g.ki.ki05/anja/SUBARU/2004-07-18_W-J-V/SCIENCE_DOMEFLAT_SET2/SUPA0032868_8OCFS.fits
+global color=green font="helvetica 10 normal" select=1 highlite=1 edit=1 move=1 delete=1 include=1 fixed=0 source
+ circle(565.20264,611.17098,202.03205) # color=red width=2
+ circle(570.34684,588.67818,373.77281) # color=red width=2
+ circle(573.29144,559.23178,736.84446) # color=red width=2
+ circle(573.29144,532.72998,1055.499) # color=red width=2
+ circle(559.00284,479.72648,1418.2524) # color=red width=2
+# line(5332.3253,4949.7992,5713.8514,4929.7189) # line=0 0 color=red width=2

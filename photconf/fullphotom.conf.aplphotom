@@ -1,0 +1,93 @@
+#****** aplphotom.conf ***************************************************
+# 
+#   NAME
+#       aplphotom configuration file
+# 
+#   SYNOPSIS
+# 
+#   FUNCTION
+#       This configuration file allows dynamic configuration of the aplphotom
+#       program. The parameters in this file can also be used as command
+#       line arguments on the program call.
+#       The parameters allowed are the following
+#
+#
+#       - Program screen output:
+#            VERBOSE [DEBUG|NORMAL|NONE] directs the programs verbosity
+#            if VERBOSE=DEBUG the program will output a map of the background
+#            and the corrected image into wo separate fits file in the curr_dir
+#       - General configuration parameters
+#            COEFS        (FARRAY) Sets estimate values for the extinction 
+#                                  coefficients for the individual channels
+#            ZP_ESTIMATES (FARRAY) Sets estimate values for the instrumental 
+#                                  zero-points for the individual channels
+#
+#   INPUTS
+#      None
+# 
+#   RESULTS
+#      None
+# 
+#   RETURNS
+# 
+#   MODIFIED GLOBALS
+# 
+#   NOTES
+#       The photometric calibration process has not been fully implemented
+#       yet. Notably the COEFS, and ZP_ESTIMATES are not solution
+#       values and need to be overwritten by the actual results. They
+#       are, however, good first order estimates needed to initialize
+#       the derivation process.
+#
+#	L.F.Olsen - 22-01-98
+#		Changed to have the I-zeropoint estimate in the first column
+#		30.0->30.2
+# 
+#   BUGS
+# 
+#   AUTHOR
+#       E.R. Deul - dd 02-07-1996
+# 
+#******************************************************************************#
+#
+VERBOSE = VERBOSE
+#
+# Dec 15, 1997 rw.
+COEFS        =   0.27 0.14  0.07
+ZP_ESTIMATES = -30.2 -30.1 -30.2
+ZP_ERRORS = 1.3 1.3 1.3
+#
+#COEFS        =   0.03  0.08  0.12
+#ZP_ESTIMATES = -29.5 -21.6 -19.8
+#ZP_ERRORS = 0.3 0.3 0.3
+#
+AIRMASS=AIRMASS
+#
+#PHOT=FLUX_APER
+#PHOTERR=FLUXERR_APER
+#MAG=MAG_APER
+#MAGERR=MAGERR_APER
+#MAGSYSERR=MAGSYSERR_APER
+#
+#PHOT=FLUX_ISO
+#PHOTERR=FLUXERR_ISO
+#MAG=MAG_ISO
+#MAGERR=MAGERR_ISO
+#MAGSYSERR=MAGSYSERR_ISO
+#
+#PHOT=FLUX_ISOCOR
+#PHOTERR=FLUXERR_ISOCOR
+#MAG=MAG_ISOCOR
+#MAGERR=MAGERR_ISOCOR
+#MAGSYSERR=MAGSYSERR_ISOCOR
+#
+PHOT=FLUX_AUTO
+PHOTERR=FLUXERR_AUTO
+MAG=MAG_AUTO
+MAGERR=MAGERR_AUTO
+MAGSYSERR=MAGSYSERR_AUTO
+#
+EXPTIME_KEYWORD=EXPTIME
+#
+EXPTIME_UNIT=1.0
+

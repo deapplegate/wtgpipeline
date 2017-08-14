@@ -1,0 +1,53 @@
+# configuration file for CFH12K images
+#
+
+INSTRUMENT=CFH12K
+export INSTRUMENT
+
+# Number of chips:
+NCHIPS=12
+export NCHIPS
+
+PREFIX=""
+export PREFIX
+
+# The chip geometry:
+# The first two numbers give the chips in each row/column,
+# the second two numbers the chip dimensions.
+CHIPGEOMETRY="6 2 2038 4086"
+
+# number of frames we can work with
+NFRAMES=20
+
+# load directories for programs
+. progs.ini
+
+# the latitude of the observatory (La Silla)
+# (needed for calculating the airmass)
+OBSLAT=19.826666667
+
+# reference time:
+# this is 12:00 plus the number of ours *west*
+# of Grennwich
+REFERENCETIME=22:00:00
+
+# statistics sections (for mode calculations etc.)
+# the first two values are the centers, the second two
+# the extension (in pixels); is the same for all chips
+
+STATSALLIM=([1]=1000 [2]=2000 [3]=1000 [4]=1000)
+
+STATSXMIN=$(( ${STATSALLIM[1]} - ${STATSALLIM[3]} / 2 ))
+STATSXMAX=$(( ${STATSALLIM[1]} + ${STATSALLIM[3]} / 2 ))
+STATSYMIN=$(( ${STATSALLIM[2]} - ${STATSALLIM[4]} / 2 ))
+STATSYMAX=$(( ${STATSALLIM[2]} + ${STATSALLIM[4]} / 2 ))
+
+# pixel scale in arcsec
+PIXSCALE=0.206
+
+# detector gain
+GAIN=2.10
+
+#
+# the following part is created by setup_CFH12K.sh. Do
+# not change manually!!

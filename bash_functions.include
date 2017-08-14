@@ -1,0 +1,183 @@
+# this file contains bash script functions
+# that can be included in scripts with
+# '. bash_functions.include'
+# The functions need program definitions from
+# the Ldacpipeline's progs.ini file which is NOT
+# included in this file.
+
+#
+# 20.04.2005:
+# I corrected a bug in NEXTDUMMY and added the
+# function LASTDUMMY that returns the number
+# of the last DUMMY keyword.
+#
+# 16.01.2006:
+# A non-existing key (tested with dfits) gives now
+# the 'value' KEY_N/A instead of an empty string.
+# Hence, tests for non-existing keywords have been
+# changed accordingly.
+#
+# 20.06.2006:
+# I included sanity checks in the NEXTDUMMY and LASTDUMMY
+# functions. If no DUMMY keyword was present both functions
+# returned wrong results.
+#
+# 06.11.2006:
+# A new, special function for adding COMMENT and HISTORY
+# keywords was added.
+#
+# 16.03.2007:
+# I delete the tenmporary file commhis_$$.txt at the
+# end of the function 'writecommhis'
+#
+# 19.10.2007:
+# I made the treatment of the command line argument to
+# function 'value' more robust. It is quotet when being assigned
+# to a variable and hence treating spaces in it correctly.
+
+# function value ensures that numeric FITS
+# cards (argument 1) have a length of 20.
+#
+# The function changes the global variable
+# 'VALUE'
+function value {
+  local i
+  local j
+  local BLANK
+  local LEN
+
+  i="$1"
+  LEN=$(( 20 - ${#i} ))
+
+  BLANK=""
+  j=1
+  while [ "${j}" -le "${LEN}" ]
+  do
+    BLANK="${BLANK} "
+    j=$(( $j + 1 ))
+  done
+
+  VALUE="${BLANK}${i}"
+}
+
+# function fitskey ensures that FITS cards
+# (argument 1) have a length of 8.
+#
+# The function changes the global variable
+# 'FITSKEY'
+function fitskey {
+  local i
+  local j
+  local BLANK
+  local LEN
+
+  i=$1
+  LEN=$(( 8 - ${#i} ))
+
+  BLANK=""
+  j=1
+  while [ "${j}" -le "${LEN}" ]
+  do
+    BLANK="${BLANK} "
+    j=$(( $j + 1 ))
+  done
+
+  FITSKEY="${i}${BLANK}"
+}
+
+# the function nextdummy searches the next
+# free dummy keyword in a FITS file (argument 1).
+# The number of the next free DUMMY keyword is
+# returned in the NEXTDUMMY variable.
+# In the case that NO more keywords are available
+# '-1' is returned. 
+#
+# The function changes the global variable 'NEXTDUMMY'.
+function nextdummy {
+  NEXTDUMMY=`${P_DFITS} $1 | grep DUMMY | ${P_GAWK} \
+  'BEGIN {nrmin=1000+0} {if(index($1,"DUMMY")==1) {nr=substr($1,6)+0; if(nr<nrmin) {nrmin=nr}}} END {if(NR>0) {print nrmin}}'`
+}
+
+# the function lastdummy searches the last
+# dummy keyword in a FITS file (argument 1).
+# The number of the last free DUMMY keyword is
+# returned in the LASTDUMMY variable.
+# In the case that NO DUMMY keywords are in the
+# header, '0' is returned. This function is intended
+# to allow programs to convert an existing keyword
+# into a DUMMY. 
+#
+# The function changes the global variable 'LASTDUMMY'.
+function lastdummy {
+  LASTDUMMY=`${P_DFITS} $1 | grep DUMMY | ${P_GAWK} \
+  'BEGIN {nrmax=0} {if(index($1,"DUMMY")==1) {nr=substr($1,6)+0; if(nr>nrmax) {nrmax=nr}}} END {if(NR>0) {print nrmax}}'`
+}
+
+# the function writes a FITS COMMENT or HISTORY keyword
+# to a FITS file (argument 1). The second argument is
+# COMMENT/HOSTORY and prepresents the keyword to be written.
+# The comment/history string itself is given as argument 3. 
+# A DUMMY keyword is replaced for the comment.
+# If no dummy keyword is available, NO action is
+# performed.
+# If the comment sytring is longer than 69 characters
+# it is automatically split in lines with a length
+# of 69 characters.
+function writecommhis {
+  # sanity check:
+  if [ "$2" = "COMMENT" ] || [ "$2" = "HISTORY" ]; then	
+    # split up the comment in lines of length 69 characters
+    echo $3 | ${P_GAWK} 'BEGIN {len=69} 
+              {if((n=length($1)/len)-(int(length($1)/len))>0.001) { 
+                 n=n+1 
+               }
+               pos=1; for(i=1; i<=n; i++) { 
+                 print substr($1,pos,len); pos+=len}
+               }' > commhis_$$.txt
+ 
+    while read string
+    do	
+      nextdummy $1 
+      if [ "${NEXTDUMMY}_A" != "_A" ] && [ ${NEXTDUMMY} -gt -1 ]; then
+        ${P_REPLACEKEY} $1 "COMMENT ${string}" DUMMY${NEXTDUMMY}
+        touch $1
+      else
+        echo "No DUMMY keyword to write COMMENT to $1"
+      fi
+    done < commhis_$$.txt
+    test -f commhis_$$.txt && rm commhis_$$.txt 	
+  else
+    echo "Second argument to writecommhis must be COMMENT or HISTORY."
+  fi	
+}
+
+# the function writes a FITS keyword (argument 2)
+# to a FITS file (argument 1). The value is given
+# as argument 3. If the keyowrd is present in the
+# header it is either replaced by the new value or no action
+# is performed. This depends on the 4th argument (setting it
+# to 'REPLACE' the keyword is overwritten). If it
+# does not yet exist, a DUMMY keyword is replaced.
+# If no dummy keyword is available, NO action is
+# performed.
+function writekey {
+   local TEST
+
+   nextdummy $1 
+   TEST=`${P_DFITS} $1 | ${P_FITSORT} -d $2 | ${P_GAWK} '{print $2}'`
+   fitskey $2
+   if [ "${TEST}" = "KEY_N/A" ]; then
+       if [ "${NEXTDUMMY}_A" != "_A" ] && [ ${NEXTDUMMY} -gt -1 ]; then
+         ${P_REPLACEKEY} $1 "${FITSKEY}= $3" DUMMY${NEXTDUMMY}
+	 touch $1
+       else
+	 echo "No DUMMY keyword to write $2 to $1"
+       fi
+   else
+       if [ "$4" = "REPLACE" ]; then	
+         ${P_REPLACEKEY} $1 "${FITSKEY}= $3" $2
+         touch $1
+       fi
+   fi
+}
+

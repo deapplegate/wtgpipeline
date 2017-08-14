@@ -1,0 +1,46 @@
+#****** aplastrom.conf ***************************************************
+# 
+#   NAME
+#       make_distort configuration file
+# 
+#   SYNOPSIS
+# 
+#   FUNCTION
+#       This configuration file allows dynamic configuration of the make_disort
+#       program. The parameters in this file can also be used as command
+#       line arguments on the program call.
+#       The parameters allowed are the following
+#
+#
+#       - Program screen output:
+#            VERBOSE [DEBUG|NORMAL|NONE] directs the programs verbosity
+#                              if VERBOSE=DEBUG the program will output a 
+#                              lot of debugging information.
+#            CRVAL1 (TEXT)     The name of the FITS image header keyword
+#                              containing the RA in degrees
+#            CRVAL2 (TEXT)     The name of the FITS image header keyword
+#                              containing the DEC in degrees
+#
+#   INPUTS
+#      None
+# 
+#   RESULTS
+#      None
+# 
+#   RETURNS
+# 
+#   MODIFIED GLOBALS
+# 
+#   NOTES
+# 
+#   BUGS
+# 
+#   AUTHOR
+#       E.R. Deul    - dd 20-03-1997
+# 
+#******************************************************************************#
+#
+CRVAL1=CRVAL1
+CRVAL2=CRVAL2
+VERBOSE=DEBUG
+#

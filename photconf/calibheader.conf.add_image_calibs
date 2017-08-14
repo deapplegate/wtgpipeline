@@ -1,0 +1,111 @@
+#
+# This is the configuration file for theadd_image_calibsblend program
+# Each line following contains a parameter that controls the actions of
+# the program
+#
+# 111197 LFO. Changed DEL_INPUT NO -> YES
+# 050398 TE. Changed DEL_INPUT NO -> YES
+#
+# Program screen output:
+#    VERBOSE [DEBUG|VERBOSE|NORMAL|NONE] directs the programs verbosity
+#    if VERBOSE=DEBUG the program will output a map of the background
+#    and the corrected image into wo separate fits file in the curr_dir
+#
+VERBOSE = NORMAL 
+#
+#    To delete the input image after the information has been added one
+#    can use the DEL_INPUT parameter. The default value of this boolean
+#    operator is NO. Setting it to YES means add_image_calibs will delete
+#    the input image.
+#
+DEL_INPUT = NO
+#
+#    The relative zeropoints as derived by the RELPHOTOM program are in fact
+#    magnitude offsets between the frames of a catalog. One can specify
+#    an alternative name for the KEYWORD in the RELPHOTOM table that stores
+#    this information, although RELPHOTOM sets it by default to PARAMS
+#
+#
+# MAG_OFFSET = PARAMS
+#
+#    Within the list of MAG_OFFSET zeropoints there is one parameters that
+#    one can define as the parameter with which the images need to be scaled.
+#    RELPHOTOM can be told to perform solutions for more than one parameter
+#    here one can choose the best. The MAG_SCALE text parameter allows you
+#    to specify the name of that best scaling parameter, and if it is part
+#    of a vector, one can also specify the index. The default value
+#    is set to MAG_APER(1), the first element of the apertures vector.
+#
+# MAG_SCALE = MAG_APER(1)
+#MAG_SCALE = MAG_APER(2)
+MAG_SCALE = MAG_AUTO
+#
+#    The name of FITS header keyword to be added to the output FITS images
+#    which contains the flux scaling can be given any name. The default
+#    value is set to FLXSCALE.
+#
+# FLXSCALE = FLXSCALE
+#
+#    In order to derive a weighting value for coaddition, one needs an
+#    input measure for the relative `reliability' of each frame. This can
+#    be retrieved from the input catalog FIELDS table from the keyword
+#    given as the BACKGROUND_SIG parameter. It is set to the default
+#    string created by SExtractor: SEXBKDEV
+#
+# BACKGROUND_SIG = SEXBKDEV
+#
+#    The name of the FITS header keyword to be added to the output FITS images
+#    which contains the weight scaling can be given any name, The default
+#    value is set to WGTSCALE
+#
+# WGTSCALE = WGTSCALE
+#
+#    The FITS keyword where the name of the FITS file is stored (in tha
+#    catalogs can be given by the FITSFILE parameter. This parameter is
+#    is a TEXT type, so one can provide here any KEYWORD string. The
+#    keyword string is originally set by SExtractor.
+#         
+FITSFILE = FITSFILE
+#
+#    To make FITS file naming more flexible, the name stored in the FITSFILE
+#    catalog FIELDS table will have its extension stripped if it matches
+#    the ORIG_EXT string. Thus a name like: filename.fits will yield the
+#    string filename if ORIG_EXT=.fits.
+#    For the purpose of input filename the -o provided extension is added to
+#    the stripped filename. Default -o value is .bck.fits, thus the name of 
+#    the input FITS file will be filename.bck.fits
+#    For the purpose of output filename the -e provided extension is added to
+#    the stripped filename. Default -e value is .new.fits, thus the name of 
+#    the input FITS file will be filename.new.fits
+#
+ORIG_EXT = .fits 
+#
+EXPTIME_KEYWORD=EXPTIME
+#
+EXPTIME_UNIT=1.0
+#
+OUT_NAME=EISCRV1
+IN_COLUMN=CRVAL1
+IN_TABLE=FIELDS
+#
+OUT_NAME=EISCRV2
+IN_COLUMN=CRVAL2
+IN_TABLE=FIELDS
+#
+#OUT_NAME=EISOFF1
+#IN_COLUMN=RA_OFF
+#IN_TABLE=DISTORTIONS
+#
+#OUT_NAME=EISOFF2
+#IN_COLUMN=DEC_OFF
+#IN_TABLE=DISTORTIONS
+#
+#OUT_NAME=EISFWHM
+#IN_COLUMN=SEXSFWHM
+#IN_TABLE=FIELDS
+#
+#OUT_NAME=EISBACK
+#IN_COLUMN=SEXBKGND
+#IN_TABLE=FIELDS
+
+

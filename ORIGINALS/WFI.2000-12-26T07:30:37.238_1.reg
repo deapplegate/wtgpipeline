@@ -1,0 +1,4 @@
+# # Region file format: DS9 version 3.0
+# # Filename: /aibn85_d/terben/TESTDATA_MASTER/set_1/WFI.2000-12-26T07:30:37.238_1OFCSF.fits
+# global color=green font="helvetica 10 normal" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source
+ POLYGON(-6,3134,2065,2967,2051,2951,-8,3115)

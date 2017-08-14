@@ -1,0 +1,4 @@
+# # Region file format: DS9 version 3.0
+# # Filename: 486162o_9OFCS.fits
+# global color=green font="helvetica 10 normal" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source
+ POLYGON(1859,4091,2066,4094,2070,3910,1960,3926,1895,3990,1861,4047)

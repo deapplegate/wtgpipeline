@@ -1,0 +1,14 @@
+#!/bin/bash
+################
+# Code for the BonnLogger.py system
+#
+# To be sourced at the start of a script to enable blocking - logging
+#################
+
+#$Id: log_start,v 1.2 2008-07-09 18:22:59 dapple Exp $
+
+echo "log_start"
+bonn_logger_id=$(./BonnLogger.py log $0 $@)
+if [ $? -ne 0 ]; then
+    exit 1
+fi

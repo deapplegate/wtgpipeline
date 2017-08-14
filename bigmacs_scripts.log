@@ -1,0 +1,28 @@
+# Our zero-point calibrations are done using BIGMACS in the script called adam_do_photometry.sh
+
+## explanation of adam_do_photometry.sh:
+This is like do_photometry.sh, but it runs the bigmacs version of the SLR (currently the absolute calibration comes from SDSS by way of the -s option in bigmacs, this will need to be changed to 2MASS for non-SDSS clusters).
+      It also has these features:
+      1.) It uses the *_APER1-* keyword (second component of the *_APER-* vector in the ldac catalogs)
+      2.) It writes the ZP and ZP_ERR into image headers (all coadd.fits files) in addition to applying them to the catalogs                                                                                                            
+      3.) It doesn't utilize the photometry_db at all and ignores the lephare_zp entirely
+
+## example of how to run adam_do_photometry.sh:
+export cluster=MACS1226+21; export ending="OCFI" ;export INSTRUMENT=SUBARU ;export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/
+export detect_filter=W-C-RC;export lensing_filter=W-C-RC
+./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY
+
+## other tools used by adam_do_photometry.sh:
+adam_bigmacs-apply_zps.py
+adam_bigmacs-apply_zps_old.py
+adam_bigmacs-cat_array_splitter.py
+adam_bigmacs-make_input_columns.py
+
+## I got bigmacs like this:
+svn checkout http://big-macs-calibrate.googlecode.com/svn/ big-macs-calibrate
+
+## If an example would help, you can look at my version here:
+export BIGMACS=/nfs/slac/g/ki/ki01/awright/InstallingSoftware_extension/big-macs-calibrate
+
+## Or for comparison, they could look at my output here:
+/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/BIGMACS_output (parent directory has relevant stuff too)

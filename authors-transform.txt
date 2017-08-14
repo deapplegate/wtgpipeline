@@ -1,0 +1,6 @@
+(no author) = J Doe <(jdoe@unknown.net)>
+anja = Anja von der Linden <anja.vonderlinden@stonybrook.edu>
+awright = Adam Wright <awright3@stanford.edu>
+dapple = Douglas Applegate <dapple@slac.stanford.edu
+mallen = Mark Allen <mallen@slac.stanford.edu>
+pkelly = Pat Kelly <pkelly@astro.berkeley.edu>

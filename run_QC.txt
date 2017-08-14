@@ -1,0 +1,8 @@
+#This document tracks the status of Quality Control tasks for a Subaru run.
+
+#$Id: run_QC.txt,v 1.3 2008-07-10 00:25:04 dapple Exp $
+
+#Task 	       OriginatorId (date)	    	    QCCheckId (date)
+
+1.) Reject bad superflat chips
+      Checker should inspect random samples
