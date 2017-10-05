@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#adam-changed# %:s/new_table/BinTableHDU.from_columns/g
 ###############
 # @file ldac.py
 # @author Douglas Applegate
@@ -69,14 +70,17 @@ class LDACCat(object):
 
     def extractColumn(self, key):
 
-        for col in self.hdu.columns.data:
+	#adam-old# for col in self.hdu.columns.data:
+	#adam-old# for col in self.hdu.columns:
+        for col in self.hdu.data.columns:
             if col.name == key:
                 return col
+		#adam-maybe# return col.array
 
         return None
 
-    def saveas(self, file, clobber=False):
-        self.hdu.writeto(file, clobber = clobber)
+    def saveas(self, file, overwrite=False):
+        self.hdu.writeto(file, overwrite = overwrite)
         self.sourcefile = file
 
     def append(self, othercat):
@@ -168,6 +172,24 @@ def matchCommonSubsets(cat1, cat2, cat1id='SeqNr', cat2id = 'SeqNr'):
     cat2matched = cat2.filter(cat2keep)
     return cat1matched, cat2matched
 
+
+def joincats(cat1, cat2, cat1id='SeqNr', cat2id = 'SeqNr'):
+
+    cat1order = {}
+    for i, x in enumerate(cat1[cat1id]):
+        cat1order[x] = i
+        
+    
+    cat2add_to_cat1 = []
+    for x in cat2[cat2id]:
+        if x in cat1order:
+            cat2add_to_cat1.append(False)
+        else:
+            cat2add_to_cat1.append(True)
+
+    cat2keep = numpy.array(cat2add_to_cat1)
+    cat2new = cat2.filter(cat2keep)
+    return cat1.append(cat2new)
 
 
 
