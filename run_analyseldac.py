@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, pyfits, bashreader, ldac, math, os, re, numpy
+import sys, astropy.io.fits as pyfits, bashreader, ldac, math, os, re, numpy
 
 inputfile = sys.argv[1]
 outputfile = sys.argv[2]
@@ -46,7 +46,7 @@ for i in xrange(npara):
     outfile = '%s_%d.out.cat' % (root,i)
 
     hdulist = pyfits.HDUList([pyfits.PrimaryHDU(), hfindpeaks, cat.hdu, fields])
-    hdulist.writeto(infile, clobber = True)
+    hdulist.writeto(infile, overwrite = True)
 
     child = os.fork()
     if child:
@@ -78,8 +78,8 @@ for i in xrange(npara):
 
 nrows = reduce(lambda x,y: x+len(y), objects, 0)
 
-newobjecthdu = pyfits.new_table(objects[0].hdu.columns, nrows=nrows)
-newobjecthdu.header.update('EXTNAME', 'OBJECTS')
+newobjecthdu = pyfits.BinTableHDU.from_columns(objects[0].hdu.columns, nrows=nrows)
+newobjecthdu.header['EXTNAME']= 'OBJECTS'
 index = len(objects[0])
 for objs in objects[1:]:
     endpoint = index + len(objs)
@@ -91,5 +91,5 @@ otherhdus = filter(lambda x: x.header['EXTNAME'] != 'OBJECTS', cats[0][1:])
 allhdus = [pyfits.PrimaryHDU(), newobjecthdu]
 allhdus.extend(otherhdus)
 hdulist = pyfits.HDUList(allhdus)
-hdulist.writeto(outputfile, clobber = True)
+hdulist.writeto(outputfile, overwrite = True)
     

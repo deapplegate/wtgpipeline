@@ -75,7 +75,7 @@ for chip in [1,2,3,4,5,7,8,9,10]:
     image = image_root + '.fits'
     image_resam = image_root + '.' + cluster + '_' + supa + '.resamp.fits'
 
-    import pyfits, commands
+    import astropy.io.fits as pyfits, commands
 
     crpix1 = float(commands.getoutput('gethead ' + image + ' CRPIX1'))
     crpix2 = float(commands.getoutput('gethead ' + image + ' CRPIX2'))
@@ -89,7 +89,7 @@ for chip in [1,2,3,4,5,7,8,9,10]:
     run_sextract(image_resam,psf_fwhm)
 
     
-    import pyfits
+    import astropy.io.fits as pyfits
     p_resam = pyfits.open('/tmp/' + image_resam.split('/')[-1] + '.patcat')[2]
 
     print 'making KDTrees'

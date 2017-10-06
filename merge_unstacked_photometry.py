@@ -4,7 +4,7 @@
 #   and relative zeropoints, merge into one photometric catalog
 ######################
 
-import re, unittest, numpy, pyfits, ldac, sys, math
+import re, unittest, numpy, astropy.io.fits as pyfits, ldac, sys, math
 from optparse import OptionParser
 
 ######################
@@ -290,7 +290,7 @@ def combineCats(catlist, saturation, instrum=None, mastercat=None):
                                           format='%dE' % nelements, 
                                           array=err))
 
-    return ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols), 
+    return ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols), 
                                          header=mastercat.hdu.header))
 
 
@@ -760,7 +760,7 @@ class TestComponents(unittest.TestCase):
                                     format = 'E', 
                                     array = numpy.ones(30)) \
                           for k in keys]
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
         extractedCol = _extractColumn(cat, 'BLANK1')
         self.assertTrue((extractedCol.array == cols[2].array).all())
@@ -803,7 +803,7 @@ class TestComponents(unittest.TestCase):
 
 
         
-        cats = [ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(mastercols)))]
+        cats = [ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(mastercols)))]
 
         for i in xrange(5):
             cols = [pyfits.Column(name = k, 
@@ -823,7 +823,7 @@ class TestComponents(unittest.TestCase):
                                       array = numpy.ones(30)))
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
         keys = normkeys[2:] + zerokeys
         keys.append('IMAFLAGS_ISO')
@@ -869,7 +869,7 @@ class TestComponents(unittest.TestCase):
                                       array = numpy.ones(30)))
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
 
         keys = normkeys + zerokeys + doublekeys
@@ -907,7 +907,7 @@ class TestComponents(unittest.TestCase):
                                       array = numpy.ones(30)))
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
 
         keys = zerokeys
@@ -969,7 +969,7 @@ class TestComponents(unittest.TestCase):
 
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
 
         keys = zerokeys
@@ -1018,7 +1018,7 @@ class TestComponents(unittest.TestCase):
                                       array = numpy.ones(30)))
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
 
         keys = zerokeys
@@ -1055,7 +1055,7 @@ class TestComponents(unittest.TestCase):
                                       array = numpy.ones(30)))
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
         
         mastercols = []
@@ -1065,7 +1065,7 @@ class TestComponents(unittest.TestCase):
         mastercols.append(pyfits.Column(name = 'MAG_APER',
                                         format = 'E',
                                         array = numpy.ones(30)))
-        mastercat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(mastercols)))
+        mastercat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(mastercols)))
 
 
         keys = ['MAG_APER']
@@ -1154,7 +1154,7 @@ def main(args = sys.argv):
     else:
         hdus.extend(_transferOtherHDUs(catfiles[0]))
     hdulist = pyfits.HDUList(hdus)
-    hdulist.writeto(options.outfile, clobber=True)
+    hdulist.writeto(options.outfile, overwrite=True)
 
     
 

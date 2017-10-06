@@ -26,7 +26,7 @@ def calc_stats(image_small, flag_small, poly_file):
         out_flag_file = '/tmp/flag_file.fits'
         select_background(flag_small,poly_file,out_flag_file)
         
-        import pyfits 
+        import astropy.io.fits as pyfits 
         
         rawim = pyfits.open(out_flag_file)
         flag = -1 * (rawim[0].data - 1)

@@ -3,7 +3,7 @@
 #Piece together catalogs from a single filter, but multiple configuration
 ##########################
 
-import sys, pyfits, ldac, os, shutil, re
+import sys, astropy.io.fits as pyfits, ldac, os, shutil, re
 
 
 ########################
@@ -157,14 +157,14 @@ for cat in cats:
         cols.append(_extractColumn(cat, magerr_key))
 
 
-objects = pyfits.new_table(pyfits.ColDefs(cols))
-objects.header.update('EXTNAME', 'OBJECTS')
+objects = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+objects.header['EXTNAME']= 'OBJECTS'
 
 hdus = [pyfits.PrimaryHDU(), objects]
 hdus.extend(_transferOtherHDUs(inputcatfiles[0]))
 
 hdulist = pyfits.HDUList(hdus)
-hdulist.writeto(outfile, clobber=True)
+hdulist.writeto(outfile, overwrite=True)
 
 
     

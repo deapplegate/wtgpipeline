@@ -6,7 +6,7 @@
 import datamanager as md
 
 import os, unittest, tempfile, shutil, datetime, time, pwd, inspect, getpass
-import pyfits, numpy as np
+import astropy.io.fits as pyfits, numpy as np
 import ldac, pdzfile_utils as pdzutils
 
 ##########################
@@ -21,23 +21,23 @@ class TestInterface(unittest.TestCase):
         self.cat1file= '%s/cat1.cat' % self.workdir
         self.cat2file = '%s/cat2.cat' % self.workdir
         
-        self.cat1 = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = 'SeqNr', format='K', array = np.arange(15))])))
+        self.cat1 = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = 'SeqNr', format='K', array = np.arange(15))])))
         self.cat1.saveas(self.cat1file)
         
-        self.cat2 = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = 'SeqNr', format='K', array = np.arange(15))])))
-        self.cat2.hdu.header.update('EXTNAME', 'STDTAB')
+        self.cat2 = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = 'SeqNr', format='K', array = np.arange(15))])))
+        self.cat2.hdu.header['EXTNAME']= 'STDTAB'
         self.cat2.saveas(self.cat2file)
 
         self.pdzfile = '%s/pdz.cat' % self.workdir
-        pdzcat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = 'SeqNr',
+        pdzcat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = 'SeqNr',
                                                                              format = 'K',
                                                                              array = np.arange(15)),
                                                pyfits.Column(name = 'pdz',
                                                              format = '25E',
                                                              array = np.ones((15, 25)))])))
-        pdzcat.hdu.header.update('MINPDZ'  , 0 )
-        pdzcat.hdu.header.update('MAXPDZ'  , 25)
-        pdzcat.hdu.header.update('PDZSTEP' , 1 )
+        pdzcat.hdu.header['MINPDZ'  ]= 0 
+        pdzcat.hdu.header['MAXPDZ'  ]= 25
+        pdzcat.hdu.header['PDZSTEP' ]= 1 
 
         pdzcat.saveas(self.pdzfile)
 

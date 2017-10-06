@@ -173,7 +173,7 @@ def updatePhotInfo(catfile, table = 'PHOTINFO', **keywords):
         cols.append(pyfits.Column(name = key, format = findPyfitsType(value), array = [value]))
 
     photinfo = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
-    photinfo.header.update('EXTNAME', table)
+    photinfo.header['EXTNAME']= table
 
     hdulist = pyfits.open(catfile)
     newhdulist = [pyfits.PrimaryHDU(), photinfo]
@@ -184,7 +184,7 @@ def updatePhotInfo(catfile, table = 'PHOTINFO', **keywords):
         except KeyError:
             pass
 
-    pyfits.HDUList(newhdulist).writeto(catfile, clobber='True')
+    pyfits.HDUList(newhdulist).writeto(catfile, overwrite='True')
             
 
 #######################
@@ -342,7 +342,7 @@ def extractObjectCats(detectImage, detectWeight,
 
     hdulist['OBJECTS'] = data
 
-    hdulist.writeto(output, clobber=True)
+    hdulist.writeto(output, overwrite=True)
 
     os.remove('%s0' % output)
     os.remove('%s.noobjs.fits' % photbase)
@@ -661,10 +661,10 @@ class TestExtract(unittest.TestCase):
             image[middle[0]-deltaObj:middle[0]+deltaObj, 
                   middle[1]-deltaObj:middle[1]+deltaObj] = 30
             hdu = pyfits.PrimaryHDU(image)
-            hdu.header.update('gain', 150.)
-            hdu.header.update('PIXSCALE', self.pixscale)
-            hdu.header.update('CD1_1', self.pixscale / 3600 )
-            hdu.header.update('CD2_2', self.pixscale / 3600 )
+            hdu.header['gain']= 150.
+            hdu.header['PIXSCALE']= self.pixscale
+            hdu.header['CD1_1']= self.pixscale / 3600 
+            hdu.header['CD2_2']= self.pixscale / 3600 
             hdu.writeto(self.detectImageFile)
         
         self.detectWeightFile = 'eoc_test_detect.weight.fits'
@@ -680,10 +680,10 @@ class TestExtract(unittest.TestCase):
             image[middle[0]-deltaObj:middle[0]+deltaObj, 
                   middle[1]-deltaObj:middle[1]+deltaObj] = 2            
             hdu = pyfits.PrimaryHDU(image)
-            hdu.header.update('gain', self.gain)
-            hdu.header.update('PIXSCALE', self.pixscale)
-            hdu.header.update('CD1_1', self.pixscale / 3600 )
-            hdu.header.update('CD2_2', self.pixscale / 3600 )
+            hdu.header['gain']= self.gain
+            hdu.header['PIXSCALE']= self.pixscale
+            hdu.header['CD1_1']= self.pixscale / 3600 
+            hdu.header['CD2_2']= self.pixscale / 3600 
             hdu.writeto(self.photImageFile)
 
         self.photWeightFile = 'eoc_test_phot.weight.fits'
@@ -725,8 +725,8 @@ class TestExtract(unittest.TestCase):
             hdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = 'ISOAREA_DETECT',
                                                                  format = 'E',
                                                                  array = area)]))
-            hdu.header.update('EXTNAME', 'OBJECTS')
-            hdu.writeto(self.areaCat, clobber = True)
+            hdu.header['EXTNAME']= 'OBJECTS'
+            hdu.writeto(self.areaCat, overwrite = True)
  
 
 
@@ -926,7 +926,7 @@ class TestExtract(unittest.TestCase):
         inputImage = .75*numpy.random.standard_normal(self.size)
         header = pyfits.getheader(self.photImageFile)
         hdu = pyfits.PrimaryHDU(inputImage, header)
-        hdu.writeto(self.photImageFile, clobber=True)
+        hdu.writeto(self.photImageFile, overwrite=True)
         
 
         extractObjectCats(detectImage = self.detectImageFile,
@@ -1422,10 +1422,10 @@ class TestUpdatePhotInfo(unittest.TestCase):
                                    array = fluxerr)]
 
             self.objects = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
-            self.objects.header.update('EXTNAME', 'OBJECTS')
+            self.objects.header['EXTNAME']= 'OBJECTS'
 
             self.fields = pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name='Fake', format = 'E', array = numpy.ones(2))]))
-            self.fields.header.update('EXTNAME', 'FIELDS')
+            self.fields.header['EXTNAME']= 'FIELDS'
 
             hdulist = pyfits.HDUList([pyfits.PrimaryHDU(), self.objects, self.fields])
             hdulist.writeto(self.cat)
@@ -1502,10 +1502,10 @@ class TestUpdatePhotInfo(unittest.TestCase):
         cols = [pyfits.Column('rms', format='E', array = [.25]),
                     pyfits.Column('other', format='20A', array = ['stuff'])]
         photinfo = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
-        photinfo.header.update('EXTNAME', 'PHOTINFO')
+        photinfo.header['EXTNAME']= 'PHOTINFO'
 
         hdus = [pyfits.PrimaryHDU(), self.objects, self.fields, photinfo]
-        pyfits.HDUList(hdus).writeto(self.cat, clobber=True)
+        pyfits.HDUList(hdus).writeto(self.cat, overwrite=True)
 
         updatePhotInfo(self.cat, rms = .15, source='calculated')
 

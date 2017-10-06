@@ -45,7 +45,7 @@ def tree(length):
                 cols.append(pyfits.Column(name=filter,format=column.format,array=hdulist['OBJECTS'].data.field(filter)[0:length]))
 
     print cols
-    tbhdu=pyfits.new_table(pyfits.ColDefs(cols))
+    tbhdu=pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
 
     import scipy
 

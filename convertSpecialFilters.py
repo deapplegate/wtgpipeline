@@ -3,7 +3,7 @@
 # Rename appropriate columns for special filter catalogs in the unstacked process
 ###############
 
-import pyfits, ldac, sys, utilities
+import astropy.io.fits as pyfits, ldac, sys, utilities
 
 ###############
 
@@ -62,9 +62,9 @@ for fluxkey in fluxkeys:
                                   format='%dE' % nelements, 
                                   array=cat[magerr_key]))
 
-objects =     ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols), 
+objects =     ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols), 
                                             header=cat.hdu.header))
-objects.hdu.header.update('EXTNAME', 'OBJECTS')
+objects.hdu.header['EXTNAME']= 'OBJECTS'
 
 
 hdus = [pyfits.PrimaryHDU(), objects.hdu]
@@ -83,7 +83,7 @@ hdus.extend(otherhdus)
 hdulist = pyfits.HDUList(hdus)
 
 
-hdulist.writeto(outcat, clobber=True)
+hdulist.writeto(outcat, overwrite=True)
 
 
     

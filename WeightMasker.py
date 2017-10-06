@@ -5,7 +5,7 @@
 #adam-DATAtags# usable for all 10_3 data and probably 10_2 as well
 #adam-useful10# 10
 #adam-done10# 9
-import pyfits
+import astropy.io.fits as pyfits
 from matplotlib.pyplot import *
 from numpy import *
 import sys ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')

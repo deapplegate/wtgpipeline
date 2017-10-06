@@ -131,7 +131,7 @@ def fit(combo, mapping, magtype, startingzps=None):
         zps[zps_list[i]] = i
         zps_rev[i] = zps_list[i] 
 
-    import pyfits
+    import astropy.io.fits as pyfits
     p = pyfits.open('stars.fits')[1].data
    
     table = p                                                                            
@@ -553,7 +553,7 @@ def temp():
 def run(cluster):
 
     ratio = []
-    import pyfits, cutout_bpz
+    import astropy.io.fits as pyfits, cutout_bpz
     import os
     import os, sys, bashreader, commands
     from utilities import *

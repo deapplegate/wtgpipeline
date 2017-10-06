@@ -5,7 +5,7 @@
 ########################
 
 from numpy import *
-import os.path, re, pyfits, sys, illumcorutils
+import os.path, re, astropy.io.fits as pyfits, sys, illumcorutils
 
 ##########################
 

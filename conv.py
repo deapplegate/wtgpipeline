@@ -1,4 +1,4 @@
-import pyfits, os
+import astropy.io.fits as pyfits, os
 
 filters = []
 vals = []
@@ -15,12 +15,12 @@ cols.append(pyfits.Column(name='zeropoints', format='E',array=vals))
 tab = pyfits.open('/nfs/slac/g/ki/ki05/anja/SUBARU/COSMOS_PHOTOZ/PHOTOMETRY_W-C-IC_APER/COSMOS_PHOTOZ.stars.calibrated.cat')
 hdu_mags = tab['OBJECTS']
 
-hduFILTERS = pyfits.new_table(cols) 
+hduFILTERS = pyfits.BinTableHDU.from_columns(cols) 
 
 hdu = pyfits.PrimaryHDU()
 hdulist = pyfits.HDUList([hdu,hdu_mags,hduFILTERS])
-hdulist[1].header.update('EXTNAME','OBJECTS')
-hdulist[2].header.update('EXTNAME','ZPS')
+hdulist[1].header['EXTNAME']='OBJECTS'
+hdulist[2].header['EXTNAME']='ZPS'
 print file
 
 outfile = '/nfs/slac/g/ki/ki05/anja/SUBARU/COSMOS_PHOTOZ/PHOTOMETRY_W-C-IC_APER/COSMOS_PHOTOZ.stars.test.cat'

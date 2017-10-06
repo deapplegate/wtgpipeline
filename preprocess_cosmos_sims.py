@@ -2,7 +2,7 @@
 #####################
 
 import os, cPickle, sys, glob
-import pyfits
+import astropy.io.fits as pyfits
 import process_cosmos_sims as pcs, ldac
 
 
@@ -24,11 +24,11 @@ def preprocessFile(resultfile):
 
     output.close()
 
-    masscat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = 'masses',
+    masscat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = 'masses',
                                                                           format = 'E',
                                                                           array = masses)])))
 
-    masscat.saveas('%s2' % resultfile, clobber=True)
+    masscat.saveas('%s2' % resultfile, overwrite=True)
 
 
 

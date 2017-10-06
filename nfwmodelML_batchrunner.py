@@ -4,7 +4,7 @@
 ########################
 
 import numpy as np
-import sys, ldac, pyfits, cPickle
+import sys, ldac, astropy.io.fits as pyfits, cPickle
 import shearprofile as sp
 import nfwmodel
 
@@ -78,7 +78,7 @@ rs, scan = nfwmodel.scan_model(rs,
 
 cols = [ pyfits.Column(name = 'Rs', format = 'E', array = rs),
          pyfits.Column(name = 'prob', format = 'E', array = scan)]
-cat = pyfits.new_table(cols)
-cat.header.update('EXTNAME', 'OBJECTS')
+cat = pyfits.BinTableHDU.from_columns(cols)
+cat.header['EXTNAME']= 'OBJECTS'
 
-cat.writeto(outputFile, clobber=True)
+cat.writeto(outputFile, overwrite=True)

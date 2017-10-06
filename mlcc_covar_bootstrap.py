@@ -5,7 +5,7 @@
 
 from __future__ import with_statement
 import glob, tempfile, subprocess, shutil, os, sys
-import pyfits, numpy as np
+import astropy.io.fits as pyfits, numpy as np
 import ldac, maxlike_subaru_filehandler as msf, bashreader
 import shearprofile as sp
 
@@ -40,7 +40,7 @@ def createBootstrapCats(cluster, filter, image, outdir, nbootstraps = 100, start
     r_mpc =  r_arc * (1./3600.) * (np.pi / 180. ) * sp.angulardist(zcluster)
 
     cat = cat.filter(np.logical_and(r_mpc > 0.750, r_mpc < 3.0))
-    cat.hdu.header.update('EXTNAME','STDTAB')
+    cat.hdu.header['EXTNAME']='STDTAB'
 
     try:
 
@@ -53,18 +53,18 @@ def createBootstrapCats(cluster, filter, image, outdir, nbootstraps = 100, start
                       tmpspace, '%s/base.cat' % tmpspace, '%s/prefiltered.cat' % tmpspace), shell=True)
 
         cat = ldac.openObjectFile('%s/prefiltered.cat' % tmpspace, 'STDTAB')
-        cat.hdu.header.update('EXTNAME', 'OBJECTS')
+        cat.hdu.header['EXTNAME']= 'OBJECTS'
 
         for i in range(startnum, startnum + nbootstraps):
     
             bootstrap = np.random.randint(0, len(cat), len(cat))
 
             bootcat = cat.filter(bootstrap)
-            bootcat.saveas('%s/bootstrap_%d.ml.cat' % (outdir, i), clobber=True)
+            bootcat.saveas('%s/bootstrap_%d.ml.cat' % (outdir, i), overwrite=True)
 
             bootcat.hdu.header['EXTNAME'] = 'STDTAB'
             curcat = '%s/filter.cat' % tmpspace
-            bootcat.saveas(curcat, clobber=True)
+            bootcat.saveas(curcat, overwrite=True)
 
             with open(cutsfile) as cuts:
 

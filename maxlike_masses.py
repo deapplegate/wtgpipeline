@@ -5,7 +5,7 @@
 
 from __future__ import with_statement
 import cPickle
-import numpy as np, pymc, pyfits
+import numpy as np, pymc, astropy.io.fits as pyfits
 import nfwmodeltools as tools, varcontainer
 import nfwutils, shearprofile as sp, ldac
 import cPickle
@@ -429,8 +429,8 @@ class ScanModelToFile(object):
 
         cols = [ pyfits.Column(name = 'Mass', format = 'E', array = mass),
                  pyfits.Column(name = 'prob', format = 'E', array = scan)]
-        manager.cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
-        manager.cat.hdu.header.update('EXTNAME', 'OBJECTS')
+        manager.cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
+        manager.cat.hdu.header['EXTNAME']= 'OBJECTS'
 
 
         self.calcMasses(manager)
@@ -470,7 +470,7 @@ class ScanModelToFile(object):
 
     def dump(self, manager):
 
-        manager.cat.saveas(manager.options.outputFile, clobber=True)
+        manager.cat.saveas(manager.options.outputFile, overwrite=True)
 
 
         

@@ -44,7 +44,7 @@ for catfile in catfiles:
                                              zcluster, f500 = contam, shape_distro_kw = {'sigma' : 0.25})
 
 
-    finalcat.saveas('%s/%s' % (outputdir, filename), clobber=True)
+    finalcat.saveas('%s/%s' % (outputdir, filename), overwrite=True)
     
     output = open('%s/%s.pdz' % (outputdir, base), 'wb')
     cPickle.dump((pdzrange, finalpdz), output)

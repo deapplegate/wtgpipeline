@@ -52,6 +52,6 @@ cols = []
 for key in sdss_array[0].keys():
     cols.append(pyfits.Column(name=key,format='DN', array=scipy.array([x[key] for x in sdss_array])))
                                                                                                       
-output = pyfits.new_table(pyfits.ColDefs(cols))
+output = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
 os.system('rm ' + sdss_input_cat)
 output.writeto(sdss_input_cat)

@@ -5,7 +5,7 @@
 
 from __future__ import with_statement
 import cPickle
-import numpy as np, pymc, pyfits
+import numpy as np, pymc, astropy.io.fits as pyfits
 import nfwmodel2param as tools, varcontainer
 import nfwutils, shearprofile as sp, ldac
 import maxlike_bentstep_voigt as mbv

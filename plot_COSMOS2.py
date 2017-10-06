@@ -1,4 +1,4 @@
-import pyfits, os, pylab
+import astropy.io.fits as pyfits, os, pylab
 
 params = {'backend' : 'ps',
      'text.usetex' : True,

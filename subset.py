@@ -1,4 +1,4 @@
-import pyfits, os, scipy
+import astropy.io.fits as pyfits, os, scipy
 
 cluster = 'MACS0454-03'
 detect_filt = 'r'

@@ -1,4 +1,4 @@
-import pyfits, os, do_multiple_photoz, scipy, sys, string
+import astropy.io.fits as pyfits, os, do_multiple_photoz, scipy, sys, string
 
 import qc_wrapper
 
@@ -100,7 +100,7 @@ for key in zp_dict:
     
 
 hdu = pyfits.PrimaryHDU()
-hduOBJECTS = pyfits.new_table(p['OBJECTS'].columns)
+hduOBJECTS = pyfits.BinTableHDU.from_columns(p['OBJECTS'].columns)
 
 filterlist = do_multiple_photoz.get_filters(inputcat,'OBJECTS',SPECTRA='CWWSB_capak.list')
 
@@ -108,13 +108,13 @@ cols = [pyfits.Column(name='filter',format='60A',array=zp_dict.keys())]
 cols += [pyfits.Column(name='zeropoints',format='E',array=scipy.array(zp_dict.values()))]
 cols += [pyfits.Column(name='errors',format='E',array=scipy.zeros(len(filterlist)))]
 
-hduZPS = pyfits.new_table(cols)
+hduZPS = pyfits.BinTableHDU.from_columns(cols)
 
 hdulist = pyfits.HDUList([hdu])
 hdulist.append(hduOBJECTS)
 hdulist.append(hduZPS)
-hdulist[1].header.update('EXTNAME','OBJECTS')
-hdulist[2].header.update('EXTNAME','ZPS')
+hdulist[1].header['EXTNAME']='OBJECTS'
+hdulist[2].header['EXTNAME']='ZPS'
 
 os.system('rm ' + outputcat)
 hdulist.writeto(outputcat)

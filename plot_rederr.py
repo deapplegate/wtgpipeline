@@ -321,7 +321,7 @@ def plot_residuals(cluster, detect_band, base='/nfs/slac/g/ki/ki04/pkelly/photoz
     pylab.clf()
 
 def join_cats(cs,outputfile):
-    import pyfits
+    import astropy.io.fits as pyfits
     tables = {}
     i = 0
     cols = []
@@ -348,13 +348,13 @@ def join_cats(cs,outputfile):
     print cols
     print len(cols)
     hdu = pyfits.PrimaryHDU()
-    hduSTDTAB = pyfits.new_table(cols) 
+    hduSTDTAB = pyfits.BinTableHDU.from_columns(cols) 
     hdulist = pyfits.HDUList([hdu])
     hduFIELDS = pyfits.open(cs[1][0])['FIELDS']
     hdulist.append(hduFIELDS)
     hdulist.append(hduSTDTAB)
-    hdulist[1].header.update('EXTNAME','FIELDS')
-    hdulist[2].header.update('EXTNAME','STDTAB')
+    hdulist[1].header['EXTNAME']='FIELDS'
+    hdulist[2].header['EXTNAME']='STDTAB'
     import os
     os.system('rm ' + outputfile)
     print outputfile
@@ -411,7 +411,7 @@ def run():
     if found:
 
         subarudir = '/nfs/slac/g/ki/ki05/anja/SUBARU/'                                                                                                                                                                                                                                             
-        import pyfits, os                                                                                                                                                                                                                                                                         
+        import astropy.io.fits as pyfits, os                                                                                                                                                                                                                                                                         
         SPECTRA = 'CWWSB_capak.list'
 
         #SPECTRA = 'CWWSB4.list'
@@ -520,7 +520,7 @@ def run():
                                                                                                                                                                                                                                                                                          
         print matchedcat, specfile.file            
                                                                                                                                    
-        import pyfits
+        import astropy.io.fits as pyfits
                                                                                                                                    
         spectable = pyfits.open(matchedcat)['STDTAB']
         #print "looking at "+varname+'-'+filterlist[0]+'_data'

@@ -1,7 +1,7 @@
 
 def make_catalog(catalog,image,Ra,Dec): #,Ra_Err,Dec_Err):
     print 'importing pyfits and scipy '''
-    import pyfits, scipy, os
+    import astropy.io.fits as pyfits, scipy, os
     print 'done importing'
 
 
@@ -74,8 +74,8 @@ def make_catalog(catalog,image,Ra,Dec): #,Ra_Err,Dec_Err):
     #cols.append(pyfits.Column(name='Dec', format='D', array=scipy.array(Dec)))
 
     coldefs = pyfits.ColDefs(cols)
-    OBJECTS = pyfits.new_table(coldefs)
-    OBJECTS.header.update('extname','LDAC_OBJECTS')
+    OBJECTS = pyfits.BinTableHDU.from_columns(coldefs)
+    OBJECTS.header['extname']='LDAC_OBJECTS'
     
     print 'writing out fits file '
     import os
@@ -279,7 +279,7 @@ if not submit:
 
     subarudir = '/nfs/slac/g/ki/ki05/anja/SUBARU/'
 
-    import pyfits, os                                                                                                                                                                                                                                                                         
+    import astropy.io.fits as pyfits, os                                                                                                                                                                                                                                                                         
     photdir = subarudir + cluster + '/PHOTOMETRY_' + filt + '_aper/'
     phot_cat = photdir + cluster + '.slr.cat' # '.APER1.1.CWWSB_capak.list.all.bpz.tab'
     photoz_cat = photdir + cluster + '.APER1.1.CWWSB_capak.list.all.bpz.tab'
@@ -379,7 +379,7 @@ if False:
                     SeqNr_col.append(SeqNr)
     
     print 'importing pyfits and scipy '''
-    import pyfits, scipy
+    import astropy.io.fits as pyfits, scipy
     print 'done importing'
     
     hdu = pyfits.PrimaryHDU()
@@ -396,16 +396,16 @@ if False:
     cols.append(pyfits.Column(name='Z', format='D', array=scipy.array(z_col)))
     cols.append(pyfits.Column(name='FIELD_POS', format='J', array=scipy.ones(len(z_col))))
     coldefs = pyfits.ColDefs(cols)
-    OBJECTS = pyfits.new_table(coldefs)
-    OBJECTS.header.update('extname','OBJECTS')
+    OBJECTS = pyfits.BinTableHDU.from_columns(coldefs)
+    OBJECTS.header['extname']='OBJECTS'
     
     cols = []
     cols.append(pyfits.Column(name='OBJECT_POS', format='J', array=[1.]))
     cols.append(pyfits.Column(name='OBJECT_COUNT', format='D', array=[len(z_col)]))
     cols.append(pyfits.Column(name='CHANNEL_NR', format='J', array=[0]))
     coldefs = pyfits.ColDefs(cols)
-    FIELDS = pyfits.new_table(coldefs)
-    FIELDS.header.update('extname','FIELDS')
+    FIELDS = pyfits.BinTableHDU.from_columns(coldefs)
+    FIELDS.header['extname']='FIELDS'
     
     print 'writing out fits file '
     import os

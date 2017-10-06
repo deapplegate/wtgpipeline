@@ -96,7 +96,7 @@ def plot(file,outfile):
 
 
 
-import pyfits
+import astropy.io.fits as pyfits
 import os
 import os, sys, bashreader, commands
 from utilities import *

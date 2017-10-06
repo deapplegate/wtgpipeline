@@ -1,5 +1,5 @@
 if 0:
-    import pyfits, os
+    import astropy.io.fits as pyfits, os
     #catalog = '/u/ki/dapple/nfs12/cosmos/cosmos30.slr.matched.cat'
 
     catalog = '/u/ki/dapple/nfs12/cosmos/cosmos30.slr.cat'

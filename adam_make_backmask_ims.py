@@ -99,7 +99,7 @@ for supa_fl in supa_fls:
 	hdu=pyfits.PrimaryHDU(asarray(diffim,dtype=float32))
 	hdu.header=all_head
 	difference_fl=dir_backmask+supa+'-all.coadd.fits'
-	hdu.writeto(difference_fl,clobber=True,output_verify='ignore')
+	hdu.writeto(difference_fl,overwrite=True,output_verify='ignore')
 	# make smoothed image
 	if make_smoothed!=0:
 		smooth_img = ndimage.gaussian_filter(difference_img, sigma=3)
@@ -107,7 +107,7 @@ for supa_fl in supa_fls:
 		hdu=pyfits.PrimaryHDU(asarray(smooth_img,dtype=float32))
 		hdu.header=all_head
 		smoothed_fl=difference_fl.replace('coadd','coadd.smoothed')
-		hdu.writeto(smoothed_fl,clobber=True,output_verify='ignore')
+		hdu.writeto(smoothed_fl,overwrite=True,output_verify='ignore')
 		print 'wrote 2 files: '+smoothed_fl+'\n\tand '+difference_fl
 		smoothed_fls.append(smoothed_fl)
 		place_reg_fls.append(split_fl_str)
@@ -127,7 +127,7 @@ for supa_fl in supa_fls:
 			hdu=pyfits.PrimaryHDU(asarray(diffim,dtype=float32))
 			hdu.header=all_head
 			difference_fl=dir_backmask+supa+'-gabodsid'+gab+'.coadd.fits'
-			hdu.writeto(difference_fl,clobber=True,output_verify='ignore')
+			hdu.writeto(difference_fl,overwrite=True,output_verify='ignore')
 			# make smoothed image
 			if make_smoothed!=0:
 				smooth_img = ndimage.gaussian_filter(difference_img, sigma=3)
@@ -135,7 +135,7 @@ for supa_fl in supa_fls:
 				hdu=pyfits.PrimaryHDU(asarray(smooth_img,dtype=float32))
 				hdu.header=all_head
 				smoothed_fl=difference_fl.replace('coadd','coadd.smoothed')
-				hdu.writeto(smoothed_fl,clobber=True,output_verify='ignore')
+				hdu.writeto(smoothed_fl,overwrite=True,output_verify='ignore')
 				print 'wrote 2 files: '+smoothed_fl+'\n\tand '+difference_fl
 				smoothed_fls.append(smoothed_fl)
 				place_reg_fls.append(split_fl_str)
@@ -156,7 +156,7 @@ for supa_fl in supa_fls:
 			hdu=pyfits.PrimaryHDU(asarray(diffim,dtype=float32))
 			hdu.header=all_head
 			difference_fl=dir_backmask+supa+'-'+gabrot+'.coadd.fits'
-			hdu.writeto(difference_fl,clobber=True,output_verify='ignore')
+			hdu.writeto(difference_fl,overwrite=True,output_verify='ignore')
 			# make smoothed image
 			if make_smoothed!=0:
 				smooth_img = ndimage.gaussian_filter(difference_img, sigma=3)
@@ -164,7 +164,7 @@ for supa_fl in supa_fls:
 				hdu=pyfits.PrimaryHDU(asarray(smooth_img,dtype=float32))
 				hdu.header=all_head
 				smoothed_fl=difference_fl.replace('coadd','coadd.smoothed')
-				hdu.writeto(smoothed_fl,clobber=True,output_verify='ignore')
+				hdu.writeto(smoothed_fl,overwrite=True,output_verify='ignore')
 				print 'wrote 2 files: '+smoothed_fl+'\n\tand '+difference_fl
 				smoothed_fls.append(smoothed_fl)
 				place_reg_fls.append(split_fl_str)

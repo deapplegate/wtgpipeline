@@ -5,7 +5,7 @@
 
 from __future__ import with_statement
 import unittest, sys, re, os, optparse, copy, math
-import pyfits, numpy, measure_unstacked_photometry
+import astropy.io.fits as pyfits, numpy, measure_unstacked_photometry
 import ldac, utilities, photometry_db, convert_aper
 
 
@@ -194,11 +194,11 @@ def photoCalibrateCat(cat, cluster, type='standard',  specification = {},
 
 
 
-    calibratedCat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+    calibratedCat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
  
     if cat.hdu.header.has_key('EXTNAME'):
-        calibratedCat.hdu.header.update('EXTNAME', cat.hdu.header['EXTNAME'])
+        calibratedCat.hdu.header['EXTNAME']= cat.hdu.header['EXTNAME']
 
     ''' now make table with zeropoints used to calibrate catalog '''
     zp_cols = [pyfits.Column(name = 'filter',
@@ -212,8 +212,8 @@ def photoCalibrateCat(cat, cluster, type='standard',  specification = {},
                              array = numpy.array(zperr_list))]
    
 
-    zpCat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(zp_cols)))
-    zpCat.hdu.header.update('EXTNAME', 'ZPS')
+    zpCat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(zp_cols)))
+    zpCat.hdu.header['EXTNAME']= 'ZPS'
 
 
     return calibratedCat, zpCat
@@ -310,7 +310,7 @@ def main(argv = sys.argv):
     hdus = [pyfits.PrimaryHDU(), calibratedCat.hdu, zpCat.hdu]
     hdus.extend(_transferOtherHDUs(options.incatfile))
     hdulist = pyfits.HDUList(hdus)
-    hdulist.writeto(options.outcatfile, clobber=True)
+    hdulist.writeto(options.outcatfile, overwrite=True)
 
 
     
@@ -632,7 +632,7 @@ class TestComponents(unittest.TestCase):
                 pyfits.Column(name = 'FLUXERR_APER-filter1', format = 'E', array = 0.001*flux1),
                 pyfits.Column(name = 'FLUX_APER-filter2', format = 'E', array = flux2),
                 pyfits.Column(name = 'FLUXERR_APER-filter2', format = 'E', array = 0.001*flux2)]
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
         ##########
 
@@ -837,7 +837,7 @@ class TestPhotoCalibrateCatalog(unittest.TestCase):
                                   array=numpy.ones(self.nObjs)))
 
 
-        self.cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+        self.cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
         self.cluster = 'fake_cluster'
         self.zps = {}
         self.extinction = {}
@@ -871,7 +871,7 @@ class TestPhotoCalibrateCatalog(unittest.TestCase):
         def getZP(cluster, filter, **spec):
             return fakeCalibration(0.)
 
-        self.cat.hdu.header.update('EXTNAME', 'PSSC_fakery')
+        self.cat.hdu.header['EXTNAME']= 'PSSC_fakery'
 
         cat, zps = photoCalibrateCat(self.cat, cluster=self.cluster, type='standard', getDust = None, photometry_db = fakeCalDB(getZP))
 
@@ -978,7 +978,7 @@ class TestPhotoCalibrateCatalog(unittest.TestCase):
                                   format='E',
                                   array=numpy.ones(self.nObjs)))
 
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
         
         ###
@@ -1049,7 +1049,7 @@ class TestPhotoCalibrateCatalog(unittest.TestCase):
                                   format='E',
                                   array=numpy.random.uniform(0,500,self.nObjs)))
 
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
         calibrated, zps = photoCalibrateCat(cat,
                                        cluster = self.cluster,

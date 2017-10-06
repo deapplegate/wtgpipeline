@@ -1,7 +1,7 @@
 
 def convert_to_pogson(p):
 
-    import pyfits, scipy
+    import astropy.io.fits as pyfits, scipy
 
     cols = []
     for col in p.columns:
@@ -13,9 +13,9 @@ def convert_to_pogson(p):
     hdu = pyfits.PrimaryHDU()                                                  
     hdulist = pyfits.HDUList([hdu])
     print cols
-    tbhu = pyfits.new_table(cols)
+    tbhu = pyfits.BinTableHDU.from_columns(cols)
     #hdulist.append(tbhu)
-    #hdulist[1].header.update('EXTNAME','STDTAB')
+    #hdulist[1].header['EXTNAME']='STDTAB'
     #outcat = '/tmp/test' #path + 'PHOTOMETRY/' + type + '.cat'                
     #os.system('rm ' + f + '.tab')
     #hdulist.writeto(f + '.tab')
@@ -25,7 +25,7 @@ def convert_to_pogson(p):
 
 
 
-import pyfits, pylab, scipy
+import astropy.io.fits as pyfits, pylab, scipy
 
 p = pyfits.open('extflux_pkelly50.fit')[1]#[0:20000]
 

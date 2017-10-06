@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import with_statement
-import sys, re, pyfits
+import sys, re, astropy.io.fits as pyfits
 from numpy import *
 
 masterlistname = sys.argv[1]

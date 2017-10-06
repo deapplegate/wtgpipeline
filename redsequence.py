@@ -336,7 +336,7 @@ def run():
     
     
     if options.z:
-        import pyfits        
+        import astropy.io.fits as pyfits        
         cat = '/nfs/slac/g/ki/ki05/anja/SUBARU/' + cluster + '/PHOTOMETRY_' + options.detectband + '_aper/' + cluster + '.APER1.1.CWWSB_capak.list.all.bpz.tab'
         p = pyfits.open(cat)
         photoz = p['STDTAB'].data
@@ -352,7 +352,7 @@ def run():
         input_mags = '/nfs/slac/g/ki/ki05/anja/SUBARU/' + cluster + '/PHOTOMETRY_' + options.detectband + '_aper/' + cluster + '.slr.alter.cat'
     else: input_mags = options.cat
     
-    import pyfits, os, sys, pylab, do_multiple_photoz, commands, re, math, scipy
+    import astropy.io.fits as pyfits, os, sys, pylab, do_multiple_photoz, commands, re, math, scipy
     from copy import copy
     print 'input magnitude catalog:', input_mags, options.cat, hasattr(options,'cat')
     

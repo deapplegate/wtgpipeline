@@ -157,7 +157,7 @@ def main(flinput,flzps,flnew):
 		hdulist[1].header['EXTNAME']='OBJECTS'
 		hdulist[2].header['EXTNAME']='BIGMACS'
 		print "\n...temporarily saving to flproto=",flproto
-		hdulist.writeto(flproto,clobber=True)
+		hdulist.writeto(flproto,overwrite=True)
 
 		## make a version of flinput with the keys in flproto deleted so that it doesn't give an error in the ldacjoinkey command
 		## ALSO remove MAG_APER-/FLUX_APER-/MAGERR_APER-/FLUXERR_APER- so I don't confuse it for MAG_APER1-/... later

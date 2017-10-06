@@ -11,7 +11,7 @@ def load_probs():
 
 def run(P):
 
-    import pyfits, os, scipy, pylab
+    import astropy.io.fits as pyfits, os, scipy, pylab
         
     web = '/afs/slac.stanford.edu/u/ki/pkelly/' # os.environ['sne'] + '/photoz/COSMOS_' + set + '_' + ext + '/'
 

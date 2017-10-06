@@ -5,7 +5,7 @@
 ######################
 
 import unittest, sys, shutil, os, subprocess, utilities
-import numpy as np, pyfits
+import numpy as np, astropy.io.fits as pyfits
 import ldac
 
 ######################
@@ -57,9 +57,9 @@ class TestPipeline(unittest.TestCase):
             cols.append(pyfits.Column(name = 'FLUX_%s-%s' % (self.fluxtype, filter), format = 'E', array = flux))
             cols.append(pyfits.Column(name = 'FLUXERR_%s-%s' % (self.fluxtype, filter), format = 'E', array = fluxerr))
 
-        hdu = pyfits.new_table(pyfits.ColDefs(cols))
-        hdu.header.update('EXTNAME', 'OBJECTS')
-        hdu.writeto(self.all_phot_file, clobber=True)
+        hdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+        hdu.header['EXTNAME']= 'OBJECTS'
+        hdu.writeto(self.all_phot_file, overwrite=True)
         self.uncalibrated = ldac.LDACCat(hdu)
 
 
@@ -98,9 +98,9 @@ class TestPipeline(unittest.TestCase):
             cols.append(pyfits.Column(name = 'FLUX_%s-%s' % (self.fluxtype, filter), format = 'E', array = fluxs))
             cols.append(pyfits.Column(name = 'FLUXERR_%s-%s' % (self.fluxtype, filter), format = 'E', array = fluxerrs))
 
-        hdu = pyfits.new_table(pyfits.ColDefs(cols))
-        hdu.header.update('EXTNAME', 'OBJECTS')
-        hdu.writeto(self.star_cat_file, clobber=True)
+        hdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+        hdu.header['EXTNAME']= 'OBJECTS'
+        hdu.writeto(self.star_cat_file, overwrite=True)
 
         ### matched catalog
 
@@ -134,10 +134,10 @@ class TestPipeline(unittest.TestCase):
             cols.append(pyfits.Column(name = '%serr' % color, format = 'E', array = 0.2*np.ones_like(seqnr)))
 
 
-        hdu = pyfits.new_table(pyfits.ColDefs(cols))
-        hdu.header.update('EXTNAME', 'PSSC')
+        hdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+        hdu.header['EXTNAME']= 'PSSC'
 
-        hdu.writeto(self.matched_catalog_file, clobber=True)
+        hdu.writeto(self.matched_catalog_file, overwrite=True)
 
 
     ####
@@ -190,13 +190,13 @@ class TestPipeline(unittest.TestCase):
         ### SPECIAL-K and MEGAPRIME FAKERY
         os.makedirs('%s/K/SCIENCE/coadd_%s_all' % (self.maindir, self.cluster))
         hdu = pyfits.PrimaryHDU(np.ones((100,100)))
-        hdu.header.update('MAGZP', 22.7)
-        hdu.writeto('%s/K/SCIENCE/coadd_%s_all/coadd.fits' % (self.maindir, self.cluster), clobber=True)
+        hdu.header['MAGZP']= 22.7
+        hdu.writeto('%s/K/SCIENCE/coadd_%s_all/coadd.fits' % (self.maindir, self.cluster), overwrite=True)
 
         os.makedirs('%s/u/SCIENCE/coadd_%s_all' % (self.maindir, self.cluster))
         hdu = pyfits.PrimaryHDU(np.ones((100,100)))
-        hdu.header.update('MAGZP', self.targetZPs['MEGAPRIME-0-1-u'])
-        hdu.writeto('%s/u/SCIENCE/coadd_%s_all/coadd.fits' % (self.maindir, self.cluster), clobber=True)
+        hdu.header['MAGZP']= self.targetZPs['MEGAPRIME-0-1-u']
+        hdu.writeto('%s/u/SCIENCE/coadd_%s_all/coadd.fits' % (self.maindir, self.cluster), overwrite=True)
 
 
             
@@ -355,13 +355,13 @@ class TestPipeline3Sec(TestPipeline):
         ### SPECIAL-K and MEGAPRIME FAKERY
         os.makedirs('%s/K/SCIENCE/coadd_%s_all' % (self.maindir, self.cluster))
         hdu = pyfits.PrimaryHDU(np.ones((100,100)))
-        hdu.header.update('MAGZP', 22.7)
-        hdu.writeto('%s/K/SCIENCE/coadd_%s_all/coadd.fits' % (self.maindir, self.cluster), clobber=True)
+        hdu.header['MAGZP']= 22.7
+        hdu.writeto('%s/K/SCIENCE/coadd_%s_all/coadd.fits' % (self.maindir, self.cluster), overwrite=True)
 
         os.makedirs('%s/u/SCIENCE/coadd_%s_all' % (self.maindir, self.cluster))
         hdu = pyfits.PrimaryHDU(np.ones((100,100)))
-        hdu.header.update('MAGZP', self.targetZPs['MEGAPRIME-0-1-u'])
-        hdu.writeto('%s/u/SCIENCE/coadd_%s_all/coadd.fits' % (self.maindir, self.cluster), clobber=True)
+        hdu.header['MAGZP']= self.targetZPs['MEGAPRIME-0-1-u']
+        hdu.writeto('%s/u/SCIENCE/coadd_%s_all/coadd.fits' % (self.maindir, self.cluster), overwrite=True)
 
 
 
@@ -405,9 +405,9 @@ class TestPipeline3Sec(TestPipeline):
             cols.append(pyfits.Column(name = 'FLUX_%s-%s' % (self.fluxtype, filter), format = 'E', array = fluxs))
             cols.append(pyfits.Column(name = 'FLUXERR_%s-%s' % (self.fluxtype, filter), format = 'E', array = fluxerrs))
 
-        hdu = pyfits.new_table(pyfits.ColDefs(cols))
-        hdu.header.update('EXTNAME', 'OBJECTS')
-        hdu.writeto(self.star_cat_file, clobber=True)
+        hdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+        hdu.header['EXTNAME']= 'OBJECTS'
+        hdu.writeto(self.star_cat_file, overwrite=True)
 
         ### matched catalog
 
@@ -447,10 +447,10 @@ class TestPipeline3Sec(TestPipeline):
             cols.append(pyfits.Column(name = '%serr' % color, format = 'E', array = 0.2*np.ones_like(seqnr)))
 
 
-        hdu = pyfits.new_table(pyfits.ColDefs(cols))
-        hdu.header.update('EXTNAME', 'PSSC')
+        hdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+        hdu.header['EXTNAME']= 'PSSC'
 
-        hdu.writeto(self.matched_catalog_file, clobber=True)
+        hdu.writeto(self.matched_catalog_file, overwrite=True)
 
 
     ###

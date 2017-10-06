@@ -51,7 +51,7 @@ def convertAper(hdulist):
             if hdu.header['EXTNAME'] == 'OBJECTS' or hdu.header['EXTNAME'] == 'LDAC_OBJECTS':
                 
                 newhdu = convertAperColumns(ldac.LDACCat(hdu)).hdu
-                newhdu.header.update('EXTNAME', hdu.header['EXTNAME'])
+                newhdu.header['EXTNAME']= hdu.header['EXTNAME']
                 newhdus.append(newhdu)
 
                 
@@ -78,7 +78,7 @@ def main(argv = sys.argv):
     hdulist = pyfits.open(input)
     newhdulist = convertAper(hdulist)
 
-    newhdulist.writeto(output, clobber=True)
+    newhdulist.writeto(output, overwrite=True)
 
 
 #########################################################
@@ -220,7 +220,7 @@ class TestConvertAper(unittest.TestCase):
         
 
         self.objectshdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
-        self.objectshdu.header.update('EXTNAME', 'OBJECTS')
+        self.objectshdu.header['EXTNAME']= 'OBJECTS'
 
         cols=[pyfits.Column(name='Seeing',
                             format='E',
@@ -229,7 +229,7 @@ class TestConvertAper(unittest.TestCase):
                             format='E',
                             array=numpy.array([3.0]))]
         self.fieldhdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
-        self.fieldhdu.header.update('EXTNAME', 'FIELDS')
+        self.fieldhdu.header['EXTNAME']= 'FIELDS'
         self.hdulist = [pyfits.PrimaryHDU(), self.objectshdu, self.fieldhdu]
 
     ##############
@@ -318,7 +318,7 @@ class TestConvertAper(unittest.TestCase):
 
     def testLDACObject(self):
 
-        self.objectshdu.header.update('EXTNAME', 'LDAC_OBJECTS')
+        self.objectshdu.header['EXTNAME']= 'LDAC_OBJECTS'
 
         newhdulist = convertAper(self.hdulist)
 

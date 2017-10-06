@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import pyfits
+import astropy.io.fits as pyfits
 from matplotlib.pyplot import *
 from numpy import *
 import sys ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')

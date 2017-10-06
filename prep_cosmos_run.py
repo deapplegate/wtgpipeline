@@ -47,7 +47,7 @@ def prepSourceFiles(photfilters, outdirbase = '/u/ki/dapple/nfs12/cosmos/simulat
     bpz = bpz.filter(np.logical_and(np.logical_and(photozcut, sizecut),
                                     magcut))
 
-    bpz.saveas('%s/bpz.cat' % outputdir, clobber=True)
+    bpz.saveas('%s/bpz.cat' % outputdir, overwrite=True)
     
 
     pdzfilename = '%s/COSMOS_PHOTOZ.APER.1.CWWSB_capak.list.all.probs' % sourcedir
@@ -73,7 +73,7 @@ def createMasterFields(workdir, nfields = 100, fieldcenters = None):
 
             fieldcat = cs.extractField(mcosmos, size, snratio, center = center)
         
-            fieldcat.saveas('%s/field_%d.cat' % (workdir, i), clobber=True)
+            fieldcat.saveas('%s/field_%d.cat' % (workdir, i), overwrite=True)
             
     else:
 
@@ -85,7 +85,7 @@ def createMasterFields(workdir, nfields = 100, fieldcenters = None):
             
             fieldcenters.append((fieldcat.hdu.header['CENTERX'], fieldcat.hdu.header['CENTERY']))
             
-            fieldcat.saveas('%s/field_%d.cat' % (workdir, i), clobber=True)
+            fieldcat.saveas('%s/field_%d.cat' % (workdir, i), overwrite=True)
         
     return fieldcenters
 
@@ -104,7 +104,7 @@ def createBootstrapFields(workdir, nfields = 100):
             
         fieldcat = cs.bootstrapField(mcosmos, size, snratio)
             
-        fieldcat.saveas('%s/field_%d.cat' % (workdir, i), clobber=True)
+        fieldcat.saveas('%s/field_%d.cat' % (workdir, i), overwrite=True)
             
 
 ##########################################
@@ -168,7 +168,7 @@ def createContamCatalogs(bpzfile, workdir, outdir, f500):
                                         f500 = f500,
                                         shape_distro_kw = {'sigma' : 0.25})
 
-        contamcat.saveas('%s/%s' % (outdir, catbase), clobber=True)
+        contamcat.saveas('%s/%s' % (outdir, catbase), overwrite=True)
 
 
 

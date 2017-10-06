@@ -83,7 +83,7 @@ def mkcolorcolor(filt,catalog,starcatalog,cluster):
                     for filtcomp2 in list[i+2]:
                         #s = sorted(random.sample(range(len(filt)),3),reverse=True)                              
                         print s
-                        import pyfits, scipy
+                        import astropy.io.fits as pyfits, scipy
                         pickles = pyfits.open('Pickles.cat')                                                   
                         pickles = pickles['PICKLES'].data
                                                                                                                 
@@ -379,7 +379,7 @@ def plot_bpz_probs(id,file,outfile):
     
 
 def run(cluster):
-    import pyfits
+    import astropy.io.fits as pyfits
     import os
     import os, sys, bashreader, commands
     from utilities import *

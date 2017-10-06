@@ -53,7 +53,7 @@ def make_thecorrections(cluster,DETECT_FILTER,SPECTRA='CWWSB_capak.list',AP_TYPE
     pagemain = open(os.environ['sne'] + '/photoz/' + cluster + '/' + SPECTRA + '/index.html','w')    
     pagemain.write('<table align=left><tr><td colspan=5 class="dark"><h1>' + cluster + '</h1></td></tr><tr><td colspan=5><a href=http://www.slac.stanford.edu/~pkelly/photoz/' + cluster + '/stars.html>Stellar Color-Color Plots</a><td></tr><tr><td colspan=5><a href=redsequence.html>Red Sequence Redshifts</a><td></tr><tr><td><a href=objects.html>Photoz Plots</a><td></tr><tr><td><a href=thecorrections.html>Correction Plots</a><td></tr><tr><td><a href=zdistribution.html>Z Distribution</a><td></tr></table>\n')
     pagemain.close()
-    import pyfits, pylab, scipy
+    import astropy.io.fits as pyfits, pylab, scipy
     p = pyfits.open(outputcat)['STDTAB'].data
     pylab.clf()
     pylab.hist(p.field('BPZ_ODDS'),bins=scipy.arange(0,1,0.02))
@@ -183,7 +183,7 @@ def convert_probs_to_fits(file):
             cols.append(pyfits.Column(name=str(zs[i]), format='D', array=f[:,i+1]))
         
         coldefs = pyfits.ColDefs(cols)
-        tbhdu = pyfits.new_table(coldefs)
+        tbhdu = pyfits.BinTableHDU.from_columns(coldefs)
         
         print 'writing out fits file '
         import os
@@ -980,7 +980,7 @@ from utilities import *
 def run(cluster):
 
     ratio = []
-    import pyfits
+    import astropy.io.fits as pyfits
     import os
     import os, sys, bashreader, commands
     from config_bonn import appendix, tag, arc, filters, filter_root, appendix_root

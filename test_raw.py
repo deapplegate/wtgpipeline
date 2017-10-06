@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import pyfits, sys, os, re, string
+import astropy.io.fits as pyfits, sys, os, re, string
 from config_bonn import cluster, tag, arc, filters
 
 tables = {} 
@@ -27,13 +27,13 @@ for filter in filters:
 print cols
 print len(cols)
 hdu = pyfits.PrimaryHDU()
-hduIMHEAD = pyfits.new_table(tables['notag'][2].columns)
-hduOBJECTS = pyfits.new_table(cols) 
+hduIMHEAD = pyfits.BinTableHDU.from_columns(tables['notag'][2].columns)
+hduOBJECTS = pyfits.BinTableHDU.from_columns(cols) 
 hdulist = pyfits.HDUList([hdu])
 hdulist.append(hduIMHEAD)
 hdulist.append(hduOBJECTS)
-hdulist[1].header.update('EXTNAME','FIELDS')
-hdulist[2].header.update('EXTNAME','OBJECTS')
+hdulist[1].header['EXTNAME']='FIELDS'
+hdulist[2].header['EXTNAME']='OBJECTS'
 dir = '//nfs/slac/g/ki/ki05/anja/SUBARU/' + cluster + '/PHOTOMETRY/'
 file = dir + 'all' + arc + '.cat'
 os.system('mkdir ' + dir)

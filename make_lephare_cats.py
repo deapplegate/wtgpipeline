@@ -112,7 +112,7 @@ def doit(cluster,DETECT_FILTER,filterlist,inputcat,speccat,outspeccat,outfullcat
     scale=3631.0e-23
     
     import os 
-    import pyfits
+    import astropy.io.fits as pyfits
     print inputcat
     core = pyfits.open(inputcat)['OBJECTS'] # ???
     fulltable = core.data        
@@ -167,7 +167,7 @@ def doit(cluster,DETECT_FILTER,filterlist,inputcat,speccat,outspeccat,outfullcat
 
         print matchedcat, specfile.file            
                                                                                                                                    
-        import pyfits
+        import astropy.io.fits as pyfits
                                                                                                                                    
         spectable = pyfits.open(matchedcat)['STDTAB']
         print "looking at "+varname+'-'+filterlist[0]+'_data'
@@ -642,9 +642,9 @@ def doit(cluster,DETECT_FILTER,filterlist,inputcat,speccat,outspeccat,outfullcat
             hdu = pyfits.PrimaryHDU()                                                  
             hdulist = pyfits.HDUList([hdu])
             print cols
-            tbhu = pyfits.new_table(prior_cols)
+            tbhu = pyfits.BinTableHDU.from_columns(prior_cols)
             hdulist.append(tbhu)
-            hdulist[1].header.update('EXTNAME','STDTAB')
+            hdulist[1].header['EXTNAME']='STDTAB'
             outcat = '/tmp/test' #path + 'PHOTOMETRY/' + type + '.cat'                
             os.system('rm ' + f + '.tab')
             hdulist.writeto(f + '.tab')
@@ -654,9 +654,9 @@ def doit(cluster,DETECT_FILTER,filterlist,inputcat,speccat,outspeccat,outfullcat
                 hdu = pyfits.PrimaryHDU()                                                  
                 hdulist = pyfits.HDUList([hdu])
                 print cols
-                tbhu = pyfits.new_table(c)
+                tbhu = pyfits.BinTableHDU.from_columns(c)
                 hdulist.append(tbhu)
-                hdulist[1].header.update('EXTNAME','STDTAB')
+                hdulist[1].header['EXTNAME']='STDTAB'
                 outcat = '/tmp/test' #path + 'PHOTOMETRY/' + type + '.cat'                
                 os.system('rm ' + f + '.tab')
                 hdulist.writeto(f + '.tab')

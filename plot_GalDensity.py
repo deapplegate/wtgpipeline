@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import pyfits, numpy, ldac, pylab, sys, os
+import astropy.io.fits as pyfits, numpy, ldac, pylab, sys, os
 import dappleutils as du
 import shearprofile as sp
 

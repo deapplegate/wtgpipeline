@@ -15,7 +15,7 @@ Star reflections are marked by ds9 circle regions. Stars are seperated by a non-
 
 import unittest, sys, re, os, glob, tempfile, subprocess, regionfile as rf
 import wcsregionfile as wrf
-import pyfits
+import astropy.io.fits as pyfits
 import leastsq
 import numpy as np
 from optparse import OptionParser
@@ -535,7 +535,7 @@ def loadImage(filename):
 
 def saveImage(filename, image, header = None):
 
-    pyfits.PrimaryHDU(image, header=header).writeto(filename, clobber=True)
+    pyfits.PrimaryHDU(image, header=header).writeto(filename, overwrite=True)
 
 
 ############################

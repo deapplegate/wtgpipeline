@@ -171,7 +171,7 @@ else:
 print filterlist, 'filterlist'    
 
 if FILTER_WITH_LIST:
-    import pyfits
+    import astropy.io.fits as pyfits
     p = pyfits.open(inputcat_alter)['OBJECTS'].data
     s = pyfits.open(FILTER_WITH_LIST)['OBJECTS'].data
     indices = s.field('SeqNr')
@@ -186,10 +186,10 @@ if FILTER_WITH_LIST:
         cols.append(pyfits.Column(name=column.name, format = column.format, array = p_orig.data.field(column.name)[mask]))
 
     hdu = pyfits.PrimaryHDU()
-    hduSTDTAB = pyfits.new_table(cols) 
+    hduSTDTAB = pyfits.BinTableHDU.from_columns(cols) 
     hdulist = pyfits.HDUList([hdu])
     hdulist.append(hduSTDTAB)
-    hdulist[1].header.update('EXTNAME','OBJECTS')
+    hdulist[1].header['EXTNAME']='OBJECTS'
     import os
     os.system('rm ' + inputcat_alter)
     hdulist.writeto(inputcat_alter)

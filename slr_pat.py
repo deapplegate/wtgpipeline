@@ -539,7 +539,7 @@ def temp():
 def run(cluster):
 
     ratio = []
-    import pyfits, cutout_bpz
+    import astropy.io.fits as pyfits, cutout_bpz
     import os
     import os, sys, bashreader, commands
     from utilities import *

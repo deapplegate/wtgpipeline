@@ -247,7 +247,7 @@ def convert_to_mags(run_name,mag_cat,outputfile):
     hdulist.append(hduSTDTAB)
     hdulist[1].header['EXTNAME']='OBJECTS'
     print ' outputfile=',outputfile
-    hdulist.writeto(outputfile,clobber=True)
+    hdulist.writeto(outputfile,overwrite=True)
     #ns_dmp.update(locals()) #adam-tmp#
 
 def add_dummy_ifilter(catalog, outputfile):
@@ -287,10 +287,10 @@ def add_dummy_ifilter(catalog, outputfile):
     #print ' cols=',cols
     print ' len(cols)=',len(cols)
     hdu = pyfits.PrimaryHDU()
-    hduSTDTAB = pyfits.new_table(cols)
+    hduSTDTAB = pyfits.BinTableHDU.from_columns(cols)
     hdulist = pyfits.HDUList([hdu])
     hdulist.append(hduSTDTAB)
-    hdulist[1].header.update('EXTNAME','OBJECTS')
+    hdulist[1].header['EXTNAME']='OBJECTS'
     import os
     os.system('rm ' + outputfile)
     print ' outputfile=',outputfile
@@ -322,10 +322,10 @@ def add_dummy_filters(catalog, outputfile):
 
     print ' len(cols)=',len(cols)
     hdu = pyfits.PrimaryHDU()
-    hduSTDTAB = pyfits.new_table(cols)
+    hduSTDTAB = pyfits.BinTableHDU.from_columns(cols)
     hdulist = pyfits.HDUList([hdu])
     hdulist.append(hduSTDTAB)
-    hdulist[1].header.update('EXTNAME','OBJECTS')
+    hdulist[1].header['EXTNAME']='OBJECTS'
     import os
     os.system('rm ' + outputfile)
     print ' outputfile=',outputfile
@@ -499,10 +499,10 @@ def join_cats(cs,outputfile):
     #print cols
     print len(cols)
     hdu = pyfits.PrimaryHDU()
-    hduSTDTAB = pyfits.new_table(cols)
+    hduSTDTAB = pyfits.BinTableHDU.from_columns(cols)
     hdulist = pyfits.HDUList([hdu])
     hdulist.append(hduSTDTAB)
-    hdulist[1].header.update('EXTNAME','STDTAB')
+    hdulist[1].header['EXTNAME']='STDTAB'
     import os
     os.system('rm ' + outputfile)
     print outputfile

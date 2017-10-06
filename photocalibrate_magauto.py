@@ -5,7 +5,7 @@
 
 from __future__ import with_statement
 import unittest, sys, re, os, optparse
-import pyfits, numpy, measure_unstacked_photometry
+import astropy.io.fits as pyfits, numpy, measure_unstacked_photometry
 import ldac, utilities, photometry_db
 
 photometry_db.initConnection()
@@ -116,10 +116,10 @@ def photoCalibrateCat(cat, cluster,
                                   format = 'E',
                                   array = magerr))
 
-    calibratedCat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+    calibratedCat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
     if cat.hdu.header.has_key('EXTNAME'):
-        calibratedCat.hdu.header.update('EXTNAME', cat.hdu.header['EXTNAME'])
+        calibratedCat.hdu.header['EXTNAME']= cat.hdu.header['EXTNAME']
 
     return calibratedCat
         
@@ -188,7 +188,7 @@ def main(argv = sys.argv):
     hdus = [pyfits.PrimaryHDU(), calibratedCat.hdu]
     hdus.extend(_transferOtherHDUs(options.incatfile))
     hdulist = pyfits.HDUList(hdus)
-    hdulist.writeto(options.outcatfile, clobber=True)
+    hdulist.writeto(options.outcatfile, overwrite=True)
 
 
     

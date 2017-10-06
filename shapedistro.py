@@ -2,7 +2,7 @@
 ######################
 
 import re, inspect
-import pymc, numpy as np, scipy.special, pyfits
+import pymc, numpy as np, scipy.special, astropy.io.fits as pyfits
 import ldac, crossval
 import voigt_tools as vtools
 
@@ -152,7 +152,7 @@ def convertToCat(shear, trueshear, snratio, size, pg, rg):
             pyfits.Column(name = 'pg', format = 'E', array = pg),
             pyfits.Column(name = 'rg', format = 'E', array = rg)]
 
-    cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+    cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
     return cat
 
@@ -808,7 +808,7 @@ def makeCrossValCats(cat, nsets, selectors, dir, prefix):
 
                 print catname
 
-                bincat.saveas(catname, clobber=True)
+                bincat.saveas(catname, overwrite=True)
 
 
 

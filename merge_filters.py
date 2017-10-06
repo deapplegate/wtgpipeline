@@ -43,7 +43,7 @@ def mergeFilters(mastercatfile, filters):
     header = mastercat.hdu.header
 
     objectsHDU = pyfits.BinTableHDU.from_columns(cols, header=header)
-    objectsHDU.header.update('EXTNAME', 'OBJECTS')
+    objectsHDU.header['EXTNAME']= 'OBJECTS'
 
 
     hdus = [pyfits.PrimaryHDU(), objectsHDU]
@@ -82,4 +82,4 @@ if __name__ == '__main__':
     
     hdulist = mergeFilters(mastercat, filters)
 
-    hdulist.writeto(outcat, clobber=True)
+    hdulist.writeto(outcat, overwrite=True)

@@ -4,7 +4,7 @@
 ########################
 
 import numpy as np
-import sys, ldac, pyfits
+import sys, ldac, astropy.io.fits as pyfits
 import bootstrap_masses as bm
 import process_cosmos_sims as pcs
 import os, cPickle
@@ -62,11 +62,11 @@ massdist = pcs.MassDist(zcluster, true_scale_radius, mu, sig, chisq)
 cols = [ pyfits.Column(name = 'Rs', format = 'E', array = rss),
          pyfits.Column(name = 'masses', format = 'E', array = masses)]
 
-cat = pyfits.new_table(cols)
-cat.header.update('EXTNAME', 'OBJECTS')
-cat.header.update('NFAILS', nfails)
+cat = pyfits.BinTableHDU.from_columns(cols)
+cat.header['EXTNAME']= 'OBJECTS'
+cat.header['NFAILS']= nfails
 
-cat.writeto(outputFile, clobber=True)
+cat.writeto(outputFile, overwrite=True)
 
 base, ext = os.path.splitext(outputFile)
 output = open('%s.pkl' % base, 'wb')

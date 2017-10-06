@@ -33,7 +33,7 @@ def makeMasterCrossval(nsets, dir, prefix, psf, component = None):
 
             print catname
 
-            crossvalcat.saveas(catname, clobber=True)
+            crossvalcat.saveas(catname, overwrite=True)
 
 
 
@@ -71,7 +71,7 @@ def makeBinnedCats(dir, prefix, selectors, outputdir):
                    
             print catname
 
-            bincat.saveas(catname, clobber=True)
+            bincat.saveas(catname, overwrite=True)
 
 
 

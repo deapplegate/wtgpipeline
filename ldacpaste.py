@@ -5,7 +5,7 @@
 
 ########################
 
-import ldac, pyfits, sys
+import ldac, astropy.io.fits as pyfits, sys
 
 ########################
 
@@ -44,7 +44,7 @@ for table in hdulist:
 
 newhdulist = pyfits.HDUList(newhdulist)
 
-newhdulist.writeto(outcat, clobber=True)
+newhdulist.writeto(outcat, overwrite=True)
 
 
     

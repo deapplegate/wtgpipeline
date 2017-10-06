@@ -59,7 +59,7 @@ def tree(start,end):
                 #pylab.show()
 
     print cols
-    tbhdu=pyfits.new_table(pyfits.ColDefs(cols))
+    tbhdu=pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
 
     from copy import copy
     tbhdu_good=copy(tbhdu)

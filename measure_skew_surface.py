@@ -3,7 +3,7 @@
 
 from __future__ import with_statement
 import unittest, sys, math, re, os, optparse
-import numpy, pyfits
+import numpy, astropy.io.fits as pyfits
 from scipy import interpolate
 import ldac, utilities
 
@@ -187,7 +187,7 @@ def combineCats(images, instrum=None, mastercat=None, fluxscale = False):
                                           format='%dE' % nelements, 
                                           array=err))
 
-    return ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols), 
+    return ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols), 
                                          header=mastercat.hdu.header))
 
 
@@ -251,7 +251,7 @@ def main(args = sys.argv):
     else:
         hdus.extend(_transferOtherHDUs(catfiles[0]))
     hdulist = pyfits.HDUList(hdus)
-    hdulist.writeto(options.outfile, clobber=True)
+    hdulist.writeto(options.outfile, overwrite=True)
 
 
 
@@ -665,9 +665,9 @@ class TestComponents(unittest.TestCase):
                         pyfits.Column(name = 'SEXAPED4',
                                      format = 'E',
                                      array = numpy.array([0]))]
-                hdu = pyfits.new_table(pyfits.ColDefs(cols))
-                hdu.header.update('EXTNAME', 'FIELDS')
-                hdu.writeto(catFile, clobber = True)
+                hdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+                hdu.header['EXTNAME']= 'FIELDS'
+                hdu.writeto(catFile, overwrite = True)
                                      
             
             apers = readApers(catFile)
@@ -716,9 +716,9 @@ class TestComponents(unittest.TestCase):
                 cols = [pyfits.Column(name = 'GAIN',
                                      format = 'D',
                                      array = numpy.array([900]))]
-                hdu = pyfits.new_table(pyfits.ColDefs(cols))
-                hdu.header.update('EXTNAME', 'FIELDS')
-                hdu.writeto(catFile, clobber = True)
+                hdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+                hdu.header['EXTNAME']= 'FIELDS'
+                hdu.writeto(catFile, overwrite = True)
                                      
             
             gain = readGain(catFile)
@@ -796,8 +796,8 @@ class TestImage(unittest.TestCase):
                     pyfits.Column(name = 'SEXAPED3',
                                   format = 'E',
                                   array = numpy.array([0]))]
-            fields = pyfits.new_table(pyfits.ColDefs(cols))
-            fields.header.update('EXTNAME', 'FIELDS')
+            fields = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+            fields.header['EXTNAME']= 'FIELDS'
             cols = [pyfits.Column(name = 'Xpos',
                                   format = 'E',
                                   array = numpy.random.uniform(0,10000,200)),
@@ -810,15 +810,15 @@ class TestImage(unittest.TestCase):
                     pyfits.Column(name='ISOAREA_DETECT',
                                   format='E',
                                   array = 10*numpy.ones(200))]
-            objects = pyfits.new_table(pyfits.ColDefs(cols))
-            objects.header.update('EXTNAME', 'OBJECTS')
+            objects = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+            objects.header['EXTNAME']= 'OBJECTS'
 
             cols = [pyfits.Column(name='BACKGROUND_RMS', format='E', array = [0.15])]
-            photinfo = pyfits.new_table(pyfits.ColDefs(cols))
-            photinfo.header.update('EXTNAME', 'PHOTINFO')
+            photinfo = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+            photinfo.header['EXTNAME']= 'PHOTINFO'
             
             hdulist = pyfits.HDUList([pyfits.PrimaryHDU(), objects, fields, photinfo])
-            hdulist.writeto(self.catFile, clobber = True)
+            hdulist.writeto(self.catFile, overwrite = True)
 
 
             
@@ -902,7 +902,7 @@ class TestUnstackedPhotometry(unittest.TestCase):
             cols.append(pyfits.Column(name='BackGr', format = 'E', array = BackGr))
             cols.append(pyfits.Column(name='MaxVal', format = 'E', array = MaxVal))
             cols.append(pyfits.Column(name='NPIX', format='E', array = NPIX))
-            cat = ldac.LDACCat(pyfits.new_table(cols))
+            cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(cols))
             self.images.append(Image(cat = cat, apers = numpy.ones(1), rms = 0., gain = 1.))
         
 
@@ -1051,7 +1051,7 @@ class TestUnstackedPhotometry(unittest.TestCase):
             cols.append(pyfits.Column(name='BackGr', format = 'E', array = BackGr))
             cols.append(pyfits.Column(name='MaxVal', format = 'E', array = MaxVal))
             cols.append(pyfits.Column(name='NPIX', format = 'E', array = NPIX))
-            cat = ldac.LDACCat(pyfits.new_table(cols))
+            cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(cols))
             self.images.append(Image(cat = cat, rms = 0., apers = numpy.ones(1), gain = 1.))
 
 
@@ -1104,7 +1104,7 @@ class TestUnstackedPhotometry_vector(unittest.TestCase):
             cols.append(pyfits.Column(name='BackGr', format = 'E', array = BackGr))
             cols.append(pyfits.Column(name='MaxVal', format = 'E', array = MaxVal))
             cols.append(pyfits.Column(name='NPIX', format = 'E', array = NPIX))
-            cat = ldac.LDACCat(pyfits.new_table(cols))
+            cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(cols))
             self.images.append(Image(cat = cat, rms = 0, apers= numpy.ones(self.nApers), gain = 1.))
         
 
@@ -1711,7 +1711,7 @@ class TestCombineCatalogs(unittest.TestCase):
 
 
         
-        cats = [ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(mastercols)))]
+        cats = [ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(mastercols)))]
 
         for i in xrange(5):
             cols = [pyfits.Column(name = k, 
@@ -1729,7 +1729,7 @@ class TestCombineCatalogs(unittest.TestCase):
                                           array = numpy.ones(30)))
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
         images = [ Image(cat, rms = 0, apers = numpy.ones(1), gain = 1) for cat in cats ]
 
@@ -1785,7 +1785,7 @@ class TestCombineCatalogs(unittest.TestCase):
                                           array = numpy.ones(30)))
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
 
         keys = normkeys + zerokeys + doublekeys + onekeys
@@ -1825,7 +1825,7 @@ class TestCombineCatalogs(unittest.TestCase):
                                           array = numpy.ones(30)))
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
 
         keys = zerokeys + onekeys
@@ -1890,7 +1890,7 @@ class TestCombineCatalogs(unittest.TestCase):
 
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
 
         keys = zerokeys
@@ -1957,7 +1957,7 @@ class TestCombineCatalogs(unittest.TestCase):
                                       array = numpy.ones(30)))
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
 
         keys = zerokeys
@@ -1998,7 +1998,7 @@ class TestCombineCatalogs(unittest.TestCase):
                                       array = numpy.ones(30)))
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
         
         mastercols = []
@@ -2011,7 +2011,7 @@ class TestCombineCatalogs(unittest.TestCase):
         mastercols.append(pyfits.Column(name = 'BLANK1',
                                         format = 'E',
                                         array = numpy.ones(30)))
-        mastercat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(mastercols)))
+        mastercat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(mastercols)))
 
 
         keys = 'MAG_APER BLANK1'.split()
@@ -2057,7 +2057,7 @@ class TestCombineCatalogs(unittest.TestCase):
                                           array = numpy.ones(30)))
 
 
-            cats.append(ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+            cats.append(ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
         cats[0]['FLUX_APER'][:] = .5*numpy.ones(30)
         cats[-1]['FLUX_APER'][:] = 1.5*numpy.ones(30)

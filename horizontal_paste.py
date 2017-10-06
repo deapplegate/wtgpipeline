@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, pyfits, re
+import sys, astropy.io.fits as pyfits, re
 from optparse import OptionParser
 from numpy import *
 
@@ -80,4 +80,4 @@ for image in images[1:]:
 finalHeader = primaryImageHeader
 finalHeader['NAXIS1'] = final_xsize
 finalHDU = pyfits.PrimaryHDU(data = final_image, header = finalHeader)
-finalHDU.writeto(outfile, output_verify='ignore', clobber=True)
+finalHDU.writeto(outfile, output_verify='ignore', overwrite=True)

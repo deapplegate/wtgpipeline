@@ -65,7 +65,7 @@ import tempfile
 import time
 
 from math         import fabs
-import pyfits
+import astropy.io.fits as pyfits
 import numarray
 
 import libxml2

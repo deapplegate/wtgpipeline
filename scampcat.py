@@ -5,7 +5,7 @@
 # the N-1 FITS catalogues and write the result to
 # a catalog with the name of the Nth argument.
 
-import pyfits
+import astropy.io.fits as pyfits
 import sys
 
 hdu     = pyfits.PrimaryHDU()

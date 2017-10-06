@@ -3,7 +3,7 @@
 
 from __future__ import with_statement
 import tempfile, os, re, unittest, datetime
-import ephem, pyfits, numpy as np, scipy
+import ephem, astropy.io.fits as pyfits, numpy as np, scipy
 import ldac
 
 #################################################

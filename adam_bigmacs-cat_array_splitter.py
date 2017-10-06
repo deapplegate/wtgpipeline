@@ -35,7 +35,7 @@ def main(flinput,flnew):
 	hdulist = pyfits.HDUList([hdu])
 	hdulist.append(hduSTDTAB)
 	hdulist[1].header.set('EXTNAME','OBJECTS')
-	hdulist.writeto(flproto,clobber=True)
+	hdulist.writeto(flproto,overwrite=True)
 
 	os.system("ldacjoinkey -p "+flproto+" -i "+flinput+" -o "+flnew+" -t OBJECTS -k "+' '.join(aper1_keys))
 	os.system("rm -f "+flproto)

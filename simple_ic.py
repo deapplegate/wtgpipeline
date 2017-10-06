@@ -5,7 +5,7 @@ from copy import copy
 from glob import glob
 import random, tempfile
 import string, traceback, sys
-import pyfits, scipy, pylab
+import astropy.io.fits as pyfits, scipy, pylab
 import config_bonn
 import MySQLdb,  os, re, time, utilities
 import commands
@@ -850,18 +850,18 @@ def combine_cats(cats,outfile,search_params):
     print 'combine_cats| cols=',cols
     print 'combine_cats| len(cols)=',len(cols)
     hdu = pyfits.PrimaryHDU()
-    hduIMHEAD = pyfits.new_table(tables[catalog['im_type']][2].columns)
-    hduOBJECTS = pyfits.new_table(cols)
+    hduIMHEAD = pyfits.BinTableHDU.from_columns(tables[catalog['im_type']][2].columns)
+    hduOBJECTS = pyfits.BinTableHDU.from_columns(cols)
     hdulist = pyfits.HDUList([hdu])
     hdulist.append(hduIMHEAD)
     hdulist.append(hduOBJECTS)
-    hdulist[1].header.update('EXTNAME','FIELDS')
-    hdulist[2].header.update('EXTNAME','OBJECTS')
+    hdulist[1].header['EXTNAME']='FIELDS'
+    hdulist[2].header['EXTNAME']='OBJECTS'
     print 'combine_cats| file=',file
     res = re.split('/',outfile)
     ooo=os.system('mkdir -p ' + reduce(lambda x,y: x + '/' + y,res[:-1]))
     if ooo!=0: raise Exception("the line os.system('mkdir -p ' + reduce(lambda x,y: x + '/' + y,res[:-1])) failed\nreduce(lambda x,y: x + '/' + y,res[:-1])="+reduce(lambda x,y: x + '/' + y,res[:-1]))
-    hdulist.writeto(outfile,clobber=True)
+    hdulist.writeto(outfile,overwrite=True)
     print 'combine_cats| outfile=',outfile , '$#######$'
     print "combine_cats| DONE with func"
 
@@ -894,7 +894,7 @@ def paste_cats(cats,outfile,index=2): #simple #step2_sextract
         cattab = pyfits.open(catalog)
         nrows += cattab[index].data.shape[0]
 
-    hduOBJECTS = pyfits.new_table(table[index].columns, nrows=nrows)
+    hduOBJECTS = pyfits.BinTableHDU.from_columns(table[index].columns, nrows=nrows)
 
     rowstart = 0
     rowend = 0
@@ -908,9 +908,9 @@ def paste_cats(cats,outfile,index=2): #simple #step2_sextract
     # update SeqNr
     print 'paste_cats| rowend=',rowend , ' len(hduOBJECTS.data.field("SeqNr"))=',len(hduOBJECTS.data.field("SeqNr")) , ' len(range(1,rowend+1))=',len(range(1 ,rowend+1))
     hduOBJECTS.data.field('SeqNr')[0:rowend]=range(1,rowend+1)
-    #hdu[0].header.update('EXTNAME','FIELDS')
+    #hdu[0].header['EXTNAME']='FIELDS'
 
-    hduIMHEAD = pyfits.new_table(table[1])
+    hduIMHEAD = pyfits.BinTableHDU.from_columns(table[1])
 
     print 'paste_cats| cols=',cols
     print 'paste_cats| len(cols)=',len(cols)
@@ -919,17 +919,17 @@ def paste_cats(cats,outfile,index=2): #simple #step2_sextract
         hdulist = pyfits.HDUList([hdu])
         hdulist.append(hduIMHEAD)
         hdulist.append(hduOBJECTS)
-        hdulist[1].header.update('EXTNAME','FIELDS')
-        hdulist[2].header.update('EXTNAME','OBJECTS')
+        hdulist[1].header['EXTNAME']='FIELDS'
+        hdulist[2].header['EXTNAME']='OBJECTS'
     elif index == 1:
         hdu = pyfits.PrimaryHDU()
         hdulist = pyfits.HDUList([hdu])
         hdulist.append(hduOBJECTS)
-        hdulist[1].header.update('EXTNAME','OBJECTS')
+        hdulist[1].header['EXTNAME']='OBJECTS'
 
     print 'paste_cats| file=',file
 
-    hdulist.writeto(outfile,clobber=True)
+    hdulist.writeto(outfile,overwrite=True)
     print 'paste_cats| outfile=',outfile
     print 'paste_cats| done', '$#######$'
     print "paste_cats| DONE with func"
@@ -1321,7 +1321,7 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
             print 'fix_radec| dec_out[0:10]=',dec_out[0:10] , ' table.field("DELTA_J2000")[0:10]=',table.field("DELTA_J2000")[0:10]
             print 'fix_radec| SUPA=',SUPA , ' search_params["pasted_cat"]=',search_params["pasted_cat"]
 
-            hdu.writeto(search_params['pasted_cat'],clobber=True)
+            hdu.writeto(search_params['pasted_cat'],overwrite=True)
 
             print "fix_radec| DONE with func (return 1)"
             save_exposure({'fixradecCR':1},SUPA,FLAT_TYPE)
@@ -2931,10 +2931,10 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
             #adam-watch# do these catalogs get used anywhere else?
             hdu = pyfits.PrimaryHDU()
             hdulist = pyfits.HDUList([hdu])
-            tbhu = pyfits.new_table(cols)
+            tbhu = pyfits.BinTableHDU.from_columns(cols)
             hdulist.append(tbhu)
-            hdulist[1].header.update('EXTNAME','OBJECTS')
-            hdulist.writeto( outcat ,clobber=True)
+            hdulist[1].header['EXTNAME']='OBJECTS'
+            hdulist.writeto( outcat ,overwrite=True)
             catalog_save_name=data_path + 'PHOTOMETRY/ILLUMINATION/'+'_'.join(['catalog',run_info,PPRUN]) + '.cat'
             os.system('cp %s %s' % ( outcat , catalog_save_name))
             print 'linear_fit| wrote out new cat! outcat=',outcat
@@ -2998,7 +2998,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                         print "linear_fit| ...writing...im=",im
                         hdu = pyfits.PrimaryHDU(epsilonA.T)
                         save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,str(ROT)+'$im':im})
-                        hdu.writeto(im,clobber=True)
+                        hdu.writeto(im,overwrite=True)
 
                         print 'linear_fit| scipy.shape(epsilonA)=',scipy.shape(epsilonA), ' bin=',bin
                         ''' save pattern w/ chip zps '''
@@ -3024,7 +3024,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                         print 'linear_fit| ...writing...im=',im
                         hdu = pyfits.PrimaryHDU(epsilonA.T) #the transpose makes it consistent with the old versions shape, but I prefer this way of indexing so that you don't have to flip X and Y around and other confusing stuff
                         save_fit({'linearplot':1,'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,str(ROT)+'$im':im})
-                        hdu.writeto(im,clobber=True)
+                        hdu.writeto(im,overwrite=True)
                         print 'linear_fit| done'
                     '''### MAIN4a-END ### MAKE FITS FILES of IC and IC_no_chip_zp and save fits (if calc_illum and "rand" not in sample_size)'''
 
@@ -3322,10 +3322,10 @@ def calcDataIllum(output_files_nametag, LENGTH1, LENGTH2, data,magErr, X, Y, pth
     print 'calcDataIllum| f=',f
     hdu = pyfits.PrimaryHDU(mean)
     diffmap_fits_name= f + '_diff_mean.fits'
-    hdu.writeto(diffmap_fits_name,clobber=True)
+    hdu.writeto(diffmap_fits_name,overwrite=True)
     hdu = pyfits.PrimaryHDU(err)
     diffinvvar_fits_name= f + '_diff_err.fits'
-    hdu.writeto(diffinvvar_fits_name,clobber=True)
+    hdu.writeto(diffinvvar_fits_name,overwrite=True)
 
     ''' now make cuts with binned data '''
     mean_flat = scipy.array(mean.flatten(1))
@@ -3473,13 +3473,13 @@ def get_cats_ready(SUPA,FLAT_TYPE,galaxycat,starcat): #step3_run_fit
         print 'get_cats_ready| hdulist'
         hdulist = pyfits.HDUList([hdu])
         print 'get_cats_ready| tbhu'
-        tbhu = pyfits.new_table(cols)
+        tbhu = pyfits.BinTableHDU.from_columns(cols)
         hdulist.append(tbhu)
         print 'get_cats_ready| headers'
-        hdulist[1].header.update('EXTNAME','OBJECTS')
+        hdulist[1].header['EXTNAME']='OBJECTS'
         #this outcat is like: starsdssmatch__SUPA0121585_star.txt (not sdssmatch__SUPA0121585_star.txt)
         outcat = data_path + 'PHOTOMETRY/ILLUMINATION/' + type_stargal + 'sdssmatch__' + search_params['SUPA'] + '_' +  type_stargal + '.cat'
-        hdulist.writeto( outcat ,clobber=True)
+        hdulist.writeto( outcat ,overwrite=True)
         print 'get_cats_ready| wrote out new cat. outcat=',outcat
         save_exposure({type_stargal + 'sdssmatch':outcat},SUPA,FLAT_TYPE)
         tmp[type_stargal + 'sdssmatch'] = outcat
@@ -4654,7 +4654,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
             print 'construct_correction| ...before save'
             save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,sample+'$'+sample_size+'$'+str(ROT)+'$im':im})
             print 'construct_correction| ...after save'
-            hdu.writeto(im,clobber=True)
+            hdu.writeto(im,overwrite=True)
 
             ''' save pattern w/ chip zps '''
 
@@ -4697,7 +4697,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                     hdu = pyfits.PrimaryHDU(10.**(epsilonC/2.5))
                     im = tmpdir + '/' + str(ROT) + '_' + str(CHIP) + '.fits'
                     print 'construct_correction| im=',im
-                    hdu.writeto(im,clobber=True)
+                    hdu.writeto(im,overwrite=True)
 
             print 'construct_correction| ...finished writing'
             ''' apply the corrections to the images '''

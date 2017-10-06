@@ -26,7 +26,7 @@ def cutout(infile,mag,color='red'):
     utilities.run('mkreg.pl -c -rad 8 -xcol 0 -ycol 1 -wcs -colour ' + color + ' /tmp/' +  outfile)
 
 def get_median(cat,key):
-    import pyfits, sys, os, re, string, copy
+    import astropy.io.fits as pyfits, sys, os, re, string, copy
 
     p = pyfits.open(cat)
     magdiff = p[1].data.field(key)
@@ -35,7 +35,7 @@ def get_median(cat,key):
     return magdiff[int(len(magdiff)/2)] 
 
 def coordinate_limits(cat):
-    import pyfits, sys, os, re, string, copy
+    import astropy.io.fits as pyfits, sys, os, re, string, copy
 
     p = pyfits.open(cat)
     ra = p[2].data.field('ALPHA_J2000')
@@ -50,7 +50,7 @@ def combine_cats(cats,outfile,search_params):
     #outfile = '' + search_params['TEMPDIR'] + 'stub'
     #cats = [{'im_type': 'MAIN', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS..fixwcs.rawconv'}, {'im_type': 'D', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.D.fixwcs.rawconv'}]
 
-    import pyfits, sys, os, re, string, copy
+    import astropy.io.fits as pyfits, sys, os, re, string, copy
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
 
@@ -80,13 +80,13 @@ def combine_cats(cats,outfile,search_params):
     print cols
     print len(cols)
     hdu = pyfits.PrimaryHDU()
-    hduIMHEAD = pyfits.new_table(tables[catalog['im_type']][2].columns)
-    hduOBJECTS = pyfits.new_table(cols) 
+    hduIMHEAD = pyfits.BinTableHDU.from_columns(tables[catalog['im_type']][2].columns)
+    hduOBJECTS = pyfits.BinTableHDU.from_columns(cols) 
     hdulist = pyfits.HDUList([hdu])
     hdulist.append(hduIMHEAD)
     hdulist.append(hduOBJECTS)
-    hdulist[1].header.update('EXTNAME','FIELDS')
-    hdulist[2].header.update('EXTNAME','OBJECTS')
+    hdulist[1].header['EXTNAME']='FIELDS'
+    hdulist[2].header['EXTNAME']='OBJECTS'
     print file
     os.system('rm ' + outfile)
     hdulist.writeto(outfile)
@@ -99,7 +99,7 @@ def paste_cats(cats,outfile): #cats,outfile,search_params):
     #print outfile, cats
       
   
-    import pyfits, sys, os, re, string, copy        
+    import astropy.io.fits as pyfits, sys, os, re, string, copy        
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
     tables = {} 
@@ -114,7 +114,7 @@ def paste_cats(cats,outfile): #cats,outfile,search_params):
         cattab = pyfits.open(catalog)
         nrows += cattab[2].data.shape[0]
 
-    hduOBJECTS = pyfits.new_table(table[2].columns, nrows=nrows) 
+    hduOBJECTS = pyfits.BinTableHDU.from_columns(table[2].columns, nrows=nrows) 
    
     rowstart = 0
     rowend = 0
@@ -130,10 +130,10 @@ def paste_cats(cats,outfile): #cats,outfile,search_params):
     print rowend,len(        hduOBJECTS.data.field('SeqNr')), len(range(1,rowend+1))
     hduOBJECTS.data.field('SeqNr')[0:rowend]=range(1,rowend+1)
 
-    #hdu[0].header.update('EXTNAME','FIELDS')
+    #hdu[0].header['EXTNAME']='FIELDS'
 
 
-    hduIMHEAD = pyfits.new_table(table[1])
+    hduIMHEAD = pyfits.BinTableHDU.from_columns(table[1])
 
     print cols
     print len(cols)
@@ -141,8 +141,8 @@ def paste_cats(cats,outfile): #cats,outfile,search_params):
     hdulist = pyfits.HDUList([hdu])
     hdulist.append(hduIMHEAD)
     hdulist.append(hduOBJECTS)
-    hdulist[1].header.update('EXTNAME','FIELDS')
-    hdulist[2].header.update('EXTNAME','OBJECTS')
+    hdulist[1].header['EXTNAME']='FIELDS'
+    hdulist[2].header['EXTNAME']='OBJECTS'
     print file
 
     os.system('rm ' + outfile)
@@ -1082,16 +1082,16 @@ def phot(SUPA,FLAT_TYPE):
             
             good = photo_abs_new.run_through('illumination',infile='' + search_params['TEMPDIR'] + 'input.asc',output='' + search_params['TEMPDIR'] + 'photo_res',extcoeff=d['color1'],sigmareject=6,step='STEP_1',bandcomp=d['filter'],color1which=d['color1'],color2which=d['color2'])
             
-            import pyfits
+            import astropy.io.fits as pyfits
             cols = [] 
             for key in ['corr_data','color1_good','color2_good','magErr_good','X_good','Y_good','airmass_good']: 
                 cols.append(pyfits.Column(name=key, format='E',array=good[key]))
             hdu = pyfits.PrimaryHDU()
             hdulist = pyfits.HDUList([hdu])
             print cols
-            tbhu = pyfits.new_table(cols)
+            tbhu = pyfits.BinTableHDU.from_columns(cols)
             hdulist.append(tbhu)
-            hdulist[1].header.update('EXTNAME','STDTAB')
+            hdulist[1].header['EXTNAME']='STDTAB'
                                                                                                                                                                                                                                                                                                           
             path='/nfs/slac/g/ki/ki05/anja/SUBARU/%(cluster)s/' % {'cluster':search_params['cluster']}
             outcat = path + 'PHOTOMETRY/ILLUMINATION/fit_' + im_type + '_' + search_params['SUPA'] + '_' +  type + '.cat'                
@@ -1501,7 +1501,7 @@ def match_inside(SUPA1,SUPA2,FLAT_TYPE):
     print outcat
 
 def diffCalcNew():
-    import pyfits, sys, os, re, string, copy , string
+    import astropy.io.fits as pyfits, sys, os, re, string, copy , string
     
     p = pyfits.open('/tmp/final.cat')
     tbdata = p[1].data
@@ -1568,7 +1568,7 @@ def diffCalc(SUPA1,FLAT_TYPE):
     search_params = initialize(dict['filter'],dict['cluster'])
     search_params.update(dict)
 
-    import pyfits, sys, os, re, string, copy 
+    import astropy.io.fits as pyfits, sys, os, re, string, copy 
     
     print search_params['matched_cat_self']
     p = pyfits.open(search_params['matched_cat_self'])

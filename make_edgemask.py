@@ -56,7 +56,7 @@ def makeEdgemask(inputfile, outputfile, regionfile=0):
     
 
     hdu = pyfits.PrimaryHDU(output)
-    hdu.writeto(outputfile, clobber=True)
+    hdu.writeto(outputfile, overwrite=True)
 
 ######################
 

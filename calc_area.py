@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import pyfits, numpy, os, sys
+import astropy.io.fits as pyfits, numpy, os, sys
 subarudir = '/nfs/slac/g/ki/ki05/anja/SUBARU'
 
 cluster = sys.argv[1]

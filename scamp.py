@@ -839,7 +839,7 @@ def test_scamp(file):
     return good 
 
 def return_cat(cat='test.cat'):
-    import pyfits
+    import astropy.io.fits as pyfits
     p = pyfits.open(cat)
     a = [[p[2].data.field(x)[i] for x in ['FLUX_RADIUS','ALPHA_J2000','DELTA_J2000','MAG_ISO']] for i in range(len(p[2].data))]
     a.sort()
@@ -1391,7 +1391,7 @@ def run_swarp(run,night,snpath,filters=['u','g','r','i','z']):
                             fwhm_psfex, fwhm_psfex_min, fwhm_psfex_max, beta_psfex, chi2_psfex, ellipticity_psfex, asymmetry_psfex, aperture_corr = extract_psf(catalog, fwhm, ellip, xml, psfdir, filt)
 
                             print image, fwhm_psfex, beta_psfex, chi2_psfex, aperture_corr
-                            import pyfits, scipy
+                            import astropy.io.fits as pyfits, scipy
 
                             print pyfits.open(detect_image + '.swarp.cat')[2].columns
                             p_detect = pyfits.open(detect_image + '.swarp.cat')[2].data
@@ -1591,7 +1591,7 @@ def sdss_coverage(ra,dec,rad=0.2):
 def vizier(ra,dec,catalog):
     #output = '/tmp/' + str(ra) + str(dec)
     command = 'vizquery -mime=fits -source=2MASS-PSC -c="' + str(ra) + ' ' + str(dec) + '" -c.rm=15 > ' + catalog 
-    import pyfits, os    
+    import astropy.io.fits as pyfits, os    
     print command
     import commands
     out = commands.getoutput(command)
@@ -1679,7 +1679,7 @@ def run_sextractor(run,night,snpath):
 
 
     ''' first identify objects w/o close neighbors '''
-    import pyfits, scipy, os
+    import astropy.io.fits as pyfits, scipy, os
 
     
     
@@ -2108,7 +2108,7 @@ def run_sextractor(run,night,snpath):
         elif key == 'e_Jmag':
             for key_use in ['MAGERR_PSF_reg_JCAT','MAGERR_AUTO_reg_JCAT','MAGERR_APER_reg_JCAT','MAGERR_APERCORR_reg_JCAT']: 
                 cols.append(pyfits.Column(name=key_use,format='DN',array=vals))
-    output = pyfits.new_table(pyfits.ColDefs(cols))
+    output = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
     output.writeto(output_cat)
 
 
@@ -2333,7 +2333,7 @@ def select_stars(run,night,snpath):
         for col in porig[1].columns:
             cols.append(pyfits.Column(name=col.name,format=col.format, array=p.field(col.name)))
                                                                                                                                                                                                                                                                                            
-        output = pyfits.new_table(pyfits.ColDefs(cols))
+        output = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
         output_cat = '/Volumes/mosquitocoast/patrick/kpno/' + run +'/' + night + '/' + snpath + '/stars.fits'
 
         import os, scipy
@@ -2513,7 +2513,7 @@ def run(run=None,snpath=None):
             for key in sdss_array[0].keys():
                 cols.append(pyfits.Column(name=key,format='DN', array=scipy.array([x[key] for x in sdss_array])))
 
-            output = pyfits.new_table(pyfits.ColDefs(cols))
+            output = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
             os.system('rm ' + sdss_input_cat)
             output.writeto(sdss_input_cat)
 

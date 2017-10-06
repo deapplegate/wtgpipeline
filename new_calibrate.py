@@ -35,7 +35,7 @@ def output_calibrations():
         os.system(command)
     return
 #
-import sys, pyfits, os
+import sys, astropy.io.fits as pyfits, os
 from utilities import *
 from config_bonn import cluster, tag, arc, magnitude, filters
 import Numeric
@@ -136,9 +136,9 @@ hdu = pyfits.PrimaryHDU()
 hdulist = pyfits.HDUList([hdu])
 
 print cols
-tbhu = pyfits.new_table(cols)
+tbhu = pyfits.BinTableHDU.from_columns(cols)
 hdulist.append(tbhu)
-hdulist[1].header.update('EXTNAME','STDTAB')
+hdulist[1].header['EXTNAME']='STDTAB'
 os.system('rm /tmp/' + cluster + 'output' + arc + '.cat')
 hdulist.writeto('/tmp/' + cluster + 'output' + arc + '.cat')
 

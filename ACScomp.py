@@ -1,4 +1,4 @@
-import pylab, pyfits, sys, os
+import pylab, astropy.io.fits as pyfits, sys, os
 
 CLUSTER = sys.argv[1]
 
@@ -56,7 +56,7 @@ import scipy
 #    cols.append(pyfits.Column(name=filter,format=column.format,array=raw_p.field(name)))
 #for name in ['Xpos','Ypos']:
 #    cols.append(pyfits.Column(name=filter,format=column.format,array=raw_p.field(name)))
-#tbhdu=pyfits.new_table(pyfits.ColDefs(cols))
+#tbhdu=pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
 
 ''' look for cross-correlation within redshift range '''
 #for cut in [' 

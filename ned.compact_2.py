@@ -146,7 +146,7 @@ if not submit:
                     SeqNr_col.append(SeqNr)
     
     print 'importing pyfits and scipy '''
-    import pyfits, scipy
+    import astropy.io.fits as pyfits, scipy
     print 'done importing'
     
     hdu = pyfits.PrimaryHDU()
@@ -163,16 +163,16 @@ if not submit:
     cols.append(pyfits.Column(name='Z', format='D', array=scipy.array(z_col)))
     cols.append(pyfits.Column(name='FIELD_POS', format='J', array=scipy.ones(len(z_col))))
     coldefs = pyfits.ColDefs(cols)
-    OBJECTS = pyfits.new_table(coldefs)
-    OBJECTS.header.update('extname','OBJECTS')
+    OBJECTS = pyfits.BinTableHDU.from_columns(coldefs)
+    OBJECTS.header['extname']='OBJECTS'
     
     cols = []
     cols.append(pyfits.Column(name='OBJECT_POS', format='J', array=[1.]))
     cols.append(pyfits.Column(name='OBJECT_COUNT', format='D', array=[len(z_col)]))
     cols.append(pyfits.Column(name='CHANNEL_NR', format='J', array=[0]))
     coldefs = pyfits.ColDefs(cols)
-    FIELDS = pyfits.new_table(coldefs)
-    FIELDS.header.update('extname','FIELDS')
+    FIELDS = pyfits.BinTableHDU.from_columns(coldefs)
+    FIELDS.header['extname']='FIELDS'
     
     print 'writing out fits file '
     import os

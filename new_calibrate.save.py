@@ -20,7 +20,7 @@ def output_calibrations():
         os.system(command)
     return
 
-import sys, pyfits, os
+import sys, astropy.io.fits as pyfits, os
 from utilities import *
 
 table_name = sys.argv[1]
@@ -85,9 +85,9 @@ hdu = pyfits.PrimaryHDU()
 hdulist = pyfits.HDUList([hdu])
 
 print cols
-tbhu = pyfits.new_table(cols)
+tbhu = pyfits.BinTableHDU.from_columns(cols)
 hdulist.append(tbhu)
-hdulist[1].header.update('EXTNAME','STDTAB')
+hdulist[1].header['EXTNAME']='STDTAB'
 os.system('rm output.cat')
 hdulist.writeto('output.cat')
 
@@ -220,13 +220,13 @@ pgend()
 
 
 #input_photometric_data(table)
-#import pyfits
+#import astropy.io.fits as pyfits
 #table = hdulist["PSSC"].data
 #cdefs=get_coldefs()
 #pyfits.Column('RA',format='E',unit='Mag')
 #
 #cdecs.add_col(col)
-#pyfits.new_table(cdefs)
+#pyfits.BinTableHDU.from_columns(cdefs)
 #
 #fields = hdulist["PSSC"].fields
 #

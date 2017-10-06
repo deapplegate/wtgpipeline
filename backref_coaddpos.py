@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import pywcs
-import pyfits, sys, re
+import astropy.io.fits as pyfits, sys, re
 from optparse import OptionParser
 from numpy import *
 

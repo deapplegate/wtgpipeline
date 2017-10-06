@@ -4,7 +4,7 @@ f = open('maglocus_SYNTH','r')
 m = pickle.Unpickler(f)
 locus_mags = m.load()
 
-import pyfits
+import astropy.io.fits as pyfits
 
 dict = {'VJOHN':'MAG_APER1-SUBARU-10_2-1-W-J-V',
     'BJOHN':'MAG_APER1-SUBARU-10_2-1-W-J-B',
@@ -45,7 +45,7 @@ for l in locus_mags:
     
 
 print arrays
-import scipy, pyfits
+import scipy, astropy.io.fits as pyfits
 
 cols = []
 for key in dict.keys():
@@ -56,8 +56,8 @@ cols.append(pyfits.Column(name='ALPHA_J2000', format='E', array=scipy.array(arra
 cols.append(pyfits.Column(name='DELTA_J2000', format='E', array=scipy.array(arrays[key])))
 
 hdu = pyfits.PrimaryHDU()
-hduOBJECTS = pyfits.new_table(cols)
-hduOBJECTS.header.update('EXTNAME','OBJECTS')
+hduOBJECTS = pyfits.BinTableHDU.from_columns(cols)
+hduOBJECTS.header['EXTNAME']='OBJECTS'
 hdulist = pyfits.HDUList([hdu])
 hdulist.append(hduOBJECTS)
 

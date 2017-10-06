@@ -6,7 +6,7 @@
 ### NOTE: This assumes that W-C-RC is the lensing band!
 
 #the basics
-import pyfits
+import astropy.io.fits as pyfits
 from matplotlib.pyplot import *
 from numpy import *
 from glob import glob

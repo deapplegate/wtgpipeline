@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import ldac, pyfits, sys, numpy
+import ldac, astropy.io.fits as pyfits, sys, numpy
 
 subsetcatfile = sys.argv[1]
 fullcatfile = sys.argv[2]
@@ -44,4 +44,4 @@ hdus = [ pyfits.PrimaryHDU(), matchedCat.hdu]
 hdus.extend(_transferOtherHDUs(fullcatfile))
 
 hdulist = pyfits.HDUList(hdus)
-hdulist.writeto(outcatfile, clobber = True)
+hdulist.writeto(outcatfile, overwrite = True)

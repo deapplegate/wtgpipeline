@@ -5,7 +5,7 @@
 #adam-example# ./adam_CTcorr_run_correction_para.py 'W-C-RC' '2011-11-04' 'MACS0416-24' 'OCFR'
 # so it's either: ./parallel_manager.sh ./adam_CTcorr_run_correction_para.py ${filter} ${run} ${cluster} ${ending}
 # or it's       : ./adam_CTcorr_run_correction_para.py ${filter} ${run} ${cluster} ${ending}
-import pyfits
+import astropy.io.fits as pyfits
 import sys
 import os
 sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
@@ -45,4 +45,4 @@ for chip in chips_list:
 		im_ending=asarray(im_ending,dtype=float32)
 		imX=im_ending-im_diff
 		hdu=pyfits.PrimaryHDU(imX,header=head)
-		hdu.writeto(flX,clobber=True)
+		hdu.writeto(flX,overwrite=True)

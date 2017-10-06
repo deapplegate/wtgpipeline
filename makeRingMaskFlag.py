@@ -3,7 +3,7 @@
 
 from __future__ import with_statement
 import sys, os
-import pywcs, pyfits, numpy as np
+import pywcs, astropy.io.fits as pyfits, numpy as np
 import regionfile, ldac, matching
 
 #################################
@@ -77,10 +77,10 @@ def processCluster(brightstarfile, refimage, inputcat, outputfile, outputregionf
     masked = np.array([toMask[x] for x in cat['SeqNr']])
     flagColumn[masked] = 1.
 
-    outcat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = 'SeqNr', format = 'K', array = cat['SeqNr']),
+    outcat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = 'SeqNr', format = 'K', array = cat['SeqNr']),
                                                                          pyfits.Column(name = 'InRings', format = 'K', array = flagColumn)])))
 
-    outcat.saveas(outputfile, clobber=True)
+    outcat.saveas(outputfile, overwrite=True)
 
     regionfile.writeRegionFile(outputregionfile, [x.toPolygon() for x in regions], overwrite = True)
 

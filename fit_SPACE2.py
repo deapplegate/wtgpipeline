@@ -244,7 +244,7 @@ for cluster,clusterz,filter in list:
         pixscale=float(0.2) # arcsec / pix
 
 
-        import pyfits, scipy, pylab
+        import astropy.io.fits as pyfits, scipy, pylab
         pylab.clf()
         p = pyfits.open(catfile)
         a = scipy.array(p['OBJECTS'].data.field('BPZ_ODDS')) 

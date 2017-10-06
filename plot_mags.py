@@ -1,5 +1,5 @@
 
-import pyfits, os
+import astropy.io.fits as pyfits, os
 from config_bonn import cluster, tag, arc, magnitude, filters
 
 

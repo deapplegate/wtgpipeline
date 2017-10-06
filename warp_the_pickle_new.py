@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, glob,pyfits, os.path
+import sys, glob,astropy.io.fits as pyfits, os.path
 #from numpy import *
 import scipy
 import scipy.interpolate.interpolate as interp
@@ -90,7 +90,7 @@ def retrieve_sdss_spectra(dict,plot=False):
     #output = "/tmp/spSpec-%(MJD)d-%(plate)04d-%(fiberID)d.fit" % dict
     #os.system('wget ' + file + ' -O ' + output)
     print file
-    import pyfits, scipy
+    import astropy.io.fits as pyfits, scipy
     import scipy
     p = pyfits.open(file)
     mask = p[0].data[3]

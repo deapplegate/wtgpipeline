@@ -6,7 +6,7 @@
 ##########################
 
 import unittest, sys, os, optparse, re
-import pyfits, numpy as np
+import astropy.io.fits as pyfits, numpy as np
 import photometry_db, ldac, utilities
 
 ##########################
@@ -278,7 +278,7 @@ WHTB WHT-0-1-B 0.516663 0.0217352
 
     def testSaveOffsetsforSLR(self):
 
-        zplist = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = 'filter', format='20A', 
+        zplist = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = 'filter', format='20A', 
                                                                              array = self.filternames),
                                                                pyfits.Column(name = 'zeropoints', format='E', 
                                                                              array = self.orig_zps)])))
@@ -316,7 +316,7 @@ WHTB WHT-0-1-B 0.516663 0.0217352
         filternames = self.filternames + transferFilters
         orig_zps = self.orig_zps.tolist() + transfer_orig_zps
 
-        zplist = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = 'filter', format='20A', 
+        zplist = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = 'filter', format='20A', 
                                                                              array = filternames),
                                                                pyfits.Column(name = 'zeropoints', format='E', 
                                                                              array = orig_zps)])))

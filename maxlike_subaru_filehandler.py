@@ -62,7 +62,7 @@ def calcNearestNeighborCut(options, cat, psfsize, ldaclensing):
             fieldstable['OBJECT_COUNT'][:] = np.array([len(cat)])
             newhdus.append(fieldstable.hdu)
     hdulist = pyfits.HDUList(newhdus)
-    hdulist.writeto(temp_inputcatfile, clobber=True)
+    hdulist.writeto(temp_inputcatfile, overwrite=True)
     
     stringvals = copy.copy(options)
     stringvals.inputcatfile = temp_inputcatfile

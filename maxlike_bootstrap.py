@@ -4,7 +4,7 @@
 
 from __future__ import with_statement
 import glob, tempfile, subprocess, shutil, os
-import pyfits, numpy as np
+import astropy.io.fits as pyfits, numpy as np
 import ldac, maxlike_secure_driver as msd, bashreader
 
 ##############################
@@ -33,7 +33,7 @@ def createBootstrapCats(cluster, filter, image, indir, outdir, nbootstraps = 50)
         bootstrap = np.random.randint(0, len(inputcat), len(inputcat))
 
         mlcat = inputcat.filter(bootstrap)
-        mlcat.saveas('%s/%s.%s.%s.b%d.cat' % (outdir, cluster, filter, image, i), clobber=True)
+        mlcat.saveas('%s/%s.%s.%s.b%d.cat' % (outdir, cluster, filter, image, i), overwrite=True)
 
     
     

@@ -3,7 +3,7 @@
 #########################
 
 import sys, re, cPickle
-import numpy as np, pyfits
+import numpy as np, astropy.io.fits as pyfits
 import ldac
 
 
@@ -58,7 +58,7 @@ class PDZManager(object):
 
     def save(self, outfile):
 
-        self.pdzcat.saveas(outfile, clobber=True)
+        self.pdzcat.saveas(outfile, overwrite=True)
 
 
     ######################
@@ -108,11 +108,11 @@ class PDZManager(object):
         cols = [pyfits.Column(name = 'SeqNr', format = 'J', array = np.array(ids)),
                 pyfits.Column(name = 'pdz', format = '%dE' % npdzs, array = np.array(pdzs))]
 
-        pdzs = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+        pdzs = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
-        pdzs.hdu.header.update('MINPDZ', minPDZ)
-        pdzs.hdu.header.update('MAXPDZ', maxPDZ)
-        pdzs.hdu.header.update('PDZSTEP', pdzstep)
+        pdzs.hdu.header['MINPDZ']= minPDZ
+        pdzs.hdu.header['MAXPDZ']= maxPDZ
+        pdzs.hdu.header['PDZSTEP']= pdzstep
 
         
         return cls(pdzs)
@@ -160,11 +160,11 @@ class ZebraManager(PDZManager):
         cols = [pyfits.Column(name = 'SeqNr', format = 'J', array = ids),
                 pyfits.Column(name = 'pdz', format = '%dE' % npdzs, array = np.array(pdzs))]
 
-        pdzs = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+        pdzs = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
-        pdzs.hdu.header.update('MINPDZ', minPDZ)
-        pdzs.hdu.header.update('MAXPDZ', maxPDZ)
-        pdzs.hdu.header.update('PDZSTEP', pdzstep)
+        pdzs.hdu.header['MINPDZ']= minPDZ
+        pdzs.hdu.header['MAXPDZ']= maxPDZ
+        pdzs.hdu.header['PDZSTEP']= pdzstep
 
         
         return cls(pdzs)

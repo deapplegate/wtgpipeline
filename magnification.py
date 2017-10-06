@@ -136,7 +136,7 @@ def convert_probs_to_fits(file):
         cols.append(pyfits.Column(name='%.2f' % (zs[i]), format='D', array=f[:,i+1]))
     
     coldefs = pyfits.ColDefs(cols)
-    tbhdu = pyfits.new_table(coldefs)
+    tbhdu = pyfits.BinTableHDU.from_columns(coldefs)
     
     print 'writing out fits file '
     import os
@@ -370,7 +370,7 @@ def select_stars(input_cat,cluster,detect_band,website):
 
 def make_segmentation_image(photdir, cluster):
 
-    import pyfits
+    import astropy.io.fits as pyfits
 
     p = pyfits.open(photdir + cluster + '.slr.cat')
 
@@ -424,7 +424,7 @@ def make_segmentation_image(photdir, cluster):
 
 
 def run():    
-    import pyfits, os, redsequence, math, pylab, commands
+    import astropy.io.fits as pyfits, os, redsequence, math, pylab, commands
     import os, re, sys, string, scipy, MySQLdb
     from copy import copy                                                                                                                               
     
@@ -589,7 +589,7 @@ def run():
     for col in photometry[1].columns:
         cols.append(col)
     hdu = pyfits.PrimaryHDU()
-    temp1 = pyfits.new_table(cols)
+    temp1 = pyfits.BinTableHDU.from_columns(cols)
     hdulist = pyfits.HDUList([hdu])        
     hdulist.append(temp1)
     #hdulist.writeto('savetab.fits')

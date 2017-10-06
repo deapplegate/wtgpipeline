@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, glob,pyfits, os.path
+import sys, glob,astropy.io.fits as pyfits, os.path
 from numpy import *
 import scipy.interpolate.interpolate as interp
 from dappleutils import readtxtfile
@@ -55,8 +55,8 @@ def computeInstrument(instrument, filterfiles):
 
 
     cols = pyfits.ColDefs(spec_filters)
-    table = pyfits.new_table(cols)
-    table.header.update('EXTNAME', instrument, 'table name')
+    table = pyfits.BinTableHDU.from_columns(cols)
+    table.header['EXTNAME']=( instrument, 'table name')
     return table
 
 if __name__ == '__main__':
@@ -96,9 +96,9 @@ if __name__ == '__main__':
     hdulist.append(table)
 
     if options.outputcat is None:
-        hdulist.writeto('Pickles.%s.cat' % instrument, clobber = True)
+        hdulist.writeto('Pickles.%s.cat' % instrument, overwrite = True)
     else:
-        hdulist.writeto(options.outputcat, clobber = True)
+        hdulist.writeto(options.outputcat, overwrite = True)
 
 
 

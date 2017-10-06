@@ -1,4 +1,4 @@
-import pyfits
+import astropy.io.fits as pyfits
 
 C = pyfits.open('/nfs/slac/g/ki/ki05/anja/SUBARU/COSMOS_PHOTOZ/PHOTOMETRY_W-C-IC_aper/cosmos_lephare.cat')['OBJECTS'].data
 U = pyfits.open('/nfs/slac/g/ki/ki05/anja/SUBARU/COSMOS_PHOTOZ/PHOTOMETRY_W-C-IC_aper/COSMOS_PHOTOZ.APER.1.CWWSB_capak.list.all.bpz.tab')['STDTAB'].data

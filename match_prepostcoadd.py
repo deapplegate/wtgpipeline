@@ -6,7 +6,7 @@
 import os, string
 import numpy as np
 import scipy.spatial as spatial, scipy.misc as misc
-import pyfits, pywcs
+import astropy.io.fits as pyfits, pywcs
 import ldac, wcsregionfile
 import pylab
 

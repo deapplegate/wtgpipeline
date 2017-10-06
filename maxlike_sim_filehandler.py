@@ -63,7 +63,7 @@ class SimFilehandler(object):
         newcols = [pyfits.Column(name = 'z_b', format = 'E', array = bpz['BPZ_Z_B']),
                    pyfits.Column(name='odds', format = 'E', array = bpz['BPZ_ODDS']),
                    pyfits.Column(name='z_t', format = 'E', array = bpz['BPZ_T_B'])]
-        inputcat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(newcols) + manager.inputcat.hdu.columns))
+        inputcat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(newcols) + manager.inputcat.hdu.columns))
         manager.replace('inputcat', inputcat)
 
         manager.open('pdzmanager', options.inputPDZ, pdzfile_utils.PDZManager.open)

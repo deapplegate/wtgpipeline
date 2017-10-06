@@ -4,7 +4,7 @@
 #######################
 
 import sys, os, unittest
-import numpy as np, pyfits
+import numpy as np, astropy.io.fits as pyfits
 import ldac
 
 #######################
@@ -52,14 +52,14 @@ def makeCrossValCats(cat,  nsets):
                     raw_training_cat[key].append(cat[key][indices[slicepoints[i]:slicepoints[i+1]]])
 
 
-        testing_cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = key, format = 'E', array = vals) \
+        testing_cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = key, format = 'E', array = vals) \
                                                                         for key, vals in raw_testing_cat.iteritems()])))
-        testing_cat.hdu.header.update('EXTNAME', 'OBJECTS')
+        testing_cat.hdu.header['EXTNAME']= 'OBJECTS'
 
         
-        training_cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = key, format = 'E', array = np.hstack(vals)) \
+        training_cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = key, format = 'E', array = np.hstack(vals)) \
                                                                          for key, vals in raw_training_cat.iteritems()])))
-        training_cat.hdu.header.update('EXTNAME', 'OBJECTS')
+        training_cat.hdu.header['EXTNAME']= 'OBJECTS'
 
 
 
@@ -165,9 +165,9 @@ class TestCrossVal(unittest.TestCase):
     def testCreateBins(self):
 
 
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = key, format = 'E', array = vals) \
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = key, format = 'E', array = vals) \
                                                                         for key, vals in self.catalog.iteritems()])))
-        cat.hdu.header.update('EXTNAME', 'OBJECTS')
+        cat.hdu.header['EXTNAME']= 'OBJECTS'
 
         
         bins = createBins(cat, [[lambda x: x['a'] == 0, lambda x: x['a'] == 1], [lambda x: x['c'] == 1, lambda x: x['c'] == 0]])
@@ -193,9 +193,9 @@ class TestCrossVal(unittest.TestCase):
     def testCreateBins_onebin(self):
 
         
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = key, format = 'E', array = vals) \
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = key, format = 'E', array = vals) \
                                                                         for key, vals in self.catalog.iteritems()])))
-        cat.hdu.header.update('EXTNAME', 'OBJECTS')
+        cat.hdu.header['EXTNAME']= 'OBJECTS'
 
         
         bins = createBins(cat, [])

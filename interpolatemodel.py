@@ -3,7 +3,7 @@
 # Make Illumination correction images
 ##########################
 
-import pyfits, illummodels, os.path, sys, re
+import astropy.io.fits as pyfits, illummodels, os.path, sys, re
 from numpy import *
 
 ########################
@@ -40,7 +40,7 @@ def makeCorrection(filename):
         hdu = pyfits.PrimaryHDU(correction)
     
 
-    hdu.writeto('%s.illumcor.fits' % base, clobber = True)
+    hdu.writeto('%s.illumcor.fits' % base, overwrite = True)
 
 if __name__ == '__main__':
     

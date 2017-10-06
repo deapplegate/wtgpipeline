@@ -100,7 +100,7 @@ def all(subarudir,cluster,DETECT_FILTER,aptype,magtype,location=None):
     catalog_dir = subarudir + '/' + cluster + '/PHOTOMETRY_' + DETECT_FILTER + aptype + '/'
     catalog_dir_iso = subarudir + '/' + cluster + '/PHOTOMETRY_' + DETECT_FILTER + '_iso/'
 
-    import pyfits, os, string, random
+    import astropy.io.fits as pyfits, os, string, random
     min_err = 0.02
 
     #catalog_dir = '/'.join(catalog.split('/')[:-1])

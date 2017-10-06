@@ -107,7 +107,7 @@ def readData(manager):
             pyfits.Column(name = 'B', format = 'E',  array = B),
             pyfits.Column(name = 'phi', format = 'E',  array = phi),]
 
-    manager.store('inputcat', ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols))))
+    manager.store('inputcat', ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
 
 

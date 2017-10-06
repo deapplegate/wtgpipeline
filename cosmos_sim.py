@@ -158,10 +158,10 @@ def extractField(cat, size, snratio, maxradii = 4000, center = None, ra='ra', de
             pyfits.Column(name = 'r_pix', format = 'E', array = dr_pix[inField]),
             pyfits.Column(name = 'size', format = 'E', array = sizes[inField]),
             pyfits.Column(name = 'snratio', format = 'E', array = snratios[inField])]
-    cols = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
-    cols.hdu.header.update('EXTNAME', 'OBJECTS')
-    cols.hdu.header.update('CENTERX', center[0])
-    cols.hdu.header.update('CENTERY', center[1])
+    cols = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
+    cols.hdu.header['EXTNAME']= 'OBJECTS'
+    cols.hdu.header['CENTERX']= center[0]
+    cols.hdu.header['CENTERY']= center[1]
 
     return cols
 
@@ -183,7 +183,7 @@ def bootstrapField(cat, size, snratio, galdensity = 150, maxradii = 4000, id = '
 
         galdensity = float(ngals) / area
 
-
+    ngals=int(ngals)
     xs = np.random.uniform(0, maxRdist, ngals)
     ys = np.random.uniform(0, maxRdist, ngals)
     dr_pix = np.sqrt(xs**2 + ys**2)
@@ -199,11 +199,11 @@ def bootstrapField(cat, size, snratio, galdensity = 150, maxradii = 4000, id = '
             pyfits.Column(name = 'r_pix', format = 'E', array = dr_pix),
             pyfits.Column(name = 'size', format = 'E', array = sizes),
             pyfits.Column(name = 'snratio', format = 'E', array = snratios)]
-    cols = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
-    cols.hdu.header.update('EXTNAME', 'OBJECTS')
-    cols.hdu.header.update('GDENSITY', galdensity)
-    cols.hdu.header.update('CENTERX', 0.)
-    cols.hdu.header.update('CENTERY', 0.)
+    cols = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
+    cols.hdu.header['EXTNAME']= 'OBJECTS'
+    cols.hdu.header['GDENSITY']= galdensity
+    cols.hdu.header['CENTERX']= 0.
+    cols.hdu.header['CENTERY']= 0.
 
     return cols
 
@@ -294,7 +294,7 @@ def createCutoutSuite(zs,
 
     
 
-                simcat.saveas('%s.cat' % base, clobber=True)
+                simcat.saveas('%s.cat' % base, overwrite=True)
                 output = open('%s.momento' % base, 'wb')
                 cPickle.dump(momento, output, -1)
                 output.close()
@@ -333,7 +333,7 @@ def createCutoutSuite(zs,
 #                
 #                base = '%s/sim_z=%1.2f_rs=%1.2f_%d' % (outputdir, curz, cur_rs, i)
 #                simpdz = pdzfile_utils.associatePDZ(pdzs, simcat['z_id'])
-#                simcat.saveas('%s.cat' % base, clobber=True)
+#                simcat.saveas('%s.cat' % base, overwrite=True)
 #                output = open('%s.momento' % base, 'wb')
 #                cPickle.dump(momento, output)
 #                output.close()
@@ -463,11 +463,11 @@ def createCatalog(bpz,
 
 
     
-    simcat = pyfits.new_table(pyfits.ColDefs(cols))
-    simcat.header.update('EXTNAME', 'OBJECTS')
-    simcat.header.update('concen', concentration)
-    simcat.header.update('r_s', scale_radius)
-    simcat.header.update('z', zcluster)
+    simcat = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+    simcat.header['EXTNAME']= 'OBJECTS'
+    simcat.header['concen']= concentration
+    simcat.header['r_s']= scale_radius
+    simcat.header['z']= zcluster
 
 
     return ldac.LDACCat(simcat), momento

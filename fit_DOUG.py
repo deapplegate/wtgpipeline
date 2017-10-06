@@ -283,7 +283,7 @@ if True: #for cluster,clusterz,filter in list:
         pixscale=float(0.2) # arcsec / pix
 
 
-        import pyfits, scipy, pylab
+        import astropy.io.fits as pyfits, scipy, pylab
         pylab.clf()
         a = scipy.array(phot['BPZ_ODDS']) 
         a, b, varp = pylab.hist(a,bins=scipy.arange(0,1,0.05))

@@ -86,7 +86,7 @@ def fix_radec(SUPA,FLAT_TYPE):
     #outfile = '' + search_params['TEMPDIR'] + 'stub'
     #cats = [{'im_type': 'MAIN', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS..fixwcs.rawconv'}, {'im_type': 'D', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.D.fixwcs.rawconv'}]
 
-    import pyfits, sys, os, re, string, copy
+    import astropy.io.fits as pyfits, sys, os, re, string, copy
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
 

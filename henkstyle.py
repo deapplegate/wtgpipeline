@@ -3,7 +3,7 @@
 #  from Anja's simulated ata
 #######################
 
-import numpy as np, pyfits
+import numpy as np, astropy.io.fits as pyfits
 from dappleutils import readtxtfile
 import ldac, shearprofile as sp
 
@@ -17,8 +17,8 @@ def convertTxt2LDAC(file, keys, type):
 
         cols.append(pyfits.Column(name = key, format = type, array = rawfile[:,i]))
 
-    hdu = pyfits.new_table(pyfits.ColDefs(cols))
-    hdu.header.update('EXTNAME', 'OBJECTS')
+    hdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))
+    hdu.header['EXTNAME']= 'OBJECTS'
 
     return ldac.LDACCat(hdu)
     

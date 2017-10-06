@@ -154,7 +154,7 @@ def openraws(snpath,xcen,ycen,color):
         #read in file
 	import anydbm
 	db = anydbm.open(datb + snpath, 'c')
-	import pyfits
+	import astropy.io.fits as pyfits
         rawim = pyfits.open(path + snpath + "/" + color + "/reg" + color + ".fits")
         image = rawim[0].data
         rawim = pyfits.open(path + snpath + "/" + color + "/reg" + color + "seg.fits")
@@ -354,7 +354,7 @@ class galstat:
                 #Given X0 and Y0, construct an array that contains allg of the correct points
                 #read in file
 
-		import pyfits
+		import astropy.io.fits as pyfits
 
                 div = 1
 

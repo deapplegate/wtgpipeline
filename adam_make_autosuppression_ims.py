@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import glob
 import sys ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
 import imagetools
-import pyfits
+import astropy.io.fits as pyfits
 import os
 input_dir=sys.argv[1]
 input_dir=input_dir.replace('//','/')
@@ -50,5 +50,5 @@ for coadd_fl in coadd_fls:
 	hdu=pyfits.PrimaryHDU(asarray(smooth_img,dtype=float32))
 	hdu.header=head
 	smoothed_fl =dir_autosuppression+supa+'.coadd.smoothed.fits'
-	hdu.writeto(smoothed_fl,clobber=True,output_verify='ignore')
+	hdu.writeto(smoothed_fl,overwrite=True,output_verify='ignore')
 	print 'wrote file: '+smoothed_fl

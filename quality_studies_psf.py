@@ -1,4 +1,4 @@
-import numpy, sys, os, pylab, pyfits, ldac, math
+import numpy, sys, os, pylab, astropy.io.fits as pyfits, ldac, math
 
 
 

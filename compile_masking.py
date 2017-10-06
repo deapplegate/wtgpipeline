@@ -75,7 +75,7 @@ def combineRings(ringfiles, outputfile):
         result[np.logical_and(np.right_shift(image, 5) == 1, np.logical_not(np.bitwise_and(image, 16) == 16))] = 1
 
     hdu = pyfits.PrimaryHDU(result)
-    hdu.writeto(outputfile, clobber=True)
+    hdu.writeto(outputfile, overwrite=True)
 
 
 

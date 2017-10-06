@@ -134,13 +134,13 @@ pgend()
 
 
 #input_photometric_data(table)
-#import pyfits
+#import astropy.io.fits as pyfits
 #table = hdulist["PSSC"].data
 #cdefs=get_coldefs()
 #pyfits.Column('RA',format='E',unit='Mag')
 #
 #cdecs.add_col(col)
-#pyfits.new_table(cdefs)
+#pyfits.BinTableHDU.from_columns(cdefs)
 #
 #fields = hdulist["PSSC"].fields
 #

@@ -4,7 +4,7 @@
 ################
 
 import os, glob, re, sys, copy
-import pyfits, numpy as np
+import astropy.io.fits as pyfits, numpy as np
 import ldac, utilities
 import calctransformscaling as cts
 import dump_cat_filters as dcf
@@ -167,13 +167,13 @@ def applyCorrection(cluster, lensingfilter, activefilter = None):
                                           format = 'E',
                                           array = magerr))
 
-            correctedCat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+            correctedCat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
             hdus = [pyfits.PrimaryHDU(), correctedCat.hdu]
             hdus.extend(pcc._transferOtherHDUs(catfile))
             hdulist = pyfits.HDUList(hdus)
             print '%s/%s.corrected.cat' % (catdir, base)
-            hdulist.writeto('%s/%s.corrected.cat' % (catdir, base), clobber=True)
+            hdulist.writeto('%s/%s.corrected.cat' % (catdir, base), overwrite=True)
 
 
 

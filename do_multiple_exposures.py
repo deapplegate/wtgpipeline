@@ -9,7 +9,7 @@
 ##########################
 
 from __future__ import with_statement
-import re, numpy, commands, string, os, sys, commands, glob, pyfits, subprocess
+import re, numpy, commands, string, os, sys, commands, glob, astropy.io.fits as pyfits, subprocess
 import utilities, bashreader
 
 #################################

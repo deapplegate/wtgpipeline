@@ -2,7 +2,7 @@
 ###########################
 
 import sys, glob, numpy as np, os, cPickle
-import pyfits, shearprofile as sp
+import astropy.io.fits as pyfits, shearprofile as sp
 import ldac, nfwutils, pymc
 
 ####################

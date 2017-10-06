@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, pyfits
+import sys, astropy.io.fits as pyfits
 from numpy import *
 
 image_name = sys.argv[1]

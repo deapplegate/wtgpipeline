@@ -36,7 +36,7 @@ def createSimFiles(cluster, filter, image, mass, redshift, bpzfile, outdir, nfie
         field = cs.bootstrapField(bpz, np.ones(len(bpz)), np.ones(len(bpz)), galdensity = galdensity,
                                   maxradii = maxradii, id = 'SeqNr', ngals = ngals)
 
-        field.saveas('%s/%s.%s.%s.master_%d.cat' % (outdir, cluster, filter, image, i), clobber=True)
+        field.saveas('%s/%s.%s.%s.master_%d.cat' % (outdir, cluster, filter, image, i), overwrite=True)
 
         fields.append(field)
 
@@ -76,7 +76,7 @@ def createPrecutSimFiles(cluster, filter, image, mass, redshift, bpzfile, reconf
         field = cs.bootstrapField(bpz, np.ones(len(bpz)), np.ones(len(bpz)), galdensity = None,
                                   maxradii = maxradii, id = 'ID', ngals = 10000)
 
-        field.saveas('%s/%s.%s.%s.master_%d.cat' % (outdir, cluster, filter, image, i), clobber=True)
+        field.saveas('%s/%s.%s.%s.master_%d.cat' % (outdir, cluster, filter, image, i), overwrite=True)
 
         fields.append(field)
 
@@ -114,7 +114,7 @@ def createPrecutNoOutlierSimFiles(cluster, filter, image, mass, redshift, bpzfil
         field = cs.bootstrapField(bpz, np.ones(len(bpz)), np.ones(len(bpz)), galdensity = None,
                                   maxradii = maxradii, id = 'SeqNr', ngals = 10000)
 
-        field.saveas('%s/%s.%s.%s.master_%d.cat' % (outdir, cluster, filter, image, i), clobber=True)
+        field.saveas('%s/%s.%s.%s.master_%d.cat' % (outdir, cluster, filter, image, i), overwrite=True)
 
         fields.append(field)
 

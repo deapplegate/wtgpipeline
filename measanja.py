@@ -65,7 +65,7 @@ def calc_stats(image_small, flag_small, poly_file,filt):
 
         print out_flag_file
         
-        import pyfits, os 
+        import astropy.io.fits as pyfits, os 
         
         rawim = pyfits.open(out_flag_file)
         os.system('rm ' + out_flag_file)
@@ -79,7 +79,7 @@ def calc_stats(image_small, flag_small, poly_file,filt):
         
         bgpix = flag * (image )
 
-        import pyfits, os
+        import astropy.io.fits as pyfits, os
         fitsobj = pyfits.HDUList()
         hdu = pyfits.PrimaryHDU()
         hdu.data = bgpix

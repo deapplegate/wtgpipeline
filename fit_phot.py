@@ -6,7 +6,7 @@
 #####################
 
 import sys, os, optparse, re, unittest, inspect
-import numpy, pyfits
+import numpy, astropy.io.fits as pyfits
 if __name__ == '__main__':
     import matplotlib
     matplotlib.use('PS')
@@ -1100,7 +1100,7 @@ class TestRegularCalib(unittest.TestCase):
         maxval = pyfits.Column(name = 'SEx_MaxVal', format = 'E', array = numpy.ones(100))
         flag = pyfits.Column(name = 'SEx_Flag', format = 'K', array = numpy.zeros(100))
 
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([mags, magerrs, clean,
                                                             backgr, maxval, flag, 
                                                             sdss, sdsserr, sdsscolor, 
                                                             sdsscolorerr])))
@@ -1153,7 +1153,7 @@ class TestRegularCalib(unittest.TestCase):
         maxval = pyfits.Column(name = 'SEx_MaxVal', format = 'E', array = numpy.ones(100))
         flag = pyfits.Column(name = 'SEx_Flag', format = 'K', array = numpy.zeros(100))
 
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([mags, magerrs, clean,
                                                             backgr, maxval, flag, 
                                                             sdss, sdsserr, sdsscolor, 
                                                             sdsscolorerr])))
@@ -1215,7 +1215,7 @@ class TestRegularCalib(unittest.TestCase):
         maxval = pyfits.Column(name = 'SEx_MaxVal', format = 'E', array = numpy.ones(100))
         flag = pyfits.Column(name = 'SEx_Flag', format = 'K', array = numpy.zeros(100))
 
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([mags, magerrs, clean,
                                                             backgr, maxval, flag, 
                                                             sdss, sdsserr, sdsscolor, 
                                                             sdsscolorerr])))
@@ -1275,7 +1275,7 @@ class TestRegularCalib(unittest.TestCase):
         maxval = pyfits.Column(name = 'SEx_MaxVal', format = 'E', array = numpy.ones(100))
         flag = pyfits.Column(name = 'SEx_Flag', format = 'K', array = numpy.zeros(100))
 
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([mags, magerrs, clean,
                                                             backgr, maxval, flag, 
                                                             sdss, sdsserr, sdsscolor, 
                                                             sdsscolorerr])))
@@ -1344,7 +1344,7 @@ class TestRegularCalib(unittest.TestCase):
         maxval = pyfits.Column(name = 'SEx_MaxVal', format = 'E', array = numpy.ones(100))
         flag = pyfits.Column(name = 'SEx_Flag', format = 'K', array = numpy.zeros(100))
 
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([mags, magerrs, clean,
                                                             backgr, maxval, flag, 
                                                             sdss, sdsserr, sdsscolor, 
                                                             sdsscolorerr])))
@@ -1406,7 +1406,7 @@ class TestRegularCalib(unittest.TestCase):
         maxval = pyfits.Column(name = 'SEx_MaxVal', format = 'E', array = numpy.ones(100))
         flag = pyfits.Column(name = 'SEx_Flag', format = 'K', array = numpy.zeros(100))
 
-        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+        cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([mags, magerrs, clean,
                                                             backgr, maxval, flag, 
                                                             sdss, sdsserr, sdsscolor, 
                                                             sdsscolorerr])))
@@ -1463,8 +1463,8 @@ class TestSpecialCalib(unittest.TestCase):
 
         if not os.path.exists(self.imagefile):
             hdu = pyfits.PrimaryHDU(numpy.ones((100,100)))
-            hdu.header.update('MAGZP', self.zp)
-            hdu.writeto(self.imagefile, clobber=True)
+            hdu.header['MAGZP']= self.zp
+            hdu.writeto(self.imagefile, overwrite=True)
 
     #####
 
@@ -1527,8 +1527,8 @@ class TestMain(unittest.TestCase):
         self.catfile = 'fitphot.testcat.cat'
         
         if not os.path.exists(self.catfile):
-            hdu = pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = 'SeqNr', format='K', array = numpy.arange(100))]))
-            hdu.header.update('EXTNAME', 'PSSC')
+            hdu = pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(name = 'SeqNr', format='K', array = numpy.arange(100))]))
+            hdu.header['EXTNAME']= 'PSSC'
             hdu.writeto(self.catfile)
             self.cat = ldac.LDACCat(hdu)
 
