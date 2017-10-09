@@ -1,4 +1,4 @@
-#! /bin/bash -xv
+#! /usr/bin/env python
 
 # $1: main dir
 # $2: star catalog
