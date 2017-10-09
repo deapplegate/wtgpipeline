@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 import re,os
 os.putenv('INSTRUMENT','SUBARU')
 os.system("rm /nfs/slac/g/ki/ki02/xoc/anja/SUBARU/2007-07-18_skyflat_test/SKYFLAT//BINNED/div_1993_1994_MEDIAN_3.0_3.0_chip_mos.fits")
