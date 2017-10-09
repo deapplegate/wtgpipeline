@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#! /usr/bin/env python
 """>> sqlcl << command line query tool by Tamas Budavari <budavari@jhu.edu>
 Usage: sqlcl [options] sqlfile(s)
 
@@ -107,8 +107,3 @@ def main(argv):
 if __name__=='__main__':
     import sys
     main(sys.argv)
-
-
-
-
-
