@@ -5,7 +5,8 @@
 
 from __future__ import with_statement
 import cPickle
-import numpy as np, pymc, astropy.io.fits as pyfits
+import numpy as np, astropy.io.fits as pyfits
+import pymc
 import nfwmodeltools as tools, varcontainer
 import nfwutils, shearprofile as sp, ldac
 import cPickle
