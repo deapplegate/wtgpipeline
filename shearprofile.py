@@ -262,22 +262,24 @@ def AdamMass(cc, rs, rmax, z):
 
 
 def ConfidenceRegion(dist, interval = .68, bins = 50, range = None, useLog = False, useMedian = False):
+	
+    print "adam-shearprofile.ConfidenceRegion: dist=",dist,"interval=",interval,"bins=",bins,"range=",range,"useLog=",useLog,"useMedian=",useMedian
 
+    #adam-debug#    try:
     if useLog:
         counts, left_edges = histogram(log(dist), bins, range)
     else:
         counts, left_edges = histogram(dist, bins, range)
-    counts = counts[:-1]
+    #adam-tmp# counts = counts[:-1]
     left_edges = left_edges[:-1]
-
+    
     center = left_edges + (left_edges[1] - left_edges[0])/2.
-
-
+    
+    
     total_objs = sum(counts)
     
     if useMedian:
         maxl = median(dist)
-        
     else:
         
         step = 1
@@ -285,60 +287,59 @@ def ConfidenceRegion(dist, interval = .68, bins = 50, range = None, useLog = Fal
         maxl = center[counts == threshold]
         if useLog:
             maxl = exp(maxl)
-
+    
         try:
             maxl = mean(maxl)
         except:
+	    print "adam-look: hit except! maxl = mean(maxl) (I dont know if this is will hit exception later I'm just notifying, I've got no judgement on if this is a real problem or not)"
             pass
-
+    
     x = sort(dist)
     
     # Initialize interval
     min_int = [None,None]
-    
+        
     try:
-        
-        # Number of elements in trace
-        n = len(x)
-        
-        # Start at far left
-        start, end = 0, int(n*interval)
-        hi, lo = x[end], x[start]
-        
-        # Initialize minimum width to large value
-        min_width = inf
-
-
-        while end < n and lo <= maxl:
-
-
-
-            # Endpoints of interval
+            
+            # Number of elements in trace
+            n = len(x)
+            
+            # Start at far left
+            start, end = 0, int(n*interval)
             hi, lo = x[end], x[start]
             
-            if lo <= maxl <= hi:
-        
-                # Width of interval
-                width = hi - lo
-            
-                # Check to see if width is narrower than minimum
-                if width < min_width:
-                    min_width = width
-                    min_int = [lo, hi]
-            
-            # Increment endpoints
-            start +=1
-            end += 1
-        
-
+            # Initialize minimum width to large value
+            min_width = inf
     
+            while end < n and lo <= maxl:
+    
+                # Endpoints of interval
+                hi, lo = x[end], x[start]
+                
+                if lo <= maxl <= hi:
+            
+                    # Width of interval
+                    width = hi - lo
+                
+                    # Check to see if width is narrower than minimum
+                    if width < min_width:
+                        min_width = width
+                        min_int = [lo, hi]
+                
+                # Increment endpoints
+                start +=1
+                end += 1
+        
     except IndexError:
-        print 'Too few elements for interval calculation'
-        raise IndexError
-    
+            print 'Too few elements for interval calculation'
+            raise IndexError
+        
     err = array([maxl - min_int[0], min_int[1] - maxl])
-
+    
     return maxl, err
+    #adam-debug# except: #adam-try
+    #adam-debug#	import ipdb; ipdb.set_trace() # BREAKPOINT (`c` or `n` to continue)
+    #adam-debug#	namespace.update(locals())
 
 
 def ConfidenceRegionFromPDF(xsamples, pdf, interval = .68, step=1):
