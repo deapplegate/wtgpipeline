@@ -1,2 +1,7 @@
 scratch/
 *.tmp
+*.pyc
+*.c
+*.so
+OUT-*.log
+simqueue/
