@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import kapteyn.wcs as wcs
-import astropy.io.fits as pyfits, sys, re
+import astropy, astropy.io.fits as pyfits, sys, re
 from optparse import OptionParser
 from numpy import *
 

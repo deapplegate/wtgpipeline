@@ -15,7 +15,7 @@ Star reflections are marked by ds9 circle regions. Stars are seperated by a non-
 
 import unittest, sys, re, os, glob, tempfile, subprocess, regionfile as rf
 import wcsregionfile as wrf
-import astropy.io.fits as pyfits
+import astropy, astropy.io.fits as pyfits
 import leastsq
 import numpy as np
 from optparse import OptionParser
@@ -418,7 +418,7 @@ def maskStars(weight, flag, stars, buffer=50):
             
             inRing = np.logical_and(dR > (ring.r - buffer), dR < (ring.r + buffer))
 
-#            weight[inRing] = 0
+            #weight[inRing] = 0
             flag[inRing] = 1
 
 
@@ -918,7 +918,7 @@ class TestStarMasking(unittest.TestCase):
         newweight, newflag = maskStars(weight, flag, [rings], buffer=2)
 
 
-#        self.assertTrue((newweight[ring2] == 0).all())
+        #self.assertTrue((newweight[ring2] == 0).all())
         self.assertTrue((newweight[insideR1] == 0).all())
         self.assertTrue((newflag[ring2] == 1).all())
         self.assertTrue((newflag[insideR1] == 1).all())
@@ -964,7 +964,7 @@ class TestStarMasking(unittest.TestCase):
 
         select = np.logical_and(dR >= 30, dR < 100)
         inRing = np.logical_and(dR > 95, dR < 105)
-#        expectedweight[inRing] = 0
+        #expectedweight[inRing] = 0
         expectedflag[inRing] = 1
 
         stars = [[Ring(x_star1[0], x_star1[1], 30), Ring(x_star1[0], x_star1[1], 100)]]
@@ -978,7 +978,7 @@ class TestStarMasking(unittest.TestCase):
 
         select = np.logical_and(dR >= 15, dR < 30)
         inRing = np.logical_and(dR > 25, dR < 35)
-#        expectedweight[inRing] = 0
+        #expectedweight[inRing] = 0
         expectedflag[inRing] = 1
 
         stars.append([Ring(x_star2[0], x_star2[1], 15), Ring(x_star2[0], x_star2[1], 30)])

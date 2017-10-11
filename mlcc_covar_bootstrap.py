@@ -5,7 +5,7 @@
 
 from __future__ import with_statement
 import glob, tempfile, subprocess, shutil, os, sys
-import astropy.io.fits as pyfits, numpy as np
+import astropy, astropy.io.fits as pyfits, numpy as np
 import ldac, maxlike_subaru_filehandler as msf, bashreader
 import shearprofile as sp
 

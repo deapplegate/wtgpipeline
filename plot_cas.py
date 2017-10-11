@@ -1,7 +1,7 @@
 
 def convert_to_pogson(p):
 
-    import astropy.io.fits as pyfits, scipy
+    import astropy, astropy.io.fits as pyfits, scipy
 
     cols = []
     for col in p.columns:
@@ -25,7 +25,7 @@ def convert_to_pogson(p):
 
 
 
-import astropy.io.fits as pyfits, pylab, scipy
+import astropy, astropy.io.fits as pyfits, pylab, scipy
 
 p = pyfits.open('extflux_pkelly50.fit')[1]#[0:20000]
 

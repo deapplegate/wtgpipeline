@@ -3,7 +3,7 @@
 #########################
 
 import sys, re, cPickle
-import numpy as np, astropy.io.fits as pyfits
+import numpy as np, astropy, astropy.io.fits as pyfits
 import ldac
 
 

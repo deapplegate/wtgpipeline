@@ -20,7 +20,7 @@ def output_calibrations():
         os.system(command)
     return
 
-import sys, astropy.io.fits as pyfits, os
+import sys, astropy, astropy.io.fits as pyfits, os
 from utilities import *
 
 table_name = sys.argv[1]
@@ -220,7 +220,7 @@ pgend()
 
 
 #input_photometric_data(table)
-#import astropy.io.fits as pyfits
+#import astropy, astropy.io.fits as pyfits
 #table = hdulist["PSSC"].data
 #cdefs=get_coldefs()
 #pyfits.Column('RA',format='E',unit='Mag')

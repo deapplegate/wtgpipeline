@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, glob,astropy.io.fits as pyfits, os.path
+import sys, glob,astropy, astropy.io.fits as pyfits, os.path
 from numpy import *
 import scipy.interpolate.interpolate as interp
 from dappleutils import readtxtfile

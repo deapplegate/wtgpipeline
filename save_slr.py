@@ -6,7 +6,7 @@
 ##########################
 
 import unittest, sys, os, optparse, re
-import astropy.io.fits as pyfits, numpy as np
+import astropy, astropy.io.fits as pyfits, numpy as np
 import photometry_db, ldac, utilities
 
 ##########################

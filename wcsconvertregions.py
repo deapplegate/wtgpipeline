@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #######################
 
-import os, glob, re, astropy.io.fits as pyfits, pywcs, wcsregionfile as wrf, sys
+import os, glob, re, astropy, astropy.io.fits as pyfits, pywcs, wcsregionfile as wrf, sys
 
 #######################
 
@@ -114,9 +114,9 @@ def main(argv = sys.argv):
 #################################
 
 if __name__ == '__main__':
-
-    main()
-
-
-
-    
+    sys.path.append('/u/ki/awright/InstallingSoftware/pythons/')
+    from adam_quicktools_ArgCleaner import ArgCleaner
+    args=ArgCleaner(sys.argv)
+    print "args=", args
+    import pyregion
+    main(args)

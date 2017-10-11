@@ -63,7 +63,11 @@ def doFile(inputfile, outputfile):
     else:
         input = inputfile
 
-    regions = regionfile.parseRegionFile(input.readlines())
+    try:
+    	regions = regionfile.parseRegionFile(input.readlines())
+    except:
+	print "adam-look", inputfile
+	raise
 
     if len(regions) == 0:
         return

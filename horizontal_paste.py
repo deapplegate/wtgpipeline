@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, astropy.io.fits as pyfits, re
+import sys, astropy, astropy.io.fits as pyfits, re
 from optparse import OptionParser
 from numpy import *
 

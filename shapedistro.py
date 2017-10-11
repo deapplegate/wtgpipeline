@@ -2,7 +2,7 @@
 ######################
 
 import re, inspect
-import pymc, numpy as np, scipy.special, astropy.io.fits as pyfits
+import pymc, numpy as np, scipy.special, astropy, astropy.io.fits as pyfits
 import ldac, crossval
 import voigt_tools as vtools
 

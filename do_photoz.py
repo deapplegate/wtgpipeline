@@ -57,13 +57,11 @@ def special_objects():
 
     return tempcat
     
-
 def convert_spectra(specfile):
     run("ldacrentab -i " + specfile.file + " -t OBJECTS STDTAB FIELDS NULL -o " + specfile.next(),[specfile.file])
     run("ldacrenkey -i " + specfile.file  + " -t STDTAB -k Ra ALPHA_J2000 Dec DELTA_J2000 Z z -o " + specfile.next(),[specfile.file])
     run("ldaccalc -i " + specfile.file + " -t STDTAB -c '(Nr);'  -k LONG -n SeqNr '' -o " + specfile.next(),[specfile.file] )
     return specfile
-
 
 from config_bonn import cluster, tag, arc, magnitude, filters, spectra,area 
 import sys, os, re
@@ -259,6 +257,3 @@ if everything == 'yes':
         #stg += "\t" + dict['ALPHA_J2000'] + " " + dict['DELTA_J2000']  + ' ' + dict['Flag_W-C-IC']
         out.write(stg+ '\n')
     out.close()
-    
-    
-    

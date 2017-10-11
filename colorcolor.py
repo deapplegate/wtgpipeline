@@ -4,7 +4,7 @@ from ppgplot import *
 
 from Numeric import *
 
-import astropy.io.fits as pyfits 
+import astropy, astropy.io.fits as pyfits 
 
 from config_bonn import cluster, arc
 
@@ -212,7 +212,7 @@ pgend()
 
 
 #input_photometric_data(table)
-#import astropy.io.fits as pyfits
+#import astropy, astropy.io.fits as pyfits
 #table = hdulist["PSSC"].data
 #cdefs=get_coldefs()
 #pyfits.Column('RA',format='E',unit='Mag')

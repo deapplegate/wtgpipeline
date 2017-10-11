@@ -5,7 +5,7 @@
 
 from __future__ import with_statement
 import unittest, sys, re, os, optparse
-import astropy.io.fits as pyfits, numpy, measure_unstacked_photometry
+import astropy, astropy.io.fits as pyfits, numpy, measure_unstacked_photometry
 import ldac, utilities, photometry_db
 
 photometry_db.initConnection()

@@ -4,7 +4,7 @@
 ################
 
 import os, glob, re, sys, copy
-import astropy.io.fits as pyfits, numpy as np
+import astropy, astropy.io.fits as pyfits, numpy as np
 import ldac, utilities
 import calctransformscaling as cts
 import dump_cat_filters as dcf

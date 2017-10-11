@@ -2,8 +2,7 @@
 # Handles loading files for a simulation run
 #############################
 
-import ldac, cPickle, numpy as np
-import astropy.io.fits as pyfits
+import ldac, cPickle, numpy as np, astropy, astropy.io.fits as pyfits
 import pdzfile_utils, shearprofile as sp
 
 #############################

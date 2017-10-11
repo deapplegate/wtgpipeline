@@ -1,3 +1,4 @@
+#adam: this is an older version of cosmos_sim.py from ~/bonnpipeline, which probably won't be needed anymore, but should be saved anyway (just in case)
 import re, cPickle
 import numpy as np
 import numpy

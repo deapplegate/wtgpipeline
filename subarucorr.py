@@ -1,4 +1,4 @@
-import astropy.io.fits as pyfits, numpy, scipy, sys, re,pylab
+import astropy, astropy.io.fits as pyfits, numpy, scipy, sys, re,pylab
 
 def mypoly(a, x):
     #n = n terms in fit

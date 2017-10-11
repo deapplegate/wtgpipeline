@@ -2,7 +2,7 @@
 #######################
 
 import os, sys, unittest, re, optparse as op, glob
-import astropy.io.fits as pyfits
+import astropy, astropy.io.fits as pyfits
 import wcsregionfile as wrf, wcsconvertregions as wcr
 
 #######################

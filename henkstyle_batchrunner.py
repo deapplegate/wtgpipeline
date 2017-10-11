@@ -4,7 +4,7 @@
 ########################
 
 import numpy as np
-import sys, ldac, astropy.io.fits as pyfits
+import sys, ldac, astropy, astropy.io.fits as pyfits
 import bootstrap_masses as bm
 import process_cosmos_sims as pcs
 import os, cPickle

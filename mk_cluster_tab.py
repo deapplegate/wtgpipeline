@@ -1,4 +1,4 @@
-import MySQLdb, sys, os, re, time, utilities, astropy.io.fits as pyfits                                                                                                                          
+import MySQLdb, sys, os, re, time, utilities, astropy, astropy.io.fits as pyfits                                                                                                                          
 from copy import copy
 db2 = MySQLdb.connect(db='subaru', user='weaklensing', passwd='darkmatter', host='ki-sr01')
 c = db2.cursor()

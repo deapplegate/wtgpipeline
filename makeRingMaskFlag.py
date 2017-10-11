@@ -3,7 +3,7 @@
 
 from __future__ import with_statement
 import sys, os
-import pywcs, astropy.io.fits as pyfits, numpy as np
+import pywcs, astropy, astropy.io.fits as pyfits, numpy as np
 import regionfile, ldac, matching
 
 #################################

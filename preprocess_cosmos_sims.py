@@ -2,15 +2,16 @@
 #####################
 
 import os, cPickle, sys, glob
-import astropy.io.fits as pyfits
+import astropy, astropy.io.fits as pyfits
 import process_cosmos_sims as pcs, ldac
 
 
 def preprocessFile(resultfile):
-
+    print "start"
     #for processing the results of the MaxLike files once
 
     massdist, masses = pcs.processFile(resultfile)
+    print massdist, masses
 
     dir, filename = os.path.split(resultfile)
 
@@ -37,6 +38,7 @@ def preprocessFile(resultfile):
 if __name__ == '__main__':
 
     resultdir = sys.argv[1]
+    print resultdir
 
     resultfiles = glob.glob('%s/*.out' % resultdir)
 

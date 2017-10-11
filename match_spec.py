@@ -61,7 +61,7 @@ print command
 os.system('pwd')
 run(command, [matchedcat])
 print matchedcat, specfile.file            
-import astropy.io.fits as pyfits
+import astropy, astropy.io.fits as pyfits
 spectable = pyfits.open(matchedcat)['STDTAB']
 print "looking at "+varname+'-'+filterlist[0]+'_data'
 print spectable

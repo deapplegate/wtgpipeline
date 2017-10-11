@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
 import ldac, astropy.io.fits as pyfits, sys, numpy
-
-subsetcatfile = sys.argv[1]
-fullcatfile = sys.argv[2]
-outcatfile = sys.argv[3]
+sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
+import imagetools
+args=imagetools.ArgCleaner(sys.argv)
+subsetcatfile = args[0]
+fullcatfile = args[1]
+outcatfile = args[2]
 
 def matchById(smallcat, bigcat, smallid='SeqNr', bigid=None):
     if bigid is None:

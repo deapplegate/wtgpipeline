@@ -197,7 +197,7 @@ def plot_bpz_probs(id,file,outfile):
                 pylab.clf()
     
 
-import astropy.io.fits as pyfits
+import astropy, astropy.io.fits as pyfits
 import os
 import os, sys, bashreader, commands
 from utilities import *

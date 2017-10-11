@@ -1,4 +1,4 @@
-import pylab, astropy.io.fits as pyfits, sys, os
+import pylab, astropy, astropy.io.fits as pyfits, sys, os
 
 CLUSTER = sys.argv[1]
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import astropy.io.fits as pyfits, sys, os, re, string
+import astropy, astropy.io.fits as pyfits, sys, os, re, string
 from config_bonn import cluster, tag, arc, filters
 
 filters = ['u','g','r','i','z']

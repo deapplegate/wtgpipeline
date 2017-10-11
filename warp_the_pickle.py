@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, glob,astropy.io.fits as pyfits, os.path
+import sys, glob,astropy, astropy.io.fits as pyfits, os.path
 import scipy
 import scipy.interpolate.interpolate as interp
 
@@ -65,7 +65,7 @@ def download_sdss_spectrum(dict,plot=False):
     print dict
     file = "http://das.sdss.org/spectro/1d_26/%(plate)04d/1d/spSpec-%(MJD)d-%(plate)04d-%(fiberID)03d.fit" % dict      
     print file
-    import astropy.io.fits as pyfits, scipy
+    import astropy, astropy.io.fits as pyfits, scipy
     import scipy
     p = pyfits.open(file)
     mask = p[0].data[3]

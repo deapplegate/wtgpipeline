@@ -3,7 +3,7 @@
 
 from __future__ import with_statement
 import unittest, sys, math, re, os, optparse
-import numpy, astropy.io.fits as pyfits
+import numpy, astropy, astropy.io.fits as pyfits
 from scipy import interpolate
 import ldac, utilities
 

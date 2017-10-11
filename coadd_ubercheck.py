@@ -14,7 +14,7 @@
 #
 #
 
-import sys, os,  glob , time, re, datetime, pyfits, ldac, numpy
+import sys, os,  glob , time, re, datetime, astropy, astropy.io.fits as pyfits, ldac, numpy
 
 #import check_scamp_dates
 

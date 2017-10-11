@@ -1,5 +1,5 @@
 from __future__ import with_statement
-import astropy.io.fits as pyfits
+import astropy, astropy.io.fits as pyfits
 from numpy import *
 from pylab import *
 import cPickle, sys, os

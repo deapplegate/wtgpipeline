@@ -1,4 +1,4 @@
-import astropy.io.fits as pyfits, os
+import astropy, astropy.io.fits as pyfits, os
 
 web = os.environ['sne'] + '/photoz/COSMOS/'
 

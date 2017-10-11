@@ -3,7 +3,7 @@
 #Piece together catalogs from a single filter, but multiple configuration
 ##########################
 
-import sys, astropy.io.fits as pyfits, ldac, os, shutil, re
+import sys, astropy, astropy.io.fits as pyfits, ldac, os, shutil, re
 
 
 ########################
@@ -55,7 +55,7 @@ def _sortFluxKeys(keylist):
 
 def _extractColumn(cat, key):
 
-    for col in cat.hdu.columns.data:
+    for col in cat.hdu.columns:
         if col.name == key:
             return col
 

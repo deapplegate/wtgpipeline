@@ -3,7 +3,7 @@
 # Make Illumination correction images
 ##########################
 
-import astropy.io.fits as pyfits, illummodels, os.path, sys, re
+import astropy, astropy.io.fits as pyfits, illummodels, os.path, sys, re
 from numpy import *
 
 ########################

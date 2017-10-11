@@ -1,5 +1,6 @@
 #! /usr/bin/env python
-import astropy.io.fits as pyfits
+#adam-use# DONT USE THIS ANYMORE, IT'S BEEN REPLACED BY WeightMasker.py
+import astropy, astropy.io.fits as pyfits
 from matplotlib.pyplot import *
 from numpy import *
 import sys ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')

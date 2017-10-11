@@ -8,7 +8,8 @@ if 'bonn' not in os.environ:
     os.environ['bonn'] = os.getcwd()+'/'
 
 if 'subdir' not in os.environ:
-    os.environ['subdir'] = '/nfs/slac/g/ki/ki05/anja/SUBARU'
+    os.environ['subdir'] = '/nfs/slac/g/ki/ki18/anja/SUBARU'
+    #adam# os.environ['subdir'] = '/nfs/slac/g/ki/ki05/anja/SUBARU'
 
 
 cluster = sys.argv[1]
@@ -25,4 +26,9 @@ import calc_test_save as cts
 os.chdir(os.environ['bonn'])
 
 
-cts.make_rings(cluster, filter, starfile, offsetFile)
+ns=globals()
+try:
+	cts.make_rings(cluster, filter, starfile, offsetFile)
+except:
+	ns.update(cts.namespace_cts)
+	raise

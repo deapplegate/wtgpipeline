@@ -2,7 +2,7 @@
 ###########################
 
 import sys, glob, numpy as np, os, cPickle
-import astropy.io.fits as pyfits, shearprofile as sp
+import astropy, astropy.io.fits as pyfits, shearprofile as sp
 import ldac, nfwutils, pymc
 
 ####################
@@ -184,6 +184,7 @@ def processPklDir(dir, ext='out'):
 
         resultfile = ldac.openObjectFile(out)
         masses = resultfile['masses']
+        resultfile.close()
         
 
         key = (round(massdist.zcluster, 1), round(massdist.m500 / 1e14, 2))

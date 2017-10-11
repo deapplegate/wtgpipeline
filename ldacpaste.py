@@ -5,7 +5,7 @@
 
 ########################
 
-import ldac, astropy.io.fits as pyfits, sys
+import ldac, astropy, astropy.io.fits as pyfits, sys
 
 ########################
 

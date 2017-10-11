@@ -4,7 +4,7 @@
 
 from __future__ import with_statement
 import glob, tempfile, subprocess, shutil, os
-import astropy.io.fits as pyfits, numpy as np
+import astropy, astropy.io.fits as pyfits, numpy as np
 import ldac, maxlike_secure_driver as msd, bashreader
 
 ##############################

@@ -8,7 +8,7 @@
 ####################
 
 from __future__ import with_statement
-import sys, os, re, astropy.io.fits as pyfits, datetime, time, inspect, subprocess
+import sys, os, re, astropy, astropy.io.fits as pyfits, datetime, time, inspect, subprocess
 from math import *
 from optparse import OptionParser
 from sqlobject import *

@@ -4,7 +4,7 @@ f = open('maglocus_SYNTH','r')
 m = pickle.Unpickler(f)
 locus_mags = m.load()
 
-import astropy.io.fits as pyfits
+import astropy, astropy.io.fits as astropy, astropy.io.fits as pyfits
 
 dict = {'VJOHN':'MAG_APER1-SUBARU-10_2-1-W-J-V',
     'BJOHN':'MAG_APER1-SUBARU-10_2-1-W-J-B',
@@ -45,7 +45,7 @@ for l in locus_mags:
     
 
 print arrays
-import scipy, astropy.io.fits as pyfits
+import scipy, astropy, astropy.io.fits as astropy, astropy.io.fits as pyfits
 
 cols = []
 for key in dict.keys():

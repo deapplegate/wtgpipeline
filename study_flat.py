@@ -1,4 +1,4 @@
-import numpy, sys, re, astropy.io.fits as pyfits,  glob,pylab, math
+import numpy, sys, re, astropy, astropy.io.fits as pyfits,  glob,pylab, math
 import subarucorr
 #import fitstuff as fs
 from ROOT import TCanvas, TF1, TGraph, TAxis, gStyle, TH2F,gROOT, gPad, TLine, TLatex

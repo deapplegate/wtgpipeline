@@ -1,4 +1,4 @@
-import astropy.io.fits as pyfits, os, do_multiple_photoz, scipy, sys, string
+import astropy, astropy.io.fits as pyfits, os, do_multiple_photoz, scipy, sys, string
 
 import qc_wrapper
 

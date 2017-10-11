@@ -6,7 +6,7 @@
 import datamanager as md
 
 import os, unittest, tempfile, shutil, datetime, time, pwd, inspect, getpass
-import astropy.io.fits as pyfits, numpy as np
+import astropy, astropy.io.fits as pyfits, numpy as np
 import ldac, pdzfile_utils as pdzutils
 
 ##########################

@@ -5,3 +5,5 @@ scratch/
 *.so
 OUT-*.log
 simqueue/
+setup.py
+build/

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import ldac, dappleutils, sys, os, astropy.io.fits as pyfits
+import ldac, dappleutils, sys, os, astropy, astropy.io.fits as pyfits
 
 filteredIDs = dappleutils.readtxtfile(sys.argv[1])
 

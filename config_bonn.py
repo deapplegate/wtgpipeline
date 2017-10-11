@@ -7,8 +7,10 @@ cluster = 'MACS1423+24'
 
 path_root = '/nfs/slac/g/ki/ki05/anja/SUBARU/'
 
+#adam-added# I added the 'W-S-G+' part to `info`
 info = {'B':{'filter':'g','color1':'gmr','color2':'umg','EXTCOEFF':-0.2104,'COLCOEFF':0.0},\
     'W-J-B':{'filter':'g','color1':'gmr','color2':'umg','EXTCOEFF':-0.2104,'COLCOEFF':0.0},\
+    'W-S-G+':{'filter':'g','color1':'gmr','color2':'umg','EXTCOEFF':None,'COLCOEFF':0.0},\
     'W-J-V':{'filter':'g','color1':'gmr','color2':'rmi','EXTCOEFF':-0.1202,'COLCOEFF':0.0},\
     'W-C-RC':{'filter':'r','color1':'rmi','color2':'gmr','EXTCOEFF':-0.0925,'COLCOEFF':0.0},\
     'W-C-IC':{'filter':'i','color1':'imz','color2':'rmi','EXTCOEFF':-0.02728,'COLCOEFF':0.0},\

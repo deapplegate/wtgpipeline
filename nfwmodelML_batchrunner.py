@@ -4,7 +4,7 @@
 ########################
 
 import numpy as np
-import sys, ldac, astropy.io.fits as pyfits, cPickle
+import sys, ldac, astropy, astropy.io.fits as pyfits, cPickle
 import shearprofile as sp
 import nfwmodel
 

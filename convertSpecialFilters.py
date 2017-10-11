@@ -3,7 +3,7 @@
 # Rename appropriate columns for special filter catalogs in the unstacked process
 ###############
 
-import astropy.io.fits as pyfits, ldac, sys, utilities
+import astropy, astropy.io.fits as pyfits, ldac, sys, utilities
 
 ###############
 

@@ -6,7 +6,7 @@
 #####################
 
 import sys, os, optparse, re, unittest, inspect
-import numpy, astropy.io.fits as pyfits
+import numpy, astropy, astropy.io.fits as pyfits
 if __name__ == '__main__':
     import matplotlib
     matplotlib.use('PS')

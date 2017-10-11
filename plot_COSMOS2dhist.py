@@ -47,7 +47,7 @@ def plot_hist(diff, web):
     pylab.savefig(web+ 'RedshiftErrors.pdf')
 
 
-import astropy.io.fits as pyfits, os, scipy
+import astropy, astropy.io.fits as pyfits, os, scipy
 
 set = 'CWWSB_capak'
 web = os.environ['sne'] + '/photoz/COSMOS' + set + '/'

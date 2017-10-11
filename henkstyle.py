@@ -3,7 +3,7 @@
 #  from Anja's simulated ata
 #######################
 
-import numpy as np, astropy.io.fits as pyfits
+import numpy as np, astropy, astropy.io.fits as pyfits
 from dappleutils import readtxtfile
 import ldac, shearprofile as sp
 

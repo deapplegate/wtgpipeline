@@ -35,7 +35,7 @@ def output_calibrations():
         os.system(command)
     return
 #
-import sys, astropy.io.fits as pyfits, os
+import sys, astropy, astropy.io.fits as pyfits, os
 from utilities import *
 from config_bonn import cluster, tag, arc, magnitude, filters
 import Numeric
