@@ -1,0 +1,30 @@
+cd wtgpipeline
+git log
+git log --oneline
+git log --stat
+git log --graph
+git log --graph --all --decorate --oneline
+git config --global --add color.ui true
+git log --graph --all --decorate --oneline
+vim .gitignore
+git add .gitignore 
+git commit -m "git ignore file added"
+
+## branching and merging
+git branch testit
+git status
+vim .gitignore 
+git status
+git checkout testit
+vim testit.txt
+git add testit.txt 
+git commit testit.txt -m "testing branch merge"
+git checkout master
+git checkout testit
+git push
+ls testit.txt 
+git checkout testit
+git checkout master
+git merge testit
+git log
+git branch -d testit
