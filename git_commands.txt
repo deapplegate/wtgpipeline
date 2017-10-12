@@ -28,3 +28,13 @@ git checkout master
 git merge testit
 git log
 git branch -d testit
+git status
+
+## need to use "git add -u ."
+git help add
+cat git_commands.txt 
+git add -u .
+git status
+git commit -m "ready for bonnpipeline fork"
+git push
+history | cut -c 8- | tail -n 10 | grep git >> git_commands.txt 

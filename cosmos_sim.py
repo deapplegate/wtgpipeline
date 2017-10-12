@@ -1,3 +1,6 @@
+#! /usr/bin/env python
+#adam: note that this is basically the same as ~/bonnpipeline/cosmos_sim.py.r15422 with the archaic catalog things (updating headers and using new_table) fixed
+
 import re, cPickle
 import numpy as np
 import numpy
@@ -433,8 +436,6 @@ def createCatalog(bpz,
     chosenSNratios = chosenSNratios[good_draws]
     ngals = len(z_drawn)
     
-
-
     true_shears, true_gamma, true_kappa = nfwsim.create_nfwmodel_shapedata(concentration, scale_radius,
                                                    zcluster, ngals, 
                                                    z_drawn, 

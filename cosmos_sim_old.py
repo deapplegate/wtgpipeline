@@ -1,4 +1,9 @@
+#! /usr/bin/env python
 #adam: this is an older version of cosmos_sim.py from ~/bonnpipeline, which probably won't be needed anymore, but should be saved anyway (just in case)
+# I've incorporated two of the changes cause I basically knew they were right:
+#	(1) ID/id is an input for more functions now
+#	(2) we don't append redshifts to a list anymore (since it was leading to inconsistent lengths) 
+# I kept cosmos_sim.py.svn_diff in case it's needed for reference later on.
 import re, cPickle
 import numpy as np
 import numpy
@@ -167,7 +172,7 @@ def extractField(cat, size, snratio, maxradii = 4000, center = None, ra='ra', de
 def bootstrapField(cat, size, snratio, galdensity = 150, maxradii = 4000, id = 'id', pixscale = pixscale, ngals = None):
     #creates bootstrap realizations with galaxies randomly distributed throughout the field.
     #galdensity is numbers / square arcmin
-
+    #adam-new# maybe default id should be 'SeqNr' or 'id' instead of 'ID'?
     maxRdist = maxradii / np.sqrt(2.)
     area = 4*(maxRdist * pixscale / 60)**2
 
@@ -248,7 +253,8 @@ def createCutoutSuite(zs,
                       simcats = None,
                       sourcecat = None,
                       shape_distro = __DEFAULT_SHAPE_DISTRO__,
-                      shape_distro_kw_sets = 100*[{'sigma' : 0.25}]):
+                      shape_distro_kw_sets = 100*[{'sigma' : 0.25}],
+                      idcol = 'ID'):
 
     if simcats is None:
         simcats = []
@@ -355,7 +361,8 @@ def createCatalog(bpz,
                   radii_pix = None,
                   contam = None,
                   contam_args = [],
-                  contam_kw = {}):
+                  contam_kw = {},
+                  idcol = 'ID'):
 
     # ngals == None -> no bootstrapping
     # bpz is ldac bpz output
@@ -400,12 +407,14 @@ def createCatalog(bpz,
     #adam-new# Change from using single point zp_best to drawing a random sample from the p(z) dist'n
     #adam-old# change from `true_z = chosenZs[zkey]` to z_drawn from p(z)
     print "adam-look: running createCatalog in cosmos_sim.py"
+    #adam-?# z_id=chosenZs[idcol] #adam, maybe it should be this instead: z_id=chosenZs['SeqNr']
     z_id=chosenZs['SeqNr']
     fl=open('/nfs/slac/kipac/fs1/u/awright/COSMOS_2017/id2pz_cdf.pkl','rb')
     id2pz_cdf=pickle.load(fl)
     zbins=numpy.arange(0,6.01,.01)
-    z_drawn=[]
-    for id in z_id:
+    z_drawn=-1*np.ones(len(chosenZs))
+    print '!!!', len(z_drawn)
+    for id_indx, id in enumerate(z_id):
 	    try:
 	    	    cdf=id2pz_cdf[id]
 	    except:
@@ -423,9 +432,17 @@ def createCatalog(bpz,
 		    	    continue
 		    else:
 			    raise
-            z_drawn.append(zval)
+            z_drawn[id_indx] = zval
     
-    z_drawn=numpy.array(z_drawn)
+    good_draws = z_drawn > -1
+    z_drawn = z_drawn[good_draws]
+    radii_pix = radii_pix[good_draws]
+    radii_mpc = radii_mpc[good_draws]
+    chosenZs = chosenZs.filter(good_draws)
+    chosenSizes = chosenSizes[good_draws]
+    chosenSNratios = chosenSNratios[good_draws]
+    ngals = len(z_drawn)
+    
     true_shears, true_gamma, true_kappa = nfwsim.create_nfwmodel_shapedata(concentration, scale_radius,
                                                    zcluster, ngals, 
                                                    z_drawn, 
@@ -434,8 +451,6 @@ def createCatalog(bpz,
     true_beta = nfwutils.beta_s(z_drawn, zcluster)
 
 
-    print shape_distro_args
-    print shape_distro_kw
 
     ghats = shape_distro(true_shears, np.column_stack([chosenSizes, chosenSNratios]), 
                          *shape_distro_args, **shape_distro_kw)
@@ -445,12 +460,11 @@ def createCatalog(bpz,
     cols = [ pyfits.Column(name = 'Seqnr', format = 'J', array = np.arange(ngals)), 
              pyfits.Column(name = 'r_pix', format = 'E', array = radii_pix), 
              pyfits.Column(name = 'r_mpc', format = 'E', array = radii_mpc),
-	     #adam-old# pyfits.Column(name = 'z', format = 'E', array = chosenZs[zkey]),
              pyfits.Column(name = 'z', format = 'E', array = z_drawn),
-             pyfits.Column(name = 'z_id', format = 'J', array = chosenZs['SeqNr']),
+             pyfits.Column(name = 'z_id', format = 'J', array = chosenZs[idcol]),
              pyfits.Column(name = 'ghats', format = 'E', array = ghats),
              pyfits.Column(name = 'true_shear', format = 'E', array = true_shears),
-             pyfits.Column(name = 'true_z', format = 'E', array = true_z),
+             pyfits.Column(name = 'true_z', format = 'E', array = z_drawn),
              pyfits.Column(name = 'true_beta', format = 'E', array = true_beta),
              pyfits.Column(name = 'true_gamma', format = 'E', array = true_gamma),
              pyfits.Column(name = 'true_kappa', format = 'E', array = true_kappa)]

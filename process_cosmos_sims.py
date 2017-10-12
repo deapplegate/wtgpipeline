@@ -184,7 +184,7 @@ def processPklDir(dir, ext='out'):
 
         resultfile = ldac.openObjectFile(out)
         masses = resultfile['masses']
-        resultfile.close()
+        del resultfile
         
 
         key = (round(massdist.zcluster, 1), round(massdist.m500 / 1e14, 2))
