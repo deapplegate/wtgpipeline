@@ -1,0 +1,8 @@
+#!/bin/bash -xv
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/
+export INSTRUMENT=SUBARU
+export cluster=MACS1226+21
+export ending=OCFI
+export bonn=/u/ki/awright/bonnpipeline/
+export subdir=/nfs/slac/g/ki/ki18/anja/SUBARU/
+export BPZPATH=/nfs/slac/g/ki/ki04/pkelly/bpz-1.99.2/

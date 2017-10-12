@@ -1,0 +1,31 @@
+cd ~/data/MACS1226+21/PHOTOMETRY/ILLUMINATION/W-C-RC/W-C-RC_2010-02-12
+
+## hopefully no pattern in the residuals
+ds9 reducedchi___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_W-*_15bins_diff_mean.fits &
+xv reducedchi___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_W-*_15bins_diffbinned_adam.png &
+#reducedchi___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_W-C-RC_2010-02-12_15bins_diff_mean.fits
+#reducedchi___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_W-C-RC_2010-02-12_15bins_diffbinned_adam.png
+
+## hopefully no pattern in where stars are detected and rejected
+xv reducedchi___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_W-*_15bins_pos_adam.png rejects___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_pos_adam.png &
+#reducedchi___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_W-C-RC_2010-02-12_15bins_pos_adam.png
+#rejects___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_pos_adam.png
+
+## hopefully look dome-like and symetrical
+ds9e [0-1]/correction___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_ROT[0-1]_adam.fits [0-1]/nochipzps___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_ROT[0-1]_adam.fits &
+#correction___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_ROT0_adam.fits
+#nochipzps___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_ROT0_adam.fits
+
+## hopefully correction looks dome-like and symetrical, while corrected/nocorrected looks noisey ("_no_pos" helps to determine if the position zps are doing all the work or not)
+ds9e [0-1]/sdss_star_*___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_15bins_diff_mean.fits &
+#sdss_star_corrected_data_ROT0_W-C-RC___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_15bins_diff_mean.fits
+#sdss_star_correction_ROT0_W-C-RC___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_15bins_diff_mean.fits
+#sdss_star_no_pos-corrected_data_ROT0_W-C-RC___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_15bins_diff_mean.fits
+#sdss_star_nocorrected_data_ROT0_W-C-RC___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_15bins_diff_mean.fits
+
+## hopefully corrected looks much flatter than nocorrected and correction looks smooth
+xv [0-1]/sdss_star_correct*_ROT*___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_15bins_diffbinned_adam.png &
+xv [0-1]/sdss_star_nocorrected_data_ROT*___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_15bins_diffbinned_adam.png &
+#sdss_star_nocorrected_data_ROT0_W-C-RC___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_15bins_diffbinned_adam.png
+#sdss_star_corrected_ROT0_W-C-RC___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_15bins_diffbinned_adam.png
+#sdss_star_correction_ROT0_W-C-RC___sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True_15bins_diffbinned_adam.png

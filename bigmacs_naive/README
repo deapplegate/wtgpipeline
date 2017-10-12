@@ -1,0 +1,32 @@
+## lets see if I can get these plots made
+cp /nfs/slac/g/ki/ki04/pkelly/big-macs-calibrate-all/*.py .
+
+ipython -i -- adam_fit_locus.py -f /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.stars.calibrated.cat -c /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.qc.columns -e 1 -b 0 -p /nfs/slac/g/ki/ki01/awright/SUBARU/photoz/MACS1226+21/SLRplots/
+
+
+## maybe try bigmacs/big-macs-calibrate
+
+rm [b-z]*.py
+rm all.py
+cp /nfs/slac/g/ki/ki04/pkelly/bigmacs/big-macs-calibrate/*.py .
+
+
+## ran ok
+
+## fails because it's trying to run
+
+cd ~/bonnpipeline
+./save_slr.py --cluster "MACS1226+21" -i /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.stars.calibrated.cat -o /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.stars.calibrated.cat.offsets.list.reformat --spec mode=APER1
+export cluster="MACS1226+21"
+export bonn=/u/ki/awright/bonnpipeline/
+export subdir=/nfs/slac/g/ki/ki18/anja/SUBARU/
+export sne=/nfs/slac/g/ki/ki01/awright/SUBARU/
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU ; export INSTRUMENT=SUBARU
+export ending="OCFI"
+export mode=aper
+export detect_filter=W-C-RC
+export lensing_filter=W-C-RC
+export BIGMACS=/u/ki/awright/bonnpipeline/bigmacs_naive
+ipython -i -- adam_fit_locus.py -f /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.stars.calibrated.cat -c /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.qc.columns -e 1 -b 0 -p /nfs/slac/g/ki/ki01/awright/SUBARU/photoz/MACS1226+21/SLRplots/
+ipython -i -- adam_qc_wrapper.py $cluster detect=W-C-RC aptype=aper APER
+#python adam_save_slr.py --cluster "MACS1226+21" -i /nfs/slac/g/ki/ki18/anja/SUBARU//MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.stars.calibrated.cat -o /nfs/slac/g/ki/ki18/anja/SUBARU//MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.stars.calibrated.cat.offsets.list.reformat --spec mode=APER1

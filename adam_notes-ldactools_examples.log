@@ -1,0 +1,60 @@
+
+run('asctoldac -i ' + catalog + ' -o ' + catalog + '.temp.tab' + ' -c ' + tempconf + ' -t STDTAB',[tempcat] )
+command = 'ldacaddkey -i ' + catalog + '.temp.tab -o ' + catalog + '.tab -t STDTAB -k BPZ_NUMBER ' + str(n) + ' FLOAT "" '
+
+# see more in adam_do_multiple_photoz.py
+
+
+ldacaddtab -p ${photdir}/${cluster}.stars.cat -i ${photdir}/${cluster}.stars.calibrated.cat -t PHOTINFO -o ${photdir}/tmp1.cat
+ldacaddtab -p ${photdir}/${cluster}.stars.cat -i ${photdir}/tmp1.cat -t FIELDS -o ${photdir}/tmp2.cat
+rm -f ${photdir}/tmp1.cat
+mv ${photdir}/tmp2.cat ${photdir}/${cluster}.stars.calibrated.cat
+ldacaddtab -p ${photdir}/${cluster}.unstacked.cat -i ${photdir}/${cluster}.calibrated.cat -t PHOTINFO -o ${photdir}/tmp1.cat
+ldacaddtab -p ${photdir}/${cluster}.unstacked.cat -i ${photdir}/tmp1.cat -t FIELDS -o ${photdir}/tmp2.cat
+rm -f ${photdir}/tmp1.cat
+mv ${photdir}/tmp2.cat ${photdir}/${cluster}.calibrated.cat
+
+adam_notes-myseeing_or_getseeing.sh:	${P_LDACCONV}  -i ${TEMPDIR}/seeing_$$.cat -o ${TEMPDIR}/seeing_ldac.cat_$$\
+adam_notes-myseeing_or_getseeing.sh:	${P_LDACFILTER} -i ${TEMPDIR}/seeing_ldac.cat_$$ \
+adam_notes-myseeing_or_getseeing.sh:	                -o ${TEMPDIR}/seeing_ldac_filt.cat_$$ -c "(IMAFLAGS_ISO<16);"
+adam_notes-myseeing_or_getseeing.sh:	rm -f ${TEMPDIR}/seeing_ldac.cat_$$
+adam_notes-myseeing_or_getseeing.sh:	rm -f ${TEMPDIR}/seeing_ldac_filt.cat_$$
+check_psf_3s_vis.sh:# now run analyseldac
+check_psf_3s_vis.sh:writekey ${image} SEEING "${VALUE} / analyseldac Seeing (arcsec)" REPLACE
+check_psf_coadd.sh:# now run analyseldac
+check_psf_coadd.sh:writekey ${image} SEEING "${VALUE} / analyseldac Seeing (arcsec)" REPLACE
+check_psf_coadd_vis.sh:# now run analyseldac
+check_psf_coadd_vis.sh:writekey ${image} SEEING "${VALUE} / analyseldac Seeing (arcsec)" REPLACE
+check_science_PSF_para.sh:# the script runs analyseldac over the objects previously
+check_science_PSF_para.sh:# - 'analyseldac' runs with the option '-p' which uses the SExtractor
+check_science_PSF_para.sh:      # now convert the SExtractor cat to one readable by analyseldac:
+check_science_PSF_para.sh:      # now run analyseldac
+create_astrom_3SEC_para.sh:	    # now ldacconv
+create_astrom_3SEC_target_para.sh:	    # now ldacconv
+create_astrom_std_para.sh:	    # now ldacconv
+create_checkplot_rh_mag.sh:${P_LDACFILTER} -i /$1/$2/postcoadd/cats/$3_sex_ldac.cat -o ${TEMPDIR}/tmp.cat -c '(CLASS_STAR > '$4');'
+create_checkplot_rh_mag.sh:${P_LDACFILTER} -i ${TEMPDIR}/tmp.cat -o /$1/$2/postcoadd/cats/$3_sex_ldac_stars.cat \
+create_stellar_tracks.sh:# Bug fix: One ldacfilter expression received the wrong command
+do_lensing.sh:#             }' > ${PHOTDIR}/photz2ldac.a2l.conf
+do_lensing.sh:#  	       -c ${PHOTDIR}/photz2ldac.a2l.conf
+do_photometry_3sec.sh:	    ready=`ldacdesc -i ${star_3sec_cat} -t OBJECTS | grep name | grep BackGr | wc | awk '{print $1}'`
+mag_distribution_korr.sh:cp /$1/$2/postcoadd/cats/$3_sex_ldac.asc ./tmp_$$.asc
+match_neighbor.sh:         ldacdesc -i $i1 -t $2 | grep "name" | awk 'BEGIN{FIELDWIDTHS="25 50"}{print "COL_NAME = "$2"\nCOL_INPUT = "$2"\nCOL_MERGE=AVE_REG\nCOL_CHAN="'$j'"\n"}' | sed 's/COL_NAME = SeqNr/COL_NAME = OldSeqNr/g' >> make_ssc.conf
+match_neighbor.sh:         ldacdesc -i $i1 -t $2 | grep "name" | awk 'BEGIN{FIELDWIDTHS="25 50"}{print "COL_NAME = "$2"_'$i2'\nCOL_INPUT = "$2"\nCOL_MERGE=AVE_REG\nCOL_CHAN="'$j'"\n"}' >> make_ssc.conf
+match_neighbor.sh:ldacrentab -i /tmp/${USER}combined.cat -o $1 -t PSSC $2
+match_simple.sh:ldacaddkey -i ${TEMPDIR}/$$/${BASE}.cat -t OBJECTS -o ${TEMPDIR}/$$/${BASE}.cat0 \
+match_simple.sh:ldacaddkey -i ${PHOTCAT} -t STDTAB -o ${TEMPDIR}/$$/PHOTCAT.cat \
+measure_shapes.sh:#	# analyseldac fails on rg<0 . It also rarely returns cl=2 for rg>10 (5% of objects)
+measure_shapes.sh:# now run analyseldac
+measure_shapes.sh:./run_analyseldac.py ${tmpdir}/${image}_pos_$$.cat ${tmpdir}/${image}_ksb_$$.cat ${imagefile}
+merge_sex_ksb.sh:        # The following ldacfilter is necessary because a 
+prefilter_mlcc_bootstrap.sh:    ldacfilter -i $curcat -o $nextcat -t STDTAB -c "($cut);"
+prepare_coadd_swarp.sh:#                                                 condition in ldacfilter format; catalog must have
+prepare_coadd_swarp_3s.sh:#                                                 condition in ldacfilter format; catalog must have
+prepare_coadd_swarp_chips.sh:#                                                 condition in ldacfilter format; catalog must have
+prepare_coadd_swarp_pretty.sh:#                                                 condition in ldacfilter format; catalog must have
+update_coadd_header.sh:	${P_LDACCONV}  -i ${TEMPDIR}/seeing_$$.cat -o ${TEMPDIR}/seeing_ldac.cat_$$\
+update_coadd_header.sh:	${P_LDACFILTER} -i ${TEMPDIR}/seeing_ldac.cat_$$ \
+update_coadd_header.sh:	                -o ${TEMPDIR}/seeing_ldac_filt.cat_$$ -c "(IMAFLAGS_ISO<16);"
+update_coadd_header.sh:	rm -f ${TEMPDIR}/seeing_ldac.cat_$$
+update_coadd_header.sh:	rm -f ${TEMPDIR}/seeing_ldac_filt.cat_$$

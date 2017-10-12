@@ -1,0 +1,9 @@
+#1# all Z2089 biases are Z2701 biases!
+#2# some Z2089 Flats are Z2701 FLATs (the ones in W-J-V from 2010-03-15 and 2010-12-05)
+###    Z2089 Flats from (below) actually in Z2701/FLAT right now
+###    *SKYFLAT        2010-03-15      W-J-V
+###    *DOMEFLAT       2010-12-05      W-J-V
+#3# all SUPERFLATs and SUPERFLAT2s from (Z2089 2010-12-05_W-J-V) should be used for (Z2701 2010-12-05 W-J-V)
+###    /u/ki/awright/data/from_archive/f_gas_clusters/Z2089/SUPERFLAT_2010-12-05_W-J-V
+###    Z2701   2010-12-05      W-J-V
+#4# all SUPERFLATs and SUPERFLAT2s  from (Z2089 2010-03-15 W-J-V) should be used for (Z2701 2010-03-15 W-J-V)

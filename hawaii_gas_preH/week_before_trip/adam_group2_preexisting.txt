@@ -1,0 +1,15 @@
+MACS0429-02: have VRI, need BZ
+MACS0159-08: have R, need BVIZ
+
+### PRE-EXISTING DATA ###
+/nfs/slac/g/ki/ki05/anja/SUBARU/MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all$ dfits coadd.fits | fitsort SEEING EXPTIME
+MACS0429-02: have VRI, need BZ
+FILE      	FILTER	SEEING	EXPTIME	
+coadd.fits	W-C-IC	1.011 	2100.0 	
+coadd.fits	W-C-RC	0.745 	2880.0 	
+coadd.fits	W-J-V 	0.908 	2160.0
+
+/nfs/slac/g/ki/ki05/anja/SUBARU/MACS0159-08/W-C-RC/SCIENCE/coadd_MACS0159-08_all$ dfits coadd.fits | fitsort SEEING EXPTIME
+MACS0159-08: have R, need BVIZ
+ 	FILE      	SEEING 	EXPTIME
+W-C-RC: coadd.fits 	0.72  	2880.0

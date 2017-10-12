@@ -1,0 +1,550 @@
+BonnLogger.pm
+BonnLogger.py
+BonnLogger.sh
+CFH12K.ini.raw
+CFH12Kmos.ini
+MEGAPRIME.ahead
+MEGAPRIME.ini
+MLmasstable.py catching up on local changes
+Pickles.cat
+Pickles.wht.cat
+RegionMaker1pt1.py thi makes regions for you for the weight images!
+SUBARU.ini.raw
+SUBARU_c10_1_r0.ahead
+SUBARU_c10_1_r1.ahead
+SUBARU_c10_2_r0.ahead
+SUBARU_c10_2_r1.ahead
+SUBARU_c10_3_r0.ahead
+SUBARU_c10_3_r1.ahead
+SUBARU_c8_r0.ahead
+SUBARU_c8_r1.ahead
+SUBARU_c9_r0.ahead
+SUBARU_c9_r1.ahead
+SUBARU_c9_r2.ahead
+SUBARU_c9_r3.ahead
+TestBadOverscansTestData.py
+TestLogger.py
+WHT.ahead
+WHT.ini
+adam_CTcorr_make_images_para.sh makes the SUPA*_diff.fits images that are used to correct for crosstalk
+adam_CTcorr_run_correction_para.py makes crosstalk corrected images (OCFX) from uncorrected images (OCF) and the ctcorr difference images (diff)
+adam_apply_RADIAL_MASK_para.sh Replaces apply_RADIAL_MASK_para.sh (and thus replaces apply_ringmask_para.sh also). Apply Radial mask to weight files for coaddition. Cuts out poorly calibrated outer area of chips.
+adam_coadd_many.sh This code is a wrapper around do_coadd_batch.sh
+adam_do_linking_filter_dirs.sh This code changes dir structure from run_filter to filter and makes appropriate links
+adam_do_masking_master.sh This code is the easiest way to navigate masking right after (and kinda during) preprocessing.
+adam_do_update_headers.sh This code updates the headers after preprocessing is done
+adam_fix_flags.py removes the effect of the regions on the flag images. use only in combination with adam_fix_regweights.sh when you've removed some regions and need to change the weight files accordingly
+adam_fix_regionmasks.sh removes the effect of the regions on the flag and weight images and then remakes them from the globalweight and globalflag images. use only when you've REMOVED some regions and need to change the weight files accordingly (if you've only ADDED them, then use add_regionmasks.sh)
+adam_make_autosuppression_ims.py makes autosuppression directory with images that can be used to place stellar halos
+adam_make_backmask_ims.py makes BACKMASK directory with images used to mask reflections, cross-talk, areas of coherent offsets in astrometry, and maybe even asteroids (mask in difference coadds, but place regions in SUPA*_[0-9]OCF.fits images, so regions are placed on individual chip exposures with backmask.py)
+adam_pipeline_masking_notes.log Very useful notes on the masking process
+adam_pipeline_notes.sh These are my main notes outlining the process of taking a cluster through the pipeline from beginning to end. This is not detailed, the details are in the codes themselves and in Evernote.
+adam_quicktools_backup_and_rm_files.py This code safely removes files by moving them to the backup folder in /nfs/slac/g/ki/ki18/anja/SUBARU/backup_files/
+adam_quicktools_backup_regs.py This code copies region files into the backup region folder in /nfs/slac/g/ki/ki18/anja/SUBARU/backup_regions/
+adam_quicktools_ds9_chips2mosaic.sh This code will call ds9 with individual chip exposures assembled into a mosaic with consistent scale limits based on the zscale of one of the chips.
+adam_quicktools_get_num_path_supa_chip_ending.py This code, when given a glob of files, will return the number of images in the glob, the path, SUPA, chip number, and ending of the files/file
+adam_quicktools_get_sextractor_shortened_error_log.sh This code takes IN an output script that includes a sextractor/ldac tool call and gets rid of some of the garbage
+adam_quicktools_nohupify_kill_job.sh This code runs a job in nohup so that it will run without any issues, automatically save the output, and will save the pid so that it can be killed with adam_quicktools_nohupify_kill_job.sh if need be.
+adam_quicktools_nohupify_run_job.sh This code kills the job running on nohup that was submitted by ./adam_quickools_nohupify_run_job.sh
+adam_quicktools_reg_phys2wcs.sh This code changes regions in physical coordinates to be in wcs coordinates
+adam_quicktools_test_waitpid.sh This code will wait until other jobs are finished running before you run the next thing.
+adam_quicktools_test_waitpid_bjobs.sh This code will wait until other jobs are finished running on the slac batchq before you run the next thing.
+adam_reg2weights-maybe_coadd_catchup.sh After backmasking/asteroid masking/stellar halo stuff, this is how you can catch things up
+adam_seeing_pretest.sh This code will take in any form of SUPA0125912 SUPA0125912_5 SUPA0125912_5OCF SUPA0125912_5OCF.fits and get MYSEEING from that image if it's in CRNitchke_final....txt or the header of the image
+add_regionmasks.sh
+all_fit.py
+anja_plots.py removed m1931 from reference set, mod to redact mlmasstable, added option to adjust 1.25 z cut in maxlike_masses, anja_plot contains err as func of z, and updated simclusterlist
+apply_calibration.py
+apply_geometric_magcor.py update to a lot of plotting routines, etc, and added python script to apply geometric correction
+apply_ringmask_para.sh
+backmask.py
+backref_coaddpos.py
+backup_reg.sh
+backup_rings.sh
+banff.py
+banff_tools.pyx
+bash_functions.include
+bashreader.py
+batch_ic.sh
+batch_regen.sh
+batch_regen_coma.sh
+batch_suppress.sh
+bootstrap_masses.py
+calc_area.py
+calc_test_save.py
+calcset.py
+calculate_fringevalues_para.sh
+ccd_type.a2l.conf
+cfh12k_03_1999.ini
+cfh12k_06_2000.ini
+cfh12k_11_1999.ini
+change_headernames.sh
+check_badchips.sh
+check_coadd_status.sh
+check_files.sh
+check_psf_3s_vis.sh
+check_psf_coadd.sh
+check_psf_coadd_vis.sh
+check_science_PSF_para.sh
+check_science_PSF_plot.sh
+chip_types_CFH12K.dat
+chip_types_c10_1.dat
+chip_types_c10_2.dat
+chip_types_c10_3.dat
+chip_types_c8.dat
+chip_types_c9.dat
+choosepoly.py
+clean_empty_regionfiles.sh
+clean_oldIC.sh
+clean_photometry.sh
+clean_suppression.sh
+clean_weightfiles.sh
+cleandirs.sh
+cleanfiles.sh
+cleanup.sh
+cleanup_weightmaking.sh
+cluster.status
+cluster_cat_filters.dat
+coadd_ubercheck.py
+coaddinputs.py
+combine_unstacked_config_cats.py
+compare_masses.py missing files
+compile_masking.py
+compile_psfproperties.py catching up on old files not checked in
+config_bonn.py
+construct_illumstatus.sh
+convertRegion2Poly.py
+convertSpecialFilters.py
+convert_aper.py
+convolve_coadd.py
+cosmic.conf.sex
+cosmos_sim.py
+cp_aux_data.sh
+createAutotrackerList.py
+createExclusion.py
+createObjectLists.py
+create_abs_photo_3SEC.sh
+create_abs_photo_info.sh
+create_absphot_header.sh
+create_absphotom_photometrix.sh
+create_astrom_3SEC_para.sh
+create_astrom_3SEC_target_para.sh
+create_astrom_std_para.sh
+create_astromcats_para.sh
+create_astromcats_scampIC_para.sh
+create_astromcats_scamp_para.sh
+create_astromcats_weights_para.sh
+create_astrometrix_astrom.sh
+create_astrometrix_astrom_run.sh
+create_astrometrix_header_para.sh
+create_badpixel_mask.sh
+create_binnedmosaics.sh
+create_binnedmosaics_empty.sh
+create_bitpixchange.sh
+create_calibheader_para.sh
+create_checkplot_rh_mag.sh
+create_gaussfiltered_image.sh
+create_gausssmoothing_kernel.py
+create_global_science_weighted.sh
+create_global_weights_flags_para.sh
+create_global_weights_para.sh
+create_globalweight_base.sh
+create_globalweight_base_science.sh
+create_illumfringe_para.sh
+create_illumfringe_stars_para.sh
+create_norm.sh
+create_norm_illum_fringe.sh
+create_norm_many.sh
+create_norm_para.sh
+create_photometrix.sh
+create_rings.py
+create_run_list.sh
+create_scamp_astrom_astrom_photom.sh
+create_scamp_astrom_photom.sh
+create_scamp_photom.sh
+create_science_weighted.sh
+create_sciencesub_weighted.sh
+create_seeing_file.sh
+create_skysub_delink_para.sh
+create_skysub_para.sh
+create_smoothed_coadd.sh
+create_stats_table.sh
+create_stats_table_chips.sh
+create_stellar_tracks.sh
+create_weights_delink_para.sh
+create_weights_flags_para.sh
+create_weights_para.sh
+create_weights_raw_delink_para.sh
+create_weights_raw_delink_para_CRNitschke.sh Runs the CRNitschke cosmic ray masker. first run create_weights_raw_delink_para_CRNitschke_setup.sh, then run this code like this `./parallel_manager.sh create_weights_raw_delink_para_CRNitschke.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS ${filter}`
+create_weights_raw_delink_para_CRNitschke_setup.sh Starts the CRNitschke cosmic ray masker process off by getting seeing values for each chip (which is put into CRNitschke_${cluster}_${run}_${filter}.txt). Then run the code ~/thiswork/eyes/CRNitschke/CRNitschke_get_median_seeings.py to get the median of these values which is then written to CRNitschke_final_${cluster}_${run}_${filter}.txt, which is the final seeing values used by create_weights_raw_delink_para_CRNitschke.sh. run this code like this `./parallel_manager.sh create_weights_raw_delink_para_CRNitschke_setup.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS ${filter}`
+create_zp_correct_header.sh
+crossval.py
+cutout_bpz.py
+datamanager.py first, partially working version of datamanager
+datarobot.py
+default.conv
+default.param
+determine_seeing.sh
+distribute_sets.sh
+distribute_sets_rot.sh
+distribute_sets_subaru.sh
+distribute_standards_subaru.py
+distribute_standards_subaru.sh
+divideByMasterFlat.py
+do_Subaru_0025_B.sh
+do_Subaru_0025_I.sh
+do_Subaru_0025_R.sh
+do_Subaru_0025_V.sh
+do_Subaru_10_1_DARK.sh
+do_Subaru_10_2_DARK.sh
+do_Subaru_2001_06.sh
+do_Subaru_2002_06.dm.sh
+do_Subaru_2002_06.sh
+do_Subaru_2002_06_I.sh
+do_Subaru_2003_09.sh
+do_Subaru_DARK_Template.sh
+do_Subaru_add_data_template.sh
+do_Subaru_coadd_rotations.sh
+do_Subaru_coadd_template.sh
+do_Subaru_coadd_template_scamp.sh
+do_Subaru_phot_template.sh
+do_Subaru_preprocess_10_3_simple.sh
+do_Subaru_preprocess_adam.sh the FF cluster preprocess code
+do_Subaru_preprocess_config8.sh
+do_Subaru_preprocess_template.sh
+do_Subaru_register_4batch.sh
+do_Subaru_register_HDFN.sh
+do_Subaru_register_template.sh
+do_Subaru_template_masking.sh
+do_coadd_batch.sh
+do_coadd_batchpixscale.sh
+do_geo_photometry.sh update to nfwmodeltools inferface; initial go at shear ratio; and adding in geometry correction script
+do_lensing.sh
+do_masking.sh
+do_median_compare_prep2.sh
+do_multiple_exposures.py
+do_multiple_photoz.py
+do_photometry.py
+do_photometry.sh
+do_photometry_3sec.sh
+do_photometry_alt.sh
+do_photoz.py
+do_rotation_study.sh
+do_testsnratio.sh
+download_manager.py
+download_remote.py
+ds9xpautils.pm
+dump_cat_filters.py
+dump_cat_filters_pickles.py
+extract_catalog_subset.py
+extract_object_cats.py
+fastftp.py
+fastftp2.pl
+findByExposure.py
+find_bad.py
+find_pdb_offsets.py catching up on old files not checked in
+fit_SIS.py
+fit_phot.py
+fit_pickles.sh
+fitmodel.py
+fix_radec.py
+fixbadccd_para.sh
+flux_comp.py
+full_suppression.sh
+gaussianNoise.py first attempts at noise measurements
+get_bias_frames.sh
+get_bias_period.sh
+get_cluster_specZ.py
+get_seeing.py
+henkstyle.py
+henkstyle_batchrunner.py
+horizontal_paste.py
+ic_wrapper.py
+illumcorutils.py
+illummodels.py
+imageFlipper.pl
+imagelistutils.pm
+interpolatemodel.py
+intrinsicscatter.py catching up on local changes
+intrinsicscatter2.py catching up on local changes
+intrinsicscatter_grid.py catching up on unversioned files
+intrinsicscatter_grid_plots.py catching up on unversioned files
+kde.py update of shear ratio to use kde methods
+ldac.py
+ldacpaste.py catching up on old files not checked in
+ldactoasc.py
+leastsq.py
+lib.py
+limiting_mag.py catching up on old files not checked in
+link_MEGAPRIME_preprocessed.sh
+link_flags.sh
+lio.sh
+list_ext.sh
+list_ext_para.sh
+list_mode.sh
+list_mode_para.sh
+list_mode_sigma.sh
+list_mode_sigma_para.sh
+login.cl
+lph_outliers.py
+mag_distribution_korr.sh
+maglocus_SYNTH.save pats copy
+makeGallist.pl
+makeImageList.pl
+makePNGs.pl
+makeRingMaskFlag.py ring masking script
+make_ahead_mult.sh
+make_checkplot.sh
+make_checkplot_coadd.sh
+make_checkplot_stats.sh
+make_edgemask.py
+make_flat_batch.sh
+make_ldac_spectra.py
+make_lephare_cats.py
+make_nongauss_sims.py transfering changes from old cvs repository
+make_residuals.sh
+make_superflat_batch.sh
+manage_batchsubmit.pl
+manageconfigs.py
+manageconfigs_test.py
+mark_badchips.sh
+mark_badimages.sh
+mark_badpixel_regions.pl
+maskAutotracker.py
+maskBadOverscans.py
+maskImages.pl
+mask_arc.py
+mask_coadd.sh
+maskstars.sh
+mass_radialrange_script.py catching up on unversioned files
+match_neighbor.sh
+match_prepostcoadd.py catching up on unversioned files
+match_simple.sh
+maxlike_2param_driver.py cleaned up old driver files; added more quantiles in mass summary for maxlike_masses; added 2 parameter model fitting
+maxlike_altvoigt_driver.py added alternative voigt distribution for trial; made voigtnorm a class, updated drivers accordingly; fixed a bug in the controller on handling default options
+maxlike_bentstep_voigt.py added bent step distro to try out size dependent step corrections
+maxlike_bootstrap.py upgrade to the covar filehandler to match new interface
+maxlike_controller.py first stab at maxlike controller layout
+maxlike_covar_driver.py missing files
+maxlike_floatvoigt_shapedistro.py reconfigured maxlike_masses to be a base class for the shape distributions; cleaned up initalization interface (but made it hard for CL init without a datamanger); added the production version of the floating voigt shapedistro
+maxlike_floatvoigt_simdriver.py added new floatvoigt simulation driver to test when we have really loosen up the constraints on the shape distribution
+maxlike_general_filehandler.py basic operational status for maxlike_*_filehander.py files, plus some refactoring of the varcontainer and the pdzfile_utils
+maxlike_masses.py
+maxlike_mymc_driver.py update to libraries, added adam mcmc
+maxlike_nfw2param.py cleaned up old driver files; added more quantiles in mass summary for maxlike_masses; added 2 parameter model fitting
+maxlike_plots.py simulations tweaks; pre-change to mass based sims
+maxlike_secure_bentstep3_voigt_driver.py added alternative bentstep model
+maxlike_secure_bentstep_voigt_driver.py added bent step distro to try out size dependent step corrections
+maxlike_secure_driver.py adding converted maxlike_subaru_secure_filehandler for computing mlmasses from corralled catalogs; converted subaru file handler to an object for ease of inheritance and modification; added adjustedsn driver to try out making a more agressive sn cut, and shifting object sn bins
+maxlike_secure_floatvoigt_driver.py floatvoigt driver with a ballpark step correction; updated adjustedsn scaling factor
+maxlike_sim_filehandler.py basic operational status for maxlike_*_filehander.py files, plus some refactoring of the varcontainer and the pdzfile_utils
+maxlike_simdriver.py controller defined; sim file handler appears to be working
+maxlike_simsplit_driver.py added a splitter to check sim results against real data
+maxlike_split_bent3_driver.py swapped up the splits driver for bent model
+maxlike_split_driver.py added split driver for consistency checks
+maxlike_subaru_driver.py added run_all method to controller; subaru filehandler and general_filehandler now work with the controller
+maxlike_subaru_filehandler.py basic operational status for maxlike_*_filehander.py files, plus some refactoring of the varcontainer and the pdzfile_utils
+maxlike_subaru_secure_filehandler.py missing files
+maxlike_voigt_simdriver.py updates to run voigt based sims
+measure_shapes.sh
+measure_shapes_wrapper.sh
+measure_skew_surface.py catching up on old files not checked in
+measure_unstacked_photometry.py
+merge_filters.py
+merge_sex_ksb.sh
+merge_unstacked_photometry.py
+mk_ldac_spec.py
+mk_saturation_plot.py
+mk_ssc_SDSS.py
+mkreg.pl somehow this turns catalogs into regions or something. Kinda cool
+mlbootstrap.py upgrade to the covar filehandler to match new interface
+mlcc_calib.dat
+mlcc_covar_bootstrap.py missing files
+move_suppression.sh
+mpfit.py
+mymc.py improved backend
+new_calibrate.py
+newmanstyle_batchrunner.py
+nfwmodel2param.pyx cleaned up old driver files; added more quantiles in mass summary for maxlike_masses; added 2 parameter model fitting
+nfwmodelML_batchrunner.py
+nfwmodel_contam.py
+nfwmodel_normshapedistro.py
+nfwmodel_sim.py
+nfwmodel_voigtnorm_shapedistro.py
+nfwmodel_voigtshapedistro.py
+nfwmodeltools.pyx
+nfwutils.py changes to make sims with constant mass as a function of radius; rewrote nfw functions
+parakill.sh
+parallel_manager.sh
+pdzfile_utils.py basic operational status for maxlike_*_filehander.py files, plus some refactoring of the varcontainer and the pdzfile_utils
+pdzperturb.py initial implimentation of pdzperturb
+pdzperturbtools.pyx current, inferior version of pdzperturb
+pdzplot.py catching up on old files not checked in
+perform_coadd_rot_swarp.sh
+perform_coadd_swarp.sh
+perform_coadd_swarp_pretty.sh
+phot_slr.sh
+phot_slr_cosmos.sh
+photo_abs.py
+photo_abs.save.py
+photo_abs_m.py
+photo_abs_new.py
+photocalibrate_cat.py
+photocalibrate_magauto.py
+photometry_catalogs.sh
+photometry_db.py
+photorunner.sh transfering changes from old cvs repository
+photoz_comp_plots.py fixed produce_catalogs.sh, which somehow got weird, or was weird for a long time
+pickles_mags.py
+pipelog_WFI.py
+plotSIS.py
+plot_GalDensity.py
+plot_contamination.py
+plot_histo.py
+plot_spec.py
+prefilter_mlcc_bootstrap.sh
+prep_cosmos_run.py simulations tweaks; pre-change to mass based sims
+prep_photoz.py
+prep_science_para.sh
+prepare_coadd_swarp.sh
+prepare_coadd_swarp_3s.sh
+prepare_coadd_swarp_chips.sh
+prepare_coadd_swarp_pretty.sh
+preprocess_cosmos_sims.py
+prior_hdfn_ground.py
+process_bias_4channels_eclipse_para.sh
+process_bias_eclipse_para.sh
+process_cosmos_sims.py
+process_cosmos_sims_plots.py
+process_flat_4channels_eclipse_para.sh
+process_flat_eclipse_para.sh
+process_overscan_channels_para.sh
+process_science_4channels_eclipse_para.sh
+process_science_eclipse_para.sh
+process_science_illum_eclipse_para.sh
+process_science_illum_fringe_eclipse_para.sh
+process_split_Subaru_eclipse.sh
+process_standard_eclipse_para.sh
+process_standard_eclipse_para_OC.sh
+process_sub_images_para.sh
+process_superflat_para.sh
+process_superflat_rot_para.sh
+produce_3sec_cats.sh
+produce_catalogs.sh
+progs.ini
+propagate_badccd.sh
+publication_plots.py pylab settings for publication quality plots
+pymc_mymcmc_adapter.py update to libraries, added adam mcmc
+qc_wrapper.py
+quality_studies_psf.py
+read_MCMC.py
+read_photoz.py
+redo_cluster_mass_sum.py tool to save actual mass samples
+redsequence.py
+regionfile.py
+reject_objs_helper.py
+resample_coadd_swarp_chips_para.sh
+resample_coadd_swarp_para.sh
+resample_coadd_swarp_pretty_para.sh
+retrieve_and_match.py
+retrieve_sdss.py
+retrieve_test.py
+reweight.py
+rings.reg
+ringsR.reg
+run_addContamination.py transfering changes from old cvs repository
+run_analyseldac.py
+run_geocor_unstacked_photometry.sh catching up on unversioned files
+run_lensingcat_masking.py
+run_lephare.sh
+run_ml_cc_comp.py catching up on local changes
+run_ml_sim_bias.py catching up on local changes
+run_postpred.py
+run_shapedistro.py
+run_unstacked_photometry.sh
+run_update_configheaders_onall.sh
+save_pdz.py
+save_slr.py
+save_zp.py
+scampcat.py
+scatter_sims.py catching up on local changes
+scatter_sims_plots.py
+script_run_geocor_unstacked.sh catching up on unversioned files
+select_best.sh
+set_6.sh
+set_manual_zp.py
+setup_CFH12K.sh
+setup_SUBARU.sh
+setup_general.sh
+shapedistro.py
+shapedistro_crossval.py transfering changes from old cvs repository
+shapedistro_plots.py
+shapedistro_residuals.py
+shearmodel.py
+shearprofile.py
+shearprofileplots.py
+shearratio.py added shear ratio plots, update to paper plots
+shearratio_plots.py added shear ratio plots, update to paper plots
+shearratio_plots_scan.py added shear ratio plots, update to paper plots
+shearsolver.py catching up on old files not checked in
+simple_ic.py This code is like calc_test_save.py, but with a cleaned-up version of the illumination correction (IC) codes
+skewsurface_plots.py catching up on old files not checked in
+slr_kpno_new.py
+slr_kpno_new.simul.py
+slroffset_histograms.py script to read out SLR offsets from database
+snratio.py
+sort_aux_data.sh
+specialfilters.list
+spikefinder_para.sh
+spit_out_fluxkeys.py
+split_bias_script.py catching up on unversioned files
+split_biases.dat updated U no U plot
+splitoff_aux_data.sh
+sqlcl.py
+stats.pyx start of a python compiled stats library
+statusreport.py
+study_flat.py
+subaru_10_1.ini
+subaru_10_2.ini
+subaru_10_3.ini
+subaru_8.ini
+subaru_9.ini
+subarucorr.py
+submit_coadd_batch.sh
+submit_coadd_batch2.sh
+submit_coadd_batch2_coma.sh
+submit_coadd_batch3.sh
+submit_flat_batch.pl
+submit_photo_batch.sh
+submit_photo_batch_coma.sh
+submit_superflat_batch.pl
+suppressreflections.py
+test_calibration_pipeline.py
+test_coadd_ready.sh
+test_datamanager.py first, partially working version of datamanager
+test_raw.py
+test_run_prep.sh
+test_swarp.py
+testcommand.sh
+testprogs.sh
+transferMasks.py
+transfer_catbackup.sh added util to automatically gather needed files for catalog backup directory
+transfer_photocalibration.py
+transform_ds9_reg.sh
+transform_ds9_reg_alt.sh
+unfixbadccd_para.sh
+unpack_subaru.sh
+update_coadd_header.sh
+update_config_header.sh
+update_config_header_megaprime.sh
+update_config_header_wircam.sh
+update_preprocess.pl
+utilities.py
+varcontainer.py basic operational status for maxlike_*_filehander.py files, plus some refactoring of the varcontainer and the pdzfile_utils
+voigt.c
+voigt.h
+voigt_tools.pyx
+warp_the_pickle.py
+wcsconvertregions.py
+wcsregionfile.py
+weights.ww

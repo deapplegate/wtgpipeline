@@ -1,0 +1,45 @@
+*MACS clusters already done
+*Z clusters need to be processed, except:
+	2007-02-13	W-J-V (done! run my seeing calculator on /nfs/slac/g/ki/ki05/anja/SUBARU/Zw2089/W-J-V/SCIENCE/)
+	#NOTE: W-J-V_2006-12-21 is really from 2007-02-13
+	***/nfs/slac/g/ki/ki05/anja/SUBARU/Zw2089$ ls
+
+#########################################################################################################################
+
+### PRE-EXISTING DATA ###
+/nfs/slac/g/ki/ki05/anja/SUBARU/MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all$ dfits coadd.fits | fitsort SEEING EXPTIME
+MACS0429-02: have VRI, need BZ
+FILE      	FILTER	SEEING	EXPTIME	
+coadd.fits	W-C-IC	1.011 	2100.0 	
+coadd.fits	W-C-RC	0.745 	2880.0 	
+coadd.fits	W-J-V 	0.908 	2160.0
+
+/nfs/slac/g/ki/ki05/anja/SUBARU/MACS0159-08/W-C-RC/SCIENCE/coadd_MACS0159-08_all$ dfits coadd.fits | fitsort SEEING EXPTIME
+MACS0159-08: have R, need BVIZ
+ 	FILE      	SEEING 	EXPTIME
+W-C-RC: coadd.fits 	0.72  	2880.0
+
+#########################################################################################################################
+Z2701=ZwCl0949.6+5207
+Z2089=ZwCl0857.9+2107
+
+### PROCESSING THESE CLUSTERS/PPRUNS ###
+Z2089           2007-02-13      W-J-V (done! run my seeing calculator on /nfs/slac/g/ki/ki05/anja/SUBARU/Zw2089/W-J-V/SCIENCE/)
+Z2089           2007-02-13      W-S-I+
+Z2089           2009-03-28      W-S-I+
+Z2089/Z2701     2010-03-15      W-J-V
+Z2701           2010-03-15      W-S-I+
+Z2089/Z2701     2010-12-05      W-J-V
+
+### PROCESSING THESE PPRUNS ###
+2007-02-13		W-J-V (done! run my seeing calculator on /nfs/slac/g/ki/ki05/anja/SUBARU/Zw2089/W-J-V/SCIENCE/)
+2007-02-13		W-S-I+
+2009-03-28		W-S-I+
+2010-03-15/2010-03-14	W-J-V
+2010-03-15		W-S-I+
+2010-12-05		W-J-V
+
+### PROCESSING THESE DATE-OBS ###
+2007-02-13 2009-03-28 2010-03-15 2010-12-05
+
+#########################################################################################################################

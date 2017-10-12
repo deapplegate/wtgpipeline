@@ -1,0 +1,44 @@
+### doug_notes_cosmos_sim.txt ###
+Not verified yet, but this is what I think we need to do.                                                                                                                            
+
+Once you have BPZ format photo-z files for cosmos-30 and for the subset of filters:
+
+[All files in bonnpipeline directory]
+
+1.) prep_cosmos_run.py:prepSourceFiles 
+ - Consolidates bpz files and applies photo-z quality cuts (has some directory structure assumed to find files)
+
+Next, create "master fields" that will be lensed by fake clusters
+
+2.) prep_cosmos_run.py:createMasterFields
+  - cuts out Suprimecam sized fields from COSMOS, preserving density and spacial distriubtions
+
+or
+
+2.) prep_cosmos_run.py:createBootstrapFields
+  - draws with replacement from cosmos catalog and places galaxies randomly in (x,y). Use to generate high S/N sims.
+
+3.) prep_cosmos_run.py:createCatalogs
+  - input is a set of redshifts and masses of clusters to simulate. Will create a fake sim file for each input cluster on each master field generated from step 2.
+
+4.) run_addContamination.py
+  - takes sims created in step 3 and adds a given % of cluster contamination, by pulling galaxies at cluster redshift and adding more to the catalog.
+
+5.) submit_mlsims.sh
+  - creates submission scripts for SLAC batch system to run nfwfit on all generated sim files. Some hard coding about filter groups to submit.
+  - submission scripts fed to batch queue via photorunner.sh
+
+6.) preprocess_cosmos_sims.py 
+  - runs after nfwfit on sim cats. Converts pdf scan of likelihood to samples.
+
+7.) makebiasplot.py or  
+  - takes output from nfwfits and creates a pretty plot of the results.
+
+or 
+
+7a.) process_cosmos_sims.py:consolidate(processPklDir(dir))
+  - reads in results from preprocess, and computes summary statistics. Returned as object
+
+7b.) process_cosmos_sims_plots:publicationBias
+  - takes multiple versions of output from 7a and plots.
+  - note, some code commented, dealing with plotting vs contamination 

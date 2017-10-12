@@ -1,0 +1,1 @@
+../adam_BINNED_screenshots_SCIENCE_norm_folders_pngs.sh

@@ -1,0 +1,103 @@
+1.) make sure we're using the right header files (i.e. the ones from headers_scamp_photom_2MASS, not headers_scamp_2MASS)
+do_Subaru_register_4batch.sh in "astrom" mode makes:
+	W-J-B/SCIENCE/astrom_photom_scamp_2MASS/{cat,headers,plots}
+	W-J-B/SCIENCE/cat_scamp/
+	W-C-RC/SCIENCE/cat_scamp/
+	W-S-Z+/SCIENCE/cat_scamp/
+	W-J-B/SCIENCE/headers_scamp_2MASS/
+	W-C-RC/SCIENCE/headers_scamp_2MASS/
+	W-S-Z+/SCIENCE/headers_scamp_2MASS/
+do_Subaru_register_4batch.sh in "photom" mode makes:
+	W-J-B/SCIENCE/astrom_photom_scamp_2MASS/{cat_photom,headers_photom,plots_photom}
+	W-J-B/SCIENCE/cat_scampIC/
+	W-C-RC/SCIENCE/cat_scampIC/
+	W-S-Z+/SCIENCE/cat_scampIC/
+	W-J-B/SCIENCE/headers_scamp_photom_2MASS/
+	W-C-RC/SCIENCE/headers_scamp_photom_2MASS/
+	W-S-Z+/SCIENCE/headers_scamp_photom_2MASS/
+
+The most recently USED/OPENED files are the wrong ones!
+yy/nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24$ ls -lru W-C-RC/SCIENCE/headers_scamp_2MASS/SUPA0125906_4.head W-C-RC/SCIENCE/headers_scamp_photom_2MASS/SUPA0125906_4.head
+-rw-r--r-- 1 awright 3917 Mar 12 22:01 W-C-RC/SCIENCE/headers_scamp_photom_2MASS/SUPA0125906_4.head
+-rw-r--r-- 1 awright 3848 Mar 13 00:06 W-C-RC/SCIENCE/headers_scamp_2MASS/SUPA0125906_4.head
+
+/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21 also has this problem, for some bands, but not for W-C-RC
+-rw-r--r-- 1 awright ki 3917 Mar  6 23:10 W-J-B/SCIENCE/headers_scamp_photom_SDSS-R6/SUPA0118315_3.head
+-rw-r--r-- 1 awright ki 3917 Mar  7 00:21 W-C-IC/SCIENCE/headers_scamp_photom_SDSS-R6/SUPA0118297_3.head
+-rw-r--r-- 1 awright ki 3917 Mar  7 00:29 W-J-V/SCIENCE/headers_scamp_photom_SDSS-R6/SUPA0118325_3.head
+-rw-r--r-- 1 awright ki 3917 Mar  7 00:30 W-S-G+/SCIENCE/headers_scamp_photom_SDSS-R6/SUPA0121582_3.head
+-rw-r--r-- 1 awright ki 3917 Mar  7 00:33 W-S-Z+/SCIENCE/headers_scamp_photom_SDSS-R6/SUPA0128341_3.head
+-rw-r--r-- 1 awright ki 3848 Mar  9 13:05 W-C-IC/SCIENCE/headers_scamp_SDSS-R6/SUPA0118297_3.head
+-rw-r--r-- 1 awright ki 3848 Mar  9 13:06 W-C-RC/SCIENCE/headers_scamp_SDSS-R6/SUPA0046908_3.head
+-rw-r--r-- 1 awright ki 3848 Mar  9 13:07 W-J-B/SCIENCE/headers_scamp_SDSS-R6/SUPA0118315_3.head
+-rw-r--r-- 1 awright ki 3848 Mar  9 13:07 W-J-V/SCIENCE/headers_scamp_SDSS-R6/SUPA0118325_3.head
+-rw-r--r-- 1 awright ki 3848 Mar  9 13:08 W-S-Z+/SCIENCE/headers_scamp_SDSS-R6/SUPA0128341_3.head
+-rw-r--r-- 1 awright ki 3917 Mar  9 16:32 W-C-RC/SCIENCE/headers_scamp_photom_SDSS-R6/SUPA0046908_3.head
+-rw-r--r-- 1 awright ki 3848 Mar 13 18:08 W-S-G+/SCIENCE/headers_scamp_SDSS-R6/SUPA0121582_3.head
+
+2.) INSTRUM keyword might be inconsistent? -> NOPE
+look at xml file: firefox /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-J-B/SCIENCE/astrom_photom_scamp_2MASS/plots_photom/adam_MACS0416-24_scamp.xml &
+checkout screenshot on xoc7:~/Pictures/instrum_keyword_ok.png
+
+4.) see if spurious detections really are filtered out
+example of a command:
+ldacfilter -i //nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-J-B/SCIENCE/cat_scampIC/SUPA0125898_2OCF.cat.tmp -t LDAC_OBJECTS -c '(((((FLAGS<20))AND(B_IMAGE>1.2))AND(IMAFLAGS_ISO<97))AND(MAX_TOTAL<23000));' -o SUPA0125898_2OCF.ldac
+
+and the number of lines decreases after filtering every time. See:
+#made by:paste cat_scampIC.txt cat_photom.txt | awk 'BEGIN{print "file","cat_scampIC_Nlines","cat_photom_Nlines"}{print $1,$2,$4}' | column -t 
+file                  cat_scampIC_Nlines  cat_photom_Nlines
+SUPA0125865_1OCF.cat  1092                608
+SUPA0125866_1OCF.cat  1114                619
+SUPA0125867_1OCF.cat  1076                667
+SUPA0125868_1OCF.cat  906                 581
+SUPA0125869_1OCF.cat  965                 675
+SUPA0125870_1OCF.cat  821                 585
+SUPA0125871_1OCF.cat  796                 578
+SUPA0125872_1OCF.cat  784                 558
+SUPA0125873_1OCF.cat  885                 613
+SUPA0125874_1OCF.cat  1028                581
+SUPA0125875_1OCF.cat  1084                625
+SUPA0125876_1OCF.cat  1085                661
+SUPA0125877_1OCF.cat  1167                679
+SUPA0125878_1OCF.cat  1160                661
+SUPA0125879_1OCF.cat  1221                716
+SUPA0125880_1OCF.cat  1249                715
+SUPA0125881_1OCF.cat  1170                652
+SUPA0125882_1OCF.cat  1185                683
+SUPA0125883_1OCF.cat  1215                677
+SUPA0125884_1OCF.cat  1165                657
+SUPA0125885_1OCF.cat  1140                672
+SUPA0125886_1OCF.cat  1145                626
+SUPA0125887_1OCF.cat  1229                692
+SUPA0125888_1OCF.cat  1179                696
+SUPA0125889_1OCF.cat  1136                712
+SUPA0125890_1OCF.cat  1297                737
+SUPA0125891_1OCF.cat  1167                642
+SUPA0125892_1OCF.cat  1244                694
+SUPA0125893_1OCF.cat  1216                650
+SUPA0125894_1OCF.cat  1185                663
+SUPA0125895_1OCF.cat  1083                638
+SUPA0125896_1OCF.cat  995                 595
+SUPA0125897_1OCF.cat  1929                1206
+SUPA0125898_1OCF.cat  1965                1218
+SUPA0125899_1OCF.cat  1714                1096
+SUPA0125900_1OCF.cat  1961                1176
+SUPA0125901_1OCF.cat  2159                1252
+SUPA0125903_1OCF.cat  2147                1288
+SUPA0125904_1OCF.cat  2359                1379
+SUPA0125905_1OCF.cat  2192                1265
+SUPA0125906_1OCF.cat  2195                1352
+SUPA0125907_1OCF.cat  2248                1283
+SUPA0125908_1OCF.cat  2199                1282
+SUPA0125909_1OCF.cat  2168                1301
+SUPA0125910_1OCF.cat  2183                1303
+SUPA0125911_1OCF.cat  1991                1234
+SUPA0125912_1OCF.cat  1906                1158
+SUPA0126096_1OCF.cat  2096                1065
+SUPA0126097_1OCF.cat  2040                1059
+SUPA0126098_1OCF.cat  2053                1047
+SUPA0126099_1OCF.cat  2021                1060
+SUPA0126100_1OCF.cat  2063                1011
+SUPA0126101_1OCF.cat  1965                1048
+SUPA0126102_1OCF.cat  2025                1086
+SUPA0126103_1OCF.cat  2037                1041

@@ -1,0 +1,158 @@
+Final Number of stars is 79 of a total 673 detections
+Final Number of stars is 69 of a total 625 detections
+Final Number of stars is 63 of a total 603 detections
+Final Number of stars is 68 of a total 656 detections
+Final Number of stars is 66 of a total 820 detections
+Final Number of stars is 60 of a total 601 detections
+Final Number of stars is 78 of a total 639 detections
+Final Number of stars is 73 of a total 638 detections
+Final Number of stars is 71 of a total 695 detections
+Final Number of stars is 53 of a total 718 detections
+Final Number of stars is 77 of a total 797 detections
+Final Number of stars is 18 of a total 720 detections
+Final Number of stars is 54 of a total 728 detections
+Final Number of stars is 58 of a total 867 detections
+Final Number of stars is 61 of a total 725 detections
+Final Number of stars is 62 of a total 795 detections
+Final Number of stars is 57 of a total 923 detections
+Final Number of stars is 60 of a total 833 detections
+Final Number of stars is 49 of a total 817 detections
+Final Number of stars is 69 of a total 733 detections
+Total cosmics masked:  127
+Total cosmics masked:  101
+Final Number of stars is 61 of a total 872 detections
+Final Number of stars is 61 of a total 822 detections
+Final Number of stars is 53 of a total 715 detections
+Final Number of stars is 57 of a total 713 detections
+Final Number of stars is 72 of a total 975 detections
+Final Number of stars is 58 of a total 854 detections
+Final Number of stars is 54 of a total 723 detections
+Final Number of stars is 73 of a total 847 detections
+Total cosmics masked:  82
+Final Number of stars is 67 of a total 895 detections
+Total cosmics masked:  116
+Total cosmics masked:  74
+Final Number of stars is 58 of a total 1041 detections
+Final Number of stars is 57 of a total 852 detections
+Final Number of stars is 53 of a total 828 detections
+Final Number of stars is 61 of a total 921 detections
+Final Number of stars is 65 of a total 866 detections
+Final Number of stars is 46 of a total 767 detections
+Final Number of stars is 52 of a total 765 detections
+Final Number of stars is 57 of a total 879 detections
+Final Number of stars is 59 of a total 940 detections
+Total cosmics masked:  72
+Total cosmics masked:  108
+Final Number of stars is 66 of a total 901 detections
+Final Number of stars is 71 of a total 848 detections
+Final Number of stars is 69 of a total 841 detections
+Final Number of stars is 60 of a total 776 detections
+Total cosmics masked:  84
+Total cosmics masked:  96
+Final Number of stars is 64 of a total 927 detections
+Final Number of stars is 73 of a total 942 detections
+Final Number of stars is 71 of a total 790 detections
+Final Number of stars is 51 of a total 723 detections
+Total cosmics masked:  84
+Final Number of stars is 60 of a total 612 detections
+Total cosmics masked:  95
+Final Number of stars is 86 of a total 695 detections
+Final Number of stars is 65 of a total 913 detections
+Final Number of stars is 67 of a total 714 detections
+Final Number of stars is 50 of a total 787 detections
+Total cosmics masked:  100
+Final Number of stars is 65 of a total 594 detections
+Total cosmics masked:  104
+Final Number of stars is 80 of a total 730 detections
+Final Number of stars is 57 of a total 690 detections
+Final Number of stars is 60 of a total 687 detections
+Final Number of stars is 70 of a total 654 detections
+Final Number of stars is 47 of a total 737 detections
+Final Number of stars is 47 of a total 687 detections
+Final Number of stars is 66 of a total 657 detections
+Final Number of stars is 58 of a total 767 detections
+Final Number of stars is 77 of a total 794 detections
+Final Number of stars is 60 of a total 789 detections
+Final Number of stars is 28 of a total 622 detections
+Total cosmics masked:  76
+Final Number of stars is 53 of a total 734 detections
+Final Number of stars is 51 of a total 946 detections
+Final Number of stars is 55 of a total 708 detections
+Total cosmics masked:  98
+Total cosmics masked:  131
+Final Number of stars is 55 of a total 854 detections
+Final Number of stars is 53 of a total 854 detections
+Final Number of stars is 50 of a total 903 detections
+Total cosmics masked:  73
+Final Number of stars is 67 of a total 798 detections
+Final Number of stars is 49 of a total 726 detections
+Total cosmics masked:  147
+Final Number of stars is 62 of a total 938 detections
+Total cosmics masked:  104
+Final Number of stars is 56 of a total 823 detections
+Final Number of stars is 43 of a total 800 detections
+Final Number of stars is 50 of a total 762 detections
+Final Number of stars is 72 of a total 782 detections
+Total cosmics masked:  84
+Total cosmics masked:  119
+Total cosmics masked:  100
+Final Number of stars is 63 of a total 873 detections
+Final Number of stars is 63 of a total 1033 detections
+Final Number of stars is 33 of a total 930 detections
+Final Number of stars is 63 of a total 703 detections
+Final Number of stars is 61 of a total 810 detections
+Final Number of stars is 62 of a total 954 detections
+Total cosmics masked:  122
+Total cosmics masked:  87
+Final Number of stars is 45 of a total 750 detections
+Final Number of stars is 60 of a total 733 detections
+Final Number of stars is 51 of a total 793 detections
+Final Number of stars is 76 of a total 933 detections
+Total cosmics masked:  88
+Total cosmics masked:  73
+Total cosmics masked:  126
+Final Number of stars is 45 of a total 919 detections
+Final Number of stars is 65 of a total 853 detections
+Total cosmics masked:  137
+Total cosmics masked:  106
+Final Number of stars is 46 of a total 875 detections
+Final Number of stars is 71 of a total 852 detections
+Total cosmics masked:  118
+Total cosmics masked:  120
+Final Number of stars is 41 of a total 844 detections
+Final Number of stars is 77 of a total 855 detections
+Total cosmics masked:  113
+Total cosmics masked:  120
+Final Number of stars is 46 of a total 918 detections
+Final Number of stars is 85 of a total 851 detections
+Total cosmics masked:  114
+Total cosmics masked:  131
+Final Number of stars is 99 of a total 702 detections
+Final Number of stars is 63 of a total 665 detections
+Final Number of stars is 68 of a total 832 detections
+Final Number of stars is 38 of a total 675 detections
+Final Number of stars is 62 of a total 771 detections
+Final Number of stars is 59 of a total 914 detections
+Final Number of stars is 56 of a total 791 detections
+Final Number of stars is 70 of a total 908 detections
+Final Number of stars is 60 of a total 805 detections
+Final Number of stars is 58 of a total 803 detections
+Final Number of stars is 39 of a total 749 detections
+Final Number of stars is 68 of a total 846 detections
+Total cosmics masked:  91
+Total cosmics masked:  84
+Final Number of stars is 51 of a total 879 detections
+Final Number of stars is 78 of a total 895 detections
+Total cosmics masked:  119
+Final Number of stars is 60 of a total 841 detections
+Final Number of stars is 22 of a total 762 detections
+Total cosmics masked:  75
+Total cosmics masked:  103
+Final Number of stars is 50 of a total 719 detections
+Final Number of stars is 90 of a total 722 detections
+Total cosmics masked:  80
+Final Number of stars is 58 of a total 707 detections
+Final Number of stars is 62 of a total 806 detections
+Final Number of stars is 47 of a total 722 detections
+Total cosmics masked:  88
+Final Number of stars is 25 of a total 779 detections

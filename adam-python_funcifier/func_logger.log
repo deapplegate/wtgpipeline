@@ -1,0 +1,150 @@
+def sextract(SUPA,FLAT_TYPE):
+    dict = get_files(SUPA,FLAT_TYPE)
+    search_params = initialize(dict['FILTER'],dict['OBJNAME'])
+            dict_uncorrected = get_files(SUPA[:-1],FLAT_TYPE)                                                               
+            save_exposure(d,SUPA,FLAT_TYPE)                                                                                 
+            dict = get_files(SUPA,FLAT_TYPE)
+            search_params = initialize(dict['FILTER'],dict['OBJNAME'])
+                            combine_cats(doubles_output,outfile,search_params)
+        paste_cats(files,pasted_cat)
+    save_exposure({'pasted_cat':pasted_cat},SUPA,FLAT_TYPE)
+def length_swarp(SUPA,FLAT_TYPE,CHIPS):
+    dict = get_files(SUPA,FLAT_TYPE)
+    search_params = initialize(dict['FILTER'],dict['OBJNAME'])
+    save_exposure(all_chip_dict,SUPA,FLAT_TYPE)                                                                                                                                                           
+    return all_chip_dict
+def analyze(SUPA,FLAT_TYPE,params={}):
+        #    length_swarp(SUPA,FLAT_TYPE)
+            find_seeing(SUPA,FLAT_TYPE)      
+        sextract(SUPA,FLAT_TYPE)
+def get_astrom_run_sextract():
+    db2,c = connect_except()
+                fix_radec(dict['SUPA'],dict['FLAT_TYPE']) 
+        #    d_update = get_files(dict['SUPA'],dict['FLAT_TYPE'])
+def perform_fit():
+    match_OBJNAME()
+def gather_exposures(OBJNAME,filters=None):
+        search_params = initialize(filter_name,OBJNAME) 
+                    save_exposure(exposures[exp_name]['keywords'])
+    return exposures
+def initialize(filter,OBJNAME):
+    return search_params
+def save_exposure(dict,SUPA=None,FLAT_TYPE=None):
+    db2,c = connect_except()
+def connect_except():
+    return db2,c
+def get_files(SUPA,FLAT_TYPE=None):    
+    db2,c = connect_except()
+    return dict
+def combine_cats(cats,outfile,search_params):
+def paste_cats(cats,outfile):
+def find_seeing(SUPA,FLAT_TYPE):     
+    dict = get_files(SUPA,FLAT_TYPE)
+    search_params = initialize(dict['FILTER'],dict['OBJNAME'])
+    fwhm = calc_seeing(file_seeing,PIXSCALE)
+    save_exposure({'fwhm':fwhm},SUPA,FLAT_TYPE)
+def calc_seeing(file,PIXSCALE):
+    return fwhm
+def fix_radec(SUPA,FLAT_TYPE):
+    dict = get_files(SUPA,FLAT_TYPE)
+    search_params = initialize(dict['FILTER'],dict['OBJNAME'])
+        chip_dict = length_swarp(SUPA,FLAT_TYPE,chips)                                                                                                                                          
+                find_seeing(search_params['SUPA'],search_params['FLAT_TYPE'])
+            sextract(search_params['SUPA'],search_params['FLAT_TYPE'])
+            dict = get_files(SUPA,FLAT_TYPE)
+            search_params = initialize(dict['FILTER'],dict['OBJNAME'])
+            save_exposure({'fixradecCR':-2},SUPA,FLAT_TYPE)
+            return -2 
+            save_exposure({'fixradecCR':1},SUPA,FLAT_TYPE)
+            return 1 
+        save_exposure({'fixradecCR':-1},SUPA,FLAT_TYPE)
+        return -1 
+def test_1226():
+    match_OBJNAME( OBJNAME, FILTER, PPRUN )
+def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None):
+        db_keys_f = describe_db(c,['illumination_db'])
+            try_db_keys = describe_db(c,['' + test + 'try_db'])       
+            ill_db_keys = describe_db(c,['illumination_db']) 
+                #print 'calc_test_save.linear_fit(' + OBJNAME + ',' + FILTER + ',' + PPRUN + ',' + cov + ',' + CONFIG + ',' + true_sdss + ',primary=' + primary + ',secondary=' + secondary + ')'
+        if len(results) ==0: return
+            save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'sample':'record','sample_size':'record'},db='' + test + 'try_db')
+            db_keys = describe_db(c,['' + test + 'try_db'])                                                                                                                                      
+            db_keys = describe_db(c,['illumination_db'])                                                                                                                                      
+                        ana = '' #raw_input('analyze ' + d['SUPA'] + '?')
+                                analyze(d['SUPA'],d['FLAT_TYPE'])
+                            a = fix_radec(d['SUPA'],d['FLAT_TYPE'])
+                        finalcat = match_many_multi_band([[dict_temp['primary_catalog'],'primary'],[dict_temp['secondary_catalog'],'secondary']])
+                        sdss_cov,galaxycat,starcat = sdss_coverage(d['SUPA'],d['FLAT_TYPE']) 
+                    d = get_files(d['SUPA'],d['FLAT_TYPE'])
+                    match_many(input)                                                                   
+                    start_EXPS = getTableInfo()   
+                    dt = get_files(start_EXPS[start_EXPS.keys()[0]][0])
+                    CONFIG = find_config(dt['GABODSID'])
+                    EXPS, star_good,supas, totalstars, mdn_background = selectGoodStars(start_EXPS,match,LENGTH1,LENGTH2,CONFIG)               
+                    info = starStats(supas)
+                    uu = open(tmpdir + '/selectGoodStars','w')
+                    save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'started','fit_time':str(time.localtime())},db='' + test + 'try_db')
+                        CONFIG = find_config(d['GABODSID'])
+                        linear_fit(OBJNAME,FILTER,PPRUN,None,match,CONFIG,primary=primary,secondary=secondary)
+                        save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':str(illum_dir)+'logfile','sample':str('record'),'sample_size':'record',str(match)+'status':'fitfinished','test_check':'yes','sample_current':str(match),'fit_time':str(time.localtime())},db='' + str(test) + 'try_db')
+                    save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'failed','fit_time':str(time.localtime()),'exception':'no information'},db='' + test + 'try_db')
+def describe_db(c,db=['illumination_db']):
+    return keys    
+def save_fit(dict,OBJNAME=None,FILTER=None,PPRUN=None,db=test + 'fit_db'):
+    db2,c = connect_except()
+    db_keys = describe_db(c,db)
+def sdss_coverage(SUPA,FLAT_TYPE):
+    dict = get_files(SUPA,FLAT_TYPE)
+    search_params = initialize(dict['FILTER'],dict['OBJNAME'])
+        dict = get_files(SUPA,FLAT_TYPE)
+        if len(lines) > 1: sdss_coverage=True 
+        else: sdss_coverage=False 
+        save_exposure({'sdss_coverage':sdss_coverage},SUPA,FLAT_TYPE)
+    sdss_coverage = results[0][0]
+    if string.find(sdss_coverage,'True') != -1:
+    return cov, galaxycat, starcat
+def match_many(list,color=False):
+        make_ssc_config_few(list) 
+def make_ssc_config_few(list):
+def getTableInfo():
+    return ROTS
+def find_config(GID):   
+    return CONFIG_IM
+def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG):
+    supas.sort(sort_supas)
+    return EXPS, star_good, supas, totalstars, mdn_background
+def sort_supas(x,y):
+        return 1            
+    else: return -1
+def starStats(supas):
+    return dict
+def linear_fit(OBJNAME,FILTER,PPRUN,run_these=None,match=None,CONFIG=None,primary=None,secondary=None):
+    start_EXPS = getTableInfo()                                                                                                                                     
+    dt = get_files(start_EXPS[start_EXPS.keys()[0]][0])
+    #cov, galaxycat, starcat = sdss_coverage(dt['SUPA'],dt['FLAT_TYPE']) 
+        EXPS, star_good,supas, totalstars, mdn_background = selectGoodStars(start_EXPS,match,LENGTH1,LENGTH2,CONFIG)               
+        uu = open(tmpdir + '/selectGoodStars','w')
+        info = starStats(supas)
+    f=open(tmpdir + '/selectGoodStars','r')
+            db_keys_t = describe_db(c,['' + test + 'fit_db']) 
+        save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,'primary_filt':primary,'secondary_filt':secondary,'coverage':str(match),'relative_colors':relative_colors,'catalog':str(match),'CONFIG':CONFIG,'supas':len(supas),'match_stars':len(filter(lambda x:x['match'],supas))})
+            print starStats(supas)
+                        calcDataIllum(sample + 'reducedchi'+str(ROT)+FILTER,LENGTH1,LENGTH2,scipy.array(all_resids),scipy.ones(len(all_resids)),scipy.array(all_x),scipy.array(all_y),pth=illum_dir,rot=0,limits=[-10,10],ylab='Residual/Error') 
+                        save_fit(dtmp)
+                    save_fit(dtmp)
+                    save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'format':'good','sample':'record','sample_size':'record'},db='' + test + 'try_db')
+                    save_fit({'FILTER':FILTER,'OBJNAME':OBJNAME,'PPRUN':PPRUN,'sample':sample,'sample_size':sample_size,'catalog':outcat})
+                    d = get_fits(OBJNAME,FILTER,PPRUN, sample, sample_size)                
+                            save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,str(ROT)+'$im':im})
+                            save_fit({'linearplot':1,'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,str(ROT)+'$im':im})
+                            calcDataIllum(sample + kind + 'nocorr'+str(ROT)+FILTER,10000,8000,data2,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,rot=0,good=[Star[ROT],keyvalue]) 
+                                calcDataIllum(calcim,10000,8000,epsilon,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,rot=0,good=[Star[ROT],keyvalue])
+                                calcDataIllum(calcim,10000,8000,data2,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,rot=0,good=[Star[ROT],keyvalue])
+                            save_fit(dtmp)
+    return
+def calcDataIllum(file, LENGTH1, LENGTH2, data,magErr, X, Y, pth='/nfs/slac/g/ki/ki04/pkelly/plots/', rot=0, good=None, limits=[-0.4,0.4], ylab='SUBARU-SDSS'):
+    return
+def get_fits(OBJNAME,FILTER,PPRUN,sample, sample_size):    
+    db2,c = connect_except()
+    db_keys = describe_db(c,'' + test + 'fit_db')
+    return dtop

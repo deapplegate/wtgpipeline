@@ -1,0 +1,22 @@
+# see ~pkelly/.tcshrc for more stuff
+export sne=/nfs/slac/g/ki/ki04/pkelly
+export BPZPATH=/nfs/slac/g/ki/ki04/pkelly/bpz-1.99.2
+
+setenv sne /nfs/slac/g/ki/ki04/pkelly
+setenv BPZPATH $sne/bpz-1.99.2
+setenv BPZPATHNEW $sne/bpz-1.99.3/plots/
+alias bpz $BPZPATH/bpz.py
+setenv COLORPRO $sne/colorpro-1.0.6
+setenv PYTHONPATH ${COLORPRO}:${BPZPATH}:${BPZPATHNEW}
+alias bpz "python $BPZPATH/bpz.py"
+setenv BIGMACS $sne/bigmacs/big-macs-calibrate/
+setenv BIGMACSMAKE $sne/big-macs-calibrate-all/
+setenv SLR_INSTALL $sne/slr-v1.1
+setenv SLR_DATA $sne/slr_data
+setenv DUST_DIR $sne/DUST/
+setenv LEPHAREDIR $sne/lephare_dev/
+setenv LEPHAREWORK $sne/lepharework/
+setenv PYTHONPATH $BPZPATH/plots/:$PYTHONPATH
+setenv PYTHONPATH $sne/lib/python/:$PYTHONPATH
+setenv PYTHONPATH $sne/bpz.1.99.2/:$PYTHONPATH
+setenv PYTHONPATH ${sne}/lib/python2.7/site-packages/:${PYTHONPATH}

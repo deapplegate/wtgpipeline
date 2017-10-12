@@ -1,0 +1,666 @@
+############################################################
+##########  do_photometry-new_ending.sh  ##########
+############################################################
+export cluster="MACS1226+21"
+export bonn=/u/ki/awright/bonnpipeline/
+export subdir=/nfs/slac/g/ki/ki18/anja/SUBARU/
+export sne=/nfs/slac/kipac/fs1/u/awright/SUBARU/
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU ; export INSTRUMENT=SUBARU
+export ending="OCFI"
+export mode=aper
+export detect_filter=W-C-RC
+export lensing_filter=W-C-RC
+#I changed adam_qc_wrapper.py so that it doesn't do a bunch of extra crap too (like run fit_locus.py)
+#old# python adam_qc_wrapper.py $cluster detect=W-C-RC aptype=aper APER1
+python adam_bigmacs-make_input_columns.py $cluster detect=${detect_filter} aptype=${mode}
+export BIGMACS=/nfs/slac/kipac/fs1/u/awright/InstallingSoftware_extension/big-macs-calibrate
+#makes these files:
+#/nfs/slac/g/ki/ki18/anja/SUBARU//MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.columns
+#/nfs/slac/g/ki/ki18/anja/SUBARU//MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.qc.columns 
+PYTHONPATH_old=$PYTHONPATH
+PYTHONPATH=$BIGMACS:PYTHONPATH
+export PYTHONPATH
+cd $BIGMACS
+## fit zps with 2MASS, bootstrap=5
+python fit_locus.py --file /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat --columns /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.qc.columns --extension 1 --bootstrap 5 -l -j --output /nfs/slac/g/ki/ki18/anja/SUBARU//MACS1226+21/PHOTOMETRY_W-C-RC_aper/BIGMACS_output_2MASS-no_unit_test/ -p /nfs/slac/g/ki/ki18/anja/SUBARU//MACS1226+21/PHOTOMETRY_W-C-RC_aper/BIGMACS_output_2MASS-no_unit_test/PLOTS 2>&1 | tee -a OUT-fit_locus-2MASS-no_unit_test-bootstrap5.log
+## fit zps with SDSS, bootstrap=5
+python fit_locus.py --file /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat --columns /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.qc.columns --extension 1 --bootstrap 5 --l -s --output /nfs/slac/g/ki/ki18/anja/SUBARU//MACS1226+21/PHOTOMETRY_W-C-RC_aper/BIGMACS_output_no_unit_test/ -p /nfs/slac/g/ki/ki18/anja/SUBARU//MACS1226+21/PHOTOMETRY_W-C-RC_aper/BIGMACS_output_no_unit_test/PLOTS 2>&1 | tee -a OUT-fit_locus-SDSS-no_unit_test-bootstrap5.log
+
+cd $bonn
+export PYTHONPATH=$PYTHONPATH_old
+
+#adam-SHNT# now we have files like this:
+# /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/BIGMACS_output_no_unit_test/MACS1226+21.stars.calibrated.cat.offsets.list
+# which need to be applied to the catalogs
+
+
+#adam-SHNT#need to put the command here (maybe it's save_slr.py or it's phot_slr.py) so that the fit ZPS will be applied
+#./save_slr.py --cluster "MACS1226+21" -i /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.stars.calibrated.cat -o /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.stars.calibrated.cat.offsets.list.reformat --spec mode=APER1
+#./phot_slr.sh SOMETHING HERE
+
+grep -v "^#\|^psfPogCorr" ${photdir}/${cluster}.stars.calibrated.cat.offsets.list | sed 's/\ +-//g;s/\ REDDER//g' > ${photdir}/${cluster}.stars.calibrated.cat.bigmacs.offsets.list
+## still needed to put the shortened names in there by hand: vim ${photdir}/${cluster}.stars.calibrated.cat.bigmacs.offsets.list
+ipython -i -- adam_save_zp.py $photdir ${cluster} ${cluster}.stars.calibrated.cat ${cluster}.stars.calibrated.cat.bigmacs.offsets.list slr
+
+#this includes the following line, which isn't working:
+#~/bonnpipeline$ ipython -i -- photocalibrate_cat.py --in /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.unstacked.cat -c MACS1226+21 -o /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.slr.cat
+
+
+############################################################
+########## NEW STUFF: Comparisons to distinguish one code from another 
+############################################################
+save_slr.py: (SAVE ZP) Save slr offsets to the photometry database. Includes the `saveSlrZP` func (NOT `saveLephareZP`). Little more elegant coding with TESTING and inputs handled in a specific way
+save_zp.py: (SAVE and APPLY ZP) Save slr offsets to the photometry database. Includes the `saveSlrZP` func and `saveLephareZP`. Then Manually apply the zeropoint by running `photocalibrate_cat.py` with os.system
+set_manual_zp.py: (SAVE ZP) EXTREMELY SIMPLE/DOUBT IT WORKS. basically these 3 lines: cluster,fitId,zp=sys.argv[1:-1]; manualZP=photometry_db.registerManualZP(cluster,fitID,zp); photometry_db.updateCalibration(cluster,fitID,'manual_z_p',manualZP.id)
+
+#these seem UNIMPORTANT, so ignore them: patslr.py fastslr.py slr_check.py slr_pat.py slr_pat_better.py slroffset_histograms.py
+
+############################################################
+##########  adam_notes-doug_and_pat_code_descriptions.log  ##########
+############################################################
+fit_phot.py:
+	*makes the plots in /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots/
+	Options:
+	  -c CLUSTER, --cluster=CLUSTER
+				Cluster name
+	  -i CATFILE, --inputcat=CATFILE
+				catalog for use in calibration
+	  -f FILTER, --filtername=FILTER
+				Filter to calibrate
+	  -p PLOTDIR, --plotdir=PLOTDIR
+				Directory to save plots
+	  -t CHIPID, --chipid=CHIPID
+				Chip id used in measurement
+	  -3, --threesec        Treat as a 3second exposure
+	  -s, --special         Treat as a special exposure
+	  -m MAINDIR, --maindir=MAINDIR
+				subaru directory
+	  --free-color          Allow color term to be free!
+	  --no-save             Do not save fits to database
+	  --spec=SPECIFICATION  key=val set determines the uniqueness of this
+				calibration
+	  -n FLUXTYPE, --fluxtype=FLUXTYPE
+				Type of flux/mag to calibrate, ie. FLUX_(XXXX)
+photometry_db.py: provides a mapping from cluster, effective filter to actual fit. will allow for easy transfer of fits to other effective filters
+photocalibrate_cat.py:  program to apply photocalib to a catalog; includes MAG/FLUX correction, error propagation, and masking. Can be used to apply dust correction (in utilities.py)
+	Usage: photocalibrate_cat.py <-d> -i in.cat -c cluster -o out.cat 
+	Options:
+	  -i INCATFILE, --in=INCATFILE
+				Input catalog name
+	  -c CLUSTER, --cluster=CLUSTER
+				Name of cluster
+	  -o OUTCATFILE, --out=OUTCATFILE
+				name of output catalog
+	  -d, --nodust          Turn off dust correction
+	  -t TYPE, --type=TYPE  Type of zeropoint -- standard, slr, lephare
+	  --spec=SPECIFICATION  key=val set determines the uniqueness of this
+				calibration
+
+run_slr.py: make sdss output catalog
+
+phot_slr.sh: looks like this runs the old IDL version of SLR
+	* calculates `kappa` for different colors (what's kappa?)
+save_slr.py: Save slr offsets to the photometry database. Includes the `saveSlrZP` func and `saveLephareZP`
+	Options:
+	  -c CLUSTER, --cluster=CLUSTER
+				Cluster name
+	  -o FILE, --offsets=FILE
+				Name of offset file
+	  -i FILE, --input=FILE
+				Name of catalog which was calibrated
+	  -s key=val, --spec=key=val
+				key=val set determines the uniqueness of this
+				calibration
+	  --fluxtype=FLUXTYPE   Flux Type to pull from ZPS table
+set_manual_zp.py: Manually set a zeropoint for a fitid, such as from SLR
+save_zp.py: Manually set a zeropoint for a fitid, such as from SLR
+        print 'example: python save_zp.py $photdir MACS2214-13 MACS2214-13.stars.calibrated.cat slr.offsets.list slr'
+        print 'python save_zp.py CLUSTER CATALOG OFFSET_FILE (slr or lephare)'
+
+qc_wrapper.py:
+	(1) runs bigmacs slr
+	(2) reformats ${cluster}.offsets.list (adding .reformat on the end)  NOT EXACTLY SURE WHATS GOING ON HERE BUT IT COULD BE SIGNIFICANT
+	(3) running save_slr.py on ${cluster}.offsets.list.reformat NOT EXACTLY SURE WHATS GOING ON HERE BUT IT COULD BE SIGNIFICANT
+
+
+do_photometry.sh: BEGINNING PART, where we're making catalogs for the first time. It calls run_unstacked_photometry.sh which calls extract_object_cats.py and measure_unstacked_photometry.py
+	extract_object_cats.py:  Creates photometry catalog and associated output for a given exposure and detection image. Also implements python calls to sextractor and ldacconv. (Will convolve images if requested. ISO areas of objects are measured from the detection image, or from a premeasured catalog.)
+		calls sextractor with this setting: PHOT_APERTURES   10,15              # MAG_APER aperture diameter(s) in pixels
+		because of this, MAG_APER is a vector, big question is DO WE USE BOTH OF THESE and if we do, then I MUST CHANGE CODE SO IT TREATS THEM AS MAG_APER0- and MAG_APER1- (rather than MAG_APER-) right from the beginning!
+
+config file also has some bloopers that I'm not sure are handled properly: photconf/detect.objs.conf.sex
+SATUR_LEVEL      500000.0        # level (in ADUs) at which arises saturation
+#this looks like it's taken from image header# GAIN             0.0            # detector gain in e-/ADU
+PIXEL_SCALE      0            # size of pixel in arcsec (0=use FITS WCS info)
+ 
+
+
+
+
+############################################################
+##########  adam_notes-quick-do_photometry_notes.sh  ##########
+############################################################
+mode="aper"
+photrepo=/nfs/slac/kipac/fs1/u/awright/SUBARU/photometry
+lensingrepo=/nfs/slac/kipac/fs1/u/awright/SUBARU/lensing
+photdirname=PHOTOMETRY_${detect_filter}_${mode}
+photdir=${photrepo}/${cluster}/${photdirname}
+lensingdirname=LENSING_${detect_filter}_${lensing_filter}_${mode}
+lensingdir=${lensingrepo}/${cluster}/${lensingdirname}
+
+#adam-look# PHOTO (a)
+    ./create_seeing_file.sh ${cluster}
+    ./extract_object_cats.py --di $detect_image --dw $detect_weight \
+       --pi $detect_image --pw $detect_weight --pf $detect_flag \
+       --fwhm ${seeing} --new-fwhm ${convolve} \
+       -o ${detect_dir}/detection.cat
+    for filter in $filters; do
+	jobid=${cluster}.${detect_filter}.${filter}.${mode}.cats
+	bsub -q ${queue} -o $subarudir/photlogs/$jobid.log -e $subarudir/photlogs/$jobid.err ./run_unstacked_photometry.sh ${subarudir}/${cluster} ${photdir} ${cluster} ${filter} ${detect_image} ${convolve}
+    done
+
+all_phot_cat=${photdir}/${cluster}.unstacked.cat
+#adam-look# MERGE (b)
+    MERGE_LINE=""
+    for filter in $filters; do
+	if [ "${filter}" = "${detect_filter}" ]; then
+	    MERGE_LINE="${photdir}/${filter}/unstacked/all.filtered.cat ${photdir}/${filter}/unstacked/$cluster.$shortfilter.unstacked.cat $shortfilter ${MERGE_LINE}"
+	else
+	    MERGE_LINE="${MERGE_LINE} ${photdir}/${filter}/unstacked/$cluster.$shortfilter.unstacked.cat $shortfilter"
+	fi
+    done
+    ./merge_filters.py ${all_phot_cat} ${MERGE_LINE}
+
+#adam-look# STARS (c)
+    ./produce_catalogs.sh ${subarudir}/${cluster} ${photdir} ${lensingdir} ${cluster} ${detect_image} ${lensing_image}
+
+matched_catalog=${photdir}/${cluster}.sdss.matched.cat
+star_cat=${photdir}/${cluster}.stars.cat
+#adam-look# SDSS (d)
+    sdss_cat=${photdir}/sdssstar.cat
+    python retrieve_test.py ${detect_image} ${sdss_cat}
+    ./convert_aper.py ${star_cat} ${photdir}/${cluster}.stars.converted.cat
+    ./match_simple.sh ${photdir}/${cluster}.stars.converted.cat ${sdss_cat} ${matched_catalog}
+
+spec_flag="--spec mode=${mode}"
+fit_phot_flag="--fluxtype APER1 ${spec_flag}"
+#adam-look# CALIB (e)
+    longfilters=`./dump_cat_filters.py ${star_cat}`
+    for longfilter in $longfilters; do
+	    ./fit_phot.py \
+		-c ${cluster} \
+		-i ${matched_catalog} \
+		-f ${longfilter} \
+		-p ${photdir}/calibration_plots \
+		${fit_phot_flag}
+    done
+
+photocalibrate_cat_flag=${spec_flag}
+#adam-look# APPLY (f)# Apply Photometric Calibration
+    calibrated_cat=${photdir}/${cluster}.calibrated.cat
+    ./photocalibrate_cat.py -i ${all_phot_cat} -c ${cluster} -o ${calibrated_cat} ${photocalibrate_cat_flag}
+    ./photocalibrate_cat.py -i ${star_cat} -c ${cluster} -o ${photdir}/${cluster}.stars.calibrated.cat ${photocalibrate_cat_flag}
+
+slr_flag=APER1
+save_slr_flag="${spec_flag} --fluxtype $slr_flag"
+#adam-look# SLR (g)
+    ./phot_slr.sh ${photdir} ${cluster}.stars.calibrated.cat $slr_flag
+    ./save_slr.py -c ${cluster} -i ${photdir}/${cluster}.stars.calibrated.cat -o ${photdir}/slr.offsets.list ${save_slr_flag}
+    ./photocalibrate_cat.py -i ${all_phot_cat} -c $cluster -o ${photdir}/${cluster}.slr.cat -t slr ${photocalibrate_cat_flag}
+
+
+
+## shorter
+
+#adam-look# PHOTO (a)
+./create_seeing_file.sh ${cluster}
+./extract_object_cats.py --di $detect_image --dw $detect_weight --pi $detect_image --pw $detect_weight --pf $detect_flag --fwhm ${seeing} --new-fwhm ${convolve} -o ${detect_dir}/detection.cat
+./run_unstacked_photometry.sh ${subarudir}/${cluster} ${photdir} ${cluster} ${filter} ${detect_image} ${convolve}
+#adam-look# MERGE (b)
+./merge_filters.py ${photdir}/${cluster}.unstacked.cat ${MERGE_LINE}
+#adam-look# STARS (c)
+./produce_catalogs.sh ${subarudir}/${cluster} ${photdir} ${lensingdir} ${cluster} ${detect_image} ${lensing_image}
+#adam-look# SDSS (d)
+./retrieve_test.py ${detect_image} sdss_cat=${photdir}/sdssstar.cat
+./convert_aper.py star_cat=${photdir}/${cluster}.stars.cat ${photdir}/${cluster}.stars.converted.cat
+./match_simple.sh ${photdir}/${cluster}.stars.converted.cat ${photdir}/sdssstar.cat matched_catalog=${photdir}/${cluster}.sdss.matched.cat
+#adam-look# CALIB (e)
+longfilters=`./dump_cat_filters.py ${star_cat}`
+for longfilter in $longfilters; do
+        ./fit_phot.py -c ${cluster} -i ${matched_catalog} -f ${longfilter} -p ${photdir}/calibration_plots --fluxtype APER1 --spec mode=aper
+done
+#adam-look# APPLY (f)# Apply Photometric Calibration
+./photocalibrate_cat.py -i ${all_phot_cat} -c ${cluster} -o calibrated_cat=${photdir}/${cluster}.calibrated.cat photocalibrate_cat_flag="--spec mode=aper"
+./photocalibrate_cat.py -i ${star_cat} -c ${cluster} -o ${photdir}/${cluster}.stars.calibrated.cat photocalibrate_cat_flag="--spec mode=aper"
+#adam-look# SLR (g)
+./phot_slr.sh ${photdir} ${cluster}.stars.calibrated.cat slr_flag=APER1
+./save_slr.py -c ${cluster} -i ${photdir}/${cluster}.stars.calibrated.cat -o ${photdir}/slr.offsets.list save_slr_flag="--spec mode=aper --fluxtype APER1"
+./photocalibrate_cat.py -i ${all_phot_cat} -c $cluster -o ${photdir}/${cluster}.slr.cat -t slr photocalibrate_cat_flag="--spec mode=aper"
+
+
+## shortest
+
+grep "create_seeing_file.sh\|extract_object_cats.py\|run_unstacked_photometry.sh\|merge_filters.py\|produce_catalogs.sh\|retrieve_test.py\|convert_aper.py\|match_simple.sh\|dump_cat_filters.py\|fit_phot.py\|photocalibrate_cat.py\|phot_slr.sh\|save_slr.py" 
+create_seeing_file.sh
+extract_object_cats.py
+run_unstacked_photometry.sh
+merge_filters.py
+produce_catalogs.sh
+retrieve_test.py
+convert_aper.py
+match_simple.sh
+dump_cat_filters.py
+fit_phot.py
+photocalibrate_cat.py phot_slr.sh save_slr.py
+
+
+
+##
+
+grep ".py" create_seeing_file.sh
+grep ".py" run_unstacked_photometry.sh
+grep ".py" produce_catalogs.sh
+grep ".py" match_simple.sh
+grep ".py" phot_slr.sh
+
+for fl in " create_seeing_file.sh run_unstacked_photometry.sh produce_catalogs.sh match_simple.sh phot_slr.sh "
+do
+	echo "##### $fl #####" >> other_pys_from_shs_in_do_photometry.log
+	grep "\.py" $fl >> other_pys_from_shs_in_do_photometry.log
+done
+
+
+############################################################
+##########  adam_notes-prob_with_keys.log  ##########
+############################################################
+~/bonnpipeline$ ipython -i -- photocalibrate_cat.py --in /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.unstacked.cat -c MACS1226+21 -o /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.slr.cat
+
+  mags = -2.5*numpy.log10(fluxs)
+  magerrs = 1.0857 * errs / fluxs
+
+
+tried with FLUX-zps instead:
+from numpy import *
+zp_mag=array([0.0110879247275 ,0.0151771686873 ,0.0140694368134 ,-0.005176877063 ,-0.042510337498])
+zp_err_mag=array([0.0013,0.0021,0.0014,0.0019,0.0019])
+zp_flux=10**(zp_mag/(-2.5))
+zp_err_flux= (zp_err_mag/1.0857)*zp_flux
+for fl,fl_err in zip(zp_flux,zp_err_flux):
+    print fl, fl_err
+
+saved in /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper$ vi tmp_MACS1226+21.stars.calibrated.cat.bigmacs.offsets.list
+
+THAT DIDNT WORK!
+
+
+############################################################
+##########  adam_notes-do_photometry_issues.log  ##########
+############################################################
+##
+
+## grep "create_seeing_file.sh\|extract_object_cats.py\|run_unstacked_photometry.sh\|merge_filters.py\|produce_catalogs.sh\|retrieve_test.py\|convert_aper.py\|match_simple.sh\|dump_cat_filters.py\|fit_phot.py\|photocalibrate_cat.py\|phot_slr.sh\|save_slr.py" scratch/OUT-do_photometry-MERGE_STARS_SDSS_CALIB_APPLY_SLR.log > adam_notes-funcs-OUT-do_photometry.sh
+
+    ./create_seeing_file.sh ${cluster}
+    ./extract_object_cats.py --di $detect_image --dw $detect_weight \
+	echo "Failure in extract_object_cats.py"
+	./extract_object_cats.py --di $detect_image --dw $detect_weight \
+	    echo "Failure in extract_object_cats.py"
+	bsub -q ${queue} -o $subarudir/photlogs/$jobid.log -e $subarudir/photlogs/$jobid.err ./run_unstacked_photometry.sh ${subarudir}/${cluster} ${photdir} ${cluster} ${filter} ${detect_image} ${convolve}
+	    echo "Failure in run_unstacked_photometry.sh: ${filter}"
+    ./merge_filters.py ${all_phot_cat} ${MERGE_LINE}
+	echo "Failure in merge_filters.py"
++ ./merge_filters.py /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/all.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/MACS1226+21.W-C-RC.unstacked.cat W-C-RC /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-J-B/unstacked/MACS1226+21.W-J-B.unstacked.cat W-J-B /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-J-V/unstacked/MACS1226+21.W-J-V.unstacked.cat W-J-V /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/MACS1226+21.W-C-IC.unstacked.cat W-C-IC /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-S-Z+/unstacked/MACS1226+21.W-S-Z+.unstacked.cat W-S-Z+
+    ./produce_catalogs.sh ${subarudir}/${cluster} ${photdir} ${lensingdir} ${cluster} ${detect_image} ${lensing_image}
+	echo "Failure in produce_catalogs.sh!"
++ ./produce_catalogs.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21 /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper /nfs/slac/kipac/fs1/u/awright/SUBARU/lensing/MACS1226+21/LENSING_W-C-RC_W-C-RC_aper MACS1226+21 /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_all/coadd.fits /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_good/coadd.fits
+    ./extract_object_cats.py --di ${detection_image} --dw $detect_weight \
++ ./extract_object_cats.py --di /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_all/coadd.fits --dw /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_all/coadd.weight.fits --pi /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_good/coadd.fits --pw /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_good/coadd.weight.fits --pf /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_good/coadd.flag.fits -o /nfs/slac/kipac/fs1/u/awright/SUBARU/lensing/MACS1226+21/LENSING_W-C-RC_W-C-RC_aper/lensing.cat --noarea
+coadd_filters=`./dump_cat_filters.py ${tmpdir}/${image}_pos_$$.cat | grep COADD`
+./dump_cat_filters.py ${tmpdir}/${image}_pos_$$.cat | grep COADD
+++ ./dump_cat_filters.py /nfs/slac/kipac/fs1/u/awright/SUBARU/lensing/MACS1226+21/LENSING_W-C-RC_W-C-RC_aper/coadd_pos_26421.cat
+    python retrieve_test.py ${detect_image} ${sdss_cat}
+	echo "Failure in retrieve_test.py!"
+    ./convert_aper.py ${star_cat} ${photdir}/${cluster}.stars.converted.cat
+    ./match_simple.sh ${photdir}/${cluster}.stars.converted.cat ${sdss_cat} ${matched_catalog}
++ python retrieve_test.py /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_all/coadd.fits /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/sdssstar.cat
+retrieve_test.py:6: SyntaxWarning: import * only allowed at module level
++ ./convert_aper.py /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.converted.cat
++ ./match_simple.sh /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.converted.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/sdssstar.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat
+    longfilters=`./dump_cat_filters.py ${star_cat}`
+	    ./fit_phot.py \
+		echo "Failure in fit_phot.py!"
+	    ./fit_phot.py \
+		echo "Failure in fit_phot.py!"
+	echo "Failure in fit_phot.py!"
+./dump_cat_filters.py ${star_cat}
+++ ./dump_cat_filters.py /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.cat
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-COADD-1-W-C-RC -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-10_3-1-W-C-RC -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-COADD-1-W-J-B -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-10_3-1-W-J-B -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-COADD-1-W-J-V -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-10_3-1-W-J-V -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-COADD-1-W-C-IC -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-10_3-1-W-C-IC -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-COADD-1-W-S-Z+ -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-10_3-1-W-S-Z+ -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
+    ./photocalibrate_cat.py -i ${all_phot_cat} -c ${cluster} -o ${calibrated_cat} ${photocalibrate_cat_flag}
+	echo "Failure in photocalibrate_cat.py!"
+    ./photocalibrate_cat.py -i ${star_cat} -c ${cluster} -o ${photdir}/${cluster}.stars.calibrated.cat ${photocalibrate_cat_flag}
+	echo "Failure in photocalibrate_cat.py!"
++ ./photocalibrate_cat.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.cat -c MACS1226+21 -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat --spec mode=aper
++ ./photocalibrate_cat.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.cat -c MACS1226+21 -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat --spec mode=aper
+    ./phot_slr.sh ${photdir} ${cluster}.stars.calibrated.cat $slr_flag
+	echo "Failure in phot_slr.sh!"
+    ./save_slr.py -c ${cluster} -i ${photdir}/${cluster}.stars.calibrated.cat -o ${photdir}/slr.offsets.list ${save_slr_flag}
+	echo "Failure in save_slr.py!"
+    ./photocalibrate_cat.py -i ${all_phot_cat} -c $cluster -o ${photdir}/${cluster}.slr.cat -t slr ${photocalibrate_cat_flag}
++ ./phot_slr.sh /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper MACS1226+21.stars.calibrated.cat APER1
+./dump_cat_filters.py ${MAINDIR}/${STARCAT} | awk '($1 !~ /COADD/){print}' > filters.raw.list_$$
++ ./dump_cat_filters.py /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat
++ ./save_slr.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/slr.offsets.list --spec mode=aper --fluxtype APER1
++ ./photocalibrate_cat.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.cat -c MACS1226+21 -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.slr.cat -t slr --spec mode=aper
+./photocalibrate_cat.py:370: RuntimeWarning: invalid value encountered in log10
+./photocalibrate_cat.py:371: RuntimeWarning: invalid value encountered in log10
+./photocalibrate_cat.py:353: RuntimeWarning: divide by zero encountered in divide
+./photocalibrate_cat.py:353: RuntimeWarning: invalid value encountered in divide
+./photocalibrate_cat.py:361: RuntimeWarning: invalid value encountered in greater
+./photocalibrate_cat.py:371: RuntimeWarning: divide by zero encountered in log10
+
+## do we use the py codes that could possibly be making these plots in any bash file?
+grep "calc_test_save\|calibrate_COSMOS\|qc_wrapper\|slr_kpn_new.simul.save\|slr_kpno_new.gof\|slr_kpno_new\|slr_kpno_new.savesimul\|slr_kpno_new.simul\|slr_kpno_new.simul.save\|slr_kpno_new.uband\|slr_kpno_new_simul\|slr_kpno_new_simul.save" *.sh
+
+## pycs_presence_from_pys_in_do_photometry.log
+extract_object_cats.py: Also implements python calls to sextractor and ldacconv
+extract_object_cats.py:import ldac, bashreader
+extract_object_cats.py:PROGS = bashreader.parseFile('progs.ini')
+extract_object_cats.py:def ldacconv(catalog, output, filter = '1', callMethod = subprocess.check_call):
+extract_object_cats.py:    Calls ldacconv to convert a catalog to LDAC format
+extract_object_cats.py:    @param file (str) Name of filter to pass to ldacconv (optional)
+extract_object_cats.py:    command = 'ldacconv -b 1 -c 1 -f %s -i %s -o %s' % (filter, catalog, output)
+extract_object_cats.py:    photinfo = ldac.openObjectFile(catfile, table)
+extract_object_cats.py:        cat = ldac.openObjectFile(detectcat)
+extract_object_cats.py:        cat = ldac.openObjectFile(measureArea)
+extract_object_cats.py:        cat = ldac.openObjectFile('%s0' % output, 'LDAC_OBJECTS')
+extract_object_cats.py:    ldacconv('%s0' % output, output, callMethod = callMethod)
+extract_object_cats.py:        progs = bashreader.parseFile('progs.ini') 
+extract_object_cats.py:        ldacconv('mycat.cat0', 'mycat.cat', callMethod = receiver)
+extract_object_cats.py:        expected = 'ldacconv -b 1 -c 1 -f 1 -i mycat.cat0 -o mycat.cat'
+extract_object_cats.py:        ldacconv('mycat.cat0', 'mycat.cat', filter = 'r', callMethod = receiver)
+extract_object_cats.py:        expected = 'ldacconv -b 1 -c 1 -f r -i mycat.cat0 -o mycat.cat'
+extract_object_cats.py:                cat = ldac.openObjectFile(areacat, 'LDAC_OBJECTS')
+extract_object_cats.py:        cat = ldac.openObjectFile(self.outputCat)
+extract_object_cats.py:        photinfo = ldac.openObjectFile(self.outputCat, 'PHOTINFO')
+extract_object_cats.py:        photinfo = ldac.openObjectFile(self.outputCat, 'PHOTINFO')
+extract_object_cats.py:        photinfo = ldac.openObjectFile(self.outputCat, 'PHOTINFO')
+extract_object_cats.py:        cat = ldac.openObjectFile(self.outputCat)
+extract_object_cats.py:        detect_cat = ldac.openObjectFile('%s.output.cat' % self.outputCat)
+extract_object_cats.py:        cat = ldac.openObjectFile(self.outputCat)
+extract_object_cats.py:        photinfo = ldac.openObjectFile(self.outputCat, 'PHOTINFO')
+extract_object_cats.py:        cat = ldac.openObjectFile(self.outputCat)
+extract_object_cats.py:        photinfo = ldac.openObjectFile(self.outputCat, 'PHOTINFO')
+extract_object_cats.py:            cat = ldac.openObjectFile(self.outputCat)
+extract_object_cats.py:            area_cat = ldac.openObjectFile('%s.area.cat' % self.outputCat, 'LDAC_OBJECTS')
+extract_object_cats.py:            detect_cat = ldac.openObjectFile('%s.detect.cat' % self.outputCat, 'LDAC_OBJECTS')
+extract_object_cats.py:        photinfo = ldac.openObjectFile(self.cat, 'PHOTINFO')
+extract_object_cats.py:        newphotinfo = ldac.openObjectFile(self.cat, 'PHOTINFO')
+extract_object_cats.py:        photinfo = ldac.openObjectFile(self.cat, 'PHOTINFO')
+merge_filters.py:import sys, pyfits, ldac
+merge_filters.py:    #have one set of variable names without suffix so ldac will understand
+merge_filters.py:    mastercat = ldac.openObjectFile(mastercatfile)
+merge_filters.py:        cat = ldac.openObjectFile(file) 
+retrieve_test.py:        import sqlcl
+retrieve_test.py:        #lines = sqlcl.query("select ra,dec,u,g,r,i,z from star").readlines()
+retrieve_test.py:        lines = sqlcl.query(query).readlines()
+retrieve_test.py:        asc = open('asctoldac_sdss.conf','w')
+retrieve_test.py:        command = "asctoldac -i sdss_out -c asctoldac_sdss.conf -t STDTAB -o " + outcat
+convert_aper.py:# convert all FLUX_APER, MAG_APER, and associated errors, from 2D ldac columns to vector columns
+convert_aper.py:import ldac
+convert_aper.py:__cvs_id__ = "$Id: convert_aper.py,v 1.1 2010-04-16 23:30:54 dapple Exp $"
+convert_aper.py:    newcat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+convert_aper.py:                newhdu = convertAperColumns(ldac.LDACCat(hdu)).hdu
+convert_aper.py:        sys.stderr.write('Usage:  convert_aper.py inputcat outputcat\n')
+convert_aper.py:    cat1 = ldac.LDACCat(table1)
+convert_aper.py:    cat2 = ldac.LDACCat(table2)
+convert_aper.py:        newcat = convertAperColumns(ldac.LDACCat(self.objectshdu))
+convert_aper.py:        self.assertTrue(isinstance(newcat, ldac.LDACCat))
+convert_aper.py:        newcat = convertAperColumns(ldac.LDACCat(self.objectshdu))
+convert_aper.py:        newcat = convertAperColumns(ldac.LDACCat(self.objectshdu))
+convert_aper.py:                    self.assertTrue(tablesEqual(hdu, convertAperColumns(ldac.LDACCat(self.objectshdu)).hdu))
+convert_aper.py:                self.assertTrue(tablesEqual(hdu, convertAperColumns(ldac.LDACCat(self.objectshdu)).hdu))
+dump_cat_filters.py:import utilities, sys, ldac, re
+dump_cat_filters.py:        utilities.parseFilter(filter)
+dump_cat_filters.py:    except utilities.UnrecognizedFilterException:
+dump_cat_filters.py:cat1 = ldac.openObjectFile(fl1)
+dump_cat_filters.py:cat2 = ldac.openObjectFile(fl2)
+dump_cat_filters.py:    cat = ldac.openObjectFile(catfile)
+fit_phot.py:import ldac, utilities, leastsq, photometry_db
+fit_phot.py:__default_photometry_db__ = Phot_db(photometry_db.Photometry_db)
+fit_phot.py:        params, chisq, covar, isCon = leastsq.linear_leastsq(self.color, vals, errs, fullOutput=True)
+fit_phot.py:def saveCalibration(cluster, filter, fitResults, photometry_db = __default_photometry_db__, specification = {}):
+fit_phot.py:    db_calib = photometry_db.registerPhotometricCalibration(
+fit_phot.py:    photometry_db.updateCalibration(cluster, filter = filter, calibration = db_calib, **specification)
+fit_phot.py:def standardCalibration(cluster, filter, cat, fluxtype = __default_fluxtype__, plotdir=None, freecolor=False, photometry_db = __default_photometry_db__, specification = {}, cuts = stdCalibrationCuts):
+fit_phot.py:    instrum, config, chipid, stdfilter = utilities.parseFilter(filter)
+fit_phot.py:    if photometry_db:
+fit_phot.py:        saveCalibration(cluster, filter=aperture_filter, fitResults = fitresults, photometry_db = photometry_db, specification = specification)
+fit_phot.py:def threeSecondCalibration(cluster, stdfilter, filterPrefix, cat, plotdir = None, freecolor=False, photometry_db = __default_photometry_db__, specification = {}, cuts = stdCalibrationCuts):
+fit_phot.py:    if photometry_db:
+fit_phot.py:        saveCalibration(cluster, filter=aperture_filter, fitResults =fitresults, photometry_db = photometry_db, specification = specification)
+fit_phot.py:def specialCalibration(maindir, cluster, filter, photometry_db = __default_photometry_db__, specification = {}):
+fit_phot.py:    instrum, config, chipid, stdfilter = utilities.parseFilter(filter)
+fit_phot.py:    if photometry_db:
+fit_phot.py:        calib = photometry_db.registerSpecialFiltersCalibration(cluster = cluster, filter = filter, file=imagefile, zp=zp, **specification)
+fit_phot.py:        photometry_db.updateCalibration(cluster, filter = filter, calibration = calib, **specification)
+fit_phot.py:         photometry_db = __default_photometry_db__):
+fit_phot.py:        photometry_db = None
+fit_phot.py:                           photometry_db = photometry_db, specification = options.specification)
+fit_phot.py:        cat = ldac.openObjectFile(options.catfile, 'PSSC')
+fit_phot.py:                                   photometry_db = photometry_db,
+fit_phot.py:                                photometry_db = photometry_db,
+fit_phot.py:        pickles = ldac.openObjectFile('Pickles.cat', 'PICKLES')
+fit_phot.py:        pickles_sdss = ldac.openObjectFile('Pickles.cat', 'SDSS')
+fit_phot.py:        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+fit_phot.py:        allfits = standardCalibration('TestCluster', filterName, cat, photometry_db = None, plotdir = None)
+fit_phot.py:        pickles = ldac.openObjectFile('Pickles.cat', 'PICKLES')
+fit_phot.py:        pickles_sdss = ldac.openObjectFile('Pickles.cat', 'SDSS')
+fit_phot.py:        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+fit_phot.py:        allfits = standardCalibration(clustername, filtername, cat, photometry_db = self.db, plotdir = None)
+fit_phot.py:        pickles = ldac.openObjectFile('Pickles.cat', 'PICKLES')
+fit_phot.py:        pickles_sdss = ldac.openObjectFile('Pickles.cat', 'SDSS')
+fit_phot.py:        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+fit_phot.py:        allfits = standardCalibration(clustername, filtername, cat, fluxtype = 'ISO', photometry_db = self.db, plotdir = None)
+fit_phot.py:        pickles = ldac.openObjectFile('Pickles.cat', 'PICKLES')
+fit_phot.py:        pickles_sdss = ldac.openObjectFile('Pickles.cat', 'SDSS')
+fit_phot.py:        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+fit_phot.py:        allfits = standardCalibration(clustername, filtername, cat, photometry_db = self.db, plotdir = None, 
+fit_phot.py:        pickles = ldac.openObjectFile('Pickles.cat', 'PICKLES')
+fit_phot.py:        pickles_sdss = ldac.openObjectFile('Pickles.cat', 'SDSS')
+fit_phot.py:        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+fit_phot.py:        fit = threeSecondCalibration(clustername, 'W-J-V', 'SUBARU-10_2-1', cat, photometry_db = self.db, plotdir = None)
+fit_phot.py:        pickles = ldac.openObjectFile('Pickles.cat', 'PICKLES')
+fit_phot.py:        pickles_sdss = ldac.openObjectFile('Pickles.cat', 'SDSS')
+fit_phot.py:        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([mags, magerrs, clean,
+fit_phot.py:        fit = threeSecondCalibration(clustername, 'W-J-V', 'SUBARU-10_2-1', cat, photometry_db = self.db, plotdir = None, 
+fit_phot.py:        zp = specialCalibration(self.maindir, self.cluster, self.filter, photometry_db = self.db)
+fit_phot.py:            self.cat = ldac.LDACCat(hdu)
+fit_phot.py:             photometry_db = self.db)
+fit_phot.py:        self.assertEquals(compiledArgs['photometry_db'], self.db)
+fit_phot.py:             photometry_db = self.db)
+fit_phot.py:        self.assertEquals(compiledArgs['photometry_db'], self.db)
+fit_phot.py:             photometry_db = self.db)
+fit_phot.py:        self.assertEquals(compiledArgs['photometry_db'], self.db)
+photocalibrate_cat.py:import pyfits, numpy, measure_unstacked_photometry
+photocalibrate_cat.py:import ldac, utilities, photometry_db, convert_aper
+photocalibrate_cat.py:__default_photometry_db__ = Phot_db(photometry_db.Photometry_db)
+photocalibrate_cat.py:__get_extinction_default__ = utilities.getExtinction
+photocalibrate_cat.py:__get_dust_default__ = utilities.getDust
+photocalibrate_cat.py:        utilities.parseFilter(filter)
+photocalibrate_cat.py:    except utilities.UnrecognizedFilterException:
+photocalibrate_cat.py:    return ldac.openObjectFile(cat.sourcefile, 'FIELDS')['SEXMGZPT'][0]
+photocalibrate_cat.py:                      photometry_db = __default_photometry_db__):
+photocalibrate_cat.py:    flux_keys, fluxerr_keys, magonlykeys, other_keys = utilities.sortFluxKeys(cat.keys())
+photocalibrate_cat.py:                                              cat, photometry_db = photometry_db, 
+photocalibrate_cat.py:        mag, magerr = measure_unstacked_photometry.calcMags(flux, err)
+photocalibrate_cat.py:        calibration = photometry_db.getZeropoint(cluster, filter = filter, **specification)
+photocalibrate_cat.py:    calibratedCat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+photocalibrate_cat.py:    zpCat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(zp_cols)))
+photocalibrate_cat.py:    cat = ldac.openObjectFile(options.incatfile)
+photocalibrate_cat.py:    converted = convert_aper.convertAperColumns(cat)
+photocalibrate_cat.py:                   photometry_db = photometry_db, specification = {}):
+photocalibrate_cat.py:    if photometry_db is None:
+photocalibrate_cat.py:    calibration = photometry_db.getZeropoint(cluster, filter = filter, **specification)
+photocalibrate_cat.py:        bad_flux_cut = numpy.logical_and(flux != measure_unstacked_photometry.__bad_flux__,
+photocalibrate_cat.py:                                         referenceFlux != measure_unstacked_photometry.__bad_flux__)
+photocalibrate_cat.py:    calibratedflux[flux == measure_unstacked_photometry.__bad_flux__] = measure_unstacked_photometry.__bad_flux__
+photocalibrate_cat.py:    calibratederr[flux == measure_unstacked_photometry.__bad_flux__] = measure_unstacked_photometry.__bad_flux__
+photocalibrate_cat.py:    corrflux[flux == measure_unstacked_photometry.__bad_flux__] = measure_unstacked_photometry.__bad_flux__
+photocalibrate_cat.py:    corrfluxerr[flux == measure_unstacked_photometry.__bad_flux__] = measure_unstacked_photometry.__bad_flux__
+photocalibrate_cat.py:                                         err, photometry_db=fakeCalDB(getZP))
+photocalibrate_cat.py:                                             err, photometry_db=fakeCalDB(getZP))
+photocalibrate_cat.py:        flux[20:] = measure_unstacked_photometry.__bad_flux__
+photocalibrate_cat.py:        err[20:] = measure_unstacked_photometry.__bad_flux__
+photocalibrate_cat.py:                                         err, photometry_db=fakeCalDB(getZP))
+photocalibrate_cat.py:        self.assertTrue( (calcflux[20:30] == measure_unstacked_photometry.__bad_flux__).all())
+photocalibrate_cat.py:        self.assertTrue( (calcerr[20:30] == measure_unstacked_photometry.__bad_flux__).all())
+photocalibrate_cat.py:#                   photometry_db = photometry_db, specification = {}):
+photocalibrate_cat.py:        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+photocalibrate_cat.py:                                             type='slr', cat = cat, photometry_db = fakeCalDB(getZP))
+photocalibrate_cat.py:                                         err, photometry_db = None)
+photocalibrate_cat.py:                       fluxtype = 'APER', err = 0.1*numpy.ones(100), photometry_db = db, specification = {'myspec' : 'custom',
+photocalibrate_cat.py:        flux[20:30] = measure_unstacked_photometry.__bad_flux__
+photocalibrate_cat.py:        fluxerr[20:30] = measure_unstacked_photometry.__bad_flux__
+photocalibrate_cat.py:        self.assertTrue((dust_flux[20:30] == measure_unstacked_photometry.__bad_flux__).all())
+photocalibrate_cat.py:        self.assertTrue((dust_err[20:30] == measure_unstacked_photometry.__bad_flux__).all())
+photocalibrate_cat.py:        self.cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+photocalibrate_cat.py:        cat, zps = photoCalibrateCat(self.cat, cluster=self.cluster, type='standard', getDust = None, photometry_db = fakeCalDB(getZP))
+photocalibrate_cat.py:        self.assertTrue(isinstance(cat, ldac.LDACCat))
+photocalibrate_cat.py:        cat, zps = photoCalibrateCat(self.cat, cluster=self.cluster, type='standard', getDust = None, photometry_db = fakeCalDB(getZP))
+photocalibrate_cat.py:                                photometry_db = fakeCalDB(getZP),
+photocalibrate_cat.py:                                photometry_db = None,
+photocalibrate_cat.py:        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+photocalibrate_cat.py:                                        photometry_db = fakeCalDB(getZP),
+photocalibrate_cat.py:            flux[-10:self.nObjs] = measure_unstacked_photometry.__bad_flux__
+photocalibrate_cat.py:        cat = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs(cols)))
+photocalibrate_cat.py:                                       photometry_db = fakeCalDB(getZP),
+photocalibrate_cat.py:            self.assertTrue( (calibrated['FLUX_ISO-%s' % filter][-10:self.nObjs] == measure_unstacked_photometry.__bad_flux__).all() )
+photocalibrate_cat.py:            self.assertTrue( (calibrated['FLUXERR_ISO-%s' % filter][-10:self.nObjs] == measure_unstacked_photometry.__bad_flux__).all() )
+photocalibrate_cat.py:#                      photometry_db = __default_photometry_db__):
+photocalibrate_cat.py:        photoCalibrateCat(self.cat, self.cluster, getExtinction = None, getDust = None, photometry_db = db,
+photocalibrate_cat.py:                                            getDust = None, photometry_db = fakeCalDB(getZP))
+save_slr.py:import photometry_db, ldac, utilities
+save_slr.py:__default_photometry_db__ = Phot_db(photometry_db.Photometry_db)
+save_slr.py:    zplist = ldac.openObjectFile(options.inputfile, 'ZPS')
+save_slr.py:def saveSlrZP(cluster, offsetFile, zplist, photometry_db = __default_photometry_db__, fluxtype = 'APER', **specifications):
+save_slr.py:        filter = utilities.extractFullFilter(filterkey)
+save_slr.py:        slrZP = photometry_db.registerSlrZP(cluster, filter = filter, 
+save_slr.py:        instrument, config, chip, stdfilter = utilities.parseFilter(filter)
+save_slr.py:        filter = utilities.extractFullFilter(filterkey)
+save_slr.py:            photometry_db.updateCalibration(cluster, filter = filter, calibration = slrZP, **specifications)
+save_slr.py:            instrument, config, chip, stdfilter = utilities.parseFilter(filter)
+save_slr.py:                    photometry_db.updateCalibration(cluster, filter = filter, calibration = slrZP, **specifications)
+save_slr.py:        zplist = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = 'filter', format='20A', 
+save_slr.py:                  photometry_db = self.db)
+save_slr.py:        zplist = ldac.LDACCat(pyfits.new_table(pyfits.ColDefs([pyfits.Column(name = 'filter', format='20A', 
+save_slr.py:                  photometry_db = self.db)
+
+
+## pys_in_OUT-do_photometry.log
+#### in OUT-do_photometry-MERGE...log the CALLED pythons are:
+
++ ./merge_filters.py /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/all.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/MACS1226+21.W-C-RC.unstacked.cat W-C-RC /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-J-B/unstacked/MACS1226+21.W-J-B.unstacked.cat W-J-B /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-J-V/unstacked/MACS1226+21.W-J-V.unstacked.cat W-J-V /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/MACS1226+21.W-C-IC.unstacked.cat W-C-IC /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-S-Z+/unstacked/MACS1226+21.W-S-Z+.unstacked.cat W-S-Z+
++ ./extract_object_cats.py --di /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_all/coadd.fits --dw /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_all/coadd.weight.fits --pi /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_good/coadd.fits --pw /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_good/coadd.weight.fits --pf /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_good/coadd.flag.fits -o /nfs/slac/kipac/fs1/u/awright/SUBARU/lensing/MACS1226+21/LENSING_W-C-RC_W-C-RC_aper/lensing.cat --noarea
++ ./run_analyseldac.py /nfs/slac/kipac/fs1/u/awright/SUBARU/lensing/MACS1226+21/LENSING_W-C-RC_W-C-RC_aper/coadd_pos_26421.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/lensing/MACS1226+21/LENSING_W-C-RC_W-C-RC_aper/coadd_ksb_26421.cat /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_good/coadd.fits
+++ ./dump_cat_filters.py /nfs/slac/kipac/fs1/u/awright/SUBARU/lensing/MACS1226+21/LENSING_W-C-RC_W-C-RC_aper/coadd_pos_26421.cat
++ ./extract_catalog_subset.py /nfs/slac/kipac/fs1/u/awright/SUBARU/lensing/MACS1226+21/LENSING_W-C-RC_W-C-RC_aper/coadd_stars.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.cat
++ python retrieve_test.py /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_all/coadd.fits /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/sdssstar.cat
++ ./convert_aper.py /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.converted.cat
++ python mk_ssc_SDSS.py /nfs/slac/g/ki/ki06/anja/SUBARU/tmp/6573/tmp.conf /nfs/slac/g/ki/ki06/anja/SUBARU/tmp/6573/tmp5_6573.cat /nfs/slac/g/ki/ki06/anja/SUBARU/tmp/6573/tmp6_6573.cat
+++ ./dump_cat_filters.py /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.cat
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-COADD-1-W-C-RC -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-10_3-1-W-C-RC -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-COADD-1-W-J-B -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-10_3-1-W-J-B -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-COADD-1-W-J-V -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-10_3-1-W-J-V -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-COADD-1-W-C-IC -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-10_3-1-W-C-IC -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-COADD-1-W-S-Z+ -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./fit_phot.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.sdss.matched.cat -f SUBARU-10_3-1-W-S-Z+ -p /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/calibration_plots --fluxtype APER1 --spec mode=aper
++ ./photocalibrate_cat.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.cat -c MACS1226+21 -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat --spec mode=aper
++ ./photocalibrate_cat.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.cat -c MACS1226+21 -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat --spec mode=aper
++ ./dump_cat_filters.py /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat
+++ ./ldactoasc.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat -t OBJECTS MAG_APER1-SUBARU-10_3-1-W-C-RC
+++ ./ldactoasc.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat -t OBJECTS MAG_APER1-SUBARU-10_3-1-W-J-B
+++ ./ldactoasc.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat -t OBJECTS MAG_APER1-SUBARU-10_3-1-W-J-V
+++ ./ldactoasc.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat -t OBJECTS MAG_APER1-SUBARU-10_3-1-W-C-IC
++ ./ldactoasc.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat -t OBJECTS ALPHA_J2000 DELTA_J2000 MAG_APER1-SUBARU-10_3-1-W-J-B MAGERR_APER1-SUBARU-10_3-1-W-J-B MAG_APER1-SUBARU-10_3-1-W-J-V MAGERR_APER1-SUBARU-10_3-1-W-J-V MAG_APER1-SUBARU-10_3-1-W-C-RC MAGERR_APER1-SUBARU-10_3-1-W-C-RC MAG_APER1-SUBARU-10_3-1-W-C-IC MAGERR_APER1-SUBARU-10_3-1-W-C-IC MAG_APER1-SUBARU-10_3-1-W-S-Z+ MAGERR_APER1-SUBARU-10_3-1-W-S-Z+
++ ./save_slr.py -c MACS1226+21 -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.stars.calibrated.cat -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/slr.offsets.list --spec mode=aper --fluxtype APER1
++ ./photocalibrate_cat.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.cat -c MACS1226+21 -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.slr.cat -t slr --spec mode=aper
+
+grep "qc_" merge_filters.py extract_object_cats.py run_analyseldac.py dump_cat_filters.py extract_catalog_subset.py convert_aper.py fit_phot.py photocalibrate_cat.py ldactoasc.py save_slr.py retrieve_test.py mk_ssc_SDSS.py
+#NOTHING
+
+
+#### what about the imported files from the CALLED python files?
+grep "import" merge_filters.py extract_object_cats.py run_analyseldac.py dump_cat_filters.py extract_catalog_subset.py convert_aper.py fit_phot.py photocalibrate_cat.py ldactoasc.py save_slr.py retrieve_test.py mk_ssc_SDSS.py
+
+merge_filters.py:import sys, pyfits, ldac
+extract_object_cats.py:import sys, unittest, os, subprocess, glob, shutil, optparse, difflib
+extract_object_cats.py:import numpy, pyfits
+extract_object_cats.py:import ldac, bashreader
+run_analyseldac.py:import sys, pyfits, bashreader, ldac, math, os, re, numpy
+dump_cat_filters.py:import utilities, sys, ldac, re
+dump_cat_filters.py:from optparse import OptionParser
+extract_catalog_subset.py:import ldac, pyfits, sys, numpy
+convert_aper.py:import sys, unittest, re
+convert_aper.py:import pyfits, numpy
+convert_aper.py:import ldac
+fit_phot.py:import sys, os, optparse, re, unittest, inspect
+fit_phot.py:import numpy, pyfits
+fit_phot.py:    import matplotlib
+fit_phot.py:    from matplotlib import pylab ###ADAM: THIS AT LEAST HAS MATPLOTLIB!
+fit_phot.py:    import pylab
+fit_phot.py:import ldac, utilities, leastsq, photometry_db
+photocalibrate_cat.py:from __future__ import with_statement
+photocalibrate_cat.py:import unittest, sys, re, os, optparse, copy, math
+photocalibrate_cat.py:import pyfits, numpy, measure_unstacked_photometry
+photocalibrate_cat.py:import ldac, utilities, photometry_db, convert_aper
+ldactoasc.py:import ldac, sys, re
+ldactoasc.py:from optparse import OptionParser
+save_slr.py:import unittest, sys, os, optparse, re
+save_slr.py:import pyfits, numpy as np
+save_slr.py:import photometry_db, ldac, utilities
+retrieve_test.py:	from math import *
+retrieve_test.py:        import os, sys, anydbm, time
+retrieve_test.py:            import commands, string                                                                                 
+retrieve_test.py:            import re
+retrieve_test.py:        import sqlcl
+retrieve_test.py:        import pickle
+retrieve_test.py:        #import pickle
+retrieve_test.py:        	import string
+retrieve_test.py:        		import math
+retrieve_test.py:        import sys 
+mk_ssc_SDSS.py:import sys, string, re, os
+
+imported=["ldac","unittest","subprocess","glob","shutil","optparse","difflib","ldac","bashreader","bashreader","ldac","math","utilities","ldac","OptionParser","ldac","unittest","ldac","optparse","unittest","inspect","matplotlib","pylab","ldac","utilities","leastsq","photometry_db","unittest","optparse","copy","math","measure_unstacked_photometry","ldac","utilities","photometry_db","convert_aper","ldac","unittest","optparse","numpyasnp","photometry_db","ldac","utilities","anydbm","time","commands","string","sqlcl"]
+grep "qc_" bashreader.py measure_unstacked_photometry.py ldac.py utilities.py convert_aper.py leastsq.py photometry_db.py sqlcl.py
+#NOTHING
+grep "SLRplots" bashreader.py measure_unstacked_photometry.py ldac.py utilities.py convert_aper.py leastsq.py photometry_db.py sqlcl.py
+#NOTHING
+
+
+#### in OUT file for PHOT mode
+
+extract_object_cats.py measure_unstacked_photometry.py combine_unstacked_config_cats.py
+
+W-C-I.aper.cats.err:+ ./extract_object_cats.py --di /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_all/coadd.fits --dw /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_all/coadd.weight.fits --pi /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-IC/SCIENCE/coadd_MACS1226+21_SUPA0118297/coadd.fits --pw /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-IC/SCIENCE/coadd_MACS1226+21_SUPA0118297/coadd.weight.fits --pf /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-IC/SCIENCE/coadd_MACS1226+21_SUPA0118297/coadd.flag.fits -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0118297.filtered.cat --fwhm 1.325 --new-fwhm .961 --areacat /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_all/detection.cat
+W-C-I.aper.cats.err:+ ./measure_unstacked_photometry.py -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/MACS1226+21.W-C-IC.SUBARU-10_3.unstacked.cat -i SUBARU-10_3 -m /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/all.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0118297.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0118300.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0118301.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0118302.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0118303.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0118304.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0118305.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0118306.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0118307.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0118309.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0128329.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0128330.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0128331.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0128333.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0128334.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0128335.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0128336.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0128337.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/SUPA0128338.filtered.cat
+W-C-I.aper.cats.err:+ ./combine_unstacked_config_cats.py /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/MACS1226+21.W-C-IC.unstacked.cat SUBARU /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/all.filtered.cat /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/W-C-IC/unstacked/MACS1226+21.W-C-IC.SUBARU-10_3.unstacked.cat
+
+
+#### try again
+grep "no_outlier_rejection\|egregious_outliers_removed\|outliers_removed" *
+#NOTHING
+
+

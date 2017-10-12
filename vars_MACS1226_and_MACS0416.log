@@ -1,0 +1,79 @@
+#STEPS ARE ONE OF:
+#	 spikefinder
+#	 create_weights_raw_delink_para_CRNitschke (cwrdp)
+#	 create_science_weighted
+#	 maskImages (in lensing band)
+#	 initial_astrom
+#	 (should be done here, but it's not ready yet) illumination_correction (IC)
+#        final astrom & photom (photom)
+#        coaddition
+#        backmask (in lensing band)
+#        stellar ring suppression (ring)
+
+#PROGRESS:
+#cluster        filter	run     	step completed (D=DONE, R=ran, T=tentative, W=working on it)
+#-------        ------	----------	--------------
+#MACS0416	W-C-RC	2010-11-04 	photometry (W)
+#MACS0416	W-J-B	2010-11-04 	photometry (W)
+#MACS0416	W-S-Z+	2010-11-04 	photometry (W)
+#MACS1226 	W-C-IC 	2010-02-12 	create_science_weighted (D)
+#MACS1226       W-C-RC	2010-02-12 	create_science_weighted (D)
+#MACS1226       W-J-B 	2010-02-12 	create_science_weighted (D)
+#MACS1226       W-J-V 	2010-02-12 	create_science_weighted (D)
+#MACS1226       W-C-IC	2011-01-06 	create_science_weighted (D)
+#MACS1226       W-S-Z+	2011-01-06 	create_science_weighted (D)
+
+#MACS1226 all:
+#	(1) check BB and SS output and BBCR_stats-all output as well, make sure I'm doing the right thing in using/not-using SS and that the CRN mask output is satisfactory
+
+#removed W-S-G+_2010-04-15 MACS1226
+#removed W-S-I+_2010-04-15 MACS1226
+#removed W-C-RC_2006-03-04 MACS1226
+#removed SUPA0121{393,394,395,396,397,398,399,400,401} for MACS1226+21 W-S-I+ 2010-04-15
+#removed SUPA011831[0-4] for MACS1226+21 W-J-B 2010-02-12
+#in order of increasing wavelength: W-J-B W-S-G+ W-J-V W-C-RC W-S-I+ W-C-IC W-S-Z+
+
+## random others
+./setup_SUBARU.sh ${SUBARUDIR}/${run}_${filter}/SCIENCE/ORIGINALS
+./parallel_manager.sh create_weights_raw_delink_para_CRNitschke.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS ${filter} 2>&1 | tee -a OUT-cwrdp_${cluster}_${filter}_${run}.log
+./do_coadd_batch.sh ${cluster} ${filter} all 2>&1 | tee -a OUT-coadd_${cluster}_${filter}_${run}.log
+ipython -i -- ./create_rings.py MACS0416-24 W-C-RC /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/brightstars.reg
+
+## do_photometry.sh
+export cluster=MACS0416-24; export ending="OCFR" ; export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/ ; export INSTRUMENT=SUBARU
+export cluster=MACS1226+21; export ending="OCFI" ;export INSTRUMENT=SUBARU ;export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/
+export detect_filter=W-C-RC
+export lensing_filter=W-C-RC
+./do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE
+
+#1.) MACS0416 (done with W-C-RC)
+export cluster=MACS0416-24
+export ending="OCFR"
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/ ; export INSTRUMENT=SUBARU
+export filters=( W-J-B_2010-11-04 W-S-Z+_2010-11-04 )
+export run="2010-11-04";export filter="W-C-RC";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
+export run="2010-11-04";export filter="W-S-Z+";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
+export run="2010-11-04";export filter="W-J-B";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
+
+#2.) MACS1226
+export cluster=MACS1226+21
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/ ; export INSTRUMENT=SUBARU
+export ending="OCFI"
+export filter_run_list=" W-J-B_2010-02-12 W-J-V_2010-02-12 W-C-RC_2010-02-12 W-C-IC_2010-02-12 W-C-IC_2011-01-06 W-S-Z+_2011-01-06"
+export filter_list=" W-J-B W-J-V W-C-RC W-C-IC W-S-Z+"
+
+#    2b.)MACS1226 from 10_3 config:
+export run=2010-02-12 ;export filter="W-C-IC";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
+export run=2010-02-12 ;export filter="W-C-RC";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
+export run=2010-02-12 ;export filter="W-J-B";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
+export run=2010-02-12 ;export filter="W-J-V";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
+export run=2010-04-15 ;export filter="W-S-G+";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
+export run=2010-04-15 ;export filter="W-S-I+";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
+export run=2011-01-06 ;export filter="W-C-IC";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
+export run=2011-01-06 ;export filter="W-S-Z+";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
+
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/ ; export INSTRUMENT=SUBARU
+export bonn=/u/ki/awright/bonnpipeline/
+export subdir=/nfs/slac/g/ki/ki18/anja/SUBARU/
+cat adam_vars.sh
+cat adam_vars.txt

@@ -1,0 +1,5 @@
+def initialize(filter,OBJNAME):                                                                                                                                                                                                                                                 
+    """input: filter,OBJNAME
+    returns a dictionary of useful info corresponding to those inputs
+    return: {'path':data_path, 'OBJNAME':OBJNAME, 'FILTER':filter, 'PHOTCONF':PHOTCONF, 'DATACONF':os.environ['DATACONF'], 'TEMPDIR':TEMPDIR}"""
+

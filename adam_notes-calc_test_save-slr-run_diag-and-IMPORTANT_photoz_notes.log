@@ -1,0 +1,416 @@
+## IMPORTANT STUFF ##
+## Lingo: pdz=p(z)
+#magstatus= magnification map status (pat thinks)
+#cutoutstatus= refers to galaxy postage stamp thing that I dont need to use (pat thinks)
+#
+##pat suggests running bpz through calc_test_save.py, here is the chain that results:
+# 	run_diag func -> run_photoz func -> do_photometry.py -> do_multiple_photoz.py -> runs BPZ
+#
+## extra plots and stuff (eg from plot_rederr.py, redsequence.py,fit_DOUG.py, and cutout_bpz.make_thecorrections) don't appear to be necessary
+# but I could pickout red sequence myself by-eye, by looking for the locus in the plot of B-R (or R-Z) vs. R (so you get bright on left and faint on right, there should be a well defined sequence running accross the brightness(x-axis) which doesnt vary much in color(y-axis))
+
+#run_photoz func runs this:
+python plot_rederr.py -c MACS1226+21 -d W-C-RC -p noz
+#'''running slr'''
+#import qc_wrapper;qc_wrapper.all(os.environ['subdir'],dtop2['objname'],lensing_band,'_aper','APER1')
+#''' photocalibrate '''
+#photocalibrate(dtop2['objname'], filt=lensing_band) ##basically runs: 'photocalibrate_cat.py -i %(all_phot_cat)s -c %(cluster)s -o %(slr_out)s -t slr %(photocalibrate_cat_flag)s ' % {'cluster':cluster, 'all_phot_cat':all_phot_cat, 'slr_out':slr_out, 'photocalibrate_cat_flag':photocalibrate_cat_flag}
+## this is what it runs: photocalibrate_cat.py -i /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.cat -c MACS1226+21 -o /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.slr.cat -t slr --spec mode=APER1
+#''' match subset '''
+#subset(dtop2['objname'], filt=lensing_band)
+python do_photometry.py MACS1226+21 detect=W-C-RC aptype=aper APER1
+#do_photometry.py calls do_multiple_photoz.py(line 1269), which calls bpz like this:
+                            command = 'python %(BPZPATH)s/bpz.py %(SUBARUDIR)s/%(CLUSTER)s/%(PHOTOMETRYDIR)s/all_bpz%(magtype)s%(SPECTRA)s%(iaper)s_%(n)s.cat \
+                            -COLUMNS %(columns)s \
+                            -MAG %(magvar)s \
+                            -SPECTRA %(SPECTRA)s \
+                            -PRIOR hdfn_SB \
+                            -CHECK yes \
+                            -PLOTS yes  \
+                            -VERBOSE no \
+                            -ZMAX 4.0 \
+                            -INTERP %(INTERP)s \
+                            -PROBS_LITE %(prob)s \
+                            -OUTPUT %(catalog)s' % dict
+
+python plot_rederr.py -c MACS1226+21 -d W-C-RC
+
+############################################################
+##########  adam_notes-calc_test_save-run_diag.py  ##########
+############################################################
+## status's refered to in calc_test_save.py
+
+#####slrstatus: run_slr #####
+831:            commandst = 'update clusters_db set slrstatus="few filters" where objname="' + dtop2['objname'] + '"'
+838:                commandst = 'update clusters_db set slrstatus="not ready" where objname="' + dtop2['objname'] + '"'
+
+#####photozstatus: run_photoz #####
+command='SELECT * from clusters_db where photozstatus is null and slrstatus="finished" and usecol="yes" order by rand()'  
+1520:            commandst = 'update clusters_db set photozstatus="few filters" where objname="' + dtop2['objname'] + '"'
+1527:                commandst = 'update clusters_db set photozstatus="not ready" where objname="' + dtop2['objname'] + '"'
+
+#####cutoutstatus: run_diag,run_cutout #####
+command='SELECT * from clusters_db where cutoutstatus is null and photozstatus like "%finished%"' # and specs=1'  
+1265:            commandst = 'update clusters_db set cutoutstatus="few filters" where objname="' + dtop2['objname'] + '"'
+1272:                commandst = 'update clusters_db set cutoutstatus="not ready" where objname="' + dtop2['objname'] + '"'
+1379:            commandst = 'update clusters_db set cutoutstatus="few filters" where objname="' + dtop2['objname'] + '"'
+1386:                commandst = 'update clusters_db set cutoutstatus="not ready" where objname="' + dtop2['objname'] + '"'
+
+#####magstatus: run_mag #####
+command='SELECT * from clusters_db where magstatus is null and photozstatus like "%finished%" '  
+1117:            commandst = 'update clusters_db set magstatus="few filters" where objname="' + dtop2['objname'] + '"'
+1124:                commandst = 'update clusters_db set magstatus="not ready" where objname="' + dtop2['objname'] + '"'
+
+## pat suggests looking at run_diag for what to do next
+def run_diag(OBJNAME=None,fix=False):
+    #''' make plots '''
+    command = 'python plot_rederr.py -c ' + dtop2['objname'] + ' -d ' + lensing_band + ' -p noz'
+    a = subprocess.call(command,shell=True)
+    if a != 0: raise Exception
+
+    #command = 'python qc_wrapper.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper ' #  >& '  + logfile
+    print 'running slr'
+    import qc_wrapper
+    qc_wrapper.all(os.environ['subdir'],dtop2['objname'],lensing_band,'_aper','APER1')
+
+    ''' photocalibrate '''
+    photocalibrate(dtop2['objname'], filt=lensing_band)
+
+    ''' match subset '''
+    subset(dtop2['objname'], filt=lensing_band)
+
+    ''' run photoz '''
+    run_photoz(dtop2['objname'], filt=lensing_band, short=True)
+    #adam# this just runs do_photometry.py
+
+    ''' make plots '''
+    command = 'python plot_rederr.py -c ' + dtop2['objname'] + ' -d ' + lensing_band
+    a = subprocess.call(command,shell=True)
+    if a != 0: raise Exception
+    #adam# plot_rederr.py could be useful if you have specz's, `run` func runs the func `plot_residuals(cluster, detect_band, base='/nfs/slac/g/ki/ki04/pkelly/photoz/',SPECTRA='CWWSB_capak.list',photoz_code='BPZ')`, so you could just skip there
+
+    ''' run photoz '''
+    #run_photoz(dtop2['objname'], filt=lensing_band, only_type=True, short=True)
+
+    import cutout_bpz
+    reload(cutout_bpz).make_thecorrections(dtop2['objname'],lensing_band)
+
+def photocalibrate(cluster,mode='SLR',aptype='_aper',test_zps=False, only_first=False, filt=None):
+    magtype = 'APER1'
+    for DETECT_FILTER in lensing_bands:
+        slr_catalog_dir = subarudir + '/' + cluster + '/PHOTOMETRY_' + DETECT_FILTER + aptype + '/'
+        photocalibrate_cat_flag = '--spec mode=' + magtype
+        all_phot_cat = slr_catalog_dir + '/' + cluster + '.unstacked.cat'
+        if mode == 'SLR':
+            slr_out = slr_catalog_dir + '/' + cluster + '.slr.cat'
+        elif mode == 'PHOTOZ':
+            slr_out = slr_catalog_dir + '/' + cluster + '.sedzp.cat'
+        command = os.environ['bonn'] + '/photocalibrate_cat.py -i %(all_phot_cat)s -c %(cluster)s -o %(slr_out)s -t slr %(photocalibrate_cat_flag)s ' % {'cluster':cluster, 'all_phot_cat':all_phot_cat, 'slr_out':slr_out, 'photocalibrate_cat_flag':photocalibrate_cat_flag} #, 'COSMOSDUST':COSMOSDUST}
+        os.system(command)
+
+def run_cutout(OBJNAME=None,fix=False):
+    if OBJNAME is None and not fix:
+        command='SELECT * from clusters_db where cutoutstatus is null and photozstatus like "%finished%"' # and specs=1'
+    command = 'python fit_DOUG.py ' + dtop2['objname']
+    command = 'python plot_rederr.py -c ' + dtop2['objname'] + ' -d ' + lensing_band
+    a = subprocess.call(command,shell=True)
+
+    command = 'python redsequence.py -c ' + dtop2['objname'] + ' -d ' + lensing_band + ' -w -z --existingcolor ' #--c1 MAG_APER1-MEGAPRIME-COADD-1-g --c2 MAG_APER1-MEGAPRIME-COADD-1-r '#  + logfile
+    #command = 'python ned.py ' + dtop2['objname'] + ' ' + lensing_band + '  False'
+    #a = subprocess.call(command,shell=True)
+
+    command = 'python cutout_bpz.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper APER1 '#  + logfile
+    a = subprocess.call(command,shell=True)
+
+def run_photoz(OBJNAME=None,fix=False,filt=None,only_type=False, short=False):
+    #command = 'python slr_kpno_new.simul.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper' # >& '  + logfile
+    #a = subprocess.call(command,shell=True)
+    #photocalibrate(dtop2['objname'])
+    for lensing_band in filts: #get_lensing_filts(subdir, dtop2['objname']):
+        if short:
+            command = 'python do_photometry.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper APER1 short'
+        elif dtop2['photozcluster'] == 'yes':
+            command = 'python do_photometry.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper APER1 train'
+        else:
+            command = 'python do_photometry.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper APER1'
+
+        #command = 'python do_photometry.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper APER1 '
+        b = subprocess.call(command,shell=True)
+        commandst = 'update clusters_db set ' + prefix + 'photozstatus="finished" where objname="' + dtop2['objname'] + '"'
+
+
+######################
+### less important ###
+######################
+
+#####scampstatus: run_scamp #####
+2698:            commandst = 'update clusters_db set scampstatus="not ready" where objname="' + dtop2['objname'] + '"'
+#####coaddstatus: redo_coadd_list,check_coadd #####
+1605:        commandst = 'update clusters_db set coaddstatus="needs work ' + str(datetime.now()) + '" where objname="' + objname + '"'
+1698:                commandst = 'update clusters_db set coaddstatus="checked ' + str(datetime.now()) + '" where objname="' + command['OBJNAME'] + '"'
+1702:                commandst = 'update clusters_db set coaddstatus="needs work ' + str(datetime.now()) + '" where objname="' + command['OBJNAME'] + '"'
+
+#probably not needed, looks like it deals with spec z's
+def subset(cluster,filt=None):
+    test_zps = False
+    AP_TYPE='_aper'
+    #calc_test_save.photocalibrate(cluster,'SLR',AP_TYPE,test_zps)
+    ''' run on subset of SeqNrs '''
+    file_matched = os.environ['subdir'] + '/' + cluster + '/PHOTOMETRY_' + filt + '_aper/' + cluster + '.matched.tab'
+    print file_matched
+    p = pyfits.open(file_matched)
+    SeqNr = p[1].data.field('SeqNr_data')
+    z_spec = p[1].data.field('z_spec')
+    #NFILT = p[1].data.field('NFILT_data')
+    file_sed = os.environ['subdir'] + '/' + cluster + '/PHOTOMETRY_' + filt + '_aper/' + cluster + '.slr.cat'
+    table = pyfits.open(file_sed)
+    zs = scipy.zeros(len(table[1].data.field('SeqNr')),dtype=float)
+    mask = scipy.zeros(len(table[1].data.field('SeqNr')),dtype=bool)
+    index = 0
+    for i in range(len(SeqNr)):
+        if z_spec[i] < 1.2: # and NFILT[i] >= 5:
+            mask[SeqNr[i]==table[1].data.field('SeqNr')] = True
+            zs[SeqNr[i]==table[1].data.field('SeqNr')] = z_spec[i]
+        if index % 100 == 0: print index
+        index += 1
+    table[1].data = table[1].data[mask]
+    ''' ADJUST B-BAND MAGS!!!! '''
+    print len(table[1].data), 'table length'
+    file_short = os.environ['subdir'] + '/' + cluster + '/PHOTOMETRY_' + filt + '_aper/' + cluster + '.short.cat'
+    os.system('rm ' + file_short)
+    table.writeto(file_short)
+
+    zs_mask = zs[mask]
+    file = os.environ['subdir'] + '/' + cluster + '/PHOTOMETRY_' + filt + '_aper/' + cluster + '.short.zs'
+    fw = open(file,'w')
+    for l in zs_mask:
+        fw.write('%.3f\n' % l)
+    fw.close()
+
+
+############################################################
+##########  adam_notes-calc_test_save-clusters_db-run_slr_funcs.log  ##########
+############################################################
+
+## SLR stuff
+
+def run_slrsdss(OBJNAME=None,fix=False):
+        db_keys_t = describe_db(c,['slrsdss'])
+            command='SELECT * from slrsdss where slrstatus is null and usecol="yes" order by rand()'
+            commandst = 'update slrsdss set slrstatus="not ready" where objname="' + dtop2['objname'] + '"'
+            commandst = 'update slrsdss set ' + prefix + 'slrstatus="started ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+            #commandst = 'update clusters_db set logfile="' + logfile + '" where objname="' + dtop2['objname'] + '"'
+                lensing_band = get_lensing_filts(subdir, dtop2['objname'])[0]
+                    commandst = 'update slrsdss set ' + prefix + 'slrstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                    commandst = 'update slrsdss set ' + prefix + 'slrstatus="finished" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update slrsdss set ' + prefix + 'slrstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+
+                    #command = 'python slr_kpno_new_simul.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper ' #  >& '  + logfile
+                    command = 'python qc_wrapper.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper brightSDSS ' #  >& '  + logfile
+                    #command = 'python do_photometry.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper APER1 train' #  flist=/nfs/slac/g/ki/ki05/anja/SUBARU/' + dtop2['objname'] + '/LENSING_' + lensing_band + '_' + lensing_band + '_aper/good/coadd_filtered.cat ' # >& '  + logfile
+
+
+def photocalibrate(cluster,mode='SLR',aptype='_aper',test_zps=False, only_first=False, filt=None):
+            lensing_bands = get_lensing_filts(subarudir, cluster)
+        #lensing_bands = get_lensing_filts(os.environ['subdir'], cluster)
+
+
+def add_photoz_column():
+        commandst = 'update clusters_db set photozcluster="yes" where objname="' + cluster + '"'
+    #    commandst = 'update clusters_db set photozcluster="no" where objname="' + cluster + '"'
+
+def mk_detect_list(OBJNAME=None,fix=False):
+    db_keys_t = describe_db(c,['clusters_db'])
+        command='SELECT * from clusters_db where usecol="yes" and objname!="COSMOS" and objname!="SXDS" and objname!="SDF"' # and info like "%W-S-I%"'
+        command='SELECT * from clusters_db where OBJNAME="' + OBJNAME + '"'
+        lensing_band = get_lensing_filts(os.environ['subdir'], dtop2['objname'])[0]
+            print dtop2['objname'], calib, dtop2['info'] #, bool(glob(path)) #get_lensing_filts(os.environ['subdir'], dtop2['objname'])
+            commandst = 'update clusters_db set ' + prefix + 'slrstatus=null where objname="' + dtop2['objname'] + '"'
+            commandst = 'update clusters_db set ' + prefix + 'slrstatus="finished" where objname="' + dtop2['objname'] + '"'
+
+def run_slr(OBJNAME=None,fix=False):
+        db_keys_t = describe_db(c,['clusters_db'])
+            command='SELECT * from clusters_db where slrstatus is null and usecol="yes" order by rand()'
+            command='SELECT * from clusters_db where OBJNAME="' + OBJNAME + '"'
+            commandst = 'update clusters_db set slrstatus="few filters" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set slrstatus="not ready" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set ' + prefix + 'slrstatus="started ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set logfile="' + logfile + '" where objname="' + dtop2['objname'] + '"'
+                    lensing_band = get_lensing_filts(subdir, dtop2['objname'])[0]
+                    if True:
+                        #command = 'python slr_kpno_new_simul.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper ' #  >& '  + logfile
+                        command = 'python qc_wrapper.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper ' #  >& '  + logfile
+                    b = subprocess.call(command,shell=True)
+                    if b != 0: raise Exception
+
+                    if False: # a == 0: #__name__ == '__main__':                                                                                             
+                        command = 'python do_photometry.py ' + dtop2['objname'] + ' detect=' + lensing_band + ' aptype=aper APER1 train' #  flist=/nfs/slac/g/ki/ki05/anja/SUBARU/' + dtop2['objname'] + '/LENSING_' + lensing_band + '_' + lensing_band + '_aper/good/coadd_filtered.cat ' # >& '  + logfile
+                        print command                           
+                        os.chdir(os.environ['bonn'])
+                        commandst = 'update clusters_db set ' + prefix + 'slrstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                        commandst = 'update clusters_db set ' + prefix + 'slrstatus="finished" where objname="' + dtop2['objname'] + '"'
+                    commandst = 'update clusters_db set ' + prefix + 'slrstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+
+def mk_mag_page(OBJNAME=None,fix=False):
+    db_keys_t = describe_db(c,['clusters_db'])
+        command='SELECT * from clusters_db where magstatus="finished"' # and info like "%W-S-I%"'
+        command='SELECT * from clusters_db where OBJNAME="' + OBJNAME + '"'
+
+
+
+
+
+
+
+
+
+## PHOTOZ stuff
+
+def mk_page(OBJNAME=None,fix=False):
+    db_keys_t = describe_db(c,['clusters_db'])
+        command='SELECT * from clusters_db where usecol="yes"' # where photozstatus="finished"' # and info like "%W-S-I%"'
+        command='SELECT * from clusters_db where OBJNAME="' + OBJNAME + '"'
+                output = filter(lambda z: string.find(z,'\t')!=-1, commands.getoutput('dfits ' + subdir + '/' + dtop2['objname'] + '/' + filt + '/SCIENCE/coadd_*/coadd.fits | fitsort SEEING').split('\n')[1:])
+                commandst = 'update clusters_db set seeings="' + filters_string + '" where objname="' + dtop2['objname'] + '"'
+
+def run_mag(OBJNAME=None,fix=False):
+        db_keys_t = describe_db(c,['clusters_db'])
+            command='SELECT * from clusters_db where magstatus is null and photozstatus like "%finished%" '
+            command='SELECT * from clusters_db where OBJNAME="' + OBJNAME + '"'
+            commandst = 'update clusters_db set magstatus="few filters" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set magstatus="not ready" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set ' + prefix + 'magstatus="started ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set logfile="' + logfile + '" where objname="' + dtop2['objname'] + '"'
+                    lensing_band = get_lensing_filts(subdir, dtop2['objname'])[0]
+                        commandst = 'update clusters_db set ' + prefix + 'magstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                        commandst = 'update clusters_db set ' + prefix + 'magstatus="finished" where objname="' + dtop2['objname'] + '"'
+                    commandst = 'update clusters_db set ' + prefix + 'magstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+
+def subset(cluster,filt=None):
+    #calc_test_save.photocalibrate(cluster,'SLR',AP_TYPE,test_zps)
+    ''' run on subset of SeqNrs '''
+
+def run_diag(OBJNAME=None,fix=False):
+        db_keys_t = describe_db(c,['clusters_db'])
+            command='SELECT * from clusters_db where photozstatus="finished" and (cutoutstatus is null) and (specmatches > 15)' # and specs=1'
+            command='SELECT * from clusters_db where OBJNAME="' + OBJNAME + '"'
+            commandst = 'update clusters_db set cutoutstatus="few filters" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set cutoutstatus="not ready" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set ' + prefix + 'cutoutstatus="started ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set logfile="' + logfile + '" where objname="' + dtop2['objname'] + '"'
+                    lensing_band = get_lensing_filts(subdir, dtop2['objname'])[0]
+                        ''' photocalibrate '''
+                        photocalibrate(dtop2['objname'], filt=lensing_band)
+                        ''' match subset '''
+                        subset(dtop2['objname'], filt=lensing_band)
+                        run_photoz(dtop2['objname'], filt=lensing_band, short=True)
+                    #run_photoz(dtop2['objname'], filt=lensing_band, only_type=True, short=True)
+                        commandst = 'update clusters_db set ' + prefix + 'cutoutstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                        commandst = 'update clusters_db set ' + prefix + 'cutoutstatus="finished" where objname="' + dtop2['objname'] + '"'
+                    commandst = 'update clusters_db set ' + prefix + 'cutoutstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+
+def run_cutout(OBJNAME=None,fix=False):
+        db_keys_t = describe_db(c,['clusters_db'])
+            command='SELECT * from clusters_db where cutoutstatus is null and photozstatus like "%finished%"' # and specs=1'
+            command='SELECT * from clusters_db where OBJNAME="' + OBJNAME + '"'
+            commandst = 'update clusters_db set cutoutstatus="few filters" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set cutoutstatus="not ready" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set ' + prefix + 'cutoutstatus="started ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set logfile="' + logfile + '" where objname="' + dtop2['objname'] + '"'
+                    lensing_band = get_lensing_filts(subdir, dtop2['objname'])[0]
+                        commandst = 'update clusters_db set ' + prefix + 'cutoutstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                        commandst = 'update clusters_db set ' + prefix + 'cutoutstatus="finished" where objname="' + dtop2['objname'] + '"'
+                    commandst = 'update clusters_db set ' + prefix + 'cutoutstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+
+def update_clusters(OBJNAME=None,fix=False):
+    db_keys_t = describe_db(c,['clusters_db'])
+        command='SELECT * from clusters_db'
+        command='SELECT * from clusters_db where OBJNAME="' + OBJNAME + '"'
+        commandst = 'update clusters_db set usecol="' + get_use_info(os.environ['subdir'],dtop2['objname']) + '" where objname="' + dtop2['objname'] + '"'
+
+def run_photoz(OBJNAME=None,fix=False,filt=None,only_type=False, short=False):
+        db_keys_t = describe_db(c,['clusters_db'])
+            command='SELECT * from clusters_db where photozstatus is null and slrstatus="finished" and usecol="yes" order by rand()'
+            command='SELECT * from clusters_db where OBJNAME="' + OBJNAME + '"'
+            commandst = 'update clusters_db set photozstatus="few filters" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set photozstatus="not ready" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set ' + prefix + 'photozstatus="started ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set logfile="' + logfile + '" where objname="' + dtop2['objname'] + '"'
+                    #photocalibrate(dtop2['objname'])
+                    print get_lensing_filts(subdir, dtop2['objname']), 'lensing filters'
+                        filts = get_lensing_filts(subdir, dtop2['objname'])
+                    for lensing_band in filts: #get_lensing_filts(subdir, dtop2['objname']):
+                        commandst = 'update clusters_db set ' + prefix + 'photozstatus="' + lensing_band + ' failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                        commandst = 'update clusters_db set ' + prefix + 'photozstatus="finished" where objname="' + dtop2['objname'] + '"'
+                    commandst = 'update clusters_db set ' + prefix + 'photozstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+
+
+
+
+
+
+
+
+
+
+## COADD stuff
+def redo_coadd_list(file):
+        commandst = 'update clusters_db set coaddstatus="needs work ' + str(datetime.now()) + '" where objname="' + objname + '"'
+        commandst = 'update clusters_db set marks=null where objname="' + objname + '"'
+def check_coadd(OBJNAME=None,fix=False,set_redo=False):
+    db_keys_t = describe_db(c,['clusters_db'])
+        command='SELECT * from clusters_db c join ' + test + 'try_db t on c.objname=t.objname where (notnow is null and coaddstatus is not null and marks is null) group by c.objname '
+        command='SELECT * from clusters_db c join ' + test + 'try_db t on c.objname=t.objname where c.OBJNAME="' + OBJNAME + '"'
+        logfile = os.environ['sne'] + '/coadd/' + dtop2['objname']
+        no_files, redo_weights, commands = coadd(dtop2['objname'])
+            commandst = 'update clusters_db set ' + prefix + 'coaddstatus="weights needed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+            #commandst = 'update clusters_db set ' + prefix + 'coaddstatus="started ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                    file = os.environ['subdir'] + '/' + command['OBJNAME'] + '/' + command['FILTER'] + '/SCIENCE/coadd_' + command['OBJNAME'] + '_' + type + '/coadd.fits'
+                commandst = 'update clusters_db set coaddstatus="checked ' + str(datetime.now()) + '" where objname="' + command['OBJNAME'] + '"'
+                commandst = 'update clusters_db set coaddstatus="needs work ' + str(datetime.now()) + '" where objname="' + command['OBJNAME'] + '"'
+def run_coadd(OBJNAME=None,fix=False):
+        db_keys_t = describe_db(c,['clusters_db'])
+            command='SELECT * from clusters_db c join ' + test + 'try_db t on c.objname=t.objname where (marks is null and coaddstatus like "%needs%" and notnow is null) group by c.objname order by rand()'
+            command='SELECT * from clusters_db c join ' + test + 'try_db t on c.objname=t.objname where c.OBJNAME="' + OBJNAME + '"'
+        logfile = os.environ['sne'] + '/coadd/' + dtop2['objname']
+        no_files, redo_weights, commands = coadd(dtop2['objname'])
+                commandst = 'update clusters_db set ' + prefix + 'coaddstatus="weights needed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set ' + prefix + 'coaddstatus="no files ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+            commandst = 'update clusters_db set ' + prefix + 'coaddstatus="started ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                #commandst = 'update clusters_db set logfile="' + logfile + '" where objname="' + dtop2['objname'] + '"'
+                            commandst = 'update clusters_db set ' + prefix + 'coadd="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                        #    commandst = 'update clusters_db set ' + prefix + 'coaddstatus="finished ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                        commandst = 'update clusters_db set ' + prefix + 'coaddstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+
+## SCAMP stuff
+def check_scamp(cluster):
+def prep_scamp(info=None):
+                c = commands.getoutput('imstats ' + imchip )
+    command = 'update clusters_db set badccd="yes" where objname="' + cluster + '"'
+    command = 'update clusters_db set upperlimit="' + str(upperlimit) + '" where objname="' + cluster + '"'
+    return upperlimit
+def run_scamp(OBJNAME=None,fix=False):
+        db_keys_t = describe_db(c,['clusters_db'])
+            command='SELECT * from clusters_db c join ' + test + 'try_db t on c.objname=t.objname where (checkedoff is null or checkedoff!="yes") and scampstatus is null group by c.objname order by rand()'
+            command='SELECT * from clusters_db c join ' + test + 'try_db t on c.objname=t.objname where c.' + prefix + 'scampstatus is null and t.fix="yes" group by c.objname order by rand()'
+            command='SELECT * from clusters_db c join ' + test + 'try_db t on c.objname=t.objname where c.OBJNAME="' + OBJNAME + '"'
+            commandst = 'update clusters_db set scampstatus="not ready" where objname="' + dtop2['objname'] + '"'
+            commandst = 'update clusters_db set ' + prefix + 'scampstatus="started ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+            commandst = 'update clusters_db set logfile="' + logfile + '" where objname="' + dtop2['objname'] + '"'
+            #upperlimit = prep_scamp(dtop2['info'])
+                    db_keys_t = describe_db(c,[test + 'try_db'])
+                    upperlimit = prep_scamp(dtop2['info'])
+                    commandst = 'update clusters_db set ' + prefix + 'scampstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+                    commandst = 'update clusters_db set ' + prefix + 'scampstatus="finished" where objname="' + dtop2['objname'] + '"'
+                commandst = 'update clusters_db set ' + prefix + 'scampstatus="failed ' + str(datetime.now()) + '" where objname="' + dtop2['objname'] + '"'
+
+##IC stuff
+def run_correction(OBJNAME=None,FILTER=None,PPRUN=None,r_ext=False):
+        db_keys_t = describe_db(c,['' + test + 'try_db'])
+        command='SELECT * from clusters_db c join ' + test + 'try_db t on c.objname=t.objname where (checkedoff is null or checkedoff!="yes") and correction_applied is null group by c.objname order by rand()'
+            ''' if no bootstrap use good fit '''
+                OBJNAME_use, FILTER_use, PPRUN_use, sample = find_nearby(dtop2['OBJNAME'],dtop2['FILTER'],dtop2['PPRUN'])
+                construct_correction(dtop2['OBJNAME'],dtop2['FILTER'],dtop2['PPRUN'],sample,'all',OBJNAME_use,FILTER_use,PPRUN_use,r_ext=r_ext)
+                save_fit({'PPRUN':dtop2['PPRUN'],'OBJNAME':dtop2['OBJNAME'],'FILTER':dtop2['FILTER'],'sample':'record','sample_size':'record','correction_applied':'no match'},db='' + test + 'try_db')
+
+
