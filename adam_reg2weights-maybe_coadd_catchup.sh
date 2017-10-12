@@ -4,6 +4,7 @@
 # 	2.) put them in flags/weights
 # 	3.) (OPTIONAL) redo coaddition! (don't have to redo astrom/photom usually, might want to redo science_weighted, maybe!)
 #adam-example# ./adam_reg2weights-maybe_coadd_catchup.sh "MACS1226+21" "W-C-IC_2010-02-12 W-C-RC_2010-02-12 W-J-B_2010-02-12 W-J-V_2010-02-12 W-S-G+_2010-04-15 W-S-I+_2010-04-15 W-C-IC_2011-01-06 W-S-Z+_2011-01-06 W-C-RC_2006-03-04"
+#adam-example# ./adam_reg2weights-maybe_coadd_catchup.sh $cluster $filter_runs
 . progs.ini > /tmp/progs.out 2>&1
 . bash_functions.include > /tmp/bash_functions.out 2>&1
 
@@ -17,9 +18,12 @@ lookupfile=/nfs/slac/g/ki/ki05/anja/SUBARU/SUBARU.list
 export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 export INSTRUMENT=SUBARU
 filter_list=""
+#counter=0
+test -f /tmp/filter_list.log && rm -f /tmp/filter_list.log
 
 for filter_run in ${filter_run_pairs[@]}
 do
+    #counter=$(( $counter + 1 ))
 
     ########################
     ### Some Setup Stuff ###
@@ -31,10 +35,11 @@ do
     testfile=`ls -1 ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/SUP*_2*.fits | awk 'NR>1{exit};1'`
     export ending=`basename ${testfile} | awk -F'_2' '{print $2}' | awk -F'.' '{print $1}'`
     echo "ending=" ${ending}
-    #./setup_SUBARU.sh ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE
-    . ${INSTRUMENT:?}.ini
+    ./setup_SUBARU.sh ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE
+    . ${INSTRUMENT:?}.ini > /tmp/INSTRUMENT.log 2>&1
     export BONN_TARGET=${cluster} ; export BONN_FILTER=${filter}_${run}
-    filter_list="${filter_list} ${filter}"
+    #filter_list="${filter_list} ${filter}"
+    echo ${filter} >> /tmp/filter_list.log
 
     ###############################
     ### make regions compatible ###
@@ -62,9 +67,12 @@ done
 ### EVERYTHING BELOW HERE IS OPTIONAL! ###
 ##########################################
 
-echo "filter_list=" ${filter_list}
-#./do_Subaru_register_4batch.sh ${cluster} "SDSS-R6" "astrom" ${filter_list} > do_Subaru_register_4batch_MACS1226+21_astrom.log 2>&1
-#./do_Subaru_register_4batch.sh ${cluster} "SDSS-R6" "photom" ${filter_list} > do_Subaru_register_4batch_MACS1226+21_photom.log 2>&1
+#echo ${filter_list} > /tmp/filter_list.log
+uniq_filter_list=`cat /tmp/filter_list.log | uniq | paste -s -d\ `
+echo "uniq_filter_list=" ${uniq_filter_list}
+#./do_Subaru_register_4batch.sh ${cluster} "SDSS-R6" "astrom" ${uniq_filter_list} > do_Subaru_register_4batch_MACS1226+21_astrom.log 2>&1
+# NOTE: should run IC here!
+#./do_Subaru_register_4batch.sh ${cluster} "SDSS-R6" "photom" ${uniq_filter_list} > do_Subaru_register_4batch_MACS1226+21_photom.log 2>&1
 
 #for filter_run in ${filter_run_pairs[@]}
 #do
@@ -79,7 +87,7 @@ echo "filter_list=" ${filter_list}
 #    testfile=`ls -1 ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/SUP*_2*.fits | awk 'NR>1{exit};1'`
 #    export ending=`basename ${testfile} | awk -F'_2' '{print $2}' | awk -F'.' '{print $1}'`
 #    echo "ending=" ${ending}
-#    #./setup_SUBARU.sh ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE
+#    ./setup_SUBARU.sh ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE
 #    . ${INSTRUMENT:?}.ini
 #    export BONN_TARGET=${cluster} ; export BONN_FILTER=${filter}_${run}
 #    #adam# might have to re-do the astrom/photom (but that's not a per-filter activity!)

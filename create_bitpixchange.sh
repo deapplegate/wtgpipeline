@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script changes the BITPIX from input images
 # It is used to convert FLOAT data that effectively
 # only contain INTEGER or BYTE values to images
@@ -39,8 +40,8 @@ do
                ${RESULTDIR[${CHIP}]}/${BASE}"${4}fits"
         done    
     }
-    rm ${TEMPDIR}/bitpix_change_${CHIP}_$$
+    rm -f ${TEMPDIR}/bitpix_change_${CHIP}_$$
 done
 
 
-log_status $?
+#adam-BL# log_status $?

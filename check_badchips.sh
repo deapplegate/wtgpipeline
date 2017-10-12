@@ -1,6 +1,6 @@
 #!/bin/bash -u
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # ----------------------------------------------------------------
 # File Name:           check_badchips.sh
 # Author:              Thomas Erben (terben@astro.uni-bonn.de)
@@ -49,19 +49,20 @@ function printUsage
 }
 
 # Handling of program interruption by CRTL-C
-trap "echo 'Script $0 interrupted!! Cleaning up and exiting!'; log_status 0; \
-      exit 0" INT
+#adam-BL# trap "echo 'Script $0 interrupted!! Cleaning up and exiting!'; log_status 0; \
+#adam-BL#       exit 0" INT
+trap "echo 'Script $0 interrupted!! Cleaning up and exiting!'; exit 0" INT
  
 # check validity of command line arguments:
 if [ $# -ne 5 ]; then
     printUsage
-    log_status 1
+    #adam-BL# log_status 1
     exit 1
 fi
 
 # if a file with the name of the output file is already present
 # we delete it without asking!
-test -f $5 && rm $5
+test -f $5 && rm -f $5
 
 i=1
 while [ ${i} -le ${NCHIPS} ]
@@ -76,6 +77,6 @@ done
 
 test -f $5 && echo "Bad chips identified in /$1/$2/coadd_$4/ !"
 
-log_status $?
+#adam-BL# log_status $?
 
 

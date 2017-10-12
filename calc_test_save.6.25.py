@@ -200,7 +200,7 @@ def fix_radec(SUPA,FLAT_TYPE):
     #outfile = '' + search_params['TEMPDIR'] + 'stub'
     #cats = [{'im_type': 'MAIN', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS..fixwcs.rawconv'}, {'im_type': 'D', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.D.fixwcs.rawconv'}]
 
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import pyfits, sys, os, re, string, copy
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
 
@@ -464,7 +464,7 @@ def fix_radec(SUPA,FLAT_TYPE):
 
 
 def mk_tab(list):
-    import astropy.io.fits as pyfits
+    import pyfits
     from pyfits import Column        
     import numarray 
     cols = []
@@ -478,7 +478,7 @@ def mk_tab(list):
     return hdu
 
 def merge(t1,t2):
-    import astropy.io.fits as pyfits
+    import pyfits
     t = t1.columns + t2[1].columns
     hdu = pyfits.BinTableHDU.from_columns(t)
     return hdu
@@ -510,7 +510,7 @@ def cutout(infile,mag,color='red'):
     utilities.run('mkreg.pl -c -rad 8 -xcol 0 -ycol 1 -wcs -colour ' + color + ' ' + tmpdir +  +  outfile)
 
 def get_median(cat,key):
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import pyfits, sys, os, re, string, copy
 
     p = pyfits.open(cat)
     magdiff = p[1].data.field(key)
@@ -519,7 +519,7 @@ def get_median(cat,key):
     return magdiff[int(len(magdiff)/2)] 
 
 def coordinate_limits(cat):
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import pyfits, sys, os, re, string, copy
 
     p = pyfits.open(cat)
 
@@ -562,7 +562,7 @@ def combine_cats(cats,outfile,search_params):
     #outfile = '' + search_params['TEMPDIR'] + 'stub'
     #cats = [{'im_type': 'MAIN', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS..fixwcs.rawconv'}, {'im_type': 'D', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.D.fixwcs.rawconv'}]
 
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import pyfits, sys, os, re, string, copy
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
 
@@ -614,7 +614,7 @@ def combine_cats(cats,outfile,search_params):
 def paste_cats(cats,outfile): #cats,outfile,search_params):
       
   
-    import astropy.io.fits as pyfits, sys, os, re, string, copy        
+    import pyfits, sys, os, re, string, copy        
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
     tables = {} 
@@ -2062,7 +2062,7 @@ def phot(SUPA,FLAT_TYPE):
             
             good = photo_abs_new.run_through('illumination',infile='' + search_params['TEMPDIR'] + 'input.asc',output='' + search_params['TEMPDIR'] + 'photo_res',extcoeff=d['color1'],sigmareject=6,step='STEP_1',bandcomp=d['filter'],color1which=d['color1'],color2which=d['color2'])
             
-            import astropy.io.fits as pyfits
+            import pyfits
             cols = [] 
             for key in ['corr_data','color1_good','color2_good','magErr_good','X_good','Y_good','airmass_good']: 
                 cols.append(pyfits.Column(name=key, format='E',array=good[key]))
@@ -2911,7 +2911,7 @@ def add_correction_new(cat_list,OBJNAME,FILTER,PPRUN):
     cat_grads = []
     for cat in cat_list:
         
-        import astropy.io.fits as pyfits
+        import pyfits
         p = pyfits.open(cat[0])
         tab = p["OBJECTS"].data
         print str(type(tab))
@@ -2971,7 +2971,7 @@ def add_correction_new(cat_list,OBJNAME,FILTER,PPRUN):
 
     
 def add_gradient(cat_list):
-    import astropy.io.fits as pyfits, os
+    import pyfits, os
     cat_grads = []
     for cat in cat_list:
         print cat
@@ -2986,7 +2986,7 @@ def add_gradient(cat_list):
     return cat_grads 
 
 def add_correction(cat_list):
-    import astropy.io.fits as pyfits, os
+    import pyfits, os
     cat_grads = []
     
     EXPS = getTableInfo()
@@ -3277,7 +3277,7 @@ def match_many_multi_band(list,color=False):
 
     ''' now make into SDSS format '''
     tmp = {}    
-    import astropy.io.fits as pyfits, scipy
+    import pyfits, scipy
     p = pyfits.open(finalcat)[1].data
     cols = [] 
                                                                                                           
@@ -3347,7 +3347,7 @@ def match_inside(SUPA1,SUPA2,FLAT_TYPE):
     print outcat
 
 def getTableInfo():
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string
+    import pyfits, sys, os, re, string, copy , string
     
     p = pyfits.open(tmpdir + '/final.cat')
     tbdata = p[1].data
@@ -3370,7 +3370,7 @@ def getTableInfo():
 
 
 def diffCalcNew():
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string
+    import pyfits, sys, os, re, string, copy , string
     
     p = pyfits.open(tmpdir + '/final.cat')
     tbdata = p[1].data
@@ -3408,7 +3408,7 @@ def diffCalcNew():
 
 def starConstruction(EXPS):
     ''' the top two most star-like objects have CLASS_STAR>0.9 and, for each rotation, their magnitudes differ by less than 0.01 '''
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string, scipy
+    import pyfits, sys, os, re, string, copy , string, scipy
     
     p = pyfits.open(tmpdir + '/final.cat')
     table = p[1].data
@@ -3439,7 +3439,7 @@ def starConstruction(EXPS):
 
 def selectGoodStars(EXPS,cov,LENGTH1,LENGTH2,relative_colors):
     ''' the top two most star-like objects have CLASS_STAR>0.9 and, for each rotation, their magnitudes differ by less than 0.01 '''
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string, scipy
+    import pyfits, sys, os, re, string, copy , string, scipy
     
     p = pyfits.open(tmpdir + '/final.cat')
     #print p[1].columns
@@ -3624,7 +3624,7 @@ def diffCalc(SUPA1,FLAT_TYPE):
     search_params = initialize(dict['filter'],dict['OBJNAME'])
     search_params.update(dict)
 
-    import astropy.io.fits as pyfits, sys, os, re, string, copy 
+    import pyfits, sys, os, re, string, copy 
     
     print search_params['matched_cat_self']
     p = pyfits.open(search_params['matched_cat_self'])
@@ -3782,7 +3782,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,cov=None,CONFIG=None,true_sdss=None,primary=
 
     	cheby_terms_use = locals()[which_terms] 
         import scipy
-        import astropy.io.fits as pyfits
+        import pyfits
         p = pyfits.open(tmpdir + '/final.cat')
         table = p[1].data
         
@@ -4522,7 +4522,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,cov=None,CONFIG=None,true_sdss=None,primary=
                 ''' save the corrected catalog '''
                 
                 tmp = {}    
-                import astropy.io.fits as pyfits
+                import pyfits
                 cols = [] 
 
                 stdMag_corr = []
@@ -5239,7 +5239,7 @@ def fit():
 
     fit['class'] = phot_funct(fit['model'],fit['fixed'],EXPS,star_good,fit['apply'])
 
-    import astropy.io.fits as pyfits
+    import pyfits
     p = pyfits.open(tmpdir + '/final.cat')
     table = p[1].data
 
@@ -5347,7 +5347,7 @@ def convert_SDSS_cat(SUPA,FLAT_TYPE):
     search_params.update(dict)
 
     print dict['starcat']
-    import astropy.io.fits as pyfits
+    import pyfits
     hdulist1 = pyfits.open(dict['starcat'])
     #print hdulist1["STDTAB"].columns
     table = hdulist1["STDTAB"].data
@@ -5395,7 +5395,7 @@ def apply_photometric_calibration(SUPA,FLAT_TYPE,starcat):
     search_params.update(dict)
 
     #print dict['starcat']
-    import astropy.io.fits as pyfits
+    import pyfits
     hdulist1 = pyfits.open(starcat)
     #print hdulist1["STDTAB"].columns
     table = hdulist1["STDTAB"].data
@@ -5484,7 +5484,7 @@ def get_cats_ready(SUPA,FLAT_TYPE,galaxycat,starcat):
 
     #print dict['starcat']
     tmp = {}
-    import astropy.io.fits as pyfits
+    import pyfits
     path='/nfs/slac/g/ki/ki05/anja/SUBARU/%(OBJNAME)s/' % {'OBJNAME':search_params['OBJNAME']}
     for type,cat in [['star',starcat]]: #['galaxy',galaxycat],
         hdulist1 = pyfits.open(cat)                                                                                                                                                                

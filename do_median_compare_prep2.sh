@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 
 cluster=$1
 filter=$2
@@ -14,7 +15,7 @@ export BONN_FILTER=${filter}
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 CLUSTERDIR=$SUBARUDIR/test_coadd/${cluster}_${filter}
 
 IMAGESIZE="12000,12000"
@@ -165,12 +166,12 @@ cd $REDDIR
 for coadd in $coadds; do
 #
 #    cd $CLUSTERDIR/$coadd/SCIENCE
-#    rm SUPA*.fits
+#    rm -f SUPA*.fits
 #    ln -s ../../RAW_SCIENCE/SUPA*fits .
 #    cd $REDDIR
 #
 #    if [ -f coadd.head ]; then
-#	rm coadd.head
+#	rm -f coadd.head
 #    fi
 #    
 #    ./prepare_coadd_swarp.sh -m $CLUSTERDIR/$coadd \
@@ -223,7 +224,7 @@ cd $REDDIR
 
 
 cd $CLUSTERDIR/Weighted/SCIENCE/coadd_$cluster
-rm *.resamp.fits
+rm -f *.resamp.fits
 ln -s ../../../Median/SCIENCE/coadd_$cluster/*.resamp.fits .
 cd $REDDIR
 

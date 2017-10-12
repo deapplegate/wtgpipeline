@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 
 ###############
 # $Id: process_superflat_rot_para.sh,v 1.1 2008-08-13 01:48:34 dapple Exp $
@@ -32,11 +33,11 @@ do
     # can be scaled accordingly.
 
 
-       	FILES=`ls $1/$2/*_${CHIP}OCF_sub.fits`
+       	FILES=`\ls $1/$2/*_${CHIP}OCF_sub.fits`
 	SOURCE_DIR="$1/$2"
 	MOVE_SUB=1
 	if [ "$FILES" = "" ]; then
-	    FILES=`ls $1/$2/SUB_IMAGES/*_${CHIP}OCF_sub.fits`
+	    FILES=`\ls $1/$2/SUB_IMAGES/*_${CHIP}OCF_sub.fits`
 	    SOURCE_DIR="$1/$2/SUB_IMAGES"
 	    MOVE_SUB=0
 	fi
@@ -53,7 +54,8 @@ do
 		n=n+1; mean=mean+$2} END {print mean/n}' science_images_$$`
 	    
 	    if [ "$RESULTMODE" = "" ]; then
-		log_status 2 "No ResultMode"
+		#adam-BL# log_status 2 "No ResultMode"
+		echo "adam-look | error: No ResultMode"
 		exit 2
 	    fi
 	    
@@ -89,11 +91,12 @@ do
 		-s 1 -e 0 1 -m ${RESULTMODE}
 	    
 	    if [ ! -s $1/$2/${2}_${CHIP}_rot$rot.fits ]; then
-		log_status 5 "Superflat not created"
+		#adam-BL# log_status 5 "Superflat not created"
+		echo "adam-look | error: Superflat not created"
 		exit 5
 	    fi
 	    
-	    rm science_images_$$ science_coadd_images_$$
+	    rm -f science_images_$$ science_coadd_images_$$
 	    
 	done
 	
@@ -102,4 +105,5 @@ done
 
 
 
-log_status $?
+
+#adam-BL# log_status $?

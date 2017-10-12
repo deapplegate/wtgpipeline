@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-import sys, astropy.io.fits as pyfits, bashreader, ldac, math, os, re, numpy
+import sys, astropy, astropy.io.fits as pyfits, bashreader, ldac, math, os, re, numpy
 
-inputfile = sys.argv[1]
-outputfile = sys.argv[2]
-image = sys.argv[3]
+import adam_quicktools_ArgCleaner
+argv=adam_quicktools_ArgCleaner.ArgCleaner(sys.argv)
+inputfile = argv[0]
+outputfile = argv[1]
+image = argv[2]
 
 config = bashreader.parseFile('./progs.ini')
 npara =int(config.npara)
@@ -32,7 +34,7 @@ for hdu in inputcat:
         pass
 
 
-catsize = math.ceil(len(objects) / float(npara))
+catsize = int(math.ceil(len(objects) / float(npara)))
 index = 0
 children = []
 for i in xrange(npara):
@@ -58,6 +60,7 @@ for i in xrange(npara):
                   'image' : image}
         command='%(command)s -i %(input)s -o %(output)s -x 1 -r -3 -f %(image)s' % params
         print command
+	#adam-SHNT# this is the issue!
         os.system(command)
         os._exit(os.EX_OK)
     

@@ -7,9 +7,9 @@ import process_cosmos_sims as pcs, ldac
 
 
 def preprocessFile(resultfile):
-    print "start"
-    #for processing the results of the MaxLike files once
 
+    #for processing the results of the MaxLike files once
+    print "start"
     massdist, masses = pcs.processFile(resultfile)
     print massdist, masses
 
@@ -38,7 +38,6 @@ def preprocessFile(resultfile):
 if __name__ == '__main__':
 
     resultdir = sys.argv[1]
-    print resultdir
 
     resultfiles = glob.glob('%s/*.out' % resultdir)
 

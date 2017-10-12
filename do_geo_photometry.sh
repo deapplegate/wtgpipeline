@@ -12,11 +12,12 @@ mode=aper
 #####################
 
 
-subarudir=/nfs/slac/g/ki/ki05/anja/SUBARU
+subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 export subarudir
-SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 export SUBARUDIR
-photrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/photometry
+#adam#photrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/photometry
+photrepo=/nfs/slac/kipac/fs1/u/awright/SUBARU/photometry
 
 filters=`grep "${cluster}" cluster_cat_filters.dat | awk -v ORS=' ' '{for(i=3;i<=NF;i++){if($i!~"CALIB" && $i!="K") print $i}}'`
 

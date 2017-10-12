@@ -289,6 +289,6 @@ done
 # Restore old stdin, close fd=3
 #exec <&3 3<&- 
 
-#rm ${TEMPDIR}/nights_$$.asc ${TEMPDIR}/night_$5_*_$$.asc \
+#rm -f ${TEMPDIR}/nights_$$.asc ${TEMPDIR}/night_$5_*_$$.asc \
 #    ${TEMPDIR}/night_*_img_list_$$.asc ${TEMPDIR}/tmp_chips_$$.cat
 #log_status $?

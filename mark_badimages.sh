@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # CVSId: $Id: mark_badimages.sh,v 1.3 2010-04-16 23:30:54 dapple Exp $
 # ----------------------------------------------------------------
 # File Name:           mark_badimages.sh
@@ -50,13 +50,13 @@ function printUsage
 
 # Handling of program interruption by CRTL-C
 trap "echo 'Script $0 interrupted!! Cleaning up and exiting!'; \
-      log_status 0 'Interupted'; \
+      echo 'adam-look | error: Interupted'; \
       exit 0" INT
  
 # check validity of command line arguments:
 if [ $# -ne 4 ]; then
     printUsage
-    log_status 1 'Invalid Command Line'
+    echo 'adam-look | error: Invalid Command Line'
     exit 1
 fi
 
@@ -87,4 +87,4 @@ do
     done
 done
 
-log_status $?
+#adam-BL# log_status $?

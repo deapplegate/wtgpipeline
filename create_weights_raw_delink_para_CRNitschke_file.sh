@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 #adam-chain#CRN! Runs the CRNitschke cosmic ray masker. BUT ONLY ON ONE FILE AT A TIME!
 #adam-does# this code executes the CRNitschke cosmic finder on all of the images!
 #adam-call_example# ./parallel_manager.sh create_weights_raw_delink_para_CRNitschke_file.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS ${filter} filename.fits

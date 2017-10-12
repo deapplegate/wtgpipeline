@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 #. BonnLogger.sh
 #. log_start
 # the script coadds images with
@@ -51,10 +52,11 @@
 #$3: coadd identifier
 #$4: swarp COMBINE_TYPE (OPTIONAL: WEIGHTED as default)
 
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/progs.out 2>&1
+. progs.ini > /tmp/progs.out 2>&1
 
-DIR=`pwd`
-
+BONNDIR=`pwd`
+HEADDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/coadd_headers/" 
 # construct a unique name for the coadd.head file
 # of this co-addition:
 #
@@ -71,15 +73,15 @@ COADDFILENAME1=${TMPNAME_1}_${TMPNAME_2}_${3}_ROT1
 cd /$1/$2/coadd_$3
 
 if [ ! -f coadd.ROT0.head ]; then
-  cp ${DIR}/coadd_${COADDFILENAME0}.head ./coadd.ROT0.head
+  cp ${HEADDIR}/coadd_${COADDFILENAME0}.head ./coadd.ROT0.head
 fi
 if [ ! -f coadd.ROT1.head ]; then
-  cp ${DIR}/coadd_${COADDFILENAME1}.head ./coadd.ROT1.head
+  cp ${HEADDIR}/coadd_${COADDFILENAME1}.head ./coadd.ROT1.head
 fi
 
 # collect the files to be co-added
 if [ -f files.list_$$ ]; then
-  rm files.list_$$
+  rm -f files.list_$$
 fi
 
 
@@ -119,7 +121,13 @@ ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
            -IMAGEOUT_NAME coadd.ROT0.fits \
            -WEIGHTOUT_NAME coadd.weight.ROT0.fits \
            -COMBINE_TYPE ${COMBINETYPE} \
-           -INPUTIMAGE_LIST files.list_ROT0_$$
+           -NTHREADS ${NPARA} \
+           -MEM_MAX 4096 \
+           -VMEM_MAX 6144 \
+           -VMEM_DIR "/tmp" \
+	   -BLANK_BADPIXELS Y \
+           @files.list_ROT0_$$
+           #adam-old#-INPUTIMAGE_LIST files.list_ROT0_$$
 
 
 ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
@@ -127,9 +135,17 @@ ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
            -IMAGEOUT_NAME coadd.ROT1.fits \
            -WEIGHTOUT_NAME coadd.weight.ROT1.fits \
            -COMBINE_TYPE ${COMBINETYPE} \
-           -INPUTIMAGE_LIST files.list_ROT1_$$
+           -NTHREADS ${NPARA} \
+           -MEM_MAX 4096 \
+           -VMEM_MAX 6144 \
+           -VMEM_DIR "/tmp" \
+	   -BLANK_BADPIXELS Y \
+           @files.list_ROT1_$$
+           #adam-old#-INPUTIMAGE_LIST files.list_ROT1_$$
 
-#rm files.list_$$
+if [ -f files.list_$$ ]; then
+  rm -f files.list_$$
+fi
 
 
 # create a flag map with name coadd.flag.fits.
@@ -144,6 +160,6 @@ ${P_IC} -p 8 '1 0 %1 fabs 1.0e-06 < ?' \
 
 
 
-cd ${DIR}
+cd ${BONNDIR}
 
 #log_status $?

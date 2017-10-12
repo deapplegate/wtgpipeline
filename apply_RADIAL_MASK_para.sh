@@ -64,7 +64,7 @@ for chip in $CHIPS; do
 	    mv ${newweight} $weight
 
 	    if [ $? -gt 0 ]; then
-		#adam-BL#log_status 3 "Cannot move weight file $base"
+		#adam-BL#log_status 3 "Can't move weight file $base"
 		exit 3
 	    fi
 	fi

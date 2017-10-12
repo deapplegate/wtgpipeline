@@ -1,13 +1,15 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-note# from $1/$2/${2}_${i}_illum$3.fits make $1/$2_norm/$2_norm_${i}_illum$3.fits and $1/$2_norm/$2_res${3}_${i}.fits
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # CVSId: $Id: make_residuals.sh,v 1.3 2008-07-19 00:06:19 dapple Exp $
 
 # $1 : maindir
 # $2 : sciendir
 # $3 : smoothing radius
 
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/INSTRUMENT.log 2>&1
 
 # first calculate the modes:
 FILES=""
@@ -21,6 +23,12 @@ ${P_IMSTATS} ${FILES} -s \
              ${STATSXMIN} ${STATSXMAX} ${STATSYMIN} ${STATSYMAX} -o \
              ${TEMPDIR}/immode.dat_$$
 
+exit_code=$?
+if [ $exit_code -ne 0 ]; then
+    #adam-BL# log_status $exit_code "IMSTATS failure"
+    echo "adam-look | error: IMSTATS failure"
+    exit $exit_code
+fi
 
 # create the new directory for the normalized images if
 # it does not exist already
@@ -64,5 +72,5 @@ do
 
 done
 
-rm ${TEMPDIR}/immode.dat_$$
-log_status $?
+rm -f ${TEMPDIR}/immode.dat_$$
+#adam-BL# log_status $?

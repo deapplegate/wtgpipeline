@@ -12,7 +12,7 @@
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 cluster="MACS1931-26"  # cluster nickname as in /nfs/slac/g/ki/ki02/xoc/anja/SUBARU/SUBARU.list
 
@@ -54,17 +54,17 @@ LINE=""
 
 #######################################
 ## Reset Logger
-./BonnLogger.py clear
+#adam-BL#./BonnLogger.py clear
 
 #########################################
 ### Capture Variables
-./BonnLogger.py config \
-    cluster=${cluster} \
-    filterlist="${FILTERS}" \
-    imagesize="${IMAGESIZE}" \
-    astrommethod="${ASTROMMETHOD}" \
-    astrometrycat="${ASTROMETRYCAT}" \
-    astromadd="${ASTROMADD}"
+#adam-BL#./BonnLogger.py config \
+  #adam-BL#  cluster=${cluster} \
+  #adam-BL#  filterlist="${FILTERS}" \
+  #adam-BL#  imagesize="${IMAGESIZE}" \
+  #adam-BL#  astrommethod="${ASTROMMETHOD}" \
+  #adam-BL#  astrometrycat="${ASTROMETRYCAT}" \
+  #adam-BL#  astromadd="${ASTROMADD}"
     
 
 ##############################
@@ -77,11 +77,11 @@ do
 
   export BONN_FILTER=${filter}
   echo ${filter}
-  ./BonnLogger.py clear
+  #adam-BL#./BonnLogger.py clear
 
   ./setup_general.sh ${SUBARUDIR}/${cluster}/${filter}/SCIENCE instrument_$$
   INSTRUMENT=`cat instrument_$$`
-  rm instrument_$$
+  rm -f instrument_$$
 
   if [ ${INSTRUMENT} == "UNKNOWN" ]; then
       echo "INSTRUMENT UNKNOWN: Defaulting to SUBARU"
@@ -127,11 +127,11 @@ do
 
   echo ${NCHIPS}
 
-  ./BonnLogger.py clear
-  ./BonnLogger.py config \
-      cluster=${cluster} \
-      filter=${filter} \
-      config=${config}
+  #adam-BL#./BonnLogger.py clear
+  #adam-BL#./BonnLogger.py config \
+  #adam-BL#    cluster=${cluster} \
+  #adam-BL#    filter=${filter} \
+  #adam-BL#    config=${config}
 
   ##########################
   ### prepare coaddition ###
@@ -180,12 +180,12 @@ else
     
   export BONN_FILTER=${FILTERS}
 
-  ./BonnLogger.py clear
-  ./BonnLogger.py config \
-      cluster=${cluster} \
-      filterlist="${FILTERS}" \
-      astrommethod=${ASTROMMETHOD} \
-      astrometrycat=${ASTROMETRYCAT} \
+  #adam-BL#./BonnLogger.py clear
+  #adam-BL#./BonnLogger.py config \
+  #adam-BL#    cluster=${cluster} \
+  #adam-BL#    filterlist="${FILTERS}" \
+  #adam-BL#    astrommethod=${ASTROMMETHOD} \
+  #adam-BL#    astrometrycat=${ASTROMETRYCAT} \
 
   ./create_scamp_astrom_photom.sh ${LINE} ${ASTROMETRYCAT}
 

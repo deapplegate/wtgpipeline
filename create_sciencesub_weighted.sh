@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 ##########
 # Take Science images and weight them by the weight files
 # Save the output for use in masking
@@ -44,6 +45,6 @@ do
 
     done
   }
-  test -f ${TEMPDIR}/crw_images_$$ && rm  ${TEMPDIR}/crw_images_$$
+  test -f ${TEMPDIR}/crw_images_$$ && rm -f  ${TEMPDIR}/crw_images_$$
 done
-log_status $?
+#adam-BL# log_status $?

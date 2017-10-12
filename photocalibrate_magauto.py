@@ -118,7 +118,8 @@ def photoCalibrateCat(cat, cluster,
 
     calibratedCat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
-    if cat.hdu.header.has_key('EXTNAME'):
+    #adam: or should it be this "if cat.hdu.header.has_key('EXTNAME'):" ?
+    if cat.hdu.header.__contains__('EXTNAME'):
         calibratedCat.hdu.header['EXTNAME']= cat.hdu.header['EXTNAME']
 
     return calibratedCat

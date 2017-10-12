@@ -74,7 +74,7 @@ LINE=""
 
 #######################################
 ## Reset Logger
-#./BonnLogger.py clear
+#adam-BL#./BonnLogger.py clear
 
 
 ##################################################
@@ -87,11 +87,11 @@ do
   export BONN_FILTER=${filter}
   echo ${filter}
 
-#  ./BonnLogger.py clear
+  #adam-BL#./BonnLogger.py clear
 
   ./setup_general.sh /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/${filter}/SCIENCE instrument_$$
   export INSTRUMENT=`cat instrument_$$`
-  rm instrument_$$
+  rm -f instrument_$$
   . ${INSTRUMENT:?}.ini
 
   ending=OCFSRI.sub
@@ -124,7 +124,7 @@ do
 
       mv $dir/$base.weight.fits $dir/$base.weight.bkup
       mv ${dir}/temp.fits ${dir}/${base}.weight.fits
-      rm ${dir}/${base}.noobjs.fits
+      rm -f ${dir}/${base}.noobjs.fits
 
       cp $file $dir/$base.sub.bkup
       ./gaussianNoise.py ${file} ${dir}/${base}.weight.fits ${dir}/temp.fits
@@ -134,7 +134,7 @@ do
       mv ${dir}/temp.fits ${file}
       naxis1=`dfits ${file} | fitsort NAXIS1 | awk '($1 !~ /FILE/){print $2}'`
       naxis2=`dfits ${file} | fitsort NAXIS2 | awk '($1 !~ /FILE/){print $2}'`
-      rm ${dir}/${base}.weight.fits
+      rm -f ${dir}/${base}.weight.fits
       ic -c $naxis1 $naxis2 1 > ${dir}/${base}.weight.fits
       
 

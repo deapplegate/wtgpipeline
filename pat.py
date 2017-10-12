@@ -36,7 +36,6 @@ def redo_coadd_list(file):
         for filter in filters:
             commandst = 'delete from coadd_db where objname="' + objname + '" and filter="' + filter + '"'
             c.execute(commandst)                                             
-        
 
 def check_coadd(OBJNAME=None,fix=False,set_redo=False):
     import MySQLdb, sys, os, re, time, utilities, pyfits, string                                                                                                                          
@@ -133,12 +132,6 @@ def check_coadd(OBJNAME=None,fix=False,set_redo=False):
                 if set_redo:
                     c.execute(commandst)            
                                                                                                                                                                                                                       
-                                                                                                                                                                                                                      
-                                                                                                                                                                                                                      
-                                                                                                                                                                                                                      
-
-
-
 def get_ending(subdir,cluster,filt):
     from glob import glob
     l = glob(subdir + '/' + cluster + '/' + filt + '/SCIENCE/*_7*I.fits')
@@ -155,7 +148,6 @@ def get_ending(subdir,cluster,filt):
         if glob(subdir + '/' + cluster + '/' + filt + '/SCIENCE/*_7*' + ending + 'I.fits'): return ending + 'I'
         if glob(subdir + '/' + cluster + '/' + filt + '/SCIENCE/*_7*' + ending + '.fits'): return ending 
     else: return -99        
-
 
 def get_suppression(subdir,cluster,filt):
     from glob import glob
@@ -176,7 +168,6 @@ def get_suppression(subdir,cluster,filt):
                 youngest = moddate
 
     return dir
-    
     
 def get_lensing_filts(subdir,cluster):
     f = open(subdir + '/lensing.bands','r').readlines()
@@ -399,12 +390,6 @@ def run_coadd(OBJNAME=None,fix=False):
         print 'sleeping...ZZZZZZ'
         time.sleep(60)
 
-
-
-
-
-
-
 def make_rings(objname, filter, inputRegionFile, offsetFitFile = 'fit'):
     output = open(offsetFitFile,'rb')
     fit_info = pickle.load(output)
@@ -491,12 +476,6 @@ def make_rings(objname, filter, inputRegionFile, offsetFitFile = 'fit'):
                 print glob(file)
                                                                                                                                                                      
             ''' need to calculate the new center, given the fit '''
-
-    
-    
-
-
-    
 
 def fit_rings():
     import re
@@ -692,14 +671,12 @@ def fit_rings():
     pickle.dump(fit_info,output)
     output.close()
 
-        
-
 def calc_ring(SUPA,FLAT_TYPE,ras,decs,chip_numbers,xpix,ypix,factors=None):
     #cats = [{'im_type': 'DOMEFLAT', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.DOMEFLAT.fixwcs.rawconv'}, {'im_type': 'SKYFLAT', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.SKYFLAT.fixwcs.rawconv'}, {'im_type': 'OCIMAGE', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.OCIMAGE.fixwcs.rawconv'}] 
     #outfile = '' + search_params['TEMPDIR'] + 'stub'
     #cats = [{'im_type': 'MAIN', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS..fixwcs.rawconv'}, {'im_type': 'D', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.D.fixwcs.rawconv'}]
 
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import pyfits, sys, os, re, string, copy
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
 
@@ -1052,8 +1029,6 @@ def calc_ring(SUPA,FLAT_TYPE,ras,decs,chip_numbers,xpix,ypix,factors=None):
     else:
         return xs, ys, radii, xpix_abs, ypix_abs, radii_pix, x_new, y_new
     
-
-
 def check_scamp(cluster):
     ''' look for catalog mismatches '''
     from glob import glob    
@@ -1082,8 +1057,6 @@ def check_scamp(cluster):
         catIClist = glob(os.environ['subdir'] + '/' + cluster + '/' + filter + '/SCIENCE/cat_scampIC/*.cat' )
 
         print len(imlist), len(catlist), len(catIClist), filter
-
-
 
 def prep_scamp(info=None):
     ''' throw out entire exposures were chip is above 24000 '''
@@ -1159,7 +1132,6 @@ def prep_scamp(info=None):
     cdb.execute(command)
     
     return upperlimit
-
 
 def run_scamp(OBJNAME=None,fix=False):
     import MySQLdb, sys, os, re, time, utilities, pyfits, string                                                                                                                          
@@ -1523,7 +1495,6 @@ def find_nearby(OBJNAME,FILTER,PPRUN):
         else: return(None,None,None,None)    
     else: return(None,None,None,None)    
 
-
 def testgood():
     import MySQLdb, sys, os, re, time, utilities, pyfits                                                                                                                          
     from copy import copy
@@ -1538,10 +1509,9 @@ def testgood():
 
     #command='SELECT * from ' + test + 'try_db i where i.todo is null order by rand()' #and objname="MACS0018+16" and pprun="2003-09-25_W-J-V"' # i.todo="bootstrap" and (i.sdssstatus like "%finished" or i.Nonestatus like "%finished") and bootstrapstatus="fitfinished" and objname="MACS1824+43" and PPRUN="2000-08-06_W-C-IC"'
     #command='SELECT * from ' + test + 'try_db i where i.todo is null and (i.sdssstatus like "%finished" or i.Nonestatus like "%finished")  order by rand()'           
-#    command='SELECT * from ' + test + 'try_db i where (i.sdssstatus like "%finished" or i.Nonestatus like "%finished") and (i.objname like "MACS0717%")  order by rand()'           
+    #command='SELECT * from ' + test + 'try_db i where (i.sdssstatus like "%finished" or i.Nonestatus like "%finished") and (i.objname like "MACS0717%")  order by rand()'           
 
     command='select * from ' + test + 'try_db where objname="Zw7215" and filter="W-J-B"' # and pprun="2007-07-18_W-C-IC"'
-
 
     #command='select * from ' + test + 'try_db where (config=9 ) and filter="W-C-IC"' # and pprun="2007-07-18_W-C-IC"'
 
@@ -1587,7 +1557,6 @@ def testgood():
         except KeyboardInterrupt:
             raise
         except: print 'failed'
-
 
 def sort_results(results2,db_keys):
     import config_bonn
@@ -2338,11 +2307,6 @@ def test_correction(OBJNAME,FILTER,PPRUN,sample,sample_size):
 
     return epsilon, diff_bool
 
-    
-    
-    
-
-
 def describe_db_long(c,db=['illumination_db']):
     if type(db) != type([]):
         db = [db]
@@ -2438,11 +2402,6 @@ def find_bad_rot():
             print command
             c.execute(command)
 
-
-
-
-
-
 def update_fit_db():
     import MySQLdb, sys, os, re, time, utilities, pyfits
     from copy import copy
@@ -2474,11 +2433,6 @@ def update_fit_db():
             print command          
             c.execute(command)
 
-
-
-
-
-
 def fix_table_all():
     import MySQLdb, sys, os, re, time, utilities, pyfits
     from copy import copy
@@ -2502,7 +2456,6 @@ def fix_table_all():
         command = "INSERT INTO " + db + " (OBJNAME,FILTER,PPRUN,sample,sample_size) VALUES ('" + dtop['OBJNAME'] + "','" + dtop['FILTER'] + "','" + dtop['PPRUN'] + "','record','record')"
         print command          
         c.execute(command)
-
 
 def fix_table():
     import MySQLdb, sys, os, re, time, utilities, pyfits
@@ -2542,7 +2495,6 @@ def fix_table():
                 command = 'delete from ' + test + 'try_db where id =' +  i                
                 print command
                 c.execute(command)
-
 
 def fix_try2():
     import MySQLdb, sys, os, re, time, utilities, pyfits                                       
@@ -2600,8 +2552,6 @@ def update_9():
             #print command
             #c.execute(command)
 
-
-
 ''' add CONFIG to ' + test + 'try_db '''
 def add_config():
     import MySQLdb, sys, os, re, time, utilities, pyfits                                       
@@ -2636,9 +2586,6 @@ def add_config():
             print command
             c.execute(command)
             
-
-
-
 def fix_try():
     import MySQLdb, sys, os, re, time, utilities, pyfits                                       
     from copy import copy
@@ -2666,8 +2613,6 @@ def fix_try():
             command = 'delete from ' + test + 'try_db where OBJNAME="' + dtop['OBJNAME'] + '" and PPRUN = "' + dtop['PPRUN'] + '"'              
             print command
             c.execute(command)
-
-
 
 def check_format():
     import MySQLdb, sys, os, re, time, utilities, pyfits                                       
@@ -2700,7 +2645,7 @@ def check_format():
                 for i in range(len(db_keys)):
                     dtop[db_keys[i]] = str(line[i])
             catalog = dtop['catalog']
-            import astropy.io.fits as pyfits, glob
+            import pyfits, glob
             if len(glob.glob(catalog)) > 0:
                 p = pyfits.open(catalog)        
                 format = p[1].columns[0].format
@@ -2717,10 +2662,6 @@ def check_format():
                     command = 'update ' + test + 'try_db set sdssstatus="NULL" where OBJNAME="' + OBJNAME + '" and PPRUN ="'+ PPRUN +'"'   
                     print command
                     c.execute(command)
-
-
-
-
 
 def delete_nodata_table():
     import MySQLdb, sys, os, re, time, utilities, pyfits                                       
@@ -2752,8 +2693,6 @@ def delete_nodata_table():
             command = 'delete from illumination_db where PPRUN ="'+dtop['PPRUN']+'" and OBJNAME="'+dtop['OBJNAME']+'"'               
             print command
             c.execute(command)
-
-
 
 def fix_objname():
     import MySQLdb, sys, os, re, time, utilities, pyfits                                       
@@ -2787,19 +2726,6 @@ def fix_objname():
             print command
             #c.execute(command)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 def variance(data,err):
 
     d = 0
@@ -2832,7 +2758,6 @@ def variance(data,err):
     redchi = d/n
 
     return variance, weight_variance, redchi
-
 
 def random_cmp(x,y):
     import random
@@ -2872,7 +2797,6 @@ def starStats(supas):
         print key, dict[key]
 
     return dict
-
 
 def length_swarp(SUPA,FLAT_TYPE,CHIPS):
     import os, re, utilities, bashreader, sys, string
@@ -2962,7 +2886,7 @@ def fix_radec(SUPA,FLAT_TYPE):
     #outfile = '' + search_params['TEMPDIR'] + 'stub'
     #cats = [{'im_type': 'MAIN', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS..fixwcs.rawconv'}, {'im_type': 'D', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.D.fixwcs.rawconv'}]
 
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import pyfits, sys, os, re, string, copy
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
 
@@ -3228,7 +3152,7 @@ def fix_radec(SUPA,FLAT_TYPE):
         return -1 
 
 def mk_tab(list):
-    import astropy.io.fits as pyfits
+    import pyfits
     from pyfits import Column        
     import numarray 
     cols = []
@@ -3242,7 +3166,7 @@ def mk_tab(list):
     return hdu
 
 def merge(t1,t2):
-    import astropy.io.fits as pyfits
+    import pyfits
     t = t1.columns + t2[1].columns
     hdu = pyfits.BinTableHDU.from_columns(t)
     return hdu
@@ -3274,7 +3198,7 @@ def cutout(infile,mag,color='red'):
     utilities.run('mkreg.pl -c -rad 8 -xcol 0 -ycol 1 -wcs -colour ' + color + ' ' + tmpdir +  +  outfile)
 
 def get_median(cat,key):
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import pyfits, sys, os, re, string, copy
 
     p = pyfits.open(cat)
     magdiff = p[1].data.field(key)
@@ -3283,7 +3207,7 @@ def get_median(cat,key):
     return magdiff[int(len(magdiff)/2)] 
 
 def coordinate_limits(cat):
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import pyfits, sys, os, re, string, copy
 
     p = pyfits.open(cat)
 
@@ -3326,7 +3250,7 @@ def combine_cats(cats,outfile,search_params):
     #outfile = '' + search_params['TEMPDIR'] + 'stub'
     #cats = [{'im_type': 'MAIN', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS..fixwcs.rawconv'}, {'im_type': 'D', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.D.fixwcs.rawconv'}]
 
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import pyfits, sys, os, re, string, copy
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
 
@@ -3378,7 +3302,7 @@ def combine_cats(cats,outfile,search_params):
 def paste_cats(cats,outfile): #cats,outfile,search_params):
       
   
-    import astropy.io.fits as pyfits, sys, os, re, string, copy        
+    import pyfits, sys, os, re, string, copy        
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
     tables = {} 
@@ -3500,7 +3424,6 @@ def save_fit_WHATISTHIS(fits,im_type,type,SUPA,FLAT_TYPE):
                 dict[ele + '_' + type + '_' + im_type] = fit['class'].fitvars[ele]
     save_exposure(dict,SUPA,FLAT_TYPE)
     db2.close()
-
 
 def select_analyze():
     import MySQLdb, sys, os, re, time, string 
@@ -3654,7 +3577,6 @@ def get_files(SUPA,FLAT_TYPE=None):
 
     db2.close()
     return dict
-
 
 def get_a_file(OBJNAME,FILTER,PPRUN):    
     ''' get a single file w/ OBJNAME FILTER PPRUN'''
@@ -3822,7 +3744,6 @@ def save_exposure(dict,SUPA=None,FLAT_TYPE=None):
 
     db2.close()
 
-
 def initialize(filter,OBJNAME):
     import os, re, bashreader, sys, string, utilities
     from glob import glob
@@ -3842,14 +3763,12 @@ def initialize(filter,OBJNAME):
 
     return search_params
 
-
 def update_dict(SUPA,FLAT_TYPE):    
     import utilities
     dict = get_files(SUPA,FLAT_TYPE)
     kws = utilities.get_header_kw(dict['file'],['ROTATION','OBJECT','GABODSID','CONFIG','EXPTIME','AIRMASS','INSTRUM','PPRUN','BADCCD']) # return KEY/NA if not SUBARU 
     save_exposure(kws,SUPA,FLAT_TYPE)
     
-
 def gather_exposures(OBJNAME,filters=None):
 
     Corrected = True
@@ -3945,8 +3864,6 @@ def gather_exposures(OBJNAME,filters=None):
                     save_exposure(exposures[exp_name]['keywords'])
 
     return exposures
-
-
 
 def find_seeing(SUPA,FLAT_TYPE):     
     import os, re, utilities, sys
@@ -4153,9 +4070,6 @@ def apply_correction2(SUPA,FLAT_TYPE):
                                                                                                                          
             os.system('rm ' + im)
             hdu.writeto(im)
-
-
-
 
 def sdss_coverage(SUPA,FLAT_TYPE):
     import commands, string                                                                                    
@@ -4586,7 +4500,6 @@ def get_sdss_obj_ext(SUPA, FLAT_TYPE):
     save_exposure({'starcat':cat},SUPA,FLAT_TYPE)
     return cat
 
-
 def get_sdss_obj(SUPA, FLAT_TYPE):
     dict = get_files(SUPA,FLAT_TYPE)
     search_params = initialize(dict['filter'],dict['OBJNAME'])
@@ -4840,7 +4753,7 @@ def phot(SUPA,FLAT_TYPE):
             
             good = photo_abs_new.run_through('illumination',infile='' + search_params['TEMPDIR'] + 'input.asc',output='' + search_params['TEMPDIR'] + 'photo_res',extcoeff=d['color1'],sigmareject=6,step='STEP_1',bandcomp=d['filter'],color1which=d['color1'],color2which=d['color2'])
             
-            import astropy.io.fits as pyfits
+            import pyfits
             cols = [] 
             for key in ['corr_data','color1_good','color2_good','magErr_good','X_good','Y_good','airmass_good']: 
                 cols.append(pyfits.Column(name=key, format='E',array=good[key]))
@@ -5011,7 +4924,6 @@ def describe_db(c,db=['illumination_db']):
         for line in results:
             keys.append(line[0])
     return keys    
-
 
 def printer():
     import MySQLdb, sys, os, re, time, utilities, pyfits
@@ -5271,16 +5183,12 @@ def match_PPRUN(OBJNAME=None,FILTER=None,PPRUN=None):
 
             ## need to figure out which band/color to use
    
-
-
 class TryDb(Exception):
     def __init__(self,value):
         self.value=value            
     def __str__(self):        
         return repr(self.value)      
             
-
-
 def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None):
 
     if OBJNAME is None: 
@@ -5390,7 +5298,7 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None):
                         dtop= {}
 
 
-#            command = "select i.* from temp i left join ' + test + 'fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where f.correction_applied is null and f.sample_size is null and i.PPRUN !='KEY_N/A' and i.file not like '%CALIB%' and i.pprun like '%' and i.OBJNAME not like 'SXDS' and i.pasted_cat is not null and i.pprun is not null and (i.OBJNAME like 'MACS0018%' or i.OBJNAME like 'MACS1423%' or i.OBJNAME like 'MACS2129%' or i.OBJNAME like 'MACS0454%' or i.OBJNAME like 'MACS0717%' or i.OBJNAME like 'MACS1149%') GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND() limit 1 " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
+            #command = "select i.* from temp i left join ' + test + 'fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where f.correction_applied is null and f.sample_size is null and i.PPRUN !='KEY_N/A' and i.file not like '%CALIB%' and i.pprun like '%' and i.OBJNAME not like 'SXDS' and i.pasted_cat is not null and i.pprun is not null and (i.OBJNAME like 'MACS0018%' or i.OBJNAME like 'MACS1423%' or i.OBJNAME like 'MACS2129%' or i.OBJNAME like 'MACS0454%' or i.OBJNAME like 'MACS0717%' or i.OBJNAME like 'MACS1149%') GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND() limit 1 " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
             #command="SELECT * from ' + test + 'fit_db where (linearfit!=1 or linearfit is null) GROUP BY pprun,filter,OBJNAME ORDER BY RAND() limit 1 " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
             #command="SELECT * from (illumination_db i left join ' + test + 'fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME)) left join sdss_db s on (s.OBJNAME = i.OBJNAME) where i.file not like '%CALIB%' and i.SUPA not like '%I' and i.PPRUN !='KEY_N/A' and  f.linearfit is null GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND()" # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
             #command="SELECT * from illumination_db i left join ' + test + 'fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where i.file not like '%CALIB%' and i.SUPA not like '%I' and i.PPRUN !='KEY_N/A' and i.fixradecCR=1 and f.linearfit is null and i.PPRUN='2002-12-03_W-C-RC' GROUP BY i.pprun,i.filter,i.OBJNAME" # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
@@ -5745,12 +5653,6 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None):
                     sys.stdout = stdout_orig
                     logfile.close()
             
-
-
-
-
-
-
 def find_config(GID):   
     config_list = [[575,691,'8'],[691,871,'9'],[817,1309,'10_1'],[1309,3470,'10_2'],[3470,4000,'10_3']]
     CONFIG_IM = None
@@ -5760,108 +5662,6 @@ def find_config(GID):
             
             break
     return CONFIG_IM
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def add_correction_new(cat_list,OBJNAME,FILTER,PPRUN):
 
@@ -5931,7 +5731,7 @@ def add_correction_new(cat_list,OBJNAME,FILTER,PPRUN):
     cat_grads = []
     for cat in cat_list:
         
-        import astropy.io.fits as pyfits
+        import pyfits
         p = pyfits.open(cat[0])
         tab = p["OBJECTS"].data
         print str(type(tab))
@@ -5985,13 +5785,9 @@ def add_correction_new(cat_list,OBJNAME,FILTER,PPRUN):
             p.writeto(new_name)
             cat_grads.append([new_name,cat[1],ROT])
     return cat_grads 
-
-
-
-
     
 def add_gradient(cat_list):
-    import astropy.io.fits as pyfits, os
+    import pyfits, os
     cat_grads = []
     for cat in cat_list:
         print cat
@@ -6006,7 +5802,7 @@ def add_gradient(cat_list):
     return cat_grads 
 
 def add_correction(cat_list):
-    import astropy.io.fits as pyfits, os
+    import pyfits, os
     cat_grads = []
     
     EXPS = getTableInfo()
@@ -6121,7 +5917,6 @@ def make_ssc_multi_color(list):
     print out 
 
     return Ns
-
 
 def make_ssc_config_few(list):
 
@@ -6316,7 +6111,7 @@ def match_many_multi_band(list,color=False):
 
     ''' now make into SDSS format '''
     tmp = {}    
-    import astropy.io.fits as pyfits, scipy
+    import pyfits, scipy
     p = pyfits.open(finalcat)[1].data
     cols = [] 
     print p.field('primarymag')[0:20]
@@ -6348,7 +6143,6 @@ def match_many_multi_band(list,color=False):
     print outcat
 
     return outcat
-
 
 def match_inside(SUPA1,SUPA2,FLAT_TYPE):
 
@@ -6389,7 +6183,7 @@ def match_inside(SUPA1,SUPA2,FLAT_TYPE):
     print outcat
 
 def getTableInfo():
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string
+    import pyfits, sys, os, re, string, copy , string
     
     p = pyfits.open(tmpdir + '/final.cat')
     tbdata = p[1].data
@@ -6410,9 +6204,8 @@ def getTableInfo():
                 ROTS[ROT].append(IMAGE)
     return ROTS
 
-
 def diffCalcNew():
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string
+    import pyfits, sys, os, re, string, copy , string
     
     p = pyfits.open(tmpdir + '/final.cat')
     tbdata = p[1].data
@@ -6450,7 +6243,7 @@ def diffCalcNew():
 
 def starConstruction(EXPS):
     ''' the top two most star-like objects have CLASS_STAR>0.9 and, for each rotation, their magnitudes differ by less than 0.01 '''
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string, scipy
+    import pyfits, sys, os, re, string, copy , string, scipy
     
     p = pyfits.open(tmpdir + '/final.cat')
     table = p[1].data
@@ -6481,7 +6274,7 @@ def starConstruction(EXPS):
 
 def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG):
     ''' the top two most star-like objects have CLASS_STAR>0.9 and, for each rotation, their magnitudes differ by less than 0.01 '''
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string, scipy
+    import pyfits, sys, os, re, string, copy , string, scipy
 
     ''' remove a rotation if it has no or one exposure '''   
     EXPS_new = {} 
@@ -6709,21 +6502,17 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG):
 
     return EXPS, star_good, supas, totalstars, mdn_background
 
-
 def sort_supas(x,y):
     if x['mag'] > y['mag']:
         return 1            
     else: return -1
-
-
-
 
 def diffCalc(SUPA1,FLAT_TYPE):
     dict = get_files(SUPA1,FLAT_TYPE)
     search_params = initialize(dict['filter'],dict['OBJNAME'])
     search_params.update(dict)
 
-    import astropy.io.fits as pyfits, sys, os, re, string, copy 
+    import pyfits, sys, os, re, string, copy 
     
     print search_params['matched_cat_self']
     p = pyfits.open(search_params['matched_cat_self'])
@@ -6883,7 +6672,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these=None,match=None,CONFIG=None,primar
     fitvars_fiducial = False
     
     import scipy
-    import astropy.io.fits as pyfits
+    import pyfits
     p = pyfits.open(tmpdir + '/final.cat')
     table = p[1].data
     
@@ -7723,7 +7512,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these=None,match=None,CONFIG=None,primar
                     ''' save the corrected catalog '''
                     
                     tmp = {}    
-                    import astropy.io.fits as pyfits
+                    import pyfits
                     cols = [] 
                                                                                                                                                                                                                     
                     stdMag_corr = []
@@ -7996,7 +7785,6 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these=None,match=None,CONFIG=None,primar
                             print OBJNAME, FILTER, PPRUN, tmpdir
 
     return
-
 
 def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=None,FILTER_use=None,PPRUN_use=None,r_ext=True):
 
@@ -8629,7 +8417,6 @@ def correct_image():
             print 'writing'
             hdu = pyfits.PrimaryHDU(epsilon)
 
-
 def residual_plots():
     for ROT in EXPS.keys():
         print 'ROT', ROT
@@ -8690,8 +8477,6 @@ def residual_plots():
         #print 'done'
     return
 
-
-
 def fit():
     maxSigIter=50
     solutions = [] 
@@ -8731,7 +8516,7 @@ def fit():
 
     fit['class'] = phot_funct(fit['model'],fit['fixed'],EXPS,star_good,fit['apply'])
 
-    import astropy.io.fits as pyfits
+    import pyfits
     p = pyfits.open(tmpdir + '/final.cat')
     table = p[1].data
 
@@ -8839,7 +8624,7 @@ def convert_SDSS_cat(SUPA,FLAT_TYPE):
     search_params.update(dict)
 
     print dict['starcat']
-    import astropy.io.fits as pyfits
+    import pyfits
     hdulist1 = pyfits.open(dict['starcat'])
     #print hdulist1["STDTAB"].columns
     table = hdulist1["STDTAB"].data
@@ -8887,7 +8672,7 @@ def apply_photometric_calibration(SUPA,FLAT_TYPE,starcat):
     search_params.update(dict)
 
     #print dict['starcat']
-    import astropy.io.fits as pyfits
+    import pyfits
     hdulist1 = pyfits.open(starcat)
     #print hdulist1["STDTAB"].columns
     table = hdulist1["STDTAB"].data
@@ -8938,7 +8723,6 @@ def apply_photometric_calibration(SUPA,FLAT_TYPE,starcat):
 
     save_exposure({'sdssmatch':outcat},SUPA,FLAT_TYPE)
 
-
 ''' read in the photometric calibration and apply it to the data '''
 def get_cats_ready(SUPA,FLAT_TYPE,galaxycat,starcat):
 
@@ -8974,7 +8758,7 @@ def get_cats_ready(SUPA,FLAT_TYPE,galaxycat,starcat):
 
     #print dict['starcat']
     tmp = {}
-    import astropy.io.fits as pyfits
+    import pyfits
     path='/nfs/slac/g/ki/ki05/anja/SUBARU/%(OBJNAME)s/' % {'OBJNAME':search_params['OBJNAME']}
     for type,cat in [['star',starcat]]: #['galaxy',galaxycat],
         hdulist1 = pyfits.open(cat)                                                                                                                                                                
@@ -9409,7 +9193,6 @@ def run_telarchive(ra,dec,objname):
     print objname, d 
     return d 
 
-
 def get_observations():
     import MySQLdb, sys, os, re, time, utilities, pyfits
     from copy import copy
@@ -9666,19 +9449,11 @@ def calcDataIllum(file, LENGTH1, LENGTH2, data,magErr, X, Y, pth='/nfs/slac/g/ki
     print 'finished', t
     print file
 #    raw_input()
-
     
     #x_p = x_p[z_p>0.2]
     #y_p = y_p[z_p>0.2]
     #z_p = z_p[z_p>0.2]
 
-
-
-
-
-
-
-                                                            
     file = f + 'pos' + test.replace('_','') + '.png'
     pylab.scatter(x_p,y_p,linewidth=None)
     pylab.xlabel('X axis')
@@ -9821,7 +9596,7 @@ def compare_fits(): #CLUSTER,FILTER,PPRUN,sample):
                 #print command
                 code = os.system(command)
                                                                                            
-                import astropy.io.fits as pyfits, scipy
+                import pyfits, scipy
                 p = pyfits.open(out_file)
 
                 sh = scipy.shape(p[0].data)
@@ -9874,10 +9649,6 @@ def compare_fits(): #CLUSTER,FILTER,PPRUN,sample):
                 c.execute(command)
 
     print len(results), imp 
-
-
-    
-
 
 if __name__ == '__main__': 
     import sys, os 

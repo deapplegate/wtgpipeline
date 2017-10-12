@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script creates weights for science frames.
 # It assumes the global weight images in the WEIGHT
 # directory and the reg files in the sciencedir/reg
@@ -44,6 +45,8 @@
 #
 # 01.07.2008: (AvdL)
 # removed link structure
+#
+#adam: changed filter AGAIN
 
 # $Id: create_weights_raw_delink_para.sh,v 1.9 2010-02-18 02:50:18 dapple Exp $
 
@@ -64,7 +67,7 @@ MASK=${CONF}/cosmic.ret.sex
 
 export WEIGHTSDIR=${1}/${4}
 
-
+#adam# this actually does match the value for the 10_3 config
 SATLEVEL=${SATURATION:-30000}
 
 if [ $# -eq 6 ]; then
@@ -129,6 +132,7 @@ do
 	  conffile=${REDDIR}/cosmic.conf.sex
       fi
 
+      #adam-SHNT# I believe this is where EyE should go
       # first run sextractor to identify cosmic rays:
 
       ${P_SEX} ${file} -c ${conffile} -CHECKIMAGE_NAME \
@@ -139,6 +143,7 @@ do
 
 
 	# Expand the cosmc ray making:
+	#adam# expand_cosmics_mask only extends by one pixel (not good enough), this doesn't help the fact that we're actually missing some things entirely
        sfdir/expand_cosmics_mask ${TEMPDIR}/cosmic_${CHIP}_$$.fits  ${TEMPDIR}/cosmic_${CHIP}_$$.2.fits
        mv ${TEMPDIR}/cosmic_${CHIP}_$$.2.fits  ${TEMPDIR}/cosmic_${CHIP}_$$.fits 
       # create ww config file on the fly
@@ -175,21 +180,21 @@ do
       # then run weightwatcher
 
       ${P_WW} -c ${TEMPDIR}/${BASE}.ww_$$
-      rm ${TEMPDIR}/${BASE}.ww_$$
+      rm -f ${TEMPDIR}/${BASE}.ww_$$
 
       # clean up temporary files
       if [ -f ${TEMPDIR}/cosmic_${CHIP}_$$.fits ]; then
-          rm ${TEMPDIR}/cosmic_${CHIP}_$$.fits
+          rm -f ${TEMPDIR}/cosmic_${CHIP}_$$.fits
       fi
       
       if [ -f ${TEMPDIR}/cosmic.cat_$$ ]; then
-          rm ${TEMPDIR}/cosmic.cat_$$
+          rm -f ${TEMPDIR}/cosmic.cat_$$
       fi
 
     done
   }
-  test -f ${TEMPDIR}/crw_images_$$ && rm  ${TEMPDIR}/crw_images_$$
+  test -f ${TEMPDIR}/crw_images_$$ && rm -f  ${TEMPDIR}/crw_images_$$
 done
 
 
-log_status $?
+#adam-BL# log_status $?

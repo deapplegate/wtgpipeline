@@ -1,6 +1,7 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # the scripts creates a check plot for set quantities.
 # out of the
 # chips.cat5 STATS table. It needs the STATS
@@ -30,7 +31,7 @@
 #    /$1/$2/plots/$5_1.ps (or $5_2.ps)
 #$6: SuperMongo postscript device (OPTIONAL: defualted to postportfile)
 
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1
 
 # set Super Mongo Postscript device:
 SMDEVICE="postportfile"
@@ -42,7 +43,7 @@ CAT=/$1/$2/cat/$3
 
 if [ ! -f ${CAT} ]; then
   echo "no $3 in /$1/$2/cat/; exiting"
-  log_status 1 "no $3 in /$1/$2/cat/"
+  #adam-BL#log_status 1 "no $3 in /$1/$2/cat/"
   exit 1
 fi 
 
@@ -297,16 +298,16 @@ echo "hardcopy"
 } | ${P_SM}
 fi
 
-rm ${TEMPDIR}/seeing.asc_$$
-rm ${TEMPDIR}/ra_dec_tmp.asc_$$
-rm ${TEMPDIR}/ra_dec.asc_$$
-rm ${TEMPDIR}/backgr.asc_$$
-rm ${TEMPDIR}/auto_zp.asc_$$
-rm ${TEMPDIR}/airmass.asc_$$
-rm ${TEMPDIR}/seeing_sdev.asc_$$
-rm ${TEMPDIR}/backgr_sdev.asc_$$
+rm -f ${TEMPDIR}/seeing.asc_$$
+rm -f ${TEMPDIR}/ra_dec_tmp.asc_$$
+rm -f ${TEMPDIR}/ra_dec.asc_$$
+rm -f ${TEMPDIR}/backgr.asc_$$
+rm -f ${TEMPDIR}/auto_zp.asc_$$
+rm -f ${TEMPDIR}/airmass.asc_$$
+rm -f ${TEMPDIR}/seeing_sdev.asc_$$
+rm -f ${TEMPDIR}/backgr_sdev.asc_$$
 
 if [ "${LENS}" == "1" ]; then
-  rm ${TEMPDIR}/e1e2.asc_$$
+  rm -f ${TEMPDIR}/e1e2.asc_$$
 fi
-log_status $?
+#adam-BL#log_status $?

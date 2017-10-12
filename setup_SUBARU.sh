@@ -1,6 +1,8 @@
-#!/bin/bash 
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+
+##. BonnLogger.sh
+##. log_start
 #CVSID="$Id: setup_SUBARU.sh,v 1.18 2009-08-07 00:15:25 anja Exp $"
 # The script creates a SUBARU.ini file according
 # to the date of the run under consideration.
@@ -21,7 +23,7 @@
 #     to obtain the observation date (We use the
 #     MJD keyword)
 #
-. progs.ini
+. /u/ki/awright/bonnpipeline/progs.ini > /tmp/progs.out 2>&1
 
 #IMAGE=`ls -1 /$1/*.fits | ${P_GAWK} '(NR==1) {print $0}'`
 IMAGE=`find $1/ -maxdepth 1 -name \*.fits | sort -r | ${P_GAWK} '(NR==1) {print $0}'`
@@ -34,7 +36,7 @@ if [ "${EXTEND}" == "KEY_N/A" ]; then
         ${P_GAWK} '($1!="FILE") {print $2}'`
     if [ "${GABODSID}" = "KEY_N/A" ]; then
 	echo "no GABODSID"
-	log_status 2 "no GABODSID"
+	##log_status 2 "no GABODSID"
 	exit 2
     fi
 else
@@ -44,7 +46,7 @@ else
 	EXT_FLAG='-x 1'
     else
 	echo "no EXTEND keyword?!"
-	log_status 1 "no EXTEND keyword?!"
+	##log_status 1 "no EXTEND keyword?!"
 	exit 1
     fi
 	
@@ -61,7 +63,7 @@ echo "GABODSID:" ${GABODSID} ${MJD} ${IMAGE}
 
 if [ ${GABODSID} -lt 180 ]; then
   echo "no config file provided yet. Exiting !!"
-  log_status 1 "no config file provided yet"
+  ##log_status 1 "no config file provided yet"
   exit 1
 fi
 
@@ -70,7 +72,7 @@ fi
 ###while [ ${i} -le 12 ]
 ###do
 ###  if [ -f CFH12K_${i}.reg ]; then
-###      rm CFH12K_${i}.reg 
+###      rm -f CFH12K_${i}.reg 
 ###  fi
 ###  i=$(( $i + 1 ))
 ###done
@@ -95,14 +97,14 @@ if [ ${GABODSID} -ge 1309 ] && [ ${GABODSID} -lt 3470 ]; then
   CONFIG="10_2"
 fi
 
-if [ ${GABODSID} -ge 3470 ] && [ ${GABODSID} -lt 5000 ]; then
+if [ ${GABODSID} -ge 3470 ] && [ ${GABODSID} -lt 7000 ]; then
   echo "10_3 chip configuration"  
   CONFIG="10_3"
 fi
 
-if [ ${GABODSID} -ge 5000 ]; then
+if [ ${GABODSID} -ge 7000 ]; then
   echo "no config file provided yet. Exiting !!"
-  log_status 1 "no config file provided yet"
+  ##log_status 1 "no config file provided yet"
   exit 1
 fi
 
@@ -110,10 +112,10 @@ fi
 cat SUBARU.ini.raw subaru_${CONFIG}.ini > SUBARU.ini
 
 if [ ! -e SUBARU.ini ]; then
-    log_status 2 "No SUBARU.ini produced"
+    ##log_status 2 "No SUBARU.ini produced"
     exit 2
 fi
 
-. SUBARU.ini
+. SUBARU.ini > /tmp/SUBARU.out 2>&1
 
-log_status 0
+##log_status 0

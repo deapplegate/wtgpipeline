@@ -105,11 +105,11 @@ submit = sys.argv[3]
 if submit == 'True': submit = True
 else: submit = False
 
-SUBARUDIR='/nfs/slac/g/ki/ki05/anja/SUBARU'
+SUBARUDIR='/nfs/slac/g/ki/ki18/anja/SUBARU'
 
 output_dir = SUBARUDIR + '/' + cluster + '/PHOTOMETRY_' + filt + '_aper/'
 
-lookupfile='/nfs/slac/g/ki/ki05/anja/SUBARU/SUBARU.list'
+lookupfile='/nfs/slac/g/ki/ki18/anja/SUBARU/SUBARU.list'
 
 output_filename = "pat3_" + cluster + "_ned_ver" + version + ".dat"
 
@@ -277,7 +277,7 @@ if not submit:
     array.sort(reverse=True)
     print reduce(lambda x,y:x + '\n' + y, [str(a[0]) + ': ' + str(a[1]) for a in array]    )
 
-    subarudir = '/nfs/slac/g/ki/ki05/anja/SUBARU/'
+    subarudir = '/nfs/slac/g/ki/ki18/anja/SUBARU/'
 
     import astropy.io.fits as pyfits, os                                                                                                                                                                                                                                                                         
     photdir = subarudir + cluster + '/PHOTOMETRY_' + filt + '_aper/'

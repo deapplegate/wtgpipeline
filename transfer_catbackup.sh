@@ -7,7 +7,7 @@ if [ $# -gt 2 ]; then
     overwrite=$3
 fi
 
-subarudir=/nfs/slac/g/ki/ki05/anja/SUBARU
+subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 OK2Write(){
     dest=$1

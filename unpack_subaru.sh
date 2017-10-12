@@ -1,6 +1,6 @@
 #! /bin/bash -xv
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 . progs.ini
 
 REDDIR=`pwd`
@@ -34,7 +34,7 @@ do
     do
 	cp ${FILE} ${SUBARUDIR}
     done < cpfiles_$$.txt
-    rm cpfiles_$$.txt
+    rm -f cpfiles_$$.txt
 
     cd ${SUBARUDIR}
 
@@ -62,8 +62,8 @@ do
 	mv ${BASE}?.fits ${myrun}_RAWDATA
     done < uniqfiles_$$.txt
 
-    rm allfiles_$$.txt
-    rm uniqfiles_$$.txt
+    rm -f allfiles_$$.txt
+    rm -f uniqfiles_$$.txt
 
 # sort images by type, filter
 
@@ -111,8 +111,8 @@ do
 
     done < allfiles_mef_$$.txt
 
-    rm allfiles_mef_$$.txt
+    rm -f allfiles_mef_$$.txt
 
 done
 
-log_status $?
+#adam-BL# log_status $?

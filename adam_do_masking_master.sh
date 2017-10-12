@@ -1,4 +1,6 @@
-#! /bin/bash -xv
+#! /bin/bash
+set -xv
+#adam-example#./adam_do_fgas_automasking.sh MACS1115+01 "W-J-B_2010-03-12 W-S-Z+_2009-04-29 W-S-Z+_2010-03-12 W-C-RC_2010-03-12 W-J-B_2009-04-29"
 #adam-does# Has 3 parts:
 # 	#(1)# distributes sets, runs spikefinder, runs CRNitshke, creates weights
 # 	#(2)# by-hand masking
@@ -49,94 +51,59 @@ do
     export run=`echo ${filter_run} | awk -F'_' '{print $2}'`
     echo "run=" ${run}
     echo "filter=" ${filter}
+    export pprun="${run}_${filter}"
+    export ending=`grep "$pprun" ~/bonnpipeline/fgas_pprun_endings.txt | awk '{print $2}'`
+    echo "ending=" ${ending}
     
     #adam# Find Ending
     testfile=`ls -1 ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/SUP*_2*.fits | awk 'NR>1{exit};1'`
     export ending=`basename ${testfile} | awk -F'_2' '{print $2}' | awk -F'.' '{print $1}'`
     echo "ending=" ${ending}
-    
     ###./BonnLogger.py clear
     ###export BONN_FILTER=${filter}; export BONN_TARGET=${run}
     ./setup_SUBARU.sh ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE
     . ${INSTRUMENT:?}.ini > /tmp/subaru_ini.log 2>&1
     
-    #####################
-    ## distribute sets ##
-    #####################
-    #adam# distribute_sets_subaru.sh: copy / link images into cluster directories
-    #adam# lookupfile (SUBARU.list) has list of clusters and positions
-    #adam# 1000 means within arcsecs of cluster coords?
-    #adam# this changes from run_filter directories to directories divided up by clusters
-    #adam# it moves run_filter to cluster/filter_run, copying over:
-    #		SCIENCE/SUPA*_#OCF.fits
-    #		SCIENCE/SPLIT_IMAGES/SUPA*_#.fits
-    #		WEIGHTS/globalweight_#.fits
-    #		WEIGHTS/globalflags_#.fits
-    #./distribute_sets_subaru.sh ${SUBARUDIR} ${run}_${filter}/SCIENCE ${ending} 1000 ${lookupfile}
-    
-    if [ ! -d ${SUBARUDIR}/${cluster}/${filter}_${run} ]; then
-        echo "this directory isn't there: " ${SUBARUDIR}/${cluster}/${filter}_${run}
-        exit 1
+    ./parallel_manager.sh spikefinder_para.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE SUP ${ending} ${filter}
+    exit_stat=$?
+    if [ "${exit_stat}" -gt "0" ]; then
+        exit ${exit_stat};
     fi
-    
-    export BONN_TARGET=${cluster} ; export BONN_FILTER=${filter}_${run}
-    ##################################################################
-    ### Capture Variables
-    ###./BonnLogger.py config \
-    ###    cluster=${cluster} \
-    ###    filter=${filter_run} \
-    ###    config=${config} \
-    ###    ending=${ending}
-    
-    
-    #######################
-    ### weight creation ###
-    #######################
-    
-    #### C: Processing for each Ind Image ###
-    
-    ### spikefinder ###
-    #adam# spikefinder finds saturation spikes, sattelites, and shadow from guider cam
-    #adam# made: SCIENCE/diffmask/, diffmask/SUPA0125903_10OCF.sf.fits
-    #adam# this takes ~20 min
-    #./parallel_manager.sh spikefinder_para.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE SUP ${ending} ${filter}
-    ./parallel_manager.sh spikefinder_para_NOsh.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE SUP ${ending} ${filter}
-    #adam-check# make sure that there isn't anything masked that shouldn't be. If there is using spikefinder_para.sh, then use spikefinder_para_NOsh.sh
-    # 		spikefinder_para_NOsh.sh finds saturation spikes, sattelites, and DOES NOT LOOK FOR shadow from guider cam
-    # 		spikefinder_para.sh finds saturation spikes, sattelites, and shadow from guider cam
-    #adam# ds9 ${cluster}/${filter}_${run}/SCIENCE/SUPA*OCF.fits &
-    #adam# ds9 ${cluster}/${filter}_${run}/SCIENCE/diffmask/SUPA*OCF.sf.fits &
-    #echo "#adam-check# make sure that there isn't anything masked that shouldn't be. If there is using spikefinder_para.sh, then use spikefinder_para_NOsh.sh"
-    #echo " 	spikefinder_para_NOsh.sh finds saturation spikes, sattelites, and DOES NOT LOOK FOR shadow from guider cam"
-    #echo " 	spikefinder_para.sh finds saturation spikes, sattelites, and shadow from guider cam"
-    #echo "ds9 ${cluster}/${filter}_${run}/SCIENCE/SUPA*OCF.fits &"
-    #echo "ds9 ${cluster}/${filter}_${run}/SCIENCE/diffmask/SUPA*OCF.sf.fits &"
-    #exit 0;
-    
-    ### C: CHIP PROCESSING ###
     
     ### RUN CRNITSCHKE and make the weight files ###
     #adam# run CRNitschke and then make actual weight and flag fits files from globalweights, diffmask, and the region files
     #adam# setup CRNitschke file makes the CRNitschke_final_${cluster}_${filter}_${run}.txt file with seeing, rms, and sextractor cut values needed for CRN pipeline
     ./create_weights_raw_delink_para_CRNitschke_setup.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS 2>&1 | tee -a OUT-cwrdp_CRNitschke_setup_${cluster}_${filter}_${run}.log
+    exit_stat=$?
+    if [ "${exit_stat}" -gt "0" ]; then
+        exit ${exit_stat};
+    fi
     #adam# makes: actual weights from globalweights, diffmask, and the region files. Also, all of the CRNitschke pipeline output!
     #adam# makes: ~/data/MACS0416-24/W-S-Z+_2010-11-04/WEIGHTS/SUPA0100120_10OCF.flag.fits and SUPA0100120_10OCF.weight.fits 
-    #./parallel_manager.sh ./create_weights_raw_delink_para_CRNitschke.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS 2>&1 | tee -a OUT-cwrdp_CRNitschke_${cluster}_${filter}_${run}.log
+    ./parallel_manager.sh ./create_weights_raw_delink_para_CRNitschke.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS 2>&1 | tee -a OUT-cwrdp_CRNitschke_${cluster}_${filter}_${run}.log
+    exit_stat=$?
+    if [ "${exit_stat}" -gt "0" ]; then
+        exit ${exit_stat};
+    fi
     #adam-check# ds9 ~/data/MACS0416-24/W-S-Z+_2010-11-04/SUPA0125896_9OCF.weight.fits ~/data/MACS0416-24/W-S-Z+_2010-11-04/SUPA0125896_9OCF.flag.fits -regions load ~/data/MACS0416-24/W-S-Z+_2010-11-04/SCIENCE/reg/SUPA0125896_9.reg &
     
     #adam# multiplies science by weights. these are only useful for looking at them to see which other things might need to be masked
-    #./parallel_manager.sh ./create_science_weighted.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE WEIGHTS ${ending}
+    ./parallel_manager.sh ./create_science_weighted.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE WEIGHTS ${ending}
+    exit_stat=$?
+    if [ "${exit_stat}" -gt "0" ]; then
+        exit ${exit_stat};
+    fi
     #adam# makes: SCIENCE_weighted/ directory and all of it's contents, such as ~/data/A2744/W-S-I+_2008-08-01/SCIENCE_weighted/SUPA0100117_10OCF.weighted.fits
 
-    ###adam# masks the radial region surrounding the edges of the FOV of the image.
-    ##./parallel_manager.sh ./adam_apply_RADIAL_MASK_para.sh ${SUBARUDIR} ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/ ${SUBARUDIR}/${cluster}/${filter}_${run}/WEIGHTS/ ${ending}
+    #adam# masks the radial region surrounding the edges of the FOV of the image making it easier to see which parts don't need to be masked by hand
+    ./parallel_manager.sh ./science_weighted_apply_RADIAL_MASK_para.sh ${SUBARUDIR} /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC_2010-03-12/SCIENCE_weighted/ OCFS
     
     ###adam-SKIPPED###
     ###adam# fixed issue with stars landing on overscan regions, which previously masked horizontal lines. (don't need unless you see this issue appearing in the new data)
     #### run once, at end of first time through. Here, you'll be able to edit the region files, and adjust the masks.
     ###./maskBadOverscans.py ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE SUPA
     ###./create_binnedmosaics_empty.sh ${SUBARUDIR}/${cluster}/${filter}_${run} WEIGHTS SUP ${ending}.weight 8 -32
-    ###./create_binnedmosaics_empty.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE_weighted SUP ${ending}.weighted 8 -32
+    ./create_binnedmosaics_empty.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE_weighted SUP ${ending}.weighted 8 -32
     
     echo "Todo: Mask images by hand for remaining defects (satelite trails, blobs, etc).  Use the images in SCIENCE_weighted for masking.  maskImages.pl may be useful for managing region files."
     echo "For Simplicity, make sure you save region files to SCIENCE/reg (use maskImages.pl -r)"
@@ -158,8 +125,8 @@ exit 0;
 #adam# maskImages.pl -l files_toMask.list -r reg_dir -d SCIENCE_weighted_dir prefix
 #adam# you have to open ds9 first! (ds9 &)
 #adam# help menu: maskImages.pl -h
-#touch toMask_${cluster}_${filter}_${run}-start.list
-ds9 -layout vertical &
+touch toMask_${cluster}_${filter}_${run}-start.list
+ds9 -view layout vertical &
 ./maskImages.pl -r ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/reg/ -l toMask_${cluster}_${filter}_${run}-start.list -d ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE_weighted/ SUP
 
 #adam# if I want to check it out afterwards: ds9 ~/data/MACS0416-24/W-S-Z+_2010-11-04/SUPA0125896_9OCF.weight.fits ~/data/MACS0416-24/W-S-Z+_2010-11-04/SUPA0125896_9OCF.flag.fits -regions load ~/data/MACS0416-24/W-S-Z+_2010-11-04/SCIENCE/reg/SUPA0125896_9.reg &
@@ -195,22 +162,26 @@ do
     . ${INSTRUMENT:?}.ini
     export BONN_TARGET=${cluster} ; export BONN_FILTER=${filter}_${run}
     
+    ### backup regions
+    ./adam_backup_regs.py ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/reg/
+    ###
+    #may need to use adam_quicktools_reg_wcs2phys.sh if reg files ended up in fk5 format and must be converted to image coordinate
     ###############################
     ### make regions compatible ###
     ###############################
     #adam# makes regions readable by rest of pipeline (include in final masking script).transform ds9-region file into ww-readable file:
     #adam# converts `box` regions to `polygon`
-    #./convertRegion2Poly.py ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE
+    ./convertRegion2Poly.py ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE
     #adam# changes `polygon` to `POLYGON`!
-    #./transform_ds9_reg_alt.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE
+    ./transform_ds9_reg_alt.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE
     #adam# deletes region files that are empty
-    #./clean_empty_regionfiles.sh ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/reg/*.reg
+    ./clean_empty_regionfiles.sh ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/reg/*.reg
     
     ########################################
     ### put regions in weight/flag files ###
     ########################################
     #adam# now add these region masks to the weight/flag files
-    #./parallel_manager.sh add_regionmasks.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS ${filter} 2>&1 | tee -a OUT-add_regionmasks_${filter}_${cluster}_${run}.log
+    ./parallel_manager.sh add_regionmasks.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS ${filter} 2>&1 | tee -a OUT-add_regionmasks_${filter}_${cluster}_${run}.log
     
     #adam# could re-do the science_weighted if I wanted to check out how they look
     ##./parallel_manager.sh create_science_weighted.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE WEIGHTS ${ending}

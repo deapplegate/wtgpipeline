@@ -1,6 +1,7 @@
-#!/bin/bash -u
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # ----------------------------------------------------------------
 # File Name:           check_science_PSF_plot.sh
 # Author:              Thomas Erben (terben@astro.uni-bonn.de)
@@ -13,7 +14,7 @@
 # 19.09.2007:
 # script written
 
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1
 
 # define THELI_DEBUG because of the '-u' script flag
 # (the use of undefined variables will be treated as errors!)
@@ -39,11 +40,11 @@ function cleanTmpFiles
 {
     if [ -z ${THELI_DEBUG} ]; then
         echo "Cleaning temporary files for script $0"
-        rm ${TEMPDIR}/psfimages_plot_$$
-        find ${TEMPDIR} -maxdepth 1 -name \*PSF_allellip.asc_$$ -exec rm {} \;
-        find ${TEMPDIR} -maxdepth 1 -name \*PSFplot.asc_$$      -exec rm {} \;
-        find ${TEMPDIR} -maxdepth 1 -name \*PSF_allellip.asc_$$ -exec rm {} \;
-        find ${TEMPDIR} -maxdepth 1 -name \*PSFplot.sm_$$       -exec rm {} \;
+        rm -f ${TEMPDIR}/psfimages_plot_$$
+        find ${TEMPDIR} -maxdepth 1 -name \*PSF_allellip.asc_$$ -exec rm -f {} \;
+        find ${TEMPDIR} -maxdepth 1 -name \*PSFplot.asc_$$      -exec rm -f {} \;
+        find ${TEMPDIR} -maxdepth 1 -name \*PSF_allellip.asc_$$ -exec rm -f {} \;
+        find ${TEMPDIR} -maxdepth 1 -name \*PSFplot.sm_$$       -exec rm -f {} \;
     else
         echo "Variable THELI_DEBUG set! No cleaning of temp. files in script $0"    
     fi
@@ -51,7 +52,7 @@ function cleanTmpFiles
 
 # Handling of program interruption by CRTL-C
 trap "echo 'Script $0 interrupted!! Cleaning up and exiting!'; \
-      cleanTmpFiles; log_status 1; exit 1" INT
+      cleanTmpFiles; exit 1" INT #adam-BL#log_status 1
 
 # check whether we have the external 'sm' program at all:
 if [ -z ${P_SM} ]
@@ -59,14 +60,14 @@ then
     echo "You need the external Super Mongo (sm) program to"
     echo "use this script! At least the necessary variable in"
     echo "your progs.ini seems not to be set! Exiting!!"
-    log_status 1
+    #adam-BL#log_status 1
     exit 1;
 fi
 
 # check validity of command line arguments:
 if [ $# -lt 3 ] || [ $# -gt 4 ] ; then
     printUsage
-    log_status 1
+    #adam-BL#log_status 1
     exit 1
 fi
 
@@ -82,7 +83,7 @@ fi
 if [ ! -d "/$1/$2/cat/PSFcheck" ]; then
   # immediately quit if we do not yet have a 'cat' subdirectory!
   mkdir /$1/$2/cat/PSFcheck || \
-  { echo "creation of dir. /$1/$2/cat/PSFcheck failed! Exiting!"; log_status 1; exit 1; } 
+  { echo "creation of dir. /$1/$2/cat/PSFcheck failed! Exiting!"; exit 1; } #adam-BL#log_status 1
 fi
 
 # first get a list of all images for which to create PSF plots:
@@ -115,14 +116,14 @@ do
   
   # If something is wrong with the CHIPGEOMETRY var.
   # probably NAXIS2 is not set!
-  test -z ${NAXIS2} && { echo "Malformed CHIPGEOMETRY variable! Exiting !!"; log_status 1; exit 1; }
+  test -z ${NAXIS2} && { echo "Malformed CHIPGEOMETRY variable! Exiting !!";  exit 1; } #adam-BL#log_status 1
 
   NCATS=0  # the number of available KSB catalogues for
            # the current image
 
   # The file for global ellipticity statistics:
   test -f  ${TEMPDIR}/${BASE}_PSF_allellip.asc_$$ && \
-        rm ${TEMPDIR}/${BASE}_PSF_allellip.asc_$$ 
+        rm -f ${TEMPDIR}/${BASE}_PSF_allellip.asc_$$ 
 
   i=1
   while [ "${i}" -le ${NCHIPS} ]
@@ -249,4 +250,4 @@ done < ${TEMPDIR}/psfimages_plot_$$
 # clean temporary files and bye
 #cleanTmpFiles
 
-log_status $?
+#adam-BL#log_status $?

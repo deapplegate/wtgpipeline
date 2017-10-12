@@ -3,7 +3,7 @@
 
 from __future__ import with_statement
 import tempfile, os, re, unittest, datetime
-import ephem, astropy.io.fits as pyfits, numpy as np, scipy
+import ephem, astropy, astropy.io.fits as pyfits, numpy as np, scipy
 import ldac
 
 #################################################
@@ -235,12 +235,16 @@ def run(command,to_delete=[]):
         os.system('rm ' + file)
     print command
     #raw_input()
-    os.system(command)
+    return os.system(command)
 
 
 
 def make_filters_info(filters):
-    filters_dat = [['B','b',4.031,0],['W-J-B','b',4.031,0],['W-J-V','v',3.128,1],['W-C-RC','r',2.548,2],['W-C-IC','i',1.867,3],['W-S-I+','i',1.867,3],['I','i',1.867,3],['W-S-Z+','z',1.481,4]]
+    #adam-old# filters_dat = [['B','b',4.031,0],['W-J-B','b',4.031,0],['W-J-V','v',3.128,1],['W-C-RC','r',2.548,2],['W-C-IC','i',1.867,3],['W-S-I+','i',1.867,3],['I','i',1.867,3],['W-S-Z+','z',1.481,4]]
+    #adam-added#  Added the 'W-S-G+' stuff into filters_dat
+    filters_dat = [['B','b',4.031,0],['W-J-B','b',4.031,0],['W-S-G+','g',3.793,0],['W-J-V','v',3.128,1],['W-C-RC','r',2.548,2],['W-C-IC','i',1.867,3],['W-S-I+','i',1.867,3],['I','i',1.867,3],['W-S-Z+','z',1.481,4]]
+
+    #adam-maybe# filters_dat = [['B','b',4.031,0],['W-J-B','b',4.031,0],['W-S-G+','g',3.793,1],['W-J-V','v',3.128,2],['W-C-RC','r',2.548,3],['W-C-IC','i',1.867,4],['W-S-I+','i',1.867,4],['I','i',1.867,4],['W-S-Z+','z',1.481,5]]
 
     filters_info = []
     for filter in filters:
@@ -259,7 +263,7 @@ def get_header_info(file):
 
     GAIN = header['GAIN']
 
-    if header.has_key('CDELT1'):
+    if header.__contains__('CDELT1'):
         CDELT1 = header['CDELT1']
         CDELT2 = header['CDELT2']
     else:

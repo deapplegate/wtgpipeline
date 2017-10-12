@@ -30,7 +30,7 @@ do
   more $1 | grep $number$2 > ${TEMPDIR}/tmp
   echo "awk '{print $1, $2, $5}' tmp > @in-$3.$number"
   awk '{print $1, $2, $5}' ${TEMPDIR}/tmp > ${TEMPDIR}/@in-$3.$number
-  \rm ${TEMPDIR}/tmp
+  \rm -f ${TEMPDIR}/tmp
   number=$(( ${number} + 1 ))  
   indice=$(( ${indice} - 1 )) 
 done

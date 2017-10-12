@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#. BonnLogger.sh
+#. log_start
 # splits Subaru Fits extension images into the
 # ten chips. Uses the eclipse utilities
 # and also updates the image headers
@@ -128,4 +129,4 @@ do
   
 done
 cd $REDDIR
-log_status $?
+##log_status $?

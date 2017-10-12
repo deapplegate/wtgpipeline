@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 . ${INSTRUMENT:?}.ini
 
 # this script performs astrometry by using astrometrix 
@@ -130,7 +131,7 @@ cd ..
 # remove global list (for photometrix) if it
 # exists already:
 if [ -f $2.list ]; then
-  rm $2.list
+  rm -f $2.list
 fi
 
 # now run 'astrom -initk' on all runs individually:
@@ -154,7 +155,7 @@ do
   # of objects as the reference for determining 
   # a first order solution.
   BASE=`basename ${!j}`
-  test -f nobjs_${BASE} && rm nobjs_${BASE}
+  test -f nobjs_${BASE} && rm -f nobjs_${BASE}
 
   while read file
   do
@@ -198,7 +199,7 @@ do
                  }
                }}' sort_nobjs_${BASE} > ${TEMPDIR}/tmp.txt_$$
 
-    test -f $2_${LISTBASE}.list && rm $2_${LISTBASE}.list
+    test -f $2_${LISTBASE}.list && rm -f $2_${LISTBASE}.list
 
     while read FILE
     do
@@ -294,10 +295,10 @@ do
   done
 done < files_$$
 
-rm files_$$
+rm -f files_$$
 
 cd ${DIR}
 
 
 
-log_status $?
+#adam-BL# log_status $?

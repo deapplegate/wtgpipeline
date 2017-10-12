@@ -48,9 +48,10 @@ int main( int argc, char** argv ) {
 
   //  filter depenant extra masking...
   // first, is this chip 6?
+  // adam: nope, not treating ccd6 differently anymore, it's normal in 10_3 config
   int is6 =0;
   int whichfilter=0;
-  if(strstr(filename,"_6")) is6 = 1;
+  if(strstr(filename,"_6")) is6 = 0;
   if(strstr(filter,"B")) whichfilter = 1;
   else if(strstr(filter,"V")) whichfilter = 2;
   else if(strstr(filter,"R")) whichfilter = 3;

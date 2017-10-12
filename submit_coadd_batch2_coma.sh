@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 #################
 # $Id: submit_coadd_batch2_coma.sh,v 1.2 2010-03-31 19:13:59 anja Exp $
 #################
@@ -8,7 +9,7 @@
 
 
 
-SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 logdir=${SUBARUDIR}/coaddlogs
 
 cluster=$1

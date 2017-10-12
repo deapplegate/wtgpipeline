@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 ##################
 #. BonnLogger.sh
 #. log_start
@@ -26,7 +27,7 @@ tmpdir=$4
 ##################
 
 if [ -e ${outputcat} ]; then
-    rm ${outputcat}
+    rm -f ${outputcat}
 fi
 
 image=`basename ${imagefile} .fits`
@@ -71,15 +72,18 @@ ${P_LDACADDTAB} -i ${tmpdir}/shapes_1_$$.cat -o ${tmpdir}/shapes_2_$$.cat \
 #THE POINT: Anja doesn't want to add unnecessary cuts,
 # 	while Doug wants to add cuts for the sake of CPU time/errors
 # 	instead, what I'll do is only cut out negative rg (rg>0.0), in order to avoid a segfault error
+# 	I could, if I encounter another segfault error in the future, use the rg<25 cut
+# 	Anja says "The rg<25 cut is probably fine, it only discards ~0.5% of objects."
 ${P_LDACFILTER} -i ${tmpdir}/shapes_2_$$.cat \
     -o ${tmpdir}/${image}_pos_$$.cat \
-    -c "(rg>0.0);"
+    -c "(rg>0.0)AND(rg<25.0);"
 
 # now run analyseldac
 ./run_analyseldac.py ${tmpdir}/${image}_pos_$$.cat ${tmpdir}/${image}_ksb_$$.cat ${imagefile}
 
 transfer_keys=""
-coadd_filters=`./dump_cat_filters.py ${tmpdir}/${image}_pos_$$.cat | grep COADD`
+coadd_filters=`./dump_cat_filters.py -a ${tmpdir}/${image}_pos_$$.cat | grep COADD`
+#old#coadd_filters=`./dump_cat_filters.py ${tmpdir}/${image}_pos_$$.cat | grep COADD`
 if [ -n "$coadd_filters" ]; then
     mag_isos=`echo $coadd_filters | awk '{print "MAG_ISO-"$1}'`
     mag_isos_errs=`echo $coadd_filters | awk '{print "MAGERR_ISO-"$1}'`
@@ -101,7 +105,8 @@ ${P_LDACJOINKEY} -i ${tmpdir}/${image}_ksb_$$.cat \
     DELTA_J2000 $transfer_keys
 
 if [ ! -e ${tmpdir}/shapes_3_$$.cat ]; then
-    log_status 2 "Shape catalog not produced"
+    #adam-BL# log_status 2 "Shape catalog not produced"
+    echo "adam-look | error: Shape catalog not produced"
     exit 2
 fi
 
@@ -138,11 +143,12 @@ ${P_LDACCALC} -i ${tmpdir}/shapes_4_$$.cat \
 	       -c "(sqrt(e1*e1+e2*e2));"
 
 if [ ! -e ${outputcat} ]; then
-    #log_status 3 "Output catalog not produced"
+    #adam-BL# log_status 3 "Output catalog not produced"
+    echo "adam-look | error: Output catalog not produced"
     exit 3
 fi
 
 
-#rm ${tmpdir}/shapes_$$.cat ${tmpdir}/shapes_$$.asc ${tmpdir}/shapes_*_$$.cat ${tmpdir}/hfind_$$.cat ${tmpdir}/${image}_*_$$.cat ${tmpdir}/shapes_ang_$$.dat ${tmpdir}/${image}_*_$$.out.cat
+rm -f ${tmpdir}/shapes_$$.cat ${tmpdir}/shapes_$$.asc ${tmpdir}/shapes_*_$$.cat ${tmpdir}/hfind_$$.cat ${tmpdir}/${image}_*_$$.cat ${tmpdir}/shapes_ang_$$.dat ${tmpdir}/${image}_*_$$.out.cat
 
-#log_status 0
+#adam-BL# log_status 0

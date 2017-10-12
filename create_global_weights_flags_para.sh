@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script creates normaliced images.
 # It puts the result into new directories ..._norm.
 # The script assumes a threshhold. Pixels under
@@ -39,7 +40,7 @@
 
 #CVSID="$Id: create_global_weights_flags_para.sh,v 1.9 2009-06-02 01:27:50 anja Exp $"
 
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/out.log 2>&1
 
 if [ ! -d $1/WEIGHTS ]; then
   mkdir $1/WEIGHTS
@@ -85,14 +86,15 @@ do
     fi
 
     # create link if necessary:
-#    if [ -L "/$1/${DIR}/${DIR}_${CHIP}.fits" ]; then
-#      LINK=`${P_READLINK} /$1/${DIR}/${DIR}_${CHIP}.fits`
-#      RESULTDIR=`dirname ${LINK}`
-#      ln -s ${RESULTDIR}/globalweight_${CHIP}.fits \
-#            /$1/WEIGHTS/globalweight_${CHIP}.fits
-#    else
-      RESULTDIR="/$1/WEIGHTS/"
-#    fi   
+    ##if [ -L "/$1/${DIR}/${DIR}_${CHIP}.fits" ]; then
+    ##   LINK=`${P_READLINK} /$1/${DIR}/${DIR}_${CHIP}.fits`
+    ##   RESULTDIR=`dirname ${LINK}`
+    ##   ln -s ${RESULTDIR}/globalweight_${CHIP}.fits \
+    ##         /$1/WEIGHTS/globalweight_${CHIP}.fits
+    ##else
+    ##  RESULTDIR="/$1/WEIGHTS/"
+    #fi   
+    RESULTDIR="/$1/WEIGHTS/"
 
     ACTUFLAG=$(( ${ACTUFLAG} * 2 ))
     j=$(( $j + 3 ))
@@ -126,10 +128,5 @@ do
   ${P_WW} -c ${TEMPDIR}/${CHIP}.ww_$$
   exit_status=$?
   
-#  rm ${TEMPDIR}/${CHIP}.ww_$$
+#  rm -f ${TEMPDIR}/${CHIP}.ww_$$
 done
-
-
-
-
-log_status $exit_status

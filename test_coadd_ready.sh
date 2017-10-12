@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam##adam-BL#. BonnLogger.sh
+#adam##adam-BL#. log_start
 
 # $1 clusterdir
 # $2 filter
@@ -28,7 +29,7 @@ astromadd=$5
 
 if [ ! -s file.list_$$ ]; then
     echo "Cannot find any files"
-    log_status 8 "Cannot find any files"
+    #adam##adam-BL#log_status 8 "Cannot find any files"
     exit 8
 fi
 
@@ -40,25 +41,25 @@ function testExists {
     
     base=`basename $1 .fits`
 
-    if [ ! -f ${clusterdir}/${filter}/SCIENCE/${base}.fits ]; then
+    if [ ! -f "${clusterdir}/${filter}/SCIENCE/${base}.fits" ]; then
 	echo "File does not exist: ${1}"
-	log_status 1 "File does not exist: ${1}"
+	#adam##adam-BL#log_status 1 "File does not exist: ${1}"
 	exit 1
     fi
 
-    if [ ! -f ${clusterdir}/${filter}/WEIGHTS/${base}.weight.fits ]; then
+    if [ ! -f "${clusterdir}/${filter}/WEIGHTS/${base}.weight.fits" ]; then
 	echo "Weight file does not exist: ${base}.weight.fits"
-	log_status 2 "Weight file does not exist: ${base}.weight.fits"
-	exit $?
+	#adam##adam-BL#log_status 2 "Weight file does not exist: ${base}.weight.fits"
+	exit 2
     fi
 
     instrument=`dfits ${clusterdir}/${filter}/SCIENCE/${base}.fits | fitsort -d INSTRUM | awk '{print $2}'`
 
     if [ "${instrument}" == "SUBARU" ]; then
 
-	if [ ! -f ${clusterdir}/${filter}/WEIGHTS/${base}.flag.fits ]; then
+	if [ ! -f "${clusterdir}/${filter}/WEIGHTS/${base}.flag.fits" ]; then
 	    echo "Flag file does not exist: ${base}.flag.fits"
-	    log_status 3 "Flag file does not exist: ${base}.flag.fits"
+	    #adam##adam-BL#log_status 3 "Flag file does not exist: ${base}.flag.fits"
 	    exit 3
 	fi
     fi
@@ -67,9 +68,9 @@ function testExists {
 
 	headerbase=`basename $1 ${ext}.fits`
 
-	if [ ! -f ${clusterdir}/${filter}/SCIENCE/headers${astromadd}/${headerbase}.head ]; then
+	if [ ! -f "${clusterdir}/${filter}/SCIENCE/headers${astromadd}/${headerbase}.head" ]; then
 	    echo "Header file does not exist: ${headerbase}.head"
-	    log_status 4 "Header file does not exist: ${headerbase}.head"
+	    #adam##adam-BL#log_status 4 "Header file does not exist: ${headerbase}.head"
 	    exit 4
 	fi
     fi
@@ -117,15 +118,15 @@ for file in `cat file.list_$$`; do
     testMinSize ${scienceSize} 1000000
     if [ $? -eq 0 ]; then
 	echo "Science file size mismatch: ${reffile} ${file}"
-	log_status 5 "Science file size mismatch: ${reffile} ${file}"
-	exit $?
+	#adam##adam-BL#log_status 5 "Science file size mismatch: ${reffile} ${file}"
+	exit 5
     fi
     
     testMinSize ${weightSize} 1000000
     if [ $? -eq 0 ]; then
 	echo "Weight file size mismatch: ${reffile} ${file}"
-	log_status 6 "Weight file size mismatch: ${reffile} ${file}"
-	exit $?
+	#adam##adam-BL#log_status 6 "Weight file size mismatch: ${reffile} ${file}"
+	exit 6
     fi
     
     instrument=`dfits ${clusterdir}/${filter}/SCIENCE/${base}.fits | fitsort -d INSTRUM | awk '{print $2}'`
@@ -134,8 +135,8 @@ for file in `cat file.list_$$`; do
 	testMinSize ${flagSize} 1000000
 	if [ $? -eq 0 ]; then
 	    echo "Flag file size mismatch: ${reffile} ${file}"
-	    log_status 7 "Flag file size mismatch: ${reffile} ${file}"
-	    exit $?
+	    #adam##adam-BL#log_status 7 "Flag file size mismatch: ${reffile} ${file}"
+	    exit 7
 	fi
     fi
     
@@ -144,9 +145,9 @@ for file in `cat file.list_$$`; do
     
 done
 
-rm file.list_$$
+rm -f file.list_$$
 
 
 
 
-log_status 0
+#adam##adam-BL#log_status 0

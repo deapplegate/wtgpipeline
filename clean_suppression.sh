@@ -10,8 +10,8 @@ runs=`ls ${subaru}/${cluster} | grep "${filter}" | awk -F'_' '($3 !~ /CALIB/ && 
 
 for run in ${runs}; do
 
-    rm ${subaru}/${cluster}/${run}/SCIENCE/*R.fits
-    rm ${subaru}/${cluster}/${run}/WEIGHTS/*R.weight.fits
+    rm -f ${subaru}/${cluster}/${run}/SCIENCE/*R.fits
+    rm -f ${subaru}/${cluster}/${run}/WEIGHTS/*R.weight.fits
     
 
 done

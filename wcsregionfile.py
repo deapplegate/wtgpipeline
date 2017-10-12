@@ -2,7 +2,7 @@
 #######################
 
 import sys, unittest, inspect, tempfile, os
-import astropy.io.fits as pyfits, pywcs
+import astropy, astropy.io.fits as pyfits, pywcs
 import numpy as np
 import regionfile as rf
 
@@ -185,9 +185,12 @@ def convertToWCS(region, wcs):
 
 class FileBuffer(object):
     def __init__(self, txt):
-        self.txt = txt.splitlines()
+        self.txt = txt
+        self.txt_lines = txt.splitlines()
     def readlines(self):
-        return self.txt[:-1]
+        return self.txt_lines[:-1]
+    def read(self):
+        return self.txt
 
 #########################
 
@@ -206,77 +209,139 @@ def writeRegionFile(filename, regions, overwrite = True):
 
 ##########################
 
-wcs1_txt = '''SIMPLE  =                    T / This is a FITS file
-BITPIX  =                  -32 /
-NAXIS   =                    2 /
-NAXIS1  =                10000 / Number of pixels along this axis
-NAXIS2  =                10000 / Number of pixels along this axis
-EXTEND  =                    T / This file may contain FITS extensions
-EQUINOX =            2000.0000 / Mean equinox
-RADECSYS= 'FK5     '           / Astrometric system
-CTYPE1  = 'RA---TAN'           / WCS projection type for this axis
-CUNIT1  = 'deg     '           / Axis unit
-CRVAL1  =      2.600700000E+02 / World coordinate on this axis
-CRPIX1  =                 5000 / Reference pixel on this axis
-CDELT1  =     -5.555555638E-05 / Pixel step along this axis
-CTYPE2  = 'DEC--TAN'           / WCS projection type for this axis
-CUNIT2  = 'deg     '           / Axis unit
-CRVAL2  =      3.560750000E+01 / World coordinate on this axis
-CRPIX2  =                 5000 / Reference pixel on this axis
-CDELT2  =      5.555555638E-05 / Pixel step along this axis
-FGROUPNO=                    1 / SCAMP field group label                       
-END
-'''
+wcs1_cards=[('SIMPLE', True, ''),
+('BITPIX', -32, ''),
+('NAXIS', 2, ''),
+('NAXIS1', 10000, ''),
+('NAXIS2', 10000, ''),
+('EXTEND', True, ''),
+('EQUINOX', 2000.0, ''),
+('RADECSYS', 'FK5', ''),
+('CTYPE1', 'RA---TAN', ''),
+('CUNIT1', 'deg', ''),
+('CRVAL1', 2.600700000E+02, ''),
+('CRPIX1', 5000, ''),
+('CDELT1', -5.555555638e-05, ''),
+('CTYPE2', 'DEC--TAN', ''),
+('CUNIT2', 'deg', ''),
+('CRVAL2', 3.560750000E+01, ''),
+('CRPIX2', 5000, ''),
+('CDELT2', 5.555555638e-05, ''),
+('FGROUPNO', 1, '')]
+wcs1_header = pyfits.Header(cards=wcs1_cards)
+wcs1 = pywcs.WCS(header=wcs1_header)
 
-wcs1 = pywcs.WCS(pyfits.Header(txtfile=FileBuffer(wcs1_txt)))
+wcs2_cards=[('SIMPLE',True,''),
+('BITPIX',-32,''),
+('NAXIS',2,''),
+('NAXIS1',2000,''),
+('NAXIS2',4080,''),
+('EXTEND',True,''),
+('EQUINOX',2000.0000,''),
+('RADECSYS','FK5'          ,''),
+('CTYPE1','RA---TAN'          ,''),
+('CTYPE2','DEC--TAN'          ,''),
+('CUNIT1','deg'          ,''),
+('CUNIT2','deg'          ,''),
+('CRVAL1',2.600863484E+02,''),
+('CRVAL2',3.561470142E+01,''),
+('CRPIX1',3.150253241E+03,''),
+('CRPIX2',-3.165874081E+01,''),
+('CD1_1',1.389101775E-07,''),
+('CD1_2',5.560568528E-05,''),
+('CD2_1',5.572426341E-05,''),
+('CD2_2',2.107580493E-07,''),
+('PV1_0',-5.866337489E-04,''),
+('PV1_1',1.010794632E+00,''),
+('PV1_2',-6.170192876E-03,''),
+('PV1_4',-1.199707133E-02,''),
+('PV1_5',1.553850659E-02,''),
+('PV1_6',-2.671488395E-02,''),
+('PV1_7',-1.156355435E-01,''),
+('PV1_8',-3.078435348E-02,''),
+('PV1_9',-9.668949647E-02,''),
+('PV1_10',-6.791696393E-02,''),
+('PV2_0',1.037374299E-03,''),
+('PV2_1',1.010348756E+00,''),
+('PV2_2',-4.799733132E-03,''),
+('PV2_4',2.926603439E-02,''),
+('PV2_5',-1.324969193E-02,''),
+('PV2_6',6.701375024E-03,''),
+('PV2_7',-6.698976807E-02,''),
+('PV2_8',-4.046026651E-02,''),
+('PV2_9',-1.156380299E-01,''),
+('PV2_10',-1.133623389E-02,''),
+('FGROUPNO',1,'')]
+wcs2_header = pyfits.Header(cards=wcs2_cards)
+wcs2 = pywcs.WCS(header=wcs2_header)
 
-
-wcs2_txt = '''SIMPLE  =                    T / This is a FITS file
-BITPIX  =                  -32 /
-NAXIS   =                    2 /
-NAXIS1  =                 2000 / Number of pixels along this axis
-NAXIS2  =                 4080 / Number of pixels along this axis
-EXTEND  =                    T / This file may contain FITS extensions
-EQUINOX =            2000.0000 / Mean equinox                                  
-RADECSYS= 'FK5     '           / Astrometric system                            
-CTYPE1  = 'RA---TAN'           / WCS projection type for this axis             
-CTYPE2  = 'DEC--TAN'           / WCS projection type for this axis             
-CUNIT1  = 'deg     '           / Axis unit                                     
-CUNIT2  = 'deg     '           / Axis unit                                     
-CRVAL1  =      2.600863484E+02 / World coordinate on this axis                 
-CRVAL2  =      3.561470142E+01 / World coordinate on this axis                 
-CRPIX1  =      3.150253241E+03 / Reference pixel on this axis                  
-CRPIX2  =     -3.165874081E+01 / Reference pixel on this axis                  
-CD1_1   =      1.389101775E-07 / Linear projection matrix                      
-CD1_2   =      5.560568528E-05 / Linear projection matrix                      
-CD2_1   =      5.572426341E-05 / Linear projection matrix                      
-CD2_2   =      2.107580493E-07 / Linear projection matrix                      
-PV1_0   =     -5.866337489E-04 / Projection distortion parameter               
-PV1_1   =      1.010794632E+00 / Projection distortion parameter               
-PV1_2   =     -6.170192876E-03 / Projection distortion parameter               
-PV1_4   =     -1.199707133E-02 / Projection distortion parameter               
-PV1_5   =      1.553850659E-02 / Projection distortion parameter               
-PV1_6   =     -2.671488395E-02 / Projection distortion parameter               
-PV1_7   =     -1.156355435E-01 / Projection distortion parameter               
-PV1_8   =     -3.078435348E-02 / Projection distortion parameter               
-PV1_9   =     -9.668949647E-02 / Projection distortion parameter               
-PV1_10  =     -6.791696393E-02 / Projection distortion parameter               
-PV2_0   =      1.037374299E-03 / Projection distortion parameter               
-PV2_1   =      1.010348756E+00 / Projection distortion parameter               
-PV2_2   =     -4.799733132E-03 / Projection distortion parameter               
-PV2_4   =      2.926603439E-02 / Projection distortion parameter               
-PV2_5   =     -1.324969193E-02 / Projection distortion parameter               
-PV2_6   =      6.701375024E-03 / Projection distortion parameter               
-PV2_7   =     -6.698976807E-02 / Projection distortion parameter               
-PV2_8   =     -4.046026651E-02 / Projection distortion parameter               
-PV2_9   =     -1.156380299E-01 / Projection distortion parameter               
-PV2_10  =     -1.133623389E-02 / Projection distortion parameter
-FGROUPNO=                    1 / SCAMP field group label                       
-END
-'''
-
-wcs2 = pywcs.WCS(pyfits.Header(txtfile=FileBuffer(wcs2_txt)))
-
+##adam-START######## old way ####################
+#wcs1_txt = '''SIMPLE  =                    T / This is a FITS file
+#BITPIX  =                  -32 /
+#NAXIS   =                    2 /
+#NAXIS1  =                10000 / Number of pixels along this axis
+#NAXIS2  =                10000 / Number of pixels along this axis
+#EXTEND  =                    T / This file may contain FITS extensions
+#EQUINOX =            2000.0000 / Mean equinox
+#RADECSYS= 'FK5     '           / Astrometric system
+#CTYPE1  = 'RA---TAN'           / WCS projection type for this axis
+#CUNIT1  = 'deg     '           / Axis unit
+#CRVAL1  =      2.600700000E+02 / World coordinate on this axis
+#CRPIX1  =                 5000 / Reference pixel on this axis
+#CDELT1  =     -5.555555638E-05 / Pixel step along this axis
+#CTYPE2  = 'DEC--TAN'           / WCS projection type for this axis
+#CUNIT2  = 'deg     '           / Axis unit
+#CRVAL2  =      3.560750000E+01 / World coordinate on this axis
+#CRPIX2  =                 5000 / Reference pixel on this axis
+#CDELT2  =      5.555555638E-05 / Pixel step along this axis
+#FGROUPNO=                    1 / SCAMP field group label
+#END'''
+#wcs1 = pywcs.WCS(pyfits.Header(txtfile=FileBuffer(wcs1_txt)))
+#wcs2_txt = '''SIMPLE  =                    T / This is a FITS file
+#BITPIX  =                  -32 /
+#NAXIS   =                    2 /
+#NAXIS1  =                 2000 / Number of pixels along this axis
+#NAXIS2  =                 4080 / Number of pixels along this axis
+#EXTEND  =                    T / This file may contain FITS extensions
+#EQUINOX =            2000.0000 / Mean equinox                                  
+#RADECSYS= 'FK5     '           / Astrometric system                            
+#CTYPE1  = 'RA---TAN'           / WCS projection type for this axis             
+#CTYPE2  = 'DEC--TAN'           / WCS projection type for this axis             
+#CUNIT1  = 'deg     '           / Axis unit                                     
+#CUNIT2  = 'deg     '           / Axis unit                                     
+#CRVAL1  =      2.600863484E+02 / World coordinate on this axis                 
+#CRVAL2  =      3.561470142E+01 / World coordinate on this axis                 
+#CRPIX1  =      3.150253241E+03 / Reference pixel on this axis                  
+#CRPIX2  =     -3.165874081E+01 / Reference pixel on this axis                  
+#CD1_1   =      1.389101775E-07 / Linear projection matrix                      
+#CD1_2   =      5.560568528E-05 / Linear projection matrix                      
+#CD2_1   =      5.572426341E-05 / Linear projection matrix                      
+#CD2_2   =      2.107580493E-07 / Linear projection matrix                      
+#PV1_0   =     -5.866337489E-04 / Projection distortion parameter               
+#PV1_1   =      1.010794632E+00 / Projection distortion parameter               
+#PV1_2   =     -6.170192876E-03 / Projection distortion parameter               
+#PV1_4   =     -1.199707133E-02 / Projection distortion parameter               
+#PV1_5   =      1.553850659E-02 / Projection distortion parameter               
+#PV1_6   =     -2.671488395E-02 / Projection distortion parameter               
+#PV1_7   =     -1.156355435E-01 / Projection distortion parameter               
+#PV1_8   =     -3.078435348E-02 / Projection distortion parameter               
+#PV1_9   =     -9.668949647E-02 / Projection distortion parameter               
+#PV1_10  =     -6.791696393E-02 / Projection distortion parameter               
+#PV2_0   =      1.037374299E-03 / Projection distortion parameter               
+#PV2_1   =      1.010348756E+00 / Projection distortion parameter               
+#PV2_2   =     -4.799733132E-03 / Projection distortion parameter               
+#PV2_4   =      2.926603439E-02 / Projection distortion parameter               
+#PV2_5   =     -1.324969193E-02 / Projection distortion parameter               
+#PV2_6   =      6.701375024E-03 / Projection distortion parameter               
+#PV2_7   =     -6.698976807E-02 / Projection distortion parameter               
+#PV2_8   =     -4.046026651E-02 / Projection distortion parameter               
+#PV2_9   =     -1.156380299E-01 / Projection distortion parameter               
+#PV2_10  =     -1.133623389E-02 / Projection distortion parameter
+#FGROUPNO=                    1 / SCAMP field group label                       
+#END
+#'''
+#wcs2 = pywcs.WCS(pyfits.Header(txtfile=FileBuffer(wcs2_txt)))
+##adam-END  ######## old way ####################
 
 ######################
 

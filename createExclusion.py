@@ -40,6 +40,7 @@ if config is None:
 
 
 filePrefix = config.prefix
+print "filePrefix = ",filePrefix
 nchips = int(config.nchips)
 
 
@@ -99,7 +100,7 @@ def parseForAcceptance(chipList):
         except ValueError: continue
 
     return allChips
-        
+
 ###################
 
 #Pass your input file as the first command line argument

@@ -70,3 +70,10 @@ do
   }
 
 done
+
+## Make a log of changes:
+# for fl in `\ls -1 *OCF.flag.fits`; do fitsdiff $fl backup_weight_flag/$fl -k HISTORY -o $fl.fitsdiff.log ; done
+# for fl in `\ls -1 *OCF.weight.fits`; do fitsdiff $fl backup_weight_flag/$fl -k HISTORY -o $fl.fitsdiff.log ; done
+# echo "Number of files effected: `grep -l "different pixels found" *.log | wc -l`" > adam_fix_regionmasks_changes.log
+# echo "Number of files UN-effected: `grep -L "different pixels found" *.log | wc -l`" >> adam_fix_regionmasks_changes.log
+# grep "different pixels found" *.fitsdiff.log | sort | awk 'BEGIN{print "Npixels_diff","Percent_diff","file"}{print $2,$6,$1}' | sed 's/(\|:\|\.fitsdiff\.log//g'| column -t >> adam_fix_regionmasks_changes.log

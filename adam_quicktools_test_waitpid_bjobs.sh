@@ -1,4 +1,5 @@
-#!/bin/bash -v
+#!/bin/bash
+set -xv
 #adam-does# use this code if you need to wait until other jobs are finished running on the slac batchq before you run the next thing
 #adam-SHNT# this is a test, first of all you need to get adam_quicktools_test_waitpid.sh to work, then fix things up here
 

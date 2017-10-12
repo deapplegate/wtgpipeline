@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#. BonnLogger.sh
+#. log_start
 ##########
 # Take Science images and weight them by the weight files
 # Save the output for use in masking
@@ -15,7 +16,7 @@
 
 #CVSID="$Id: create_science_weighted.sh,v 1.5 2008-09-12 16:33:49 dapple Exp $"
 
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/out.tmp 2>&1
 
 for CHIP in ${!#}
 do
@@ -44,6 +45,5 @@ do
 
     done
   }
-  test -f ${TEMPDIR}/crw_images_$$ && rm  ${TEMPDIR}/crw_images_$$
+  test -f ${TEMPDIR}/crw_images_$$ && rm -f  ${TEMPDIR}/crw_images_$$
 done
-log_status $?

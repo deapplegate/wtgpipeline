@@ -41,8 +41,8 @@ run=2002-06-04
 #  mv ${BASE}?.fits ${run}_RAWDATA
 #done < uniqfiles_$$.txt
 #
-#rm allfiles_$$.txt
-#rm uniqfiles_$$.txt
+#rm -f allfiles_$$.txt
+#rm -f uniqfiles_$$.txt
 # 
 ## sort images by type, filter
 #
@@ -90,7 +90,7 @@ run=2002-06-04
 #
 #done < allfiles_mef_$$.txt
 #
-#rm allfiles_mef_$$.txt
+#rm -f allfiles_mef_$$.txt
 #
 #cd ${REDDIR}
 

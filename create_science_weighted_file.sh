@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 #. BonnLogger.sh
 #. log_start
 ##########

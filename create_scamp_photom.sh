@@ -1,4 +1,5 @@
-#!/bin/bash -xvu
+#!/bin/bash
+set -xvu
 #. BonnLogger.sh
 #. log_start
 
@@ -102,15 +103,19 @@
 # 03.09.2015 (Adam W.)
 # works when both *OCF.fits & *OCFR.fits files are present
 # ... or any other number of different ${ending} values
+ending="*I"
 
 # File inclusions:
-#. ${INSTRUMENT:?}.ini
+if [ -z ${INSTRUMENT} ] ;then
+	INSTRUMENT="SUBARU"
+fi
+. ${INSTRUMENT:?}.ini > /tmp/SUBARU.out 2>&1
 
 ### we can have different INSTRUMENTs
 . progs.ini > /tmp/progs.out 2>&1
 
 # NCHIPSMAX needs to be set before
-NCHIPS=${NCHIPSMAX}
+NCHIPS=${NCHIPSMAX:-10}
 
 # define THELI_DEBUG and some other variables because of the '-u'
 # script flag (the use of undefined variables will be treated as
@@ -388,6 +393,12 @@ do
             #adam: might want (IMAFLAGS_ISO<1)or (B_IMAGE>1.0) or (FLAGS<1)
             #adam-old# -c "(((((FLAGS<20))AND(B_IMAGE>0.8))AND(IMAFLAGS_ISO<1))AND(MAX_TOTAL<${THRESHOLD}));" \
             #adam-default#    -c "(((((FLAGS<20))AND(B_IMAGE>0.8))AND((IMAFLAGS_ISO=0)OR(IMAFLAGS_ISO=2))AND(MAX_TOTAL<${THRESHOLD}));" \
+	    
+	    ###################
+	    #adam-SHNT: THRESHOLD here, for DECam, cannot be passed in to create_scamp_photom.sh on the command line
+	    # INSTEAD: must be set to minimum of image header keywords SATLEVEL, SATURATA, SATURATB
+	    # write a python script to set THRESHOLD=min(SATLEVEL, SATURATA, SATURATB)
+	    ###################
 
             ${P_LDACFILTER} -i ${CAT}.tmp -t LDAC_OBJECTS \
                 -c "(((((FLAGS<2))AND(B_IMAGE>0.8))AND(IMAFLAGS_ISO<1))AND(MAX_TOTAL<${THRESHOLD}));" \
@@ -460,7 +471,7 @@ do
         # loop over chips (within this SUPA, within this filter)
         while [ ${i} -le ${NCHIPS} ]
         do
-            oimage=`${P_FIND} /${!j}/${!k}/ -maxdepth 1 -name ${IMAGE}_${i}[!0-9]*.fits | awk '{if($1!~"sub.fits" && $1!~"I.fits") print $0}'`
+            oimage=`${P_FIND} /${!j}/${!k}/ -maxdepth 1 -name ${IMAGE}_${i}[!0-9]*.fits | awk '{if($1!~"sub.fits" && $1~"I.fits") print $0}'`
             ## now changing it for "photom" mode, so that it gets the one ending in I.fits
             #adam-tmp# should make a python routine that finds the proper things (or maybe it's not THAT important)
             #adam-SHNT# this will NO LONGER WORK if *I.fits isn't there, as it WILL NOT be for MACS0416
@@ -587,6 +598,11 @@ done
 #/nfs/slac/g/ki/ki05/anja/MEGAPRIME/software/THELI/ldacpipeline-0.12.33/scripts/Linux_64/scampcat.py: merge single frame THELI files to a scamp MEF catalogue
 #merges individual chip cats BASE_${i}${ending}.ldac to BASE_scamp.cat
 python ${S_SCAMPCAT} ${DIR}/catlist.txt_$$
+exit_stat=$?
+if [ "${exit_stat}" -gt "0" ]; then
+	echo "adam-Error: something wrong with python scamp call. Checkout ${DIR}/catlist.txt_$$"
+	exit ${exit_stat};
+fi
 
 # now call scamp:
 cd ../headers_photom
@@ -610,22 +626,28 @@ scamp_mode_use=${scamp_mode_instrum_star} #default
 
 echo "scamp_mode_use=" $scamp_mode_use
 
+#macs1115-astrom-mode# /afs/slac/g/ki/software/local/bin/scamp ../cat/SUPA0109617_scamp.cat ../cat/SUPA0109619_scamp.cat ../cat/SUPA0109620_scamp.cat ../cat/SUPA0120015_scamp.cat ../cat/SUPA0120016_scamp.cat ../cat/SUPA0120017_scamp.cat ../cat/SUPA0120018_scamp.cat ../cat/SUPA0120019_scamp.cat ../cat/SUPA0120144_scamp.cat ../cat/SUPA0120145_scamp.cat ../cat/SUPA0120146_scamp.cat ../cat/SUPA0120147_scamp.cat ../cat/SUPA0120148_scamp.cat ../cat/SUPA0120149_scamp.cat ../cat/SUPA0120150_scamp.cat ../cat/SUPA0120151_scamp.cat ../cat/SUPA0120152_scamp.cat ../cat/SUPA0120153_scamp.cat ../cat/SUPA0109600_scamp.cat ../cat/SUPA0109601_scamp.cat ../cat/SUPA0109602_scamp.cat ../cat/SUPA0109603_scamp.cat ../cat/SUPA0109604_scamp.cat ../cat/SUPA0109605_scamp.cat ../cat/SUPA0109606_scamp.cat ../cat/SUPA0109607_scamp.cat ../cat/SUPA0109608_scamp.cat ../cat/SUPA0109609_scamp.cat ../cat/SUPA0109610_scamp.cat ../cat/SUPA0109613_scamp.cat ../cat/SUPA0109614_scamp.cat ../cat/SUPA0109615_scamp.cat ../cat/SUPA0120021_scamp.cat ../cat/SUPA0120022_scamp.cat ../cat/SUPA0120023_scamp.cat ../cat/SUPA0120024_scamp.cat ../cat/SUPA0120025_scamp.cat ../cat/SUPA0120026_scamp.cat ../cat/SUPA0120027_scamp.cat ../cat/SUPA0120028_scamp.cat ../cat/SUPA0120029_scamp.cat ../cat/SUPA0120030_scamp.cat ../cat/SUPA0120031_scamp.cat ../cat/SUPA0120032_scamp.cat ../cat/SUPA0120033_scamp.cat ../cat/SUPA0120034_scamp.cat ../cat/SUPA0120035_scamp.cat ../cat/SUPA0120036_scamp.cat ../cat/SUPA0120037_scamp.cat ../cat/SUPA0120038_scamp.cat -c /afs/slac/u/ki/anja/software/ldacpipeline-0.12.20/conf/reduction/scamp_astrom_photom.scamp -ASTRINSTRU_KEY FILTER,INSTRUM,CONFIG,ROTATION,MISSCHIP,PPRUN -CDSCLIENT_EXEC /afs/slac.stanford.edu/g/ki/software/cdsclient/bin/aclient_cgi -NTHREADS 4 -MOSAIC_TYPE FIX_FOCALPLANE -XML_NAME MACS1115+01_scamp.xml -MAGZERO_INTERR 0.1 -MAGZERO_REFERR 0.03 -POSITION_MAXERR 1.0 -POSANGLE_MAXERR 0.05 -SN_THRESHOLDS 3,100 -FLAGS_MASK 0x00e0 -MATCH_NMAX 20000 -PIXSCALE_MAXERR 1.03 -DISTORT_DEGREES 3 -ASTREF_WEIGHT 1 -STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG SDSS-R6 -CHECKPLOT_RES 4000,3000 -SAVE_REFCATALOG Y
+
+#-POSITION_MAXERR 1.0 -POSANGLE_MAXERR 0.05 -PIXSCALE_MAXERR 1.03
 ## RUN SCAMP
 ${P_SCAMP} `${P_FIND} ../cat_photom/ -name \*scamp.cat` \
         -c ${CONF}/scamp_astrom_photom.scamp \
         -PHOTINSTRU_KEY FILTER -ASTRINSTRU_KEY ASTINST,MISSCHIP \
         -CDSCLIENT_EXEC ${P_ACLIENT} \
         -NTHREADS ${NPARA} \
-        -XML_NAME ${BONN_TARGET}_scamp.xml \
+        -XML_NAME ${cluster}_scamp.xml \
         -MAGZERO_INTERR 0.1 \
-        -MAGZERO_REFERR 0.1 \
-        -MATCH N \
+        -MAGZERO_REFERR 0.03 \
+        -MATCH Y \
+	-MATCH_NMAX 10000 \
         -SN_THRESHOLDS 5,50 \
         -MOSAIC_TYPE UNCHANGED \
-        -CROSSID_RADIUS 0.2 \
         -DISTORT_DEGREES 3 \
-        -ASTREF_WEIGHT 1 ${scamp_mode_use}
-#starcat#        -ASTREF_CATALOG ${STARCAT} \
+	-POSITION_MAXERR 2.0 -POSANGLE_MAXERR 0.07 -PIXSCALE_MAXERR 1.05 \
+        -ASTREF_WEIGHT 1 ${scamp_mode_use} -CHECKPLOT_RES 4000,3000
+#-CROSSID_RADIUS 0.2 \
+
+	#starcat#        -ASTREF_CATALOG ${STARCAT} \
 #refcat#           -ASTREF_CATALOG FILE \
 #refcat#           -ASTREFCENT_KEYS X_WORLD,Y_WORLD \
 #refcat#           -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD \
@@ -636,7 +658,7 @@ ${P_SCAMP} `${P_FIND} ../cat_photom/ -name \*scamp.cat` \
 #refcat_scamp_call#         -PHOTINSTRU_KEY FILTER -ASTRINSTRU_KEY ASTINST,MISSCHIP \
 #refcat_scamp_call#         -CDSCLIENT_EXEC ${P_ACLIENT} \
 #refcat_scamp_call#         -NTHREADS ${NPARA} \
-#refcat_scamp_call#         -XML_NAME ${BONN_TARGET}_scamp.xml \
+#refcat_scamp_call#         -XML_NAME ${cluster}_scamp.xml \
 #refcat_scamp_call#         -MAGZERO_INTERR 0.1 \
 #refcat_scamp_call#         -MAGZERO_REFERR 0.1 \
 #refcat_scamp_call#         -MATCH N \
@@ -703,7 +725,9 @@ mv psphot_error*    ../plots_photom
 mv astr_refsysmap*  ../plots_photom
 mv phot_zpcorr*     ../plots_photom
 mv phot_errorvsmag* ../plots_photom
-mv ${BONN_TARGET}_scamp.xml ../plots_photom
+mv ${cluster}_scamp.xml ../plots_photom
+cp ~/bonnpipeline/scamp.xsl ../plots_photom
+sed -i.old 's/href=".*"?>/href="scamp.xsl"?>/g' ../plots_photom/${cluster}_scamp.xml
 
 # now get the relative magnitude offsets from the FLXSCALES
 # estimated by scamp:
@@ -727,7 +751,7 @@ do
   echo ${NAME}" "${EXPTIME}" "${FLXSCALE}" "${PHOTINST} >> photdata.txt_$$
 done
 
-# The following awk script calculates relative zeropoints 
+# The following 'awk' script calculates relative zeropoints 
 # and THELI fluxscales for the different photometric contexts: 
 ${P_GAWK} 'BEGIN {maxphotinst = 1;}
            { name[NR] = $1; 
@@ -752,8 +776,8 @@ ${P_GAWK} 'BEGIN {maxphotinst = 1;}
              }
            }' photdata.txt_$$ > photdata_relzp.txt_$$
 
-if [ -f "${BONN_TARGET}_checkZP.dat" ]; then
-    rm -f ${BONN_TARGET}_checkZP.dat
+if [ -f "${cluster}_checkZP.dat" ]; then
+    rm -f ${cluster}_checkZP.dat
 fi
 
 # now split the exposure catalogues for the indivudual chips
@@ -791,8 +815,8 @@ do
                         diff=`awk 'BEGIN{printf "%i\n",sqrt(('${RELZP}'-1.0*'${OLDRZP}')*('${RELZP}'-1.0*'${OLDRZP}'))+0.5}'`
                         faint=`awk 'BEGIN{if('${RELZP}'<-0.5) print "1"; else print "0"}'`
                         if [ ${diff} -ge 1 ] || [ ${faint} -eq 1 ]; then
-                            echo "adam-Error:Must check the ZP for NAME=${NAME} (diff=$diff and faint=$faint )! see entry in \${BONN_TARGET}_checkZP.dat ( ${NAME} ${OLDRZP} ${RELZP} >> ${BONN_TARGET}_checkZP.dat ) "
-                            echo ${NAME} ${OLDRZP} ${RELZP} >> ${BONN_TARGET}_checkZP.dat
+                            echo "adam-Error:Must check the ZP for NAME=${NAME} (diff=$diff and faint=$faint )! see entry in \${cluster}_checkZP.dat ( ${NAME} ${OLDRZP} ${RELZP} >> ${cluster}_checkZP.dat ) "
+                            echo ${NAME} ${OLDRZP} ${RELZP} >> ${cluster}_checkZP.dat
                         fi
                         break
                     fi
@@ -833,7 +857,10 @@ while [ ${i} -le ${NCATS} ]
 do
   if [ -f "${CATBASE[$i]}.head" ]; then
     mv ${CATBASE[$i]}*head ${CATDIR[$i]}/headers_scamp_photom_${STARCAT}
-    exit_status=$?
+    exit_stat=$?
+    if [ "${exit_stat}" -gt "0" ]; then
+		exit ${exit_stat};
+    fi
   fi
   
   i=$(( ${i} + 1 )) 
@@ -844,4 +871,4 @@ cleanTmpFiles
 
 cd ${DIR}
 #log_status $exit_status
-exit $exit_status
+exit $exit_stat

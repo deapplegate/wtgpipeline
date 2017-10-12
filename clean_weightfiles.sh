@@ -17,7 +17,7 @@ for run in ${runs}; do
 	continue
     fi
 
-    rm ${subaru}/${cluster}/${run}/WEIGHTS/*${ending}.weight.fits
+    rm -f ${subaru}/${cluster}/${run}/WEIGHTS/*${ending}.weight.fits
 
 
 done

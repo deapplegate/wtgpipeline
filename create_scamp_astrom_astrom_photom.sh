@@ -1,6 +1,6 @@
 #!/bin/bash -u
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 
 # CVSID: $Id: create_scamp_astrom_astrom_photom.sh,v 1.6 2009-08-07 00:15:25 anja Exp $
 
@@ -231,8 +231,8 @@ function cleanTmpFiles
 {
     if [ -z ${THELI_DEBUG} ]; then
         echo "Cleaning temporary files for script $0"
-        test -f photdata.txt_$$           && rm photdata.txt_$$
-        test -f photdata_relzp.txt_$$     && rm photdata_relzp.txt_$$
+        test -f photdata.txt_$$           && rm -f photdata.txt_$$
+        test -f photdata_relzp.txt_$$     && rm -f photdata_relzp.txt_$$
     else
         echo "Variable THELI_DEBUG set! No cleaning of temp. files in script $0"    
     fi
@@ -410,8 +410,14 @@ do
     # it just in case ....
     # It is necessary as we allow for images with different endings in the 
     # image directories:
-    if [ -f ${IMAGE}_${i}[!0-9]*.ldac ]; then
-      CATS="${CATS} `echo ${IMAGE}_${i}[!0-9]*.ldac`"
+    ocat=`\ls ${IMAGE}_${i}OCF.ldac`
+    if [ ! -f "${ocat}" ]; then
+    	ocat=`\ls ${IMAGE}_${i}[!0-9]*.ldac`
+    fi
+    #if [ -f ${IMAGE}_${i}[!0-9]*.ldac ]; then
+    #  CATS="${CATS} `echo ${IMAGE}_${i}[!0-9]*.ldac`"
+    if [ -f "${ocat}" ]; then
+      CATS="${CATS} `echo ${ocat}`"
     else
       MISSCHIP=${MISSCHIP}${i}
     fi
@@ -424,7 +430,7 @@ do
     while [ ${m} -le ${NDIRS} ]
     do 
       
-      oimage=`${P_FIND} /${!j}/${!k}/ -maxdepth 1 -name ${IMAGE}_${i}[!0-9]*.fits | awk '{if($1!~"sub.fits" && $1!~"I.fits") print $0}'`
+      oimage=`${P_FIND} /${!j}/${!k}/ -maxdepth 1 -name ${IMAGE}_${i}[!0-9]*.fits | awk '{if($1!~"sub.fits" && $1!~"I.fits" && $1!~"R.fits") print $0}'`
       if [ -n "${oimage}" ]; then
 	  ROTATION=`dfits "${oimage}" | fitsort ROTATION | awk '($1!="FILE") {print $2}'`
 	  CONFIG=`dfits "${oimage}" | fitsort CONFIG | awk '($1!="FILE") {print $2}'`
@@ -469,7 +475,7 @@ echo "${CATS} ./${IMAGE}_scamp.cat" >> ${DIR}/catlist.txt_$$
   # chip information.
   # They are used to distinguish different chip configurations
   # in an, otherwise, unique astrometric conetxt.
-  test -f ./${IMAGE}_scamp.ahead && rm ./${IMAGE}_scamp.ahead
+  test -f ./${IMAGE}_scamp.ahead && rm -f ./${IMAGE}_scamp.ahead
   i=1
   while [ ${i} -le ${NCHIPS} ]
   do
@@ -594,7 +600,7 @@ mv ${BONN_TARGET}_scamp.xml ../plots
 
 # now get the relative magnitude offsets from the FLXSCALES
 # estimated by scamp:
-test -f photdata.txt_$$ && rm photdata.txt_$$
+test -f photdata.txt_$$ && rm -f photdata.txt_$$
 
 # Because the flux scales refer to an image normalised to one
 # second we need to obtain the exposure times of all frames
@@ -700,5 +706,5 @@ done
 cleanTmpFiles
 
 cd ${DIR}
-log_status $exit_status
+#adam-BL# log_status $exit_status
 exit $exit_status

@@ -1,29 +1,39 @@
-#! /bin/bash -xv
-
+#! /bin/bash
+set -xv
+#adam-example# ./do_Subaru_register_4batch.sh ${cluster} "SDSS-R6" "photom" "W-J-B" "W-C-RC" "W-S-Z+" 2>&1 | tee -a OUT-do_Subaru_register_4batch-${cluster}-photom.log
 ### script to register image sets
 ###
 ### the astro-/photometry is via SCAMP 
 ###
 ### $Id: do_Subaru_register_4batch.sh,v 1.12 2010-10-05 02:29:02 anja Exp $
 
-. progs.ini
-. bash_functions.include
+. progs.ini > /tmp/prog.out 2>&1
+. bash_functions.include > /tmp/bash_functions.include.out 2>&1
 
 REDDIR=`pwd`
 
 export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 
-cluster=$1  # cluster nickname as in /nfs/slac/g/ki/ki02/xoc/anja/SUBARU/SUBARU.list
-catalog=$2  # catalog to be used for SCAMP
-mode=photom     # "astrom" or "photom"
+export cluster=$1  # cluster nickname as in /nfs/slac/g/ki/ki02/xoc/anja/SUBARU/SUBARU.list
+export catalog=$2  # catalog to be used for SCAMP
+mode=$3     # "astrom" or "photom"
+
+if [ ${mode} != "astrom" ]; then
+	if [ ${mode} != "photom" ]; then
+		echo 'mode (input #3) must be "astrom" or "photom"'
+	fi
+fi
 
 FILTERS=""
-i=3
+i=4
 while [ "$i" -le "$#" ]
 do
   FILTERS="${FILTERS} ${!i}"
   i=$(( $i + 1 ))
 done
+
+echo "mode=" $mode
+echo "FILTERS=" $FILTERS
 
 # Do astrometric calibration with SCAMP or ASTROMETRIX (no longer supported in this script) ?
 ASTROMMETHOD=SCAMP
@@ -34,7 +44,6 @@ ASTROMETRYCAT=${catalog}
 ASTROMADD=""
 if [ ${ASTROMMETHOD} = "SCAMP" ]; then
    ASTROMADD="_scamp_${ASTROMETRYCAT}"
-   
 fi
 
 # need to keep track of the max number of NCHIPS for scamp
@@ -58,17 +67,17 @@ LINE=""
 
 #######################################
 ## Reset Logger
-./BonnLogger.py clear
+#adam-BL#./BonnLogger.py clear
 
 #########################################
 ### Capture Variables
-./BonnLogger.py config \
-    cluster=${cluster} \
-    filterlist="${FILTERS}" \
-    imagesize="${IMAGESIZE}" \
-    astrommethod="${ASTROMMETHOD}" \
-    astrometrycat="${ASTROMETRYCAT}" \
-    astromadd="${ASTROMADD}"
+#adam-BL#./BonnLogger.py config \
+#adam-BL#    cluster=${cluster} \
+#adam-BL#    filterlist="${FILTERS}" \
+#adam-BL#    imagesize="${IMAGESIZE}" \
+#adam-BL#    astrommethod="${ASTROMMETHOD}" \
+#adam-BL#    astrometrycat="${ASTROMETRYCAT}" \
+#adam-BL#    astromadd="${ASTROMADD}"
     
 
 ##############################
@@ -80,12 +89,11 @@ for filter in ${FILTERS}
 do
 
   export BONN_FILTER=${filter}
-  echo ${filter}
-  ./BonnLogger.py clear
+  #adam-BL#./BonnLogger.py clear
 
   ./setup_general.sh ${SUBARUDIR}/${cluster}/${filter}/SCIENCE instrument_$$
   INSTRUMENT=`cat instrument_$$`
-  rm instrument_$$
+  rm -f instrument_$$
 
   if [ ${INSTRUMENT} == "UNKNOWN" ]; then
       echo "INSTRUMENT UNKNOWN: Defaulting to SUBARU"
@@ -107,20 +115,19 @@ do
       fi
   fi
 
-  echo ${NCHIPS}
+  echo "filter="${filter}
+  echo "NCHIPS="${NCHIPS}
+  echo "INSTRUMENT="${INSTRUMENT}
 
-  echo ${INSTRUMENT}
-
-  . ${INSTRUMENT:?}.ini
+  . ${INSTRUMENT:?}.ini > /tmp/INSTRUMENT.out 2>&1
   export INSTRUMENT
+  export filter
 
-  echo ${NCHIPS}
-
-  ./BonnLogger.py clear
-  ./BonnLogger.py config \
-      cluster=${cluster} \
-      filter=${filter} \
-      config=${config}
+  #adam-BL#./BonnLogger.py clear
+  #adam-BL#./BonnLogger.py config \
+  #adam-BL#    cluster=${cluster} \
+  #adam-BL#    filter=${filter} \
+  #adam-BL#    config=${config}
 
   ##########################
   ### prepare coaddition ###
@@ -128,19 +135,22 @@ do
 
   case ${mode} in
       "astrom" )
-#	  if [ -d ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scamp ]; then
-#	      rm -rf ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scamp
-#	  fi
-	
-	  if [ ! -d ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scamp ]; then
-	  ###adds astrometric info; makes directory cat with ${image}_${chip}*.cat
-	  ./parallel_manager.sh ./create_astromcats_scamp_para.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS
+	  if [ -d "${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scamp" ]; then
+	      rm -rf ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scamp
+	  fi
+
+	  if [ ! -d "${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scamp" ]; then
+	      ###adds astrometric info; makes directory cat with ${image}_${chip}*.cat
+	      ./parallel_manager.sh ./create_astromcats_scamp_para.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS
+          else
+              echo "For some reason this directory couldn't be removed"
+	      exit 1
 	  fi
 	  ;;
       "photom" )
 	  case ${filter} in
 	      "u" | "g" | "r" | "i" | "z" | "B" | "I" | "K" | "U-WHT" | "B-WHT" | "r_CALIB" )
-		  if [ ! -d ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scampIC ]; then
+		  if [ ! -d "${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scampIC" ]; then
 		      mkdir ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scampIC
 		      cd ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scampIC
 		      ln -s ../cat_scamp/*.cat .
@@ -148,32 +158,36 @@ do
 		  fi
 		  ;;
 	      * )
-		  if [ -d ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scampIC ]; then
+		  if [ -d "${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scampIC" ]; then
 		      rm -rf ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scampIC
 		  fi
 
 		  testfile=`dfits ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/*_2*.fits | fitsort -d BADCCD | awk '{if($2!=1 && $1!~"sub.fits") print $0}' | awk '{if(NR==1) print $1}'`
-		  echo ${testfile}
+		  echo "testfile="${testfile}
 		  base=`basename ${testfile} .fits`
-		  if [ -f $SUBARUDIR/$cluster/${filter}/SCIENCE/${base}I.fits ]; then
+		  if [ -f "$SUBARUDIR/$cluster/${filter}/SCIENCE/${base}I.fits" ]; then
 		      testfile=$SUBARUDIR/$cluster/${filter}/SCIENCE/${base}I.fits
 		  fi
-		  if [ -f $SUBARUDIR/$cluster/${filter}/SCIENCE/${base}RI.fits ]; then
+		  if [ -f "$SUBARUDIR/$cluster/${filter}/SCIENCE/${base}RI.fits" ]; then
 		      testfile=$SUBARUDIR/$cluster/${filter}/SCIENCE/${base}RI.fits
 		  fi
 		  ending=`basename ${testfile} | awk -F'_2' '{print $2}' | awk -F'.' '{print $1}'`
 
-#		  ./parallel_manager.sh ./unfixbadccd_para.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS ${ending}
+		  #./parallel_manager.sh ./unfixbadccd_para.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS ${ending}
 
-		  if [ ! -d ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scampIC ]; then
-		    if [ "${ending}" == "OCF" ] || [ "${ending}" == "OCFS" ]; then
+		  if [ ! -d "${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scampIC" ]; then
+		    #adam-old#why not if [ "${ending}" == "OCFR" ]?
+		    #adam-old#if [ "${ending}" == "OCF" ] || [ "${ending}" == "OCFS" ]; then
+		    if [ "${ending}" == "OCF" ] || [ "${ending}" == "OCFSF" ] || [ "${ending}" == "OCFS" ] || [ "${ending}" == "OCFR" ]; then
 		      mkdir ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scampIC
 		      cd ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scampIC
 		      ln -s ../cat_scamp/*.cat .
 		      cd ${REDDIR}  
 		    else
-		      echo "./parallel_manager.sh ./create_astromcats_scampIC_para.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS"
-		      exit 0;
+		      #adam-ask# Why is this an echo and exit rather than running the code?
+		      # echo "./parallel_manager.sh ./create_astromcats_scampIC_para.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS"
+		      # exit 0;
+		      ./parallel_manager.sh ./create_astromcats_scampIC_para.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS
 		    fi
 		  fi
 		  ;;
@@ -194,8 +208,8 @@ do
 
 done
 
-echo ${LINE}
-echo ${NCHIPSMAX}
+echo "LINE=" ${LINE}
+echo "NCHIPSMAX=" ${NCHIPSMAX}
 export NCHIPSMAX
 
 ####################################################################
@@ -209,24 +223,27 @@ if [ ${ASTROMMETHOD} != "SCAMP" ]; then
     echo "This script supports only registration via scamp."
     echo "Use an older version for use with astrometrix."
     exit 2;
-  
+
 else
-    
+
   export BONN_FILTER=${FILTERS}
 
-  ./BonnLogger.py clear
-  ./BonnLogger.py config \
-      cluster=${cluster} \
-      filterlist="${FILTERS}" \
-      astrommethod=${ASTROMMETHOD} \
-      astrometrycat=${ASTROMETRYCAT} \
+  #adam-BL#./BonnLogger.py clear
+  #adam-BL#./BonnLogger.py config \
+  #adam-BL#    cluster=${cluster} \
+  #adam-BL#    filterlist="${FILTERS}" \
+  #adam-BL#    astrommethod=${ASTROMMETHOD} \
+  #adam-BL#    astrometrycat=${ASTROMETRYCAT} \
 
   case ${mode} in
       "astrom" )
 	  ./create_scamp_astrom_photom.sh ${LINE} ${ASTROMETRYCAT}
 	  ;;
       "photom" )
-	  ./create_scamp_photom.sh ${LINE} 23000 ${ASTROMETRYCAT}
+	  THRESH=$(( ${SATURATION}-4000 ))
+	  #adam-old# THRESH=${SATURATION}
+	  echo "adam: THRESH=" $THRESH
+	  ./create_scamp_photom.sh ${LINE} ${THRESH} ${ASTROMETRYCAT}
 	  ;;
       * )
 	  echo "Specify astrom or photom mode."
@@ -236,6 +253,4 @@ else
 
 fi
 
-
-
-
+#For relative ZPs, cut is 0.2

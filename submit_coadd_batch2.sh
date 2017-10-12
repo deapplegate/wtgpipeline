@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 #################
 # $Id: submit_coadd_batch2.sh,v 1.6 2010-04-16 23:30:54 dapple Exp $
 #################
@@ -8,7 +9,7 @@
 
 
 
-SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 logdir=${SUBARUDIR}/coaddlogs
 
 cluster=$1

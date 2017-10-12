@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 
 # script to convolve an image to a 'worse' seeing
 # with a Gaussian kernel
@@ -27,7 +28,7 @@ PIXSCALE=`dfits $1/$2 | fitsort -d CDELT1 | awk '{print -3600*$2}'`
 
 # It is necessary to delete 'old' smoothing kernels because
 # we do not yet know which filename will be given to a new one:
-${P_FIND} $1 -name gauss\*conv -exec rm {} \;
+${P_FIND} $1 -name gauss\*conv -exec rm -f {} \;
 
 # first determine a smoothing kernel:
 ./create_gausssmoothing_kernel.py $4 $5 ${PIXSCALE} $1 
@@ -48,4 +49,4 @@ ${P_SEX} $1/$2\
     -BACK_VALUE 0.0 \
     -DETECT_MINAREA 20 -DETECT_THRESH 50
 
-test -f ${TEMPDIR}/tmp.cat_$$ && rm ${TEMPDIR}/tmp.cat_$$
+test -f ${TEMPDIR}/tmp.cat_$$ && rm -f ${TEMPDIR}/tmp.cat_$$

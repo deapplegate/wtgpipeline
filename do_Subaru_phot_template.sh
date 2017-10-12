@@ -48,7 +48,7 @@ export TEMPDIR='.'
 
 ########################################
 ### Reset Logger
-./BonnLogger.py clear
+#adam-BL#./BonnLogger.py clear
 
 ##################################################################
 ### create and load the SUBARU.ini file
@@ -61,15 +61,15 @@ export INSTRUMENT=SUBARU
 . ${INSTRUMENT:?}.ini
 ##################################################################
 ### Capture Variables
-./BonnLogger.py config \
-    run=${run} \
-    filter=${filter} \
-    FLAT=${FLAT} \
-    SET=${SET} \
-    SKYBACK=${SKYBACK} \
-    FRINGE=${FRINGE} \
-    STANDARDSTARS=${STANDARDSTARS} \
-    config=${config}
+#adam-BL#./BonnLogger.py config \
+#adam-BL#    run=${run} \
+#adam-BL#    filter=${filter} \
+#adam-BL#    FLAT=${FLAT} \
+#adam-BL#    SET=${SET} \
+#adam-BL#    SKYBACK=${SKYBACK} \
+#adam-BL#    FRINGE=${FRINGE} \
+#adam-BL#    STANDARDSTARS=${STANDARDSTARS} \
+#adam-BL#    config=${config}
 
 
 #
@@ -82,8 +82,8 @@ export INSTRUMENT=SUBARU
 
 if  [ ${STANDARDSTARS} -eq 1 ]; then
 
-    ./BonnLogger.py clear
-    ./BonnLogger.py comment "STANDARD star processing"
+    #adam-BL#./BonnLogger.py clear
+    #adam-BL#./BonnLogger.py comment "STANDARD star processing"
 
   case ${filter} in
       "W-J-B" )

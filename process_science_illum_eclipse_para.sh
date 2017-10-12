@@ -1,6 +1,8 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-example# ./parallel_manager.sh ./process_science_illum_eclipse_para.sh ${SUBARUDIR}/${run}_${filter} ${SCIENCEDIR}_norm RESCALE ILLUM ${SKYBACK} ${SCIENCEDIR}
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 
 
 #CVSID="$Id: process_science_illum_eclipse_para.sh,v 1.13 2008-09-08 18:09:13 dapple Exp $"
@@ -36,6 +38,9 @@
 #   (parameter value ILLUM).
 # - I corrected a bug in the indexing of NOTPROCESS arrays.
 
+##${SUBARUDIR}/${run}_${filter} ${SCIENCEDIR}_norm RESCALE ILLUM ${SKYBACK} ${SCIENCEDIR}
+##/$1/$2/$2_${i}${ILLUMFLAG}.fits =${SUBARUDIR}/${run}_${filter}/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_1_illum128.fits
+
 # $1: main directory (filter)
 # $2: Science directory
 # $3: RESCALE/NORESCALE
@@ -48,7 +53,7 @@
 
 
 # preliminary work:
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/instrum.out 2>&1
 
 ILLUMFLAG=""
 
@@ -102,6 +107,19 @@ do
       i=$(( $i + 1 ))
     done
  
+    #adam# -FLAT Y 
+    #adam# -FLAT_IMAGE //nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_8_illum256.fits 
+    #adam# -FLAT_THRESHHOLD .1
+    #adam# -COMBINE N
+    #adam# -OUTPUT Y
+    #adam# -OUTPUT_DIR //nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2/
+    #adam# -OUTPUT_SUFFIX S.fits
+    #adam# -FLAT_SCALE Y
+    #adam# -FLAT_SCALEIMAGE //nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_1_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_2_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_3_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_4_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_5_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_6_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_7_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_8_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_9_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_10_illum256.fits
+    
+    # Flat fielding: All images are divided by the image specified in FLAT_IMAGE.
+    # If scaling (FLAT_SCALE) is asked for, the flatfield is normalised to the highest median
+    # of the images specified in FLAT_SCALEIMAGE. Otherwise the flat is normlised to a mean of unity.
 
     RESCALEFLAG=""
     if [ "$3" = "RESCALE" ]; then   
@@ -134,9 +152,4 @@ do
   fi
 done
 
-
-
-
-
-
-log_status $exit_status
+#adam-BL# log_status $exit_status

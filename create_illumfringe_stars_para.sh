@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # script that creates an illumination correction and
 # fringe image out of a blank sky field (superflat)
 # $Id: create_illumfringe_stars_para.sh,v 1.5 2008-07-18 17:07:22 dapple Exp $
@@ -11,43 +12,48 @@
 # $4: chips to be processed
 
 # preliminary work:
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/subaru.out 2>&1
 
 for CHIP in $4
 do
-  FILE=`ls $1/$2/$2_${CHIP}.fits`
+  FILE=`\ls $1/$2/$2_${CHIP}.fits`
 
   if [ ! -s $1/$2/$2_${CHIP}.fits ]; then
-      log_status 2 "Science Image Missing: ${CHIP}"
+      #adam-BL# log_status 2 "Science Image Missing: ${CHIP}"
+      echo "adam-look | error: Science Image Missing: ${CHIP}"
       exit 2
   fi
 
 
   ###
+  if [ -e $1/$2/$2_${CHIP}_fringe${3}.fits ]; then
+      rm -f $1/$2/$2_${CHIP}_fringe${3}.fits
+  fi
 
   if [ -e $1/$2/$2_${CHIP}_illum.fits ]; then
-      rm $1/$2/$2_${CHIP}_illum${3}.fits
+      rm -f $1/$2/$2_${CHIP}_illum${3}.fits
   fi
-  ${P_SEX} /$1/$2/$2_${CHIP}.fits -c ${CONF}/illumfringe_back.sex -CHECKIMAGE_NAME $1/$2/$2_${CHIP}_illum${3}.fits -BACK_SIZE $3
 
+  ${P_SEX} /$1/$2/$2_${CHIP}.fits -c ${CONF}/illumfringe_back.sex -CHECKIMAGE_TYPE "BACKGROUND","-BACKGROUND" -CHECKIMAGE_NAME "$1/$2/$2_${CHIP}_illum${3}.fits","$1/$2/$2_${CHIP}_fringe${3}.fits" -BACK_SIZE $3
+
+  #adam-old# ${P_SEX} /$1/$2/$2_${CHIP}.fits -c ${CONF}/illumfringe_back.sex -CHECKIMAGE_NAME $1/$2/$2_${CHIP}_illum${3}.fits -BACK_SIZE $3
   if [ ! -s $1/$2/$2_${CHIP}_illum${3}.fits ]; then
-      log_status 3 "Illum Image not produced: ${CHIP}"
+      #adam-BL# log_status 3 "Illum Image not produced: ${CHIP}"
+      echo "adam-look | error: Illum Image not produced: ${CHIP}"
       exit 3
   fi
 
   ###
 
-  if [ -e $1/$2/$2_${CHIP}_fringe${3}.fits ]; then
-      rm $1/$2/$2_${CHIP}_fringe${3}.fits
-  fi
-  ${P_SEX} /$1/$2/$2_${CHIP}.fits -c ${CONF}/illumfringe_fringe.sex -CHECKIMAGE_NAME $1/$2/$2_${CHIP}_fringe${3}.fits -BACK_SIZE $3
+  #adam-old# ${P_SEX} /$1/$2/$2_${CHIP}.fits -c ${CONF}/illumfringe_fringe.sex -CHECKIMAGE_NAME $1/$2/$2_${CHIP}_fringe${3}.fits -BACK_SIZE $3
 
   if [ ! -s $1/$2/$2_${CHIP}_fringe${3}.fits ]; then
-      log_status 4 "Fringe image not produced: ${chip}"
+      #adam-BL# log_status 4 "Fringe image not produced: ${chip}"
+      echo "adam-look | error: Fringe image not produced: ${chip}"
       exit 4
   fi
 
   ###
 done
 
-log_status $?
+#adam-BL# log_status $?

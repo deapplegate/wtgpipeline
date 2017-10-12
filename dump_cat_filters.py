@@ -38,6 +38,36 @@ def _isNotValidFilter(filter):
 
 ###################################
 
+#adam-tmp# START
+def adam_dumpFilters(cat, appendAppers = False):
+
+    filters = []
+
+    for fluxkey in cat.keys():
+
+        filter = extractFilter(fluxkey)
+
+        if _isNotValidFilter(filter):
+            print "_isNotValidFilter"
+            continue
+
+        print "filter=",filter," fluxkey=",fluxkey
+        if appendAppers:
+            nApers = cat[fluxkey].shape[1]
+            for i in xrange(nApers):
+                filter = '%s_A%d' % (filter, i)
+                if filter not in filters:
+                    filters.append(filter)
+        elif filter not in filters:
+            filters.append(filter)
+
+    return filters
+#cat1 = ldac.openObjectFile(fl1)
+#cat2 = ldac.openObjectFile(fl2)
+#adam-tmp# END
+
+###################################
+
 def dumpFilters(cat, appendAppers = False):
 
     filters = []
@@ -63,6 +93,7 @@ def dumpFilters(cat, appendAppers = False):
 
 ###################################
 
+ns=globals() #adam-tmp
 def main(argv):
 
     parser = OptionParser(usage='dump_cat_filters.py <-a> cat')
@@ -82,6 +113,7 @@ def main(argv):
 
     filters = dumpFilters(cat, options.appendAppers)
 
+    ns.update(locals()) #adam-tmp
 
     for filter in filters:
         print filter
@@ -90,6 +122,9 @@ def main(argv):
 ###################################
 
 if __name__ == '__main__':
-
-    main(sys.argv[1:])
+    #print "sys.argv=",sys.argv
+    from adam_quicktools_ArgCleaner import ArgCleaner
+    argv=ArgCleaner()
+    #print "argv=",argv
+    main(argv[1:])
 

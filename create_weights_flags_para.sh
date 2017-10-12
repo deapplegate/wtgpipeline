@@ -1,6 +1,6 @@
 #!/bin/bash 
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script creates weights and flags for 
 # for science and photometric standard star frames.
 # It assumes the global weight images in the WEIGHT
@@ -73,8 +73,8 @@ if [ "$4" = "FLAGS" ] || [ "$4" = "WEIGHTS_FLAGS" ]; then
 fi
 
 if [ "${WEIGHTSPROD}" = 0 ] && [ "${FLAGSPROD}" = 0 ]; then
-  echo "Nothing to do!!"
-  log_status 1 "Nothing to do!!"
+  #adam-BL# log_status 1 "Nothing to do!!"
+  echo "adam-look | error: Nothing to do!!"
   exit 1;
 fi
  
@@ -151,12 +151,12 @@ do
 
       # clean up temporary files:
       test -f ${TEMPDIR}/cosmic_${CHIP}_$$.fits &&\
-              rm ${TEMPDIR}/cosmic_${CHIP}_$$.fits
+              rm -f ${TEMPDIR}/cosmic_${CHIP}_$$.fits
       
-      test -f ${TEMPDIR}/cosmic.cat_$$ && rm ${TEMPDIR}/cosmic.cat_$$
+      test -f ${TEMPDIR}/cosmic.cat_$$ && rm -f ${TEMPDIR}/cosmic.cat_$$
     done
   }
-  test -f ${TEMPDIR}/crw_images_$$ #&& rm  ${TEMPDIR}/crw_images_$$
+  test -f ${TEMPDIR}/crw_images_$$ #&& rm -f  ${TEMPDIR}/crw_images_$$
 done
 
-log_status $?
+#adam-BL# log_status $?

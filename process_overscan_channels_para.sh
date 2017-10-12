@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 
 # $Id: process_overscan_channels_para.sh,v 1.3 2009-01-29 00:09:09 anja Exp $
 
@@ -60,4 +61,4 @@ do
   fi
 done
 
-log_status $?
+#adam-BL# log_status $?

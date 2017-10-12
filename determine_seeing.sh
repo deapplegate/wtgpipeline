@@ -180,10 +180,10 @@ if [ $# -gt 5 ] && [ "${FWHM}" != "ERROR" ]; then
 fi
 
 # clean up:
-rm ${TEMPDIR}/science_seeing_$$.fits
-rm ${TEMPDIR}/science_seeing_$$.weight.fits 
-rm ${TEMPDIR}/science_seeing_$$.flag.fits 
-rm ${TEMPDIR}/seeing.cat_$$
+rm -f ${TEMPDIR}/science_seeing_$$.fits
+rm -f ${TEMPDIR}/science_seeing_$$.weight.fits 
+rm -f ${TEMPDIR}/science_seeing_$$.flag.fits 
+rm -f ${TEMPDIR}/seeing.cat_$$
 
 exit 0
 

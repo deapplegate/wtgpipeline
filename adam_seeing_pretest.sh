@@ -1,4 +1,5 @@
-#!/bin/bash -v
+#!/bin/bash
+set -xv
 
 #example# header_key=`${P_DFITS} ${image} | ${P_FITSORT} -d header_key | awk '{print $2}'`
 #example# if [ "${header_key}" == "KEY_N/A" ]; then
@@ -42,8 +43,8 @@ if [ "${fwhm}" == "KEY_N/A" ]; then
 	if [ ${Nelements} -eq 4 ]; then
 		fwhm=${rms_fwhm_dt_ft[1]}
 	else
-		echo "adam-Error: something wrong with rms_fwhm_dt_ft its supposed to be 4 elements long, but Nelements=" $Nelements
-		echo "adam-Error: rms_fwhm_dt_ft=" ${rms_fwhm_dt_ft[@]}
+		echo "adam-Error(adam_seeing_pretest.sh): something wrong with rms_fwhm_dt_ft its supposed to be 4 elements long, but Nelements=" $Nelements
+		echo "adam-Error(adam_seeing_pretest.sh): rms_fwhm_dt_ft=" ${rms_fwhm_dt_ft[@]}
 		exit 1;
 	fi  
 	echo "MYSEEING has: fwhm=" $fwhm #if not 0.1<MYSEEING<1.9 or Nelements!=4 then use the crappy method!

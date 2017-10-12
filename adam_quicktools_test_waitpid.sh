@@ -1,4 +1,5 @@
-#!/bin/bash -v
+#!/bin/bash
+set -xv
 #adam-does# use this code if you need to wait until other jobs are finished running before you run the next thing
 #adam-SHNT# this is a test, first of all it doesn't work yet as is
 COUNTER=0

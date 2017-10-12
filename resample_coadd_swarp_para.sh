@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-example# ./resample_coadd_swarp_para.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-B SCIENCE OCFI.sub MACS1115+01_all /u/ki/awright/bonnpipeline/
+#adam-BL#. log_start
 # this script performs resampling of data with swarp
 # preparing the final coaddition. It can perform
 # its task in parallel mode.
@@ -55,7 +56,7 @@
 #$5: location of the global coadd.head file
 
 # preliminary work:
-. progs.ini
+. progs.ini > /tmp/out.out 2>&1
 
 # construct a unique name for the coadd.head file
 # of this co-addition:
@@ -66,10 +67,16 @@
 TMPNAME_1=`echo ${1##/*/} | sed -e 's!/\{2,\}!/!g' -e 's!^/*!!' -e 's!/*$!!'`
 TMPNAME_2=`echo ${2} | sed -e 's!/\{2,\}!/!g' -e 's!^/*!!' -e 's!/*$!!'`
 COADDFILENAME=${TMPNAME_1}_${TMPNAME_2}_${4}
-DIR=`pwd`
+BONNDIR=`pwd`
 
+#adam-del# setstartchip='0'
+#adam-del# startchip='0'
 for CHIP in $6
 do
+  #adam-del# if [ ${setstartchip} -eq "0" ]; then
+  #adam-del# 	  startchip=${CHIP}
+  #adam-del# 	  setstartchip='1'
+  #adam-del# fi
   RESULTDIR[${CHIP}]="/$1/$2/coadd_$4"      
 done
 
@@ -79,31 +86,43 @@ do
     cd ${RESULTDIR[${CHIP}]}
 
     if [ ! -f coadd.head ]; then
-        cp $5/coadd_${COADDFILENAME}.head ./coadd.head
-	cp coadd.head coadd.flag.head
+      cp $5/coadd_${COADDFILENAME}.head ./coadd.head
+      cp coadd.head coadd.flag.head
     fi
+    #adam-del# if [ ! -f ./coadd.head_${startchip} ]; then
+    #adam-del#    cp $5/coadd_${COADDFILENAME}.head ./coadd.head_${startchip}
+    #adam-del#    cp coadd.head_${startchip} coadd.flag.head_${startchip}
+    #adam-del# fi
 
+    ${P_FIND} . -maxdepth 1 -name \*_${CHIP}$3.fits > ${TEMPDIR}/files_$$.list
 
-    ${P_FIND} . -maxdepth 1 -name \*_${CHIP}$3.fits > ./files_$$.list
+    # test whether we have something to do at all! In case that only individual
+    # chips need to be co-added it may be that the preceeding find command returns
+    # an empty file.
 
-  # test whether we have something to do at all! In case that only individual
-  # chips need to be co-added it may be that the preceeding find command returns
-  # an empty file.
-
-    if [ -s ./files_$$.list ]; then
+    if [ -s ${TEMPDIR}/files_$$.list ]; then
     
+      #${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
+      #           -RESAMPLE Y -COMBINE N \
+      #           -RESAMPLE_SUFFIX .$4.resamp.fits \
+      #           -RESAMPLE_DIR . -INPUTIMAGE_LIST ${TEMPDIR}/files_$$.list\
+      #           -NTHREADS 1 #-VERBOSE_TYPE QUIET
       ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
                  -RESAMPLE Y -COMBINE N \
                  -RESAMPLE_SUFFIX .$4.resamp.fits \
-                 -RESAMPLE_DIR . -INPUTIMAGE_LIST ./files_$$.list\
-                 -NTHREADS 1 #-VERBOSE_TYPE QUIET
-
-	rm ./files_$$.list
+                 -RESAMPLE_DIR . @${TEMPDIR}/files_$$.list\
+                 -NTHREADS 1 -VERBOSE_TYPE FULL
+                 #adam-old# -HEADER_SUFFIX .head_${startchip} \
+	if [ "$?" -gt "0" ]; then exit $? ; fi
+	#adam-tmp# rm -f ${TEMPDIR}/files_$$.list
+    else
+      echo "adam-look resample_coadd_swarp_para.sh: nothing in ${TEMPDIR}/files_$$.list"
 
     fi
 
-    ${P_FIND} . -maxdepth 1 -name \*_${CHIP}$3.flag.fits > ./files.flag_$$.list
-    if [ -s ./files.flag_$$.list ]; then
+    ${P_FIND} . -maxdepth 1 -name \*_${CHIP}$3.flag.fits > ${TEMPDIR}/files.flag_$$.list
+    if [ "$?" -gt "0" ]; then exit $? ; fi
+    if [ -s ${TEMPDIR}/files.flag_$$.list ]; then
 
 	while read file
 	do
@@ -127,54 +146,56 @@ do
     	  echo "OUTFLAG_NAME ${TEMPDIR}/${BASE}.flag.fits"                >> ${TEMPDIR}/${BASE}.ww_$$
 
 	  ${P_WW} -c ${TEMPDIR}/${BASE}.ww_$$
-          rm ${TEMPDIR}/${BASE}.ww_$$
+	  if [ "$?" -gt "0" ]; then exit $? ; fi
+	  #adam-tmp# rm -f ${TEMPDIR}/${BASE}.ww_$$
 
 	  INSTRUM=`dfits "${BASE}.fits" | fitsort -d INSTRUM | awk '{print $2}'`
 	  CONFIG=`dfits "${BASE}.fits" | fitsort -d CONFIG | awk '{print $2}'`
 	  IMAGEID=`dfits "${BASE}.fits" | fitsort -d IMAGEID | awk '{print $2}'`
 	  case ${INSTRUM} in
 	      "SUBARU" | "'SUBARU'" )
-		  CCDTYPE=`${P_GAWK} '{if($1=='${IMAGEID}') print 2^($2-1)}' ${DIR}/chip_types_c${CONFIG}.dat` ;;
+		  CCDTYPE=`${P_GAWK} '{if($1=='${IMAGEID}') print 2^($2-1)}' ${BONNDIR}/chip_types_c${CONFIG}.dat` ;;
 	      "CFH12K" | "'CFH12K'" )
-		  CCDTYPE=`${P_GAWK} '{if($1=='${IMAGEID}') print 2^($2-1)}' ${DIR}/chip_types_CFH12K.dat` ;;
+		  CCDTYPE=`${P_GAWK} '{if($1=='${IMAGEID}') print 2^($2-1)}' ${BONNDIR}/chip_types_CFH12K.dat` ;;
 	      * )
 		  CCDTYPE=1 ;;
 	  esac
 
-	  rm ${file}
+	  rm -f ${file}
 	  ${P_IC} '%1 '${CCDTYPE}' +' ${TEMPDIR}/${BASE}.flag.fits > ${file}
-	  rm ${TEMPDIR}/${BASE}.flag.fits
+	  if [ "$?" -gt "0" ]; then exit $? ; fi
+	  rm -f ${TEMPDIR}/${BASE}.flag.fits
 	  
-	done < ./files.flag_$$.list
+	done < ${TEMPDIR}/files.flag_$$.list
       
       ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
-          -SUBTRACT_BACK N \
 	  -BACK_TYPE MANUAL \
 	  -BACK_DEFAULT 0.0 \
-	  -COMBINE N \
-	  -COMBINE_TYPE MAX \
+	  -COMBINE N -RESAMPLE Y \
 	  -FSCALASTRO_TYPE NONE \
 	  -FSCALE_KEYWORD FKESCALE \
 	  -IMAGEOUT_NAME coadd.flag.fits \
-	  -RESAMPLE Y \
 	  -RESAMPLE_DIR . \
 	  -RESAMPLE_SUFFIX .$4.resamp.fits \
 	  -RESAMPLING_TYPE NEAREST \
 	  -SUBTRACT_BACK N \
 	  -WEIGHTOUT_NAME "./dummy_$$.fits" \
 	  -WEIGHT_TYPE NONE \
-	  -VERBOSE_TYPE QUIET \
+	  -VERBOSE_TYPE FULL \
 	  -NTHREADS 1 \
 	  -MEM_MAX 4096 \
 	  -VMEM_MAX 6144 \
 	  -VMEM_DIR "/tmp" \
-	  -INPUTIMAGE_LIST ./files.flag_$$.list
-
-      rm ./files.flag_$$.list *.flag.$4.resamp.weight.fits
+	  @${TEMPDIR}/files.flag_$$.list
+          #adam-old# -HEADER_SUFFIX .flag.head_${startchip} \
+	  #adam-old#-INPUTIMAGE_LIST ${TEMPDIR}/files.flag_$$.list
+	  #adam-old# -COMBINE_TYPE MAX \
+      if [ "$?" -gt "0" ]; then exit $? ; fi
+      #adam-tmp# rm -f ${TEMPDIR}/files.flag_$$.list *.flag.$4.resamp.weight.fits
+      rm -f *.flag.$4.resamp.weight.fits
+    else
+      echo "adam-look resample_coadd_swarp_para.sh: nothing in ${TEMPDIR}/files.flag_$$.list"
     fi
-    cd ${DIR}
+    cd ${BONNDIR}
 
-  
-
-done  
-log_status $?
+done

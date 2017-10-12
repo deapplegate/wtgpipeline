@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # CVSId: $Id: check_psf_coadd_vis.sh,v 1.7 2010-02-02 20:18:35 dapple Exp $
 
 # $1: directory
@@ -136,7 +137,7 @@ echo 'COL_DEPTH = 1'         >> ${TEMPDIR}/asctoldac_tmp.conf_$$
 
 ${P_ASCTOLDAC} -i ${TEMPDIR}/tmp.asc_$$ -c ${TEMPDIR}/asctoldac_tmp.conf_$$ -t HFINDPEAKS \
 		     -o ${TEMPDIR}/hfind.cat_$$ -b 1 -n "KSB"
-rm ${TEMPDIR}/asctoldac_tmp.conf_$$
+rm -f ${TEMPDIR}/asctoldac_tmp.conf_$$
 
 # now transfer the HFINDPEAKS table to the SEX catalog
 ${P_LDACADDTAB} -i ${TEMPDIR}/tmp12.cat_$$ -o ${BASE}_tmp1.cat1 \
@@ -169,14 +170,14 @@ ${P_LDACJOINKEY} -i ${BASE}_tmp2.cat1 \
 STEPSIZE=0.05
 
 ${P_PREANISOTROPY} -i ${BASE}_ksb.cat1 -t OBJECTS \
-                   -k rh mag -s ${STEPSIZE} -c rh 0.5 10.0 snratio 30.0 100000.0 >& tmp1.asc_$$
+                   -k rh mag -s ${STEPSIZE} -c rh 0.5 10.0 snratio 30.0 100000.0 >& ${TEMPDIR}/tmp1.asc_$$
 
 ### make check plot
 
-MINRH=`awk '($2=="propose") { print $8-'${STEPSIZE}'}' tmp1.asc_$$`
-MAXRH=`awk '($2=="propose") { print $12+5*'${STEPSIZE}'}' tmp1.asc_$$`
-MAXMAG=`awk '($2=="propose") { print $14}' tmp1.asc_$$`
-MINMAG=`awk '($2=="propose") { print $18}' tmp1.asc_$$`
+MINRH=`awk '($2=="propose") { print $8-'${STEPSIZE}'}' ${TEMPDIR}/tmp1.asc_$$`
+MAXRH=`awk '($2=="propose") { print $12+5*'${STEPSIZE}'}' ${TEMPDIR}/tmp1.asc_$$`
+MAXMAG=`awk '($2=="propose") { print $14}' ${TEMPDIR}/tmp1.asc_$$`
+MINMAG=`awk '($2=="propose") { print $18}' ${TEMPDIR}/tmp1.asc_$$`
 LINE="rh $MINRH $MAXRH MAG_AUTO $MAXMAG $MINMAG"
 
 ${P_LDACTOASC} -i ${BASE}_ksb.cat1 \
@@ -291,7 +292,7 @@ case ${psf} in
 	;;
     "y" | "Y" | "yes" | "Yes" )
 
-	ANISOLINE=`${P_GAWK} '($2=="propose") { print $10,'${MINRH}','${MAXRH}',$16,'${MAXMAG}','${MINMAG}'}' tmp1.asc_$$`
+	ANISOLINE=`${P_GAWK} '($2=="propose") { print $10,'${MINRH}','${MAXRH}',$16,'${MAXMAG}','${MINMAG}'}' ${TEMPDIR}/tmp1.asc_$$`
 
 	${P_ANISOTROPY} -i ${BASE}_ksb.cat1 -c ${ANISOLINE} \
                 -o ${BASE}_ksb_tmp.cat2 -j 5.0 -e 2.0
@@ -356,7 +357,7 @@ echo "limits 0.5 5 30 20"
 echo "box"
 echo "expand 1.3"
 echo "xlabel r_h"
-echo "ylabel MAG\_AUTO"
+echo "ylabel MAG_AUTO"
   echo "relocate (17600 32000)"
 echo "putlabel 5 '${cluster}' '${mode}'"
 echo "expand 0.4"
@@ -383,7 +384,7 @@ echo "hardcopy"
 
 # The file for global ellipticity statistics:
 test -f  ${TEMPDIR}/${BASE}_PSF_allellip.asc_$$ && \
-      rm ${TEMPDIR}/${BASE}_PSF_allellip.asc_$$ 
+      rm -f ${TEMPDIR}/${BASE}_PSF_allellip.asc_$$ 
 
 
 ${P_LDACTOASC} -i ${BASE}_ksb.cat2 -b -t OBJECTS\
@@ -455,23 +456,23 @@ ${P_GAWK} '{print $3, $4}' ${TEMPDIR}/${BASE}_PSFplot.asc_$$ > \
 cat ${TEMPDIR}/${BASE}_PSFplot.sm_$$ | ${P_SM}
 
 
-rm tmp_*_$$.dat
-rm rh_mag_$$.dat
-rm tmp1.asc_$$
-rm ${BASE}_tmp*.cat1
-rm ${BASE}_ksb*.cat*
-rm ${BASE}.cat0
-rm ${BASE}.cat
-rm ${BASE}_ref.cat
+rm -f tmp_*_$$.dat
+rm -f rh_mag_$$.dat
+rm -f ${TEMPDIR}/tmp1.asc_$$
+rm -f ${BASE}_tmp*.cat1
+rm -f ${BASE}_ksb*.cat*
+rm -f ${BASE}.cat0
+rm -f ${BASE}.cat
+rm -f ${BASE}_ref.cat
 
 
-rm ${TEMPDIR}/tmp*cat_$$
-rm ${TEMPDIR}/tmp*asc_$$
-rm ${TEMPDIR}/hfind.cat_$$
-rm ${TEMPDIR}/seeing_$$.cat
+rm -f ${TEMPDIR}/tmp*cat_$$
+rm -f ${TEMPDIR}/tmp*asc_$$
+rm -f ${TEMPDIR}/hfind.cat_$$
+rm -f ${TEMPDIR}/seeing_$$.cat
 
-rm ${TEMPDIR}/psfimages_plot_$$
-find ${TEMPDIR} -maxdepth 1 -name \*PSF_allellip.asc_$$ -exec rm {} \;
-find ${TEMPDIR} -maxdepth 1 -name \*PSFplot.asc_$$      -exec rm {} \;
-find ${TEMPDIR} -maxdepth 1 -name \*PSF_allellip.asc_$$ -exec rm {} \;
-find ${TEMPDIR} -maxdepth 1 -name \*PSFplot.sm_$$       -exec rm {} \;
+rm -f ${TEMPDIR}/psfimages_plot_$$
+find ${TEMPDIR} -maxdepth 1 -name \*PSF_allellip.asc_$$ -exec rm -f {} \;
+find ${TEMPDIR} -maxdepth 1 -name \*PSFplot.asc_$$      -exec rm -f {} \;
+find ${TEMPDIR} -maxdepth 1 -name \*PSF_allellip.asc_$$ -exec rm -f {} \;
+find ${TEMPDIR} -maxdepth 1 -name \*PSFplot.sm_$$       -exec rm -f {} \;

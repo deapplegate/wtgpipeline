@@ -5,8 +5,9 @@
 
 from __future__ import with_statement
 import unittest, sys, re, os, optparse, copy, math
-import astropy.io.fits as pyfits, numpy, measure_unstacked_photometry
+import astropy, astropy.io.fits as pyfits, numpy, measure_unstacked_photometry
 import ldac, utilities, photometry_db, convert_aper
+ns=globals()
 
 
 ##############################
@@ -82,141 +83,112 @@ def photoCalibrateCat(cat, cluster, type='standard',  specification = {},
                       getExtinction = __get_extinction_default__,
                       getDust = __get_dust_default__,
                       photometry_db = __default_photometry_db__):
+    try:
+        flux_keys, fluxerr_keys, magonlykeys, other_keys = utilities.sortFluxKeys(cat.keys())
+        cols = []
+        for key in other_keys:
+            if not (re.match('^MAG_', key) or re.match('^MAGERR_', key)):
+                cols.append(cat.extractColumn(key))
 
-    flux_keys, fluxerr_keys, magonlykeys, other_keys = utilities.sortFluxKeys(cat.keys())
-
-    cols = []
-    for key in other_keys:
-        if not (re.match('^MAG_', key) or re.match('^MAGERR_', key)):
-            cols.append(cat.extractColumn(key))
-
-    ebv = None
-    if 'ebv' in cat:
-        ebv = cat['ebv']
-    else:
-        if getDust:
-            ebv = getDust(cat['ALPHA_J2000'], cat['DELTA_J2000'])
-            cols.append(pyfits.Column(name='ebv', format='E', array=ebv))
-
-    zp_list = []
-    zperr_list = []
-    filters = []
-    for fluxkey in flux_keys:
-
-        filter = extractFilter(fluxkey)
-
-        if _is2Darray(cat[fluxkey]) or _isNotValidFilter(filter):
-            continue
-
-        print 'Processing %s' % fluxkey
-        
-        fluxtype = extractFluxType(fluxkey)
-        fluxerr_key = 'FLUXERR_%s-%s' % (fluxtype, filter)
-        mag_key = 'MAG_%s-%s' % (fluxtype, filter)
-        magerr_key = 'MAGERR_%s-%s' % (fluxtype, filter)
-
-
-        flux = cat[fluxkey]
-        err = cat[fluxerr_key]
-
-        flux, err, zp, zperr = applyZeropoint(cluster, filter, flux, 
-                                              fluxtype, err, type, 
-                                              cat, photometry_db = photometry_db, 
-                                              specification = specification)
-
-        print 'Found zp = %3.2f +/- %1.4f' % (zp, zperr)
-
-        filters.append(mag_key)
-
-        zp_list.append(zp)
-        zperr_list.append(zperr)
-
-        if ebv is not None and getDust is not None:
-            flux, err = applyDust(filter, flux, err, ebv, getExtinction)
-
-        mag, magerr = measure_unstacked_photometry.calcMags(flux, err)
-
-        cols.append(pyfits.Column(name = fluxkey,
-                                  format = 'E',
-                                  array = flux))
-        cols.append(pyfits.Column(name = fluxerr_key,
-                                  format = 'E',
-                                  array = err))
-        cols.append(pyfits.Column(name = mag_key,
-                                  format = 'E',
-                                  array = mag))
-        cols.append(pyfits.Column(name = magerr_key,
-                                  format = 'E',
-                                  array = magerr))
-
-
-    for magkey in magonlykeys:
-
-
-
-        magtype = extractMagType(magkey)
-        filter = extractMagFilter(magkey)
-
-        if _isNotValidFilter(filter):
-            continue
-
-        print 'Processing %s' % magkey
-
-        magerr_key = 'MAGERR_%s-%s' % (magtype, filter)
-        
-        calibration = photometry_db.getZeropoint(cluster, filter = filter, **specification)
-        
-        if calibration is None:
-            zp = 0
-            zperr = 0
+        ebv = None
+        if 'ebv' in cat:
+            ebv = cat['ebv']
         else:
-            zp = calibration.zp - _getSourceExtractorZP(cat)
-            try:
-                zperr = calibration.zperr
-            except AttributeError:
-                zperr = 0.
+            if getDust:
+                ebv = getDust(cat['ALPHA_J2000'], cat['DELTA_J2000'])
+                cols.append(pyfits.Column(name='ebv', format='E', array=ebv))
 
-        print 'Found zp = %3.2f +/- %1.4f' % (zp, zperr)
-            
-        dustCorrection = 0.
-        if getExtinction:
-            extinction = getExtinction(filter)
+        zp_list = []
+        zperr_list = []
+        filters = []
+        for fluxkey in flux_keys:
+            filter = extractFilter(fluxkey)
+            print ' filter=',filter
+            if _is2Darray(cat[fluxkey]) or _isNotValidFilter(filter):
+                continue
 
-            dustCorrection = -extinction*ebv
+            print 'Processing %s' % fluxkey
+            fluxtype = extractFluxType(fluxkey)
+            fluxerr_key = 'FLUXERR_%s-%s' % (fluxtype, filter)
+            mag_key = 'MAG_%s-%s' % (fluxtype, filter)
+            magerr_key = 'MAGERR_%s-%s' % (fluxtype, filter)
 
+            flux = cat[fluxkey]
+            err = cat[fluxerr_key]
+            flux, err, zp, zperr = applyZeropoint(cluster, filter, flux, 
+                                                  fluxtype, err, type, 
+                                                  cat, photometry_db = photometry_db, 
+                                                  specification = specification)
 
-        newmag = cat[magkey] + zp + dustCorrection
+            print 'Found zp = %3.2f +/- %1.4f' % (zp, zperr)
 
+            filters.append(mag_key)
+            zp_list.append(zp)
+            zperr_list.append(zperr)
 
-        cols.append(pyfits.Column(name = magkey, format = 'E', array = newmag))
+            if ebv is not None and getDust is not None:
+                flux, err = applyDust(filter, flux, err, ebv, getExtinction)
 
+            mag, magerr = measure_unstacked_photometry.calcMags(flux, err)
 
+            cols.append(pyfits.Column(name = fluxkey, format = 'E', array = flux))
+            cols.append(pyfits.Column(name = fluxerr_key, format = 'E', array = err))
+            cols.append(pyfits.Column(name = mag_key, format = 'E', array = mag))
+            cols.append(pyfits.Column(name = magerr_key, format = 'E', array = magerr))
 
+        for magkey in magonlykeys:
+            magtype = extractMagType(magkey)
+            filter = extractMagFilter(magkey)
 
+            if _isNotValidFilter(filter):
+                continue
 
-    calibratedCat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
+            print 'Processing %s' % magkey
 
- 
-    if cat.hdu.header.has_key('EXTNAME'):
-        calibratedCat.hdu.header['EXTNAME']= cat.hdu.header['EXTNAME']
+            magerr_key = 'MAGERR_%s-%s' % (magtype, filter)
+            calibration = photometry_db.getZeropoint(cluster, filter = filter, **specification)
+            if calibration is None:
+                zp = 0
+                zperr = 0
+            else:
+                zp = calibration.zp - _getSourceExtractorZP(cat)
+                try:
+                    zperr = calibration.zperr
+                except AttributeError:
+                    zperr = 0.
 
-    ''' now make table with zeropoints used to calibrate catalog '''
-    zp_cols = [pyfits.Column(name = 'filter',
-                             format= '60A',
-                             array=filters),
-               pyfits.Column(name = 'zeropoints',
-                             format= 'E',
-                             array=numpy.array(zp_list)),
-               pyfits.Column(name = 'errors',
-                             format = 'E',
-                             array = numpy.array(zperr_list))]
-   
+            print 'Found zp = %3.2f +/- %1.4f' % (zp, zperr)
+            dustCorrection = 0.
+            if getExtinction:
+                extinction = getExtinction(filter)
+                dustCorrection = -extinction*ebv
+            newmag = cat[magkey] + zp + dustCorrection
+            cols.append(pyfits.Column(name = magkey, format = 'E', array = newmag))
 
-    zpCat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(zp_cols)))
-    zpCat.hdu.header['EXTNAME']= 'ZPS'
+        calibratedCat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
+        if cat.hdu.header.__contains__('EXTNAME'):
+            calibratedCat.hdu.header['EXTNAME']= cat.hdu.header['EXTNAME']
 
-    return calibratedCat, zpCat
+        ''' now make table with zeropoints used to calibrate catalog '''
+        zp_cols = [pyfits.Column(name = 'filter',
+                                 format= '60A',
+                                 array=filters),
+                   pyfits.Column(name = 'zeropoints',
+                                 format= 'E',
+                                 array=numpy.array(zp_list)),
+                   pyfits.Column(name = 'errors',
+                                 format = 'E',
+                                 array = numpy.array(zperr_list))]
+
+        zpCat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(zp_cols)))
+        zpCat.hdu.header['EXTNAME']= 'ZPS'
+
+	#ns.update(locals()) #adam-tmp
+        return calibratedCat, zpCat
+    except:
+        ns.update(locals())
+        raise
 
 
 ##############################
@@ -298,8 +270,8 @@ def main(argv = sys.argv):
         parser.error('One catalog needed!')
 
     
-    cat = ldac.openObjectFile(options.incatfile)
-    converted = convert_aper.convertAperColumns(cat)
+    incat = ldac.openObjectFile(options.incatfile)
+    converted = convert_aper.convertAperColumns(incat)
 
     
     if options.doDust:                                                                 
@@ -325,6 +297,7 @@ def applyZeropoint(cluster, filter, flux, fluxtype, err, type='standard', cat=No
                    
 
     if photometry_db is None:
+        print "photometry_db is None"
         return flux, err, 0, 0
 
 
@@ -462,13 +435,6 @@ def applyOffset(flux, fluxerr, offset):
 
 ######################
 
-
-
-
-
-
-    
-
 ##############################
 # TESTING
 ##############################
@@ -513,19 +479,19 @@ class TestComponents(unittest.TestCase):
 
     #############################
 
-#    def testApplyOffset_per_aper(self):
-#
-#        fluxs = numpy.ones(30)
-#        errs = numpy.ones(30)
-#        offsets = -2.5*numpy.log10(numpy.arange(1,6))
-#
-#        scaledFluxs, scaledErrs = applyOffset(fluxs, errs, offsets)
-#
-#        expected = numpy.ones((30,5)) * numpy.arange(1,6)
-#
-#        self.assertTrue( (numpy.abs(scaledFluxs - expected) < 1e-8).all() )
-#        self.assertTrue( (numpy.abs(scaledErrs - expected) < 1e-8).all() )
-#
+    #    def testApplyOffset_per_aper(self):
+    #
+    #        fluxs = numpy.ones(30)
+    #        errs = numpy.ones(30)
+    #        offsets = -2.5*numpy.log10(numpy.arange(1,6))
+    #
+    #        scaledFluxs, scaledErrs = applyOffset(fluxs, errs, offsets)
+    #
+    #        expected = numpy.ones((30,5)) * numpy.arange(1,6)
+    #
+    #        self.assertTrue( (numpy.abs(scaledFluxs - expected) < 1e-8).all() )
+    #        self.assertTrue( (numpy.abs(scaledErrs - expected) < 1e-8).all() )
+    #
     ##############################
 
     def testApplyOffset_per_obj(self):
@@ -611,10 +577,10 @@ class TestComponents(unittest.TestCase):
     #############################
 
 
-####
-#def applyZeropoint(cluster, filter, flux, fluxtype, err, type='standard', cat=None, 
-#                   photometry_db = photometry_db, specification = {}):
-###
+    ####
+    #def applyZeropoint(cluster, filter, flux, fluxtype, err, type='standard', cat=None, 
+    #                   photometry_db = photometry_db, specification = {}):
+    ###
 
     def testApplyZeropoints_testSLR(self):
 
@@ -771,19 +737,7 @@ class TestComponents(unittest.TestCase):
 
     ##########################
 
-
-        
-
-        
-
-        
-        
-
-        
-        
-
 ##############################
-
 
 class TestPhotoCalibrateCatalog(unittest.TestCase):
 
@@ -1079,10 +1033,10 @@ class TestPhotoCalibrateCatalog(unittest.TestCase):
 
         db = FakeDB()
 
-#def photoCalibrateCat(cat, cluster, type,  
-#                      getExtinction = __get_extinction_default__,
-#                      getDust = __get_dust_default__,
-#                      photometry_db = __default_photometry_db__):
+    #def photoCalibrateCat(cat, cluster, type,  
+    #                      getExtinction = __get_extinction_default__,
+    #                      getDust = __get_dust_default__,
+    #                      photometry_db = __default_photometry_db__):
         
 
         photoCalibrateCat(self.cat, self.cluster, getExtinction = None, getDust = None, photometry_db = db,
@@ -1136,8 +1090,6 @@ class TestPhotoCalibrateCatalog(unittest.TestCase):
         
         self.assertTrue((numpy.abs(calibrated[mag_name] - expected_mags) < 1e-6).all(), 'Expected: %3.2f, Returned: %3.2f' % (expected_mags, calibrated[mag_name][0]))
 
-
-
 ##############################
 
 def test():
@@ -1147,8 +1099,6 @@ def test():
     suite = unittest.TestSuite(map(unittest.TestLoader().loadTestsFromTestCase,
                                    testcases))
     unittest.TextTestRunner(verbosity=2).run(suite)
-
-
 
 ##############################
 # COMMANDLINE EXECUTABLE

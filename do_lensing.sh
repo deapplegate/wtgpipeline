@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 
 #################################
 
@@ -20,7 +21,7 @@ snrcut="3.0"
 reddir=`pwd`
 export LENSCONF=${reddir}/lensconf
 
-subarudir=/nfs/slac/g/ki/ki05/anja/SUBARU
+subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 LENSDIR=$subarudir/$cluster/LENSING
 PHOTDIR=$subarudir/$cluster/PHOTOMETRY
 
@@ -34,7 +35,7 @@ if [ ! -e ${LENSDIR}/.test_$$ ]; then
     echo "Cannot Write to Lensing Directory!"
     exit 1
 fi
-rm ${LENSDIR}/.test_$$
+rm -f ${LENSDIR}/.test_$$
 
 lensingimage=${subarudir}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/${IMAGE}.fits
 
@@ -66,7 +67,7 @@ fi
 #
 #${P_LDACFILTER} -i ${TEMPDIR}/tmp64_$$.cat -o ${LENSDIR}/${IMAGE}_shear_cut.cat  -c "(snratio>$snrcut);"
 #
-#rm tmp*_$$.cat
+#rm -f tmp*_$$.cat
 #
 ##################################
 #### Clean out masked objects

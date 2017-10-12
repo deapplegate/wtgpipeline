@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the scripts creates a check plot out of the
 # chips.cat6 IMAGE table
 
@@ -36,8 +36,8 @@
 . ${INSTRUMENT:?}.ini
 
 if [ ! -f /$1/$2/cat/chips.cat6 ] && [ ! -f /$1/$2/cat/chips.cat5 ]; then
-  echo "no chips.cat5 and chips.cat6 in /$1/$2/cat/; exiting"
-  log_status 1 "no chips.cat5 and chips.cat6 in /$1/$2/cat/"
+  #adam-BL# log_status 1 "no chips.cat5 and chips.cat6 in /$1/$2/cat/"
+  echo "adam-look | error: no chips.cat5 and chips.cat6 in /$1/$2/cat/"
   exit 1
 fi 
 
@@ -292,4 +292,4 @@ echo "hardcopy"
 fi
 
 
-log_status $?
+#adam-BL# log_status $?

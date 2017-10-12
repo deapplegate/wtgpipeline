@@ -11,22 +11,21 @@ REDDIR=`pwd`
 export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 #DONE COMBINATIONS
 #run=10_3 #use this for processing DARK
-#run=2010-02-12 ; filter="W-C-IC" ; FLAT=DOMEFLAT
 #(dont use) run=2010-02-12 ; filter="W-C-IC" ; FLAT=SKYFLAT
 #(dont use) run=2010-02-12 ; filter="W-C-RC" ; FLAT=SKYFLAT
-#run=2010-02-12 ; filter="W-C-RC" ; FLAT=DOMEFLAT
-#run=2010-02-12 ; filter="W-J-B" ; FLAT=DOMEFLAT
-#run=2010-02-12 ; filter="W-J-V" ; FLAT=DOMEFLAT
-#run=2010-04-15 ; filter="W-S-I+" ; FLAT=SKYFLAT #DIV3
+#(don't use) run=2010-04-15 ; filter="W-S-I+" ; FLAT=SKYFLAT #DIV3
 
 #WORKING COMBINATIONS (up to start weights)
 
 #round3# start processing here
+#run=2010-02-12 ; filter="W-C-IC" ; FLAT=DOMEFLAT
+#run=2010-02-12 ; filter="W-C-RC" ; FLAT=DOMEFLAT
+#run=2010-02-12 ; filter="W-J-B" ; FLAT=DOMEFLAT
+#run=2010-02-12 ; filter="W-J-V" ; FLAT=DOMEFLAT
 #run=2010-04-15 ; filter="W-S-G+" ; FLAT=SKYFLAT #DIV1
 #run=2010-04-15 ; filter="W-S-I+" ; FLAT=DOMEFLAT #DIV2
-##
-run=2011-01-06 ; filter="W-C-IC" ; FLAT=DOMEFLAT #DIV4
-#run=2011-01-06 ; filter="W-S-Z+" ; FLAT=DOMEFLAT #DIV5
+#run=2011-01-06 ; filter="W-C-IC" ; FLAT=DOMEFLAT #DIV4
+#done#run=2011-01-06 ; filter="W-S-Z+" ; FLAT=DOMEFLAT #DIV5
 
 export BONN_TARGET=${run}
 export BONN_FILTER=${filter}
@@ -146,7 +145,7 @@ export INSTRUMENT=SUBARU
 #adam# makes little images from the *_#OC.fits files
 #./create_binnedmosaics.sh ${SUBARUDIR}/${run}_${filter} ${FLAT} ${FLAT} "" 8 -32
 #./create_binnedmosaics.sh ${SUBARUDIR}/${run}_${filter} ${FLAT} SUP "OC" 8 -32
-#adam-check# at this point, go to BINNED dir and ds9 *.fits (ds9 -zscale ./2011-01-06_W-S-Z+/DOMEFLAT/BINNED/SUPA*mosOC.fits -geometry 2000x2000 -zoom to fit), see if any of the frames are bad. If they are, then, for example if 5 and 8 are bad do "rm *8OC.fits *5OC.fits *CHallOC.fits SKYFLAT_5.fits SKYFLAT_8.fits". Then re-run process_flat_4channels_eclipse_para.sh on those frames (for example "./process_flat_4channels_eclipse_para.sh ~/data/2010-02-12_W-C-IC BIAS SKYFLAT 8" and the same thing with 5) (see #STARTOVER-BAD FLAT FRAMES REMOVED) ONLY REMOVE IF REALLY BAD
+#adam-check# at this point, go to BINNED dir and ds9 *.fits (ds9 -zscale ./2011-01-06_W-S-Z+/DOMEFLAT/BINNED/SUPA*mosOC.fits -geometry 2000x2000 -zoom to fit), see if any of the frames are bad. If they are, then, for example if 5 and 8 are bad do "rm -f *8OC.fits *5OC.fits *CHallOC.fits SKYFLAT_5.fits SKYFLAT_8.fits". Then re-run process_flat_4channels_eclipse_para.sh on those frames (for example "./process_flat_4channels_eclipse_para.sh ~/data/2010-02-12_W-C-IC BIAS SKYFLAT 8" and the same thing with 5) (see #STARTOVER-BAD FLAT FRAMES REMOVED) ONLY REMOVE IF REALLY BAD
 
 #BLOCK5-PER RFF# per Run per Filter and per Flat
 #### processes SCIENCE frames:
@@ -228,7 +227,6 @@ done
 #adam-help# paste in a bunch of lines that look like
 ## ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.48 0.91 DARK -1.73 4.15 1
 ## use the python code 1st guesses & ds9 to perfect them. The DARK limits are the same unless config changes
-#put First_Light_Cutter.py in here to get the limits used below
 
 #############PASTE IN LIMITS HERE########################
 #for 2010-04-15_W-S-G+
@@ -255,17 +253,17 @@ done
 #./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.69 0.95 DARK -1.43 4.6 9
 #./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.49 0.95 DARK -1.58 4.75 10
 
-#for 2011-01-06_W-C-IC
-./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.58 0.96 DARK -1.73 4.15 1
-./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.78 1.0 DARK -1.88 4.6 2
-./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.86 1.04 DARK -1.88 4.9 3
-./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.78 1.01 DARK -1.88 5.35 4
-./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.36 0.94 DARK -2.94 5.95 5
-./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.55 1.03 DARK -1.88 5.5 6
-./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.85 1.05 DARK -1.73 4.75 7
-./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.9 1.07 DARK -2.04 4.75 8
-./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.65 0.95 DARK -1.43 4.6 9
-./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.38 0.92 DARK -1.58 4.75 10
+#for 2011-01-06_W-C-IC (this is the thing I most recently commented out)
+##./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.58 0.96 DARK -1.73 4.15 1
+##./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.78 1.0 DARK -1.88 4.6 2
+##./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.86 1.04 DARK -1.88 4.9 3
+##./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.78 1.01 DARK -1.88 5.35 4
+##./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.36 0.94 DARK -2.94 5.95 5
+##./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.55 1.03 DARK -1.88 5.5 6
+##./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.85 1.05 DARK -1.73 4.75 7
+##./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.9 1.07 DARK -2.04 4.75 8
+##./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.65 0.95 DARK -1.43 4.6 9
+##./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.38 0.92 DARK -1.58 4.75 10
 
 #for 2011-01-06_W-S-Z+
 #./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.58 0.91 DARK -1.73 4.15 1
@@ -278,6 +276,20 @@ done
 #./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.86 1.07 DARK -2.04 4.75 8
 #./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.63 0.94 DARK -1.43 4.6 9
 #./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.34 0.93 DARK -1.58 4.75 10
+
+#############SUPER WIDE LIMITS USED HERE!########################
+#adam#super wide limits that I just use because this doesn't matter much at this point (this is found by taking the min of the lower limits and max of the upper limits for all "by eye" limits for each filter, then taking min-.04 and max+.08 so that I'm sure this will cut almost nothing out)
+./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.42 1.04 DARK -1.73 4.15 1
+./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.74 1.11 DARK -1.88 4.6 2
+./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.79 1.15 DARK -1.88 4.9 3
+./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.69 1.12 DARK -1.88 5.35 4
+./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.32 1.1 DARK -2.94 5.95 5
+./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.37 1.11 DARK -1.88 5.5 6
+./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.74 1.14 DARK -1.73 4.75 7
+./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.81 1.19 DARK -2.04 4.75 8
+./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.59 1.09 DARK -1.43 4.6 9
+./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.3 1.07 DARK -1.58 4.75 10
+
 #adam-archived#find limits for old filters/runs in do_Subaru_preprocess_notes.sh
 #adam# make weighted science images
 ./create_global_science_weighted.sh ${SUBARUDIR}/${run}_${filter} SCIENCE WEIGHTS
@@ -288,7 +300,7 @@ done
 #echo "Goto B: Global Weight Creation"
 #adam-check# MAKE SURE THE BAD THINGS (hot pixels, etc.) ARE COVERED BY REGION FILES:
 #	ds9 ${run}_${filter}/WEIGHTS/globalweight_*.fits
-./RegionMaker1pt1.py ${SUBARUDIR}/${run}_${filter}/WEIGHTS
+./WeightMasker.py ${SUBARUDIR}/${run}_${filter}/WEIGHTS
 exit 0;
 ##########################################################
 

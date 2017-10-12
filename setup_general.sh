@@ -1,7 +1,9 @@
+#!/bin/bash
+set -xv
 #!/bin/bash -u
 
-. BonnLogger.sh
-#. log_start
+#adam-BL##adam-BL#. BonnLogger.sh
+##adam-BL##adam-BL#. log_start
 
 #CVSID="$Id: setup_general.sh,v 1.11 2010-10-05 02:29:02 anja Exp $"
 
@@ -11,7 +13,7 @@
 #     to obtain the observation date (We use the
 #     MJD keyword)
 # $2 file to write results to
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1
 
 IMAGE=`find $1/ -maxdepth 1 -name \*.fits | sort -r | ${P_GAWK} '(NR==1) {print $0}'`
 
@@ -46,7 +48,7 @@ if [ "${INSTRUM}" != "KEY_N/A" ]; then
 	export INSTRUMENT=SDSS
     else
 	echo "Instrument ${INSTRUM} not known!" >&2
-	log_status 1 "Instrument ${INSTRUM} not known!"	
+	#adam-BL##adam-BL#log_status 1 "Instrument ${INSTRUM} not known!"	
 	exit 2
     fi
 elif [ "${DETECTOR}" == "CFH12K" ]; then
@@ -61,9 +63,9 @@ elif [ "${ORIGIN}" == "SDSS" ]; then
     export INSTRUMENT=SDSS
 else
     echo "Cannot determine instrument of ${IMAGE}." >&2
-    log_status 2 "Cannot determine instrument of ${IMAGE}."
+    #adam-BL##adam-BL#log_status 2 "Cannot determine instrument of ${IMAGE}."
 fi
 
 echo ${INSTRUMENT} > $2
 
-#log_status 0
+##adam-BL##adam-BL#log_status 0

@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 #. BonnLogger.sh
 #. log_start
 
@@ -7,7 +8,7 @@
 # -----------------------------------------------------------------------
 # File Name:           create_scamp_astrom_photom.sh
 # Author:              Thomas Erben (terben@astro.uni-bonn.de)
-# Last modified on:    03.09.2015 by Adam, works when both *OCF.fits & *OCFR.fits files are present
+# Last modified on:    03.09.2015 by Adam, works when both *${ending}fits & *OCFR.fits files are present
 # Description:         Performs astrometric and relative photometric
 #                      calibration of THELI sets with scamp V1.4.0-V1.4.6
 # -----------------------------------------------------------------------
@@ -94,14 +95,19 @@
 # Modified to not need file extensions
 
 # 03.09.2015 (Adam W.)
-# works when both *OCF.fits & *OCFR.fits files are present
+# works when both *${ending}fits & *OCFR.fits files are present
 # ... or any other number of different ${ending} values
 
 # File inclusions:
+if [ -z ${INSTRUMENT} ] ;then
+	INSTRUMENT="SUBARU"
+fi
 . ${INSTRUMENT:?}.ini > /tmp/SUBARU.out 2>&1
 
 ### we can have different INSTRUMENTs
 . progs.ini > /tmp/progs.out 2>&1
+
+#adam: if there are multiple endings, you can set your preferred one here
 
 # NCHIPSMAX needs to be set before
 NCHIPS=${NCHIPSMAX}
@@ -399,6 +405,9 @@ do
 	                 } 
 	                 name = name a[n-1]; 
 	                 print name;}' | sort | uniq`
+	image1=`\ls -1 ${curdir}/SUPA*_1OCF*.fits | head -n 1`
+	num_path_supa_chip_ending=(`~/bonnpipeline/adam_quicktools_get_num_path_supa_chip_ending.py ${image1}`)
+	ending=${num_path_supa_chip_ending[4]}
 	# now the merging with a pyfits-based Python script:
 	for IMAGE in ${IMAGES}
 	do
@@ -419,8 +428,8 @@ do
 			# it just in case ....
 			# It is necessary as we allow for images with different endings in the 
 			# image directories:
-			ocat=`\ls ${IMAGE}_${i}OCF.ldac`
-			if [ ! -f "${IMAGE}_${i}OCF.ldac" ]; then
+			ocat=`\ls ${IMAGE}_${i}${ending}.ldac`
+			if [ ! -f "${IMAGE}_${i}${ending}.ldac" ]; then
 				ocat=`\ls ${IMAGE}_${i}[!0-9]*.ldac`
 			fi
 			if [ -f "${ocat}" ]; then
@@ -467,8 +476,8 @@ do
 		i=1
 		while [ ${i} -le ${NCHIPS} ]
 		do
-			ocat=`\ls ${IMAGE}_${i}OCF.ldac`
-			if [ ! -f "${IMAGE}_${i}OCF.ldac" ]; then
+			ocat=`\ls ${IMAGE}_${i}${ending}.ldac`
+			if [ ! -f "${IMAGE}_${i}${ending}.ldac" ]; then
 				ocat=`\ls ${IMAGE}_${i}[!0-9]*.ldac`
 			fi
 			if [ -f "${ocat}" ]; then
@@ -504,7 +513,14 @@ do
 	m=$(( ${m} + 1 ))
 done
 
+#/nfs/slac/g/ki/ki05/anja/MEGAPRIME/software/THELI/ldacpipeline-0.12.33/scripts/Linux_64/scampcat.py: merge single frame THELI files to a scamp MEF catalogue                                     
+#merges individual chip cats BASE_${i}${ending}.ldac to BASE_scamp.cat
+
+##adam: changing to a different version of scampcat.py, because the one in ${S_SCAMPCAT} uses pyfits
 python ${S_SCAMPCAT} ${DIR}/catlist.txt_$$
+##newer version of scampcat.py here: /u/ki/anja/THELI_DECam_pipeline/ldacpipeline/scripts/Linux_64/scampcat.py
+#adam-tmp# python /u/ki/awright/bonnpipeline/scampcat.py ${DIR}/catlist.txt_$$
+
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
 	echo "adam-Error: something wrong with python scamp call. Checkout ${DIR}/catlist.txt_$$"
@@ -549,19 +565,20 @@ ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
            -ASTRINSTRU_KEY FILTER,INSTRUM,CONFIG,ROTATION,MISSCHIP,PPRUN \
            -CDSCLIENT_EXEC ${P_ACLIENT} \
            -NTHREADS ${NPARA} ${MOSAICTYPE} \
-           -XML_NAME ${BONN_TARGET}_scamp.xml \
+           -XML_NAME ${cluster}_scamp.xml \
            -MAGZERO_INTERR 0.1 \
-           -MAGZERO_REFERR 0.1 \
+           -MAGZERO_REFERR 0.03 \
            -POSITION_MAXERR 5.0 \
-           -POSANGLE_MAXERR 30.0 \
+           -POSANGLE_MAXERR 0.07 \
            -SN_THRESHOLDS 3,100 \
            -FLAGS_MASK 0x00e0 \
            -MATCH_NMAX 10000 \
            -CROSSID_RADIUS 0.3 \
            -PIXSCALE_MAXERR 1.03 \
            -DISTORT_DEGREES 3 \
-           -ASTREF_WEIGHT 1 ${scamp_mode_use}
+           -ASTREF_WEIGHT 1 ${scamp_mode_use} -CHECKPLOT_RES 4000,3000
 
+#-POSITION_MAXERR 1.0 -POSANGLE_MAXERR 0.05 -PIXSCALE_MAXERR 1.03
 #starcat#           -ASTREF_CATALOG ${STARCAT} \
 #refcat#           -ASTREF_CATALOG FILE \
 #refcat#           -ASTREFCENT_KEYS X_WORLD,Y_WORLD \
@@ -573,7 +590,7 @@ ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
 #refcat_scamp_call#         -ASTRINSTRU_KEY FILTER,INSTRUM,CONFIG,ROTATION,MISSCHIP,PPRUN \
 #refcat_scamp_call#         -CDSCLIENT_EXEC ${P_ACLIENT} \
 #refcat_scamp_call#         -NTHREADS ${NPARA} ${MOSAICTYPE} \
-#refcat_scamp_call#         -XML_NAME ${BONN_TARGET}_scamp.xml \
+#refcat_scamp_call#         -XML_NAME ${cluster}_scamp.xml \
 #refcat_scamp_call#         -MAGZERO_INTERR 0.1 \
 #refcat_scamp_call#         -MAGZERO_REFERR 0.1 \
 #refcat_scamp_call#         -POSITION_MAXERR 5.0 \
@@ -603,7 +620,7 @@ ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
 #usual_scamp_call#            -CDSCLIENT_EXEC ${P_ACLIENT} \
 #usual_scamp_call#            -ASTREF_CATALOG ${STARCAT} \
 #usual_scamp_call#            -NTHREADS ${NPARA} ${MOSAICTYPE} \
-#usual_scamp_call#            -XML_NAME ${BONN_TARGET}_scamp.xml \
+#usual_scamp_call#            -XML_NAME ${cluster}_scamp.xml \
 #usual_scamp_call#            -MAGZERO_INTERR 0.1 \
 #usual_scamp_call#            -MAGZERO_REFERR 0.1 \
 #usual_scamp_call#            -POSITION_MAXERR 5.0 \
@@ -645,7 +662,7 @@ ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
 #old_scamp_comments#            -CDSCLIENT_EXEC ${P_ACLIENT} \
 #old_scamp_comments#            -ASTREF_CATALOG ${STARCAT} \
 #old_scamp_comments#            -NTHREADS ${NPARA} ${MOSAICTYPE} \
-#old_scamp_comments#            -XML_NAME ${BONN_TARGET}_scamp.xml \
+#old_scamp_comments#            -XML_NAME ${cluster}_scamp.xml \
 #old_scamp_comments#            -POSITION_MAXERR 5.0 \
 #old_scamp_comments#            -SN_THRESHOLDS 20,100 "
 #old_scamp_comments# 
@@ -664,8 +681,7 @@ then
     exit 1
 fi
 
-# scamp creates the headers in the directory where the catalogs
-# are:
+# scamp creates the headers in the directory where the catalogs are:
 ${P_FIND}  ../cat/ -name \*.head -exec mv {} . \;
 
 # we want the diagnostic plots in an own directory:
@@ -680,7 +696,9 @@ mv psphot_error*    ../plots
 mv astr_refsysmap*  ../plots
 mv phot_zpcorr*     ../plots
 mv phot_errorvsmag* ../plots
-mv ${BONN_TARGET}_scamp.xml ../plots
+mv ${cluster}_scamp.xml ../plots
+cp ~/bonnpipeline/scamp.xsl ../plots
+sed -i.old 's/href=".*"?>/href="scamp.xsl"?>/g' ../plots/${cluster}_scamp.xml
 
 # now get the relative magnitude offsets from the FLXSCALES
 # estimated by scamp:
@@ -741,7 +759,7 @@ do
     do
         # we need to take care of catalogs that may not be
         # present (bad chips)!
-        ocat=`\ls ../cat/${NAME}_${i}OCF.ldac`
+        ocat=`\ls ../cat/${NAME}_${i}${ending}.ldac`
         if [ ! -f "${ocat}" ]; then
             ocat=`\ls ../cat/${NAME}_${i}[!0-9]*.ldac`
     	ocat_mode=2
@@ -750,7 +768,7 @@ do
         fi
         if [ -f "${ocat}" ]; then
             if [ ${ocat_mode} -eq 1 ]; then
-                headername=`basename ../cat/${NAME}_${i}OCF.ldac .ldac | perl -e '<STDIN> =~ /(.+_\d+)/; print "$1\n";'`
+                headername=`basename ../cat/${NAME}_${i}${ending}.ldac .ldac | perl -e '<STDIN> =~ /(.+_\d+)/; print "$1\n";'`
             elif [ ${ocat_mode} -eq 2 ]; then
                 headername=`basename ../cat/${NAME}_${i}[!0-9]*.ldac .ldac | perl -e '<STDIN> =~ /(.+_\d+)/; print "$1\n";'`
             fi
@@ -758,27 +776,26 @@ do
             # to FLSCALE. We need FLXSCALE for the THELI
             # flux scaling later:
             sed -e 's/FLXSCALE/FLSCALE /' ${NAME}_scamp.head |\
-            ${P_GAWK} 'BEGIN {ext = '${j}'; nend = 0} 
+            ${P_GAWK} 'BEGIN {ext = '${j}'; nend = 0}
                        {
-                         if(nend < ext) 
+                         if(nend < ext)
                          {
-                           if($1 == "END") 
+                           if($1 == "END")
                            {
-                             nend++; 
-                             next; 
-                           } 
-                           if(nend == (ext-1)) { print $0 } 
-                         } 
+                             nend++;
+                             next;
+                           }
+                           if(nend == (ext-1)) { print $0 }
+                         }
                        }
-                       END { printf("RZP     = %20f / THELI relative zeropoint\n", 
+                       END { printf("RZP     = %20f / THELI relative zeropoint\n",
                                     '${RELZP}');
-                             printf("FLXSCALE= %20E / THELI relative flux scale\n", 
+                             printf("FLXSCALE= %20E / THELI relative flux scale\n",
                                     '${FLXSCALE}');
                          printf("END\n")
                        }' > ${headername}.head
             j=$(( $j + 1 ))
         fi
-    
         i=$(( $i + 1 ))
     done
 done < photdata_relzp.txt_$$
@@ -786,9 +803,12 @@ done < photdata_relzp.txt_$$
 i=1
 while [ ${i} -le ${NCATS} ]
 do
-  if [ -f ${CATBASE[$i]}.head ]; then
+  if [ -f "${CATBASE[$i]}.head" ]; then
     mv ${CATBASE[$i]}*head ${CATDIR[$i]}/headers_scamp_${STARCAT}
-    exit_status=$?
+    exit_stat=$?
+    if [ "${exit_stat}" -gt "0" ]; then
+		exit ${exit_stat};
+    fi
   fi
   
   i=$(( ${i} + 1 )) 
@@ -799,4 +819,4 @@ cleanTmpFiles
 
 cd ${DIR}
 #log_status $exit_status
-exit $exit_status
+exit $exit_stat

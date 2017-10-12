@@ -1,6 +1,8 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-note# from $1/$2/${2}_${i}${3}.fits it makes /$1/$2_norm//$2_norm_${i}${3}.fits NORM and THRESH by CHIP max(modes)
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # CVSId: $Id: create_norm.sh,v 1.8 2008-09-03 18:49:40 dapple Exp $
 
 # 30.06.2008 (AvdL):
@@ -31,7 +33,7 @@
 # $2: directory from which normaliced images should be created 
 # $3: file suffix
 
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/INSTRUMENT.log 2>&1
 
 # first calculate the modes:
 FILES=""
@@ -47,11 +49,10 @@ ${P_IMSTATS} ${FILES} -s \
 
 exit_code=$?
 if [ $exit_code -ne 0 ]; then
-    log_status $exit_code "IMSTATS failure"
+    #adam-BL# log_status $exit_code "IMSTATS failure"
+    echo "adam-look | error: IMSTATS failure"
     exit $exit_code
 fi
-
-
 
 # create the new directory for the normalized images if
 # it does not exist already
@@ -59,7 +60,6 @@ fi
 if [ ! -d "/$1/$2_norm" ]; then
   mkdir "/$1/$2_norm"
 fi
-
 
 
 # set the normalization to the highest mode value
@@ -91,12 +91,13 @@ do
   
   exit_code=$?
   if [ $exit_code -ne 0 ]; then
-      log_status $exit_code 'IC Failure'
+      #adam-BL# log_status $exit_code 'IC Failure'
+      echo "adam-look | error: IMSTATS failure"
       exit $exit_code
   fi
 
   i=$(( $i + 1 ))
 done
 
-rm ${TEMPDIR}/immode.dat_$$
-log_status $?
+rm -f ${TEMPDIR}/immode.dat_$$
+#adam-BL# log_status $?

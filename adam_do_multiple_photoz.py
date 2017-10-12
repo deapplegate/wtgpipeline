@@ -277,6 +277,7 @@ def add_dummy_ifilter(catalog, outputfile):
         cols.append(pyfits.Column(name='MAGERR_APER0-SUBARU-10_2-1-W-S-I+', format = '1E', array = numpy.zeros(rows)))
         cols.append(pyfits.Column(name='MAG_APER1-SUBARU-10_2-1-W-S-I+', format = '1E', array = numpy.zeros(rows)))
         cols.append(pyfits.Column(name='MAGERR_APER1-SUBARU-10_2-1-W-S-I+', format = '1E', array = numpy.zeros(rows)))
+	#adam-SHNT# Ok, so this just puts the cols in there as zeros and leaves it up to "convert_to_mags" to calculate the "HYBRID" versions, how does that work??
 
 
 
@@ -806,7 +807,7 @@ def figure_out_slr_chip(filters,catalog,tab='STDTAB',magtype='APER1'):
 
     return moststarfilts, good_star_nums
 
-def do_bpz(CLUSTER,DETECT_FILTER,AP_TYPE,filters,inputcat_alter_ascii,inputcat_alter_ldac, calib_type,spec,use_spec,SPECTRA,picks=None,magtype='ISO',randsample=False,short=False,randpercent=0.03,magflux='FLUX',ID='SeqNr',only_type=False,inputcolumns=False):
+def do_bpz(CLUSTER,DETECT_FILTER,AP_TYPE,filters,inputcat_alter_ascii,inputcat_alter_ldac, calib_type,spec,SPECTRA,picks=None,magtype='ISO',randsample=False,short=False,randpercent=0.03,magflux='FLUX',ID='SeqNr',only_type=False,inputcolumns=False):
     import os
     SUBARUDIR=os.environ['SUBARUDIR']
     iaper = '1'
@@ -847,11 +848,11 @@ def do_bpz(CLUSTER,DETECT_FILTER,AP_TYPE,filters,inputcat_alter_ascii,inputcat_a
     else: nsplit = 1
     print ' nsplit=',nsplit , ' randsample=',randsample , ' picks=',picks #currently: nsplit= 4  randsample= False  picks= None
 
-    tmpdir = '/tmp/' + os.environ['USER'] + '/'
-    ooo=os.system('mkdir -p ' + tmpdir)
-    if ooo!=0: raise Exception("os.system failed!!!")
+    #adam-del#tmpdir = '/tmp/' + os.environ['USER'] + '/'
+    #adam-del#ooo=os.system('mkdir -p ' + tmpdir)
+    #adam-del#if ooo!=0: raise Exception("os.system failed!!!")
+    #adam-del#os.chdir(tmpdir)
 
-    os.chdir(tmpdir)
     print ' dict=',dict
 
     children = [] ; catalogs = [] ; probs = [] ; fluxes = []
@@ -895,6 +896,13 @@ def do_bpz(CLUSTER,DETECT_FILTER,AP_TYPE,filters,inputcat_alter_ascii,inputcat_a
             #''' FIX PRIOR AND INTERPOLATION!!! '''
             #adam#print 'python %(BPZPATH)s/bpz.py %(SUBARUDIR)s/%(CLUSTER)s/%(PHOTOMETRYDIR)s/all_bpz%(magtype)s%(SPECTRA)s%(iaper)s_%(n)s.cat \n -COLUMNS %(columns)s \n -MAG %(magvar)s \n -SPECTRA %(SPECTRA)s \n -PRIOR hdfn_SB \n -CHECK yes \n -PLOTS yes  \n -VERBOSE no \n -ZMAX 4.0 \n -PLOTS yes \n -INTERP %(INTERP)s \n -PROBS_LITE %(prob)s \n -OUTPUT %(catalog)s' % dict
 
+	    #adam-SHNT# now how to handle specz input (should have input `spec=True` if I fixed adam_do_photometry.py right)
+	    #if pars.d['ONLY_TYPE']=='yes': #Use only the redshift information, no priors
+	    # probably have to run it with pars.d['ONLY_TYPE']=='yes' and 'no' to see impact
+	    # does this just make it have an extra plot or does it actually change the p(z) results? (does BPZ learn from zspecs?)
+	    # either way, for plotting purposes, I'll have to fix some stuff in bpz.py
+	    # what about where I don't have a Z_S, what do I put there in the catalog? (I think Z_S=99 should work fine)
+
             command = 'python %(BPZPATH)s/bpz.py %(SUBARUDIR)s/%(CLUSTER)s/%(PHOTOMETRYDIR)s/all_bpz%(magtype)s%(SPECTRA)s%(iaper)s_%(n)s.cat \
             -COLUMNS %(columns)s \
             -MAG %(magvar)s \
@@ -902,18 +910,22 @@ def do_bpz(CLUSTER,DETECT_FILTER,AP_TYPE,filters,inputcat_alter_ascii,inputcat_a
             -PRIOR hdfn_SB \
             -CHECK yes \
             -PLOTS yes \
-            -VERBOSE no \
+            -VERBOSE yes \
             -ZMAX 4.0 \
             -INTERP %(INTERP)s \
+            -INTERACTIVE no \
             -PROBS_LITE %(prob)s \
             -OUTPUT %(catalog)s' % dict
             #adam-changed# -VERBOSE yes \
+            #adam-changed# -INTERACTIVE no \
             #adam-changed# -NEW_AB yes 
 
             print ' command=',command
 
 	    ooo=os.system(command)
-	    if ooo!=0: raise Exception("os.system failed!!!")
+	    if ooo!=0: 
+		    ns_dmp.update(locals()) #adam-tmp#
+		    raise Exception("os.system failed!!!")
             #adam-old# parsebpz(catalog,str(n))
 	    print "adam-look: running parsebpz(catalog=",catalog,"str(n)=",str(n),")"
 	    parsebpz(catalog,str(n))

@@ -8,7 +8,7 @@
 
 #BEFORE RUNNING CODE (1): set make_smoothed if you want smoothed images for all types of coadd differences (all, gabodsid, gabrot)
 #BEFORE RUNNING CODE (2): set make_gabodsid and make_gabrot to determine the types of coadd differences you want to make (makes "all" always), can make gabodsid & gabrot as well
-make_smoothed=0
+make_smoothed=1
 make_gabodsid=0
 make_gabrot=0
 
@@ -78,10 +78,10 @@ orig_dir=input_dir.replace('/SCIENCE/','')+"_*/SCIENCE/"
 for supa_fl in supa_fls:
 	supa_dir=os.path.dirname(supa_fl)
 	supa=supa_dir[-11:]
-	split_fl_str=orig_dir+supa+'_[0-9]*OCF.fits'
+	split_fl_str=orig_dir+supa+'_[0-9]*OCF*.fits'
 	split_fls=glob.glob(split_fl_str)
 	split_fl=split_fls[0]
-	if len(split_fls)!=10:
+	if len(split_fls)<10:
 		raise Exception("split_fl: "+split_fl+" isn't returning 10 matches")
 	split_head=pyfits.open(split_fl)[0].header
 	gab=str(split_head['GABODSID'])

@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 # $1 and $2 give the path
 # $3 gives PHOTCAT path
 
@@ -9,7 +10,7 @@ if [ ! -d "${TEMPDIR}/$$" ]; then
 fi
 
 # remove old catalogs
-rm ${TEMPDIR}/$$/*
+rm -f ${TEMPDIR}/$$/*
 
 file=$1
 USNO=/nfs/slac/g/ki/ki05/anja/USNO-A2/
@@ -65,7 +66,7 @@ ${P_ASSOCIATE} -i ${TEMPDIR}/$$/tmp3_$$.cat ${TEMPDIR}/$$/tmp4_$$.cat \
 
 python mk_ssc_SDSS.py ${TEMPDIR}/$$/tmp.conf ${TEMPDIR}/$$/tmp5_$$.cat ${TEMPDIR}/$$/tmp6_$$.cat
 
-rm $OUTCAT
+rm -f $OUTCAT
 
 # tmp5 is the SExtrator, tmp6 is standard stars
 

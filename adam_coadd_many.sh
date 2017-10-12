@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 #adam-example# ./adam_coadd_many.sh "MACS0416-24" "OCFR" "W-C-RC";./adam_coadd_many.sh "MACS0416-24" "OCF" "W-J-B W-S-Z+"
 #adam-example# ./adam_coadd_many.sh "MACS1226+21" "OCFI" "W-J-B W-J-V W-C-RC W-C-IC W-S-Z+"
 export INSTRUMENT=SUBARU

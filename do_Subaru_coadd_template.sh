@@ -12,7 +12,7 @@
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 cluster="MACS1931-26"  # cluster nickname as in /nfs/slac/g/ki/ki02/xoc/anja/SUBARU/SUBARU.list
 
@@ -68,7 +68,7 @@ LINE=""
 
 #######################################
 ## Reset Logger
-./BonnLogger.py clear
+#adam-BL#./BonnLogger.py clear
 
 
 ##################################################
@@ -81,11 +81,11 @@ do
   export BONN_FILTER=${filter}
   echo ${filter}
 
-  ./BonnLogger.py clear
+  #adam-BL#./BonnLogger.py clear
 
   ./setup_general.sh ${SUBARUDIR}/${cluster}/${filter}/SCIENCE instrument_$$
   export INSTRUMENT=`cat instrument_$$`
-  rm instrument_$$
+  rm -f instrument_$$
   . ${INSTRUMENT:?}.ini
 
   #Find Ending
@@ -106,15 +106,15 @@ do
 	  ;;
   esac
 
-  ./BonnLogger.py clear
+  #adam-BL#./BonnLogger.py clear
 
-  ./BonnLogger.py config \
-      cluster=${cluster} \
-      filter=${filter} \
-      config=${config} \
-      ending=${ending} \
-      astrommethod=${ASTROMMETHOD} \
-      astrometrycat=${ASTROMETRYCAT} \
+  #adam-BL#./BonnLogger.py config \
+  #adam-BL#    cluster=${cluster} \
+  #adam-BL#    filter=${filter} \
+  #adam-BL#    config=${config} \
+  #adam-BL#    ending=${ending} \
+  #adam-BL#    astrommethod=${ASTROMMETHOD} \
+  #adam-BL#    astrometrycat=${ASTROMETRYCAT} \
 
   if [ -d  ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat ] && [ ! -d  ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scamp ];then
       echo "Move ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat to ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat_scamp ? [y/n]"
@@ -297,7 +297,7 @@ elif [ ${coadd} == "exposure" ]; then
     coaddmodes="${coaddmodes} ${IMAGENAME}"
 
   done < exposures_$$.list
-  rm exposures_$$.list
+  rm -f exposures_$$.list
 
 ###################################
 
@@ -347,8 +347,8 @@ elif [ ${coadd} == "pretty" ]; then
 ###################################
 
 else
-    echo "coadd goal ${coadd} not known!"
-    log_status 1 "coadd goal ${coadd} not known!"	
+    echo "adam-look | error: coadd goal ${coadd} not known!"
+    #adam-BL# log_status 1 "coadd goal ${coadd} not known!"	
     exit 2
 fi
 
@@ -384,7 +384,7 @@ done
   ###################################
   ##CHECKPOINT
   ###################################
-#  ./BonnLogger.py checkpoint Coadd
+##adam-BL#  ./BonnLogger.py checkpoint Coadd
 
 done
 

@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # this script can be considered as the create_drizcl.sh
 # part of a coaddition performed with swarp. It mainly creates
 # a header file of the final output image from swarp coaddition
@@ -93,7 +94,7 @@
 # (note that this means the -l TABLE needs to be per chip)
 
 # preliminary work:
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1
 
 # -m: main dir.
 # -s: science dir. (the cat dir is a subdirectory
@@ -218,7 +219,8 @@ done
 # /${MAIN}/${WEIGHTDIR}
 
 # create links of the science and weight frames:
-DIR=`pwd`
+BONNDIR=`pwd`
+HEADDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/coadd_headers/"
 
 # construct a unique name for the coadd.head file
 # of this co-addition:
@@ -248,46 +250,46 @@ else
   # in case that the coaddition directory already
   # exists we assume that we want to REDO
   # some coaddition. Hence all old files are deleted.
-  rm ./coadd_${SCRIPT}/*
+  rm -f ./coadd_${SCRIPT}/*
 fi
 
-if [ -f ${DIR}/coaddimages_$$ ]; then
-  rm ${DIR}/coaddimages_$$
+if [ -f ${TEMPDIR}/coaddimages_$$ ]; then
+  rm -f ${TEMPDIR}/coaddimages_$$
 fi
 
 if [ "${LIST}_A" == "_A" ]; then
   for chip in ${CHIPS}
   do  
-    ls -1 /${MAIN}/${SCIENCE}/*_${chip}${EXTEN}.fits >> ${DIR}/coaddimages_$$
+    ls -1 /${MAIN}/${SCIENCE}/*_${chip}${EXTEN}.fits >> ${TEMPDIR}/coaddimages_$$
   done
 else
   ${P_LDACFILTER} -i ${LIST} -t ${TABLE} -c ${CONDITION}\
                   -o ${OUTPUT} -m ${SCRIPT}
 
   if [ "$?" -gt "0" ]; then
-      cd ${DIR}
+      cd ${BONNDIR}
       echo "error in filtering list catalog; exiting"
-      log_status 1 "error in filtering list catalog"
+      #adam-BL#log_status 1 "err in filtering list catalog"
       exit 1;
   fi              
 
   ${P_LDACFILTER} -i ${OUTPUT} -t ${TABLE} \
-                  -c "(${SCRIPT}=1);" -o ${DIR}/tmp_$$.cat
-  ${P_LDACTOASC} -i ${DIR}/tmp_$$.cat -t ${TABLE} -b -s\
-                 -k FITSFILE IMAGEID > ${DIR}/tmp_$$.asc
+                  -c "(${SCRIPT}=1);" -o ${TEMPDIR}/tmp_$$.cat
+  ${P_LDACTOASC} -i ${TEMPDIR}/tmp_$$.cat -t ${TABLE} -b -s\
+                 -k FITSFILE IMAGEID > ${TEMPDIR}/tmp_$$.asc
 
-  cat ${DIR}/tmp_$$.asc |\
+  cat ${TEMPDIR}/tmp_$$.asc |\
   {
     while read FILE CHIP
     do
       name=${FILE%_*}
       echo "/${MAIN}/${SCIENCE}/${name}_${CHIP}${EXTEN}.fits" \
-             >> ${DIR}/coaddimages_$$
+             >> ${TEMPDIR}/coaddimages_$$
     done        
   }
 fi
 
-cat ${DIR}/coaddimages_$$ |\
+cat ${TEMPDIR}/coaddimages_$$ |\
 {
   while read file
   do
@@ -325,6 +327,7 @@ cat ${DIR}/coaddimages_$$ |\
       if [ "${EXTERNHEAD}" -eq 1 ]; then
         cp /${MAIN}/${SCIENCE}/${EXTERNHEADDIR}/${HEADBASE}.head \
           ./coadd_${SCRIPT}/${HEADBASE}${EXTEN}.head
+	if [ "$?" -gt "0" ]; then exit $? ; fi
       fi
     else
       echo "${file} marked as BAD CCD; not included in the coaddition"
@@ -336,7 +339,7 @@ cat ${DIR}/coaddimages_$$ |\
 # from the first image of the list if RA and DEC
 # are not provided
 if [ "${RA}_A" == "_A" ] || [ "${DEC}_A" == "_A" ]; then
-  REFFILE=`${P_GAWK} '(NR==1) {print $0}' ${DIR}/coaddimages_$$`
+  REFFILE=`${P_GAWK} '(NR==1) {print $0}' ${TEMPDIR}/coaddimages_$$`
 
   RA=`${P_DFITS} ${REFFILE} | ${P_FITSORT} CRVAL1 | ${P_GAWK} '($1!="FILE") {print $2}'`
   DEC=`${P_DFITS} ${REFFILE} | ${P_FITSORT} CRVAL2 | ${P_GAWK} '($1!="FILE") {printf $2}'`
@@ -350,36 +353,47 @@ ${P_FIND} . -maxdepth 1 -name \*${EXTEN}.fits > ${TEMPDIR}/files_$$.list
 
 if [ "${HEADER}_A" == "_A" ]; then
 
-    #create a header file with proper WCS info
-    
-    NAXIS1=`echo $IMAGESIZE | sed 's/,/ /' | awk '{print $1}'`
-    NAXIS2=`echo $IMAGESIZE | sed 's/,/ /' | awk '{print $2}'`
+  #create a header file with proper WCS info
+  
+  NAXIS1=`echo $IMAGESIZE | sed 's/,/ /' | awk '{print $1}'`
+  NAXIS2=`echo $IMAGESIZE | sed 's/,/ /' | awk '{print $2}'`
 
-    CENTER1=$((NAXIS1 / 2))
-    CENTER2=$((NAXIS2 / 2))
+  CENTER1=$((NAXIS1 / 2))
+  CENTER2=$((NAXIS2 / 2))
 
-    echo "NAXIS   = 2" > coadd.head
-    echo "NAXIS1  = $NAXIS1" >> coadd.head
-    echo "NAXIS2  = $NAXIS2" >> coadd.head
-    echo "CTYPE1  = 'RA---TAN'" >> coadd.head
-    echo "CUNIT1  = 'deg     '" >> coadd.head
-    echo "CRVAL1  = ${RA}" >> coadd.head
-    echo "CRPIX1  = $CENTER1" >> coadd.head                    
-    echo "CTYPE2  = 'DEC--TAN'          " >> coadd.head 
-    echo "CUNIT2  = 'deg     '          " >> coadd.head                     
-    echo "CRVAL2  = ${DEC}" >> coadd.head 
-    echo "CRPIX2  = $CENTER2" >> coadd.head 
-    echo "END     "
+  echo "NAXIS   = 2" > coadd.head
+  echo "NAXIS1  = $NAXIS1" >> coadd.head
+  echo "NAXIS2  = $NAXIS2" >> coadd.head
+  echo "CTYPE1  = 'RA---TAN'" >> coadd.head
+  echo "CUNIT1  = 'deg     '" >> coadd.head
+  echo "CRVAL1  = ${RA}" >> coadd.head
+  echo "CRPIX1  = $CENTER1" >> coadd.head                    
+  echo "CTYPE2  = 'DEC--TAN'          " >> coadd.head 
+  echo "CUNIT2  = 'deg     '          " >> coadd.head                     
+  echo "CRVAL2  = ${DEC}" >> coadd.head 
+  echo "CRPIX2  = $CENTER2" >> coadd.head 
+  #adam: make CDELT[1-2] dependent upon PIXSCALE. convert to degrees!!
+  PXSCALE=`${P_GAWK} 'BEGIN{print '${PIXSCALE}'/3600.}'`
+  if [ "$?" -gt "0" ]; then exit $? ; fi
+  echo "CD1_1   = -${PXSCALE}" >>  ./coadd.head
+  echo "CD2_2   = ${PXSCALE}" >>  ./coadd.head
+  echo "CD2_1   = 0.000000000000" >>  ./coadd.head
+  echo "CD1_2   = 0.000000000000" >>  ./coadd.head
+  echo "END     "  >>  ./coadd.head
 
 
   ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
              -RESAMPLE N -COMBINE N \
              -CENTER_TYPE MANUAL -HEADER_ONLY Y -PIXELSCALE_TYPE MANUAL \
-             -PIXEL_SCALE ${PIXSCALE} -IMAGE_SIZE ${IMAGESIZE} -INPUTIMAGE_LIST ${TEMPDIR}/files_$$.list -VERBOSE_TYPE FULL
-  exit_status=$?
+             -VERBOSE_TYPE FULL \
+	     @${TEMPDIR}/files_$$.list
+             #adam-old# -PIXEL_SCALE ${PIXSCALE} -IMAGE_SIZE ${IMAGESIZE} -VERBOSE_TYPE FULL \
+	     #adam-old#-INPUTIMAGE_LIST ${TEMPDIR}/files_$$.list
+  if [ "$?" -gt "0" ]; then exit $? ; fi
   
-  fold coadd.fits | grep -v "^PV" > ${DIR}/coadd_${COADDFILENAME}.head
-  rm ./coadd.head
+  fold coadd.fits | grep -v "^PV\|^CDELT[1-2]" > ${HEADDIR}/coadd_${COADDFILENAME}.head
+  if [ "$?" -gt "0" ]; then exit $? ; fi
+  rm -f ./coadd.head
 
 else
   cp ${HEADER} ./coadd.head
@@ -390,20 +404,24 @@ else
   # given manually and in header files)
   ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
              -RESAMPLE N -COMBINE N \
-             -HEADER_ONLY Y -INPUTIMAGE_LIST ${TEMPDIR}/files_$$.list
-  exit_status=$?
+             -HEADER_ONLY Y \
+	     @${TEMPDIR}/files_$$.list
+	     #adam-old#-INPUTIMAGE_LIST ${TEMPDIR}/files_$$.list
+  if [ "$?" -gt "0" ]; then exit $? ; fi
   
-  fold coadd.fits fold | grep -v "^PV" |\
-     grep -v "^CDELT" > ${DIR}/coadd_${COADDFILENAME}.head
+  #adam-old# fold coadd.fits fold | grep -v "^PV" |\
+  #adam-old#   grep -v "^CDELT" > ${BONNDIR}/coadd_${COADDFILENAME}.head
+  fold coadd.fits | grep -v "^PV\|^CDELT[1-2]" > ${HEADDIR}/coadd_${COADDFILENAME}.head
+  if [ "$?" -gt "0" ]; then exit $? ; fi
 
-  rm coadd.head
+  rm -f coadd.head
 fi
 
-cd ${DIR}
+cd ${BONNDIR}
 
 # clean up temporary files
-rm tmp_$$.asc
-rm tmp_$$.cat
-rm coaddimages_$$
-rm ${TEMPDIR}/files_$$.list
-log_status $exit_status
+rm -f ${TEMPDIR}/tmp_$$.asc
+rm -f ${TEMPDIR}/tmp_$$.cat
+rm -f ${TEMPDIR}/coaddimages_$$
+rm -f ${TEMPDIR}/files_$$.list
+#adam-BL#log_status $exit_status

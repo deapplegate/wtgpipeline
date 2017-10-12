@@ -210,7 +210,7 @@ if [ "${AfterSuperflat}" != "DONE" ] ; then
 		exit ${exit_stat};
 	fi
 
-	./bad_shadow_remover.sh ${SUBARUDIR}/${run}_${filter}/SCIENCE/diffmask
+	#adam-tmp#./bad_shadow_remover.sh ${SUBARUDIR}/${run}_${filter}/SCIENCE/diffmask
 fi
 
 exit 0;

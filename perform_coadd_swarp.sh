@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # the script coadds images with
 # Emmanuels swarp program. It takes
 # the resampled images created by
@@ -51,9 +52,10 @@
 #$3: coadd identifier
 #$4: swarp COMBINE_TYPE (OPTIONAL: WEIGHTED as default)
 
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1
 
-DIR=`pwd`
+BONNDIR=`pwd`
+HEADDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/coadd_headers/" 
 
 # construct a unique name for the coadd.head file
 # of this co-addition:
@@ -68,17 +70,17 @@ COADDFILENAME=${TMPNAME_1}_${TMPNAME_2}_${3}
 cd /$1/$2/coadd_$3
 
 if [ ! -f coadd.head ]; then
-  cp ${DIR}/coadd_${COADDFILENAME}.head ./coadd.head
-  cp ./coadd.head ./coadd.flag.head
+  cp ${HEADDIR}/coadd_${COADDFILENAME}.head ./coadd.head
+  cp ${HEADDIR}/coadd_${COADDFILENAME}.head ./coadd.flag.head
 fi
 
 # collect the files to be co-added
 if [ -f files.list_$$ ]; then
-  rm files.list_$$
+  rm -f files.list_$$
 fi
 
 if [ -f files.sizes_$$ ]; then
-  rm files.sizes_$$
+  rm -f files.sizes_$$
 fi
 
 ${P_DFITS} *.sub.$3.resamp.fits | ${P_FITSORT} -d NAXIS1 NAXIS2 > files.sizes_$$
@@ -87,7 +89,7 @@ while read file naxis1 naxis2
 do
   if [ ${naxis1} -eq 1 ] || [ ${naxis2} -eq 1 ]; then
       base=`basename ${file} .sub.$3.resamp.fits`
-      rm ${base}*fits
+      rm -f ${base}*fits
   fi
 done < files.sizes_$$
 
@@ -95,7 +97,9 @@ ${P_FIND} . -name \*.sub.$3.resamp.fits -print > files.list_$$
 
 if [ ! -s files.list_$$ ]; then
     echo "No Files Found!"
-    log_status 2 "No Files Found!"
+    #adam-BL#log_status 2 "No Files Found!"
+    echo "adam-look perform_coadd_swarp.sh: no files in files.list_$$"
+    exit 2
 fi
 
 ### set swarp COMBINE type:
@@ -114,16 +118,20 @@ ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
            -MEM_MAX 4096 \
            -VMEM_MAX 6144 \
            -VMEM_DIR "/tmp" \
-           -INPUTIMAGE_LIST files.list_$$
+	   -BLANK_BADPIXELS Y \
+           @files.list_$$
+           #adam-old#-INPUTIMAGE_LIST files.list_$$
+	   #adam-note# what does "-BLANK_BADPIXELS Y" do? It wasn't in previous version
 
-rm files.list_$$ files.sizes_$$
+#adam-tmp# rm -f files.list_$$ files.sizes_$$
 
 
 
 # create a flag map with name coadd.flag.fits.
 # collect the files to be co-added
 if [ -f files.flag.list_$$ ]; then
-  rm files.flag.list_$$
+  #adam-tmp# rm -f files.flag.list_$$
+  echo "adam-tmp"
 fi
 
 ${P_FIND} . -name \*.flag.$3.resamp.fits -print > files.flag.list_$$
@@ -134,12 +142,11 @@ if [ -s files.flag.list_$$ ]; then
     ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
 	-BACK_TYPE MANUAL \
 	-BACK_DEFAULT 0.0 \
-	-COMBINE Y \
+	-RESAMPLE N -COMBINE Y \
 	-COMBINE_TYPE MAX \
 	-FSCALASTRO_TYPE NONE \
 	-FSCALE_KEYWORD FKESCALE \
 	-IMAGEOUT_NAME coadd.flag.fits \
-	-RESAMPLE N \
 	-SUBTRACT_BACK N \
 	-WEIGHTOUT_NAME "dummy_$$.fits" \
 	-WEIGHT_TYPE NONE \
@@ -147,19 +154,54 @@ if [ -s files.flag.list_$$ ]; then
 	-MEM_MAX 4096 \
 	-VMEM_MAX 6144 \
 	-VMEM_DIR "/tmp" \
-	-INPUTIMAGE_LIST files.flag.list_$$
-
-    rm files.flag.list_$$ dummy_$$.fits
+	@files.flag.list_$$
+    if [ "$?" -gt "0" ]; then exit $? ; fi
+    #adam-tmp# rm -f files.flag.list_$$ dummy_$$.fits
+    #adam-old#-INPUTIMAGE_LIST files.flag.list_$$
+    #if [ -d ~/data/checkdir/${COADDFILENAME}/ ];then
+    #	rm ~/data/checkdir/${COADDFILENAME}/*
+    #else
+    #	mkdir ~/data/checkdir/${COADDFILENAME}/
+    #fi
+    #cp coadd.head ~/data/checkdir/${COADDFILENAME}
+    #cp coadd.flag.fits ~/data/checkdir/${COADDFILENAME}
+    #cp files.flag.list_$$ ~/data/checkdir/${COADDFILENAME}
+    #echo "running perform_coadd_swarp.sh with the following inputs:"  >> ~/data/checkdir/${COADDFILENAME}/README
+    #echo "$1: main dir.                                         " >> ~/data/checkdir/${COADDFILENAME}/README
+    #echo "$2: science dir.                                      " >> ~/data/checkdir/${COADDFILENAME}/README
+    #echo "$3: coadd identifier                                  " >> ~/data/checkdir/${COADDFILENAME}/README
+    #echo "$4: swarp COMBINE_TYPE (OPTIONAL: WEIGHTED as default)" >> ~/data/checkdir/${COADDFILENAME}/README
+    #echo "${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
+    #    -BACK_TYPE MANUAL \
+    #    -BACK_DEFAULT 0.0 \
+    #    -COMBINE Y \
+    #    -COMBINE_TYPE MAX \
+    #    -FSCALASTRO_TYPE NONE \
+    #    -FSCALE_KEYWORD FKESCALE \
+    #    -IMAGEOUT_NAME coadd.flag.fits \
+    #    -RESAMPLE N \
+    #    -SUBTRACT_BACK N \
+    #    -WEIGHTOUT_NAME "dummy_$$.fits" \
+    #    -WEIGHT_TYPE NONE \
+    #    -NTHREADS ${NPARA} \
+    #    -MEM_MAX 4096 \
+    #    -VMEM_MAX 6144 \
+    #    -VMEM_DIR "/tmp" \
+    #    -BLANK_BADPIXELS Y \
+    #    @files.flag.list_$$" >> ~/data/checkdir/${COADDFILENAME}/README
 
     ic -p 8 '%1' coadd.flag.fits > coadd.flag.fix.fits
+    mv coadd.flag.fits coadd.flag.old.fits
     mv coadd.flag.fix.fits coadd.flag.fits
 
 else
+    echo "adam-look perform_coadd_swarp.sh: no files in files.flag.list_$$"
+    #adam-look# exit 3
 
     ic -p 8 '16 1 %1 1e-6 < ?' coadd.weight.fits > coadd.flag.fits
 
 fi
 
-cd ${DIR}
+cd ${BONNDIR}
 
-log_status $?
+#adam-BL#log_status $?

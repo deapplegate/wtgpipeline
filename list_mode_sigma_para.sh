@@ -32,7 +32,7 @@ do
   more $1 | grep _${CHIP}$2 > ${TEMPDIR}/tmp_$3.${CHIP}_$4
   echo "awk '{print $1, $2, $5}' ${TEMPDIR}/tmp_$3.${CHIP}_$4 > ${TEMPDIR}/@in-$3.${CHIP}_$4"
   awk '{print $1, $2, $5}' ${TEMPDIR}/tmp_$3.${CHIP}_$4 > ${TEMPDIR}/@in-$3.${CHIP}_$4
-  \rm ${TEMPDIR}/tmp_$3.${CHIP}_$4
+  \rm -f ${TEMPDIR}/tmp_$3.${CHIP}_$4
 done
 
 exit

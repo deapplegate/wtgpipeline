@@ -5,13 +5,13 @@ commandname=$1
 command2run=$2
 echo "commandname=" $commandname
 echo "command2run=" $command2run
-if [ -z "${command2run}"] ;then
+if [ -z "${command2run}" ] ;then
 	echo "insufficient inputs! Need name AND command. ex: ./adam_quicktools_nohupify_run_job.sh 'run_phot' './run_phot.sh \$INSTRUMENT \$cluster' "
 	exit 1
 fi
 
-logfile=scratch/OUT-${commandname}_NOHUPIFY.log
-pidfile=scratch/PID-${commandname}_NOHUPIFY.log
+logfile=~/bonnpipeline/OUT-${commandname}_NOHUPIFY.log
+pidfile=~/bonnpipeline/PID-${commandname}_NOHUPIFY.log
 echo "pidfile=" ${pidfile} 
 echo "logfile=" ${logfile} 
 

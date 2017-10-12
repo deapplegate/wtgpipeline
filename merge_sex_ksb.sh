@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # the script merges info from the singleastrom
 # and the check_science_PSF step. It transfers
 # e1, e2 from the KSB cats to the SExtractor cats
@@ -36,7 +37,7 @@
 #$2: science dir.
 #$3: image extension (ext) on ..._iext.fits (i is the chip number)
 
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/SUBARU.out 2>&1
 
 # first make a security copy if it does not yet exist
 if [ -d /$1/$2/cat/copy ]; then
@@ -54,7 +55,7 @@ ${P_FIND} /$1/$2/cat/copy/ -name \*$3.cat > ${TEMPDIR}/mergecats_$$
 # do nothing !!!
 
 if [ -f ${TEMPDIR}/fail_$$ ]; then
-    rm ${TEMPDIR}/fail_$$
+    rm -f ${TEMPDIR}/fail_$$
 fi
 
 cat ${TEMPDIR}/mergecats_$$ |\
@@ -87,7 +88,7 @@ cat ${TEMPDIR}/mergecats_$$ |\
                              -o /$1/$2/cat/${BASE}.cat \
 		             -p ${TEMPDIR}/tmp_$$.cat \
 		             -t LDAC_OBJECTS -k e1 e2 rh cl snratio  
-            rm ${TEMPDIR}/tmp_$$.cat ${TEMPDIR}/tmp1_$$.cat		     
+            rm -f ${TEMPDIR}/tmp_$$.cat ${TEMPDIR}/tmp1_$$.cat		     
         else
             # if we have no lensing information we add dummy
             # information to have consistent catalogues
@@ -98,13 +99,13 @@ cat ${TEMPDIR}/mergecats_$$ |\
                                e2 -2.0 FLOAT "dummy value" \
                                rh 0.0 FLOAT "dummy value" \
                                cl 0 SHORT "dummy value"
-            rm ${TEMPDIR}/tmp1_$$.cat
+            rm -f ${TEMPDIR}/tmp1_$$.cat
         fi
   done
 }
 
-rm ${TEMPDIR}/mergecats_$$
+rm -f ${TEMPDIR}/mergecats_$$
 
 
 
-log_status $?
+#adam-BL#log_status $?

@@ -4,35 +4,34 @@ import os
 if not 'sne' in os.environ:
     os.environ['sne'] = '/nfs/slac/g/ki/ki04/pkelly'
 #os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] +':/nfs/slac/g/ki/ki04/pkelly/lib/python2.5/site-packages/PIL/'
+import astropy, astropy.io.fits as pyfits
+import scipy
 
 #def mkstellarcolorplot():
 
 
 def make_thecorrections(cluster,DETECT_FILTER,SPECTRA='CWWSB_capak.list',AP_TYPE='_aper',magtype='APER1',type='all'):
-
-    path='/nfs/slac/g/ki/ki05/anja/SUBARU/%s/' % cluster
+    #adam-new# the output dir is now: /nfs/slac/kipac/fs1/u/awright/photoz/MACS1226+21/CWWSB_capak.list
+    #adam-new# export sne=/nfs/slac/kipac/fs1/u/awright/
+    path='/nfs/slac/g/ki/ki18/anja/SUBARU/%s/' % cluster
 
     params = {'path':path, 
                   'cluster':cluster, 
                     'type': type,
                    'DETECT_FILTER':DETECT_FILTER,                    
-                    'AP_TYPE': AP_TYPE
-                    }
-                                                                                                                                       
+                    'AP_TYPE': AP_TYPE }
                                                                                                                                        
     params['SPECTRA'] = SPECTRA
     params['magtype'] = magtype
     outputcat = '%(path)s/PHOTOMETRY_%(DETECT_FILTER)s%(AP_TYPE)s/%(cluster)s.%(magtype)s.1.%(SPECTRA)s.%(type)s.bpz.tab' % params 
-                                                                                                                                       
-    print outputcat
+    print ' outputcat=',outputcat
 
-    
     catalog = '%(path)s/PHOTOMETRY_%(DETECT_FILTER)s%(AP_TYPE)s/%(cluster)s.slr.cat' %params           
     starcatalog = '%(path)s/PHOTOMETRY_%(DETECT_FILTER)s%(AP_TYPE)s/%(cluster)s.stars.calibrated.cat' %params           
 
     import do_multiple_photoz, os
     filterlist = do_multiple_photoz.get_filters(catalog,'OBJECTS')
-    print filterlist
+    print ' filterlist=',filterlist
                                                                                                                         
     filters = conv_filt(filterlist)
     y = {} 
@@ -40,20 +39,14 @@ def make_thecorrections(cluster,DETECT_FILTER,SPECTRA='CWWSB_capak.list',AP_TYPE
         y[f] = 'yes'
     filters = y.keys()
     filters.sort(sort_filters)
-    print filters
+    print ' filters=',filters
                                                                                                                          
     stars_dict = star_num(filterlist,catalog,starcatalog,cluster,'APER1',name_suffix='')
-
-
-
-
-
-
 
     pagemain = open(os.environ['sne'] + '/photoz/' + cluster + '/' + SPECTRA + '/index.html','w')    
     pagemain.write('<table align=left><tr><td colspan=5 class="dark"><h1>' + cluster + '</h1></td></tr><tr><td colspan=5><a href=http://www.slac.stanford.edu/~pkelly/photoz/' + cluster + '/stars.html>Stellar Color-Color Plots</a><td></tr><tr><td colspan=5><a href=redsequence.html>Red Sequence Redshifts</a><td></tr><tr><td><a href=objects.html>Photoz Plots</a><td></tr><tr><td><a href=thecorrections.html>Correction Plots</a><td></tr><tr><td><a href=zdistribution.html>Z Distribution</a><td></tr></table>\n')
     pagemain.close()
-    import astropy.io.fits as pyfits, pylab, scipy
+    import astropy, astropy.io.fits as pyfits, pylab, scipy
     p = pyfits.open(outputcat)['STDTAB'].data
     pylab.clf()
     pylab.hist(p.field('BPZ_ODDS'),bins=scipy.arange(0,1,0.02))
@@ -75,7 +68,7 @@ def make_thecorrections(cluster,DETECT_FILTER,SPECTRA='CWWSB_capak.list',AP_TYPE
     
     import flux_comp 
     corrections, plot_dict, title_dict = reload(flux_comp).calc_comp(cluster,DETECT_FILTER.replace('_',''),AP_TYPE,SPECTRA,type='all',plot=True)
-    print corrections
+    print ' corrections=',corrections
     pagemain = open(os.environ['sne'] + '/photoz/' + cluster + '/' + SPECTRA + '/thecorrections.html','w')  
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
     def s(a,b): 
@@ -86,11 +79,9 @@ def make_thecorrections(cluster,DETECT_FILTER,SPECTRA='CWWSB_capak.list',AP_TYPE
     keys2 = corrections.keys()
     keys2.sort(s)
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-    import scipy 
     from scipy import stats
     kernel = scipy.array([scipy.stats.norm.pdf(i,1.) for i in [4,3,2,1,0,1,2,3,4]])
     kernel = kernel / kernel.sum()
-
 
     from datetime import datetime
     f2 = datetime.now()
@@ -105,13 +96,12 @@ def make_thecorrections(cluster,DETECT_FILTER,SPECTRA='CWWSB_capak.list',AP_TYPE
             pylab.clf()
             o = pylab.hist(plot_dict[key],bins=100,range=[0.5,1.5])
             y_smooth = scipy.convolve(o[0],kernel,'same')#[5:-5]
-            print o[1], y_smooth, len(o[1]), len(y_smooth)
+            print ' o=',o , ' o[1]=',o[1] , ' y_smooth=',y_smooth , ' len(o[1])=',len(o[1]) , ' len(y_smooth)=',len(y_smooth)
             #pylab.linewidth = 4
             xs = o[1][:-1]+scipy.ones(len(o[1][:-1]))*(o[1][1]-o[1][0])*0.5
             ys = y_smooth 
             pylab.plot(xs,ys,'r',linewidth=2)
             pylab.suptitle(title_dict[key])
-            print o
             pylab.savefig(file)
             ims += '<img src=' + key + '.png></a>\n'
             a = zip(y_smooth,xs)
@@ -123,7 +113,6 @@ def make_thecorrections(cluster,DETECT_FILTER,SPECTRA='CWWSB_capak.list',AP_TYPE
     pagemain.close()
 
 def convert_probs_to_fits_ldac(file):
-    import scipy, pyfits, os
     p = open(file).readlines()[0]
     
     print 'reading in ' + file
@@ -157,7 +146,6 @@ def convert_probs_to_fits_ldac(file):
 
 
 def convert_probs_to_fits(file):
-    import scipy, pyfits, os
 
     from glob import glob
 
@@ -199,7 +187,7 @@ def convert_probs_to_fits(file):
 
 
 def star_num(filters,catalog,starcatalog,cluster,magtype,name_suffix=''):
-    import random, pyfits
+    import random
     print catalog, starcatalog
     p = pyfits.open(catalog)['OBJECTS'].data
     s = pyfits.open(starcatalog)
@@ -368,7 +356,7 @@ def mkcolorcolor(filt,catalog,starcatalog,cluster,magtype,name_suffix=''):
     locus_c = get_locus()
 
     locus_c_old = locus()
-    import os, random, pyfits, string
+    import os, random, string
     base = os.environ['sne'] + '/photoz/' + cluster + '/'
     file_web = 'stars' + name_suffix + '.html'        
     print base + file_web
@@ -980,7 +968,7 @@ from utilities import *
 def run(cluster):
 
     ratio = []
-    import astropy.io.fits as pyfits
+    import astropy, astropy.io.fits as pyfits
     import os
     import os, sys, bashreader, commands
     from config_bonn import appendix, tag, arc, filters, filter_root, appendix_root

@@ -57,7 +57,7 @@ if [ "${EXTEND}" == "KEY_N/A" ]; then
         ${P_GAWK} '($1!="FILE") {print $2}'`
     if [ "${GABODSID}" == "KEY_N/A" ]; then
 	echo "no GABODSID"
-	log_status 2 "no GABODSID"
+	echo "adam-look | error: no GABODSID"
 	exit 2
     fi
 else
@@ -67,7 +67,8 @@ else
 	EXT_FLAG='-x 1'
     else
 	echo "no EXTEND keyword?!"
-	log_status 1 "no EXTEND keyword?!"
+	#adam-BL# log_status 1 "no EXTEND keyword?!"
+	echo "adam-look | error: no EXTEND keyword?!"
 	exit 1
     fi
 	
@@ -90,7 +91,7 @@ i=1
 while [ ${i} -le 12 ]
 do
   if [ -f CFH12K_${i}.reg ]; then
-      rm CFH12K_${i}.reg 
+      rm -f CFH12K_${i}.reg 
   fi
   i=$(( $i + 1 ))
 done

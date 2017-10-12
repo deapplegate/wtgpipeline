@@ -20,7 +20,7 @@ if [ $# -ne 3 ] ; then
 fi
 
 if [ -f @in-$3 ]; then
-   rm @in-$3
+   rm -f @in-$3
 fi
 
 # set TEMPDIR to a default value

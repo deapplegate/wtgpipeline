@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 ######################
 # @file do_Subaru_10_1_DARK.sh
 # @author Douglas Applegate
@@ -70,8 +71,8 @@ function repack {
     done < uniqfiles_$$.txt
 
 
-    rm allfiles_$$.txt
-    rm uniqfiles_$$.txt
+    rm -f allfiles_$$.txt
+    rm -f uniqfiles_$$.txt
 
     echo "Done\n"
 
@@ -96,7 +97,7 @@ function createThresholdMask {
 
 function createManualMask {
 
-    rm ${SUBARUDIR}/${DARKDIR}/DARK_mask/*.fits
+    rm -f ${SUBARUDIR}/${DARKDIR}/DARK_mask/*.fits
 
     for ((CHIP=1;CHIP<=${MAXCHIP};CHIP+=1)); 
     do

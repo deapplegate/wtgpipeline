@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 
 #"$Id: test_run_prep.sh,v 1.5 2009-01-13 17:57:19 dapple Exp $"
 
@@ -19,13 +20,15 @@ for ((chip=1;chip<=${NCHIPS};chip+=1)); do
 
     if [ ! -r $1/BIAS/BIAS_${chip}.fits ]; then
 	echo "Missing Bias Frames: $chip"
-	log_status 1 "Missing Bias Frames: $chip"
+	#adam-BL# log_status 1 "Missing Bias Frames: $chip"
+	echo "adam-look | error: Missing Bias Frames: $chip"
 	exit 1
     fi
 
     if [ ! -e $1/$2/$2_${chip}.fits ]; then
 	echo "Missing Flat Frames: $chip"
-	log_status 1 "Missing Flat Frames: $chip"
+	#adam-BL# log_status 1 "Missing Bias Frames: $chip"
+	echo "adam-look | error: Missing Bias Frames: $chip"
 	exit 2
     fi
 done
@@ -43,7 +46,8 @@ ls $1/$3/ORIGINALS/*.fits | {
 		fi
 	    done
 	    echo "Missing SPLIT file: $file"
-	    log_status 1 "Missing SPLIT files: $file"
+	    #adam-BL# log_status 1 "Missing SPLIT files: $file"
+	    echo "adam-look | error: Missing SPLIT files: $file"
 	    exit 3
 	fi
     done
@@ -67,12 +71,12 @@ ls $1/$3/ORIGINALS/*.fits | {
 		fi
 	    done
 	    echo "Missing OC files: $file"
-	    log_status 4 "Missing OC files: $file"
+	    #adam-BL# log_status 4 "Missing OC files: $file"
+	    echo "adam-look | error: Missing OC files: $file"
 	    exit 4
 	fi
     done
 
 }
 
-
-log_status 0
+#adam-BL# log_status 0

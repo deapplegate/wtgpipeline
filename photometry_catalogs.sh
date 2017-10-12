@@ -1,4 +1,5 @@
-#!/bin/bash -uxv
+#!/bin/bash
+set -uxv
 ###############
 
 ##########
@@ -10,7 +11,7 @@ cluster=$1
 queue=$2
 
 
-subarudir=/nfs/slac/g/ki/ki05/anja/SUBARU
+subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 
 ./create_seeing_file.sh $cluster

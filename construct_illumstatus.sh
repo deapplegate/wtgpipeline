@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 
 cat cluster.status | { 
     while read cluster filter ending status ; do 

@@ -1,4 +1,5 @@
-#!/bin/bash -uxv
+#!/bin/bash
+set -uxv
 
 #
 # inspect all images in a cluster to compile their seeing values
@@ -6,14 +7,14 @@
 
 cluster=$1
 
-subarudir=/nfs/slac/g/ki/ki05/anja/SUBARU
+subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 special_filters="I K"
 
 special_filter_shell_key=`echo $special_filters | sed -e 's/ //g'`
 
 if [  -e seeing_${cluster}.cat ]; then
-    rm seeing_${cluster}.cat
+    rm -f seeing_${cluster}.cat
 fi
 
 

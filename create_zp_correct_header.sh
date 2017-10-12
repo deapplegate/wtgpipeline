@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # The script writes the keywords ZP[1-3] and COEFF[1-3] to
 # images that do not have them. This is to bring headers
 # of frames for which no standardstar observations are
@@ -33,4 +33,4 @@ cat ${TEMPDIR}/images_$$ |\
     done
   done
 }
-log_status $?
+#adam-BL# log_status $?

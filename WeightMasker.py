@@ -5,7 +5,7 @@
 #adam-DATAtags# usable for all 10_3 data and probably 10_2 as well
 #adam-useful10# 10
 #adam-done10# 9
-import astropy.io.fits as pyfits
+import astropy, astropy.io.fits as pyfits
 from matplotlib.pyplot import *
 from numpy import *
 import sys ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
@@ -38,13 +38,13 @@ imagetools.FileBackup(files,datapath=path_to_data,backupdir='ORIGINAL_globalweig
 
 ###################PLOTTING#####################################
 #plotting OFF (next 3 lines):
-#2014#pltdir='Plots_WeightMasker'
-#2014#PlotSave_On_Off={'fig_corner':False,'fig_streaks':False,'fig_patches':False}
-#2014#PlotShow_On_Off={'fig_zoom_corner':0,'fig_corner':0,'fig_streaks':0,'fig_patches':0,'fig_cutgrid':0,'fig_grid':0,'fig_CCD':0,'fig_hist':0}
+pltdir='Plots_WeightMasker'
+PlotSave_On_Off={'fig_corner':False,'fig_streaks':False,'fig_patches':False}
+PlotShow_On_Off={'fig_zoom_corner':0,'fig_corner':0,'fig_streaks':0,'fig_patches':0,'fig_cutgrid':0,'fig_grid':0,'fig_CCD':0,'fig_hist':0}
 #plotting ON (next 3 lines):
-pltdir=imagetools.PlotDirAndBackup(datapath=path_to_data,pltdir='Plots_WeightMasker')
-PlotSave_On_Off={'fig_corner':True,'fig_streaks':False,'fig_patches':True}#fig_corner does fig_corner and fig_zoom_corner
-PlotShow_On_Off={'fig_zoom_corner':1,'fig_corner':1,'fig_streaks':1,'fig_patches':3,'fig_cutgrid':1,'fig_grid':1,'fig_CCD':1,'fig_hist':1}
+#2014#pltdir=imagetools.PlotDirAndBackup(datapath=path_to_data,pltdir='Plots_WeightMasker')
+#2014#PlotSave_On_Off={'fig_corner':True,'fig_streaks':False,'fig_patches':True}#fig_corner does fig_corner and fig_zoom_corner
+#2014#PlotShow_On_Off={'fig_zoom_corner':1,'fig_corner':1,'fig_streaks':1,'fig_patches':3,'fig_cutgrid':1,'fig_grid':1,'fig_CCD':1,'fig_hist':1}
 
 #use this to save figs after the loop now!
 endneeds={'fig_zoom_corner':range(4)}
@@ -150,7 +150,8 @@ for fl in files:
 		dummy_r1=r1.copy()
 		dummy_r1[dummy_r1==0]=nan
 		#STEP1:apply limits to readouts
-		x,bins=histogram(dummy_r1.flatten(),bins=linspace(0,2,201))
+		#r1_range=(nanmin(dummy_r1),nanmax(dummy_r1))
+		x,bins=histogram(dummy_r1.flatten(),bins=linspace(0,2,201),range=(nanmin(dummy_r1),nanmax(dummy_r1)))
 		countup=cumsum(x<hist_cut_num)
 		counter=bincount(countup)
 		start_spot=sum(counter[:counter.argmax()])+1
@@ -231,7 +232,7 @@ for fl in files:
 		r2_nan[r2_nan_insides]=0
 		bads=asarray(nonzero(r2_nan)).T
 		#STEP3:don't go along streaks (find spots along streaks not at the top and bottom and remove them from bads)
-		x,bins=histogram(bads[:,1],bins=arange(513)-.5)
+		x,bins=histogram(bads[:,1],bins=arange(513)-.5 ,range=(nanmin(bads[:,1]),nanmax(bads[:,1])))
 		rmXbads=nonzero(x>4100)[0]
 		for rmX in rmXbads:
 			keep_col=bads[:,1]!=rmX
@@ -311,7 +312,7 @@ for fl in files:
 			(grid,grid_pts)=around(r2,(xx,yy),grid_level)
 			if isnan(grid).all(): continue #this actually happens for 10_2 config
 			#remember grid_pts are points for r, not for grid
-			Nums,bins=histogram(grid.flatten(),bins=linspace(0.25,1.75,601))
+			Nums,bins=histogram(grid.flatten(),bins=linspace(0.25,1.75,601),range=(nanmin(grid.flatten()),nanmax(grid.flatten())))
 			try:
 				fitinst=Gauss(GetMiddle(bins),Nums,threshold=.001)
 			except TypeError:

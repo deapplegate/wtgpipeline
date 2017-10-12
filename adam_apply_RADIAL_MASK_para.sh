@@ -1,7 +1,11 @@
 #!/bin/bash
+set -xv
+
+#pretty sure you don't actually want to use this!
 #adam-does# Apply ring mask to weight files for coaddition. Cuts out poorly calibrated outer area of chips.
 #adam-use# Use at the end of preprocess-masking stage (before by-hand masking)
 #adam-example# ./parallel_manager.sh ./adam_apply_RADIAL_MASK_para.sh ${SUBARUDIR} ${SUBARUDIR}/MACS0416-24/W-S-Z+_2010-11-04/SCIENCE/ ${SUBARUDIR}/MACS0416-24/W-S-Z+_2010-11-04/WEIGHTS/ OCF
+#adam-example# ./parallel_manager.sh ./adam_apply_RADIAL_MASK_para.sh ${SUBARUDIR} ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/ ${SUBARUDIR}/${cluster}/${filter}_${run}/WEIGHTS/ ${ending}
 #adam-successor# this replaces apply_RADIAL_MASK_para.sh and apply_ringmask_para.sh
 ########################
 #$Id: apply_ringmask_para.sh,v 1.5 2009-07-17 02:54:49 anja Exp $

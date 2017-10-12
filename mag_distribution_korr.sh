@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # last update: 30.08.2006 
 # Authors     : Marco Hetterscheidt & Thomas Erben
 #
@@ -75,5 +75,5 @@ cp /$1/$2/postcoadd/cats/$3_sex_ldac.asc ./tmp_$$.asc
   echo "${PIXSCALE}"
 } | ${P_SM}
 
-rm tmp_$$.asc
-log_status $?
+rm -f tmp_$$.asc
+#adam-BL# log_status $?

@@ -1,4 +1,5 @@
-#!/bin/bash -xuv
+#!/bin/bash
+set -xuv
 
 rm -f clusters.err_report.list clusters.err_report.report clusters.torun clusters.done.list
 

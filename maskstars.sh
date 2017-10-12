@@ -163,9 +163,9 @@ function cleanTmpFiles
 {
     if [ -z ${THELI_DEBUG} ]; then
         echo "Cleaning temporary files for script $0"
-        test -f pos.txt_$$     && rm pos.txt_$$ 
-        test -f mag.txt_$$     && rm mag.txt_$$ 
-        test -f starcat.txt_$$ && rm starcat.txt_$$ 
+        test -f pos.txt_$$     && rm -f pos.txt_$$ 
+        test -f mag.txt_$$     && rm -f mag.txt_$$ 
+        test -f starcat.txt_$$ && rm -f starcat.txt_$$ 
     else
         echo "Variable THELI_DEBUG set! No cleaning of temp. files in script $0"    
     fi
@@ -303,7 +303,7 @@ ${P_SKY2XY} ${INPUT_IMAGE} @pos.txt_$$\
  | awk '{x = $5; y = $6; getline < "mag.txt_'$$'";
          print x, y, 1. - '${MASK_SCALING_SLOPE}' * ($1 - '${PIVOT_MAGNITUDE}')}' > starcat.txt_$$
 
-test -f ${OUTPUT_REGIONFILE} && rm ${OUTPUT_REGIONFILE}
+test -f ${OUTPUT_REGIONFILE} && rm -f ${OUTPUT_REGIONFILE}
 
 # now do the polygon file writing.
 #

@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 
 # $1 : output cat
 # $2 : table
@@ -44,10 +45,10 @@ for cat in $cats; do
 done
 echo $makessc_input
 
-#rm $assoc_input $makessc_input make_ssc.conf ${USER}combined.cat
+#rm -f $assoc_input $makessc_input make_ssc.conf ${USER}combined.cat
 #exit 0;
 if [ -e make_ssc.conf ]; then
-    rm make_ssc.conf
+    rm -f make_ssc.conf
 fi
 
 
@@ -86,4 +87,4 @@ ${P_MAKESSC} -i $makessc_input \
 
 ldacrentab -i /tmp/${USER}combined.cat -o $1 -t PSSC $2
 
-#rm $assoc_input $makessc_input make_ssc.conf ${USER}combined.cat
+#rm -f $assoc_input $makessc_input make_ssc.conf ${USER}combined.cat

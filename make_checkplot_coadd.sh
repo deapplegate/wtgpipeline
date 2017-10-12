@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the scripts creates a check plot out of the
 # chips.cat6 IMAGE table. It is identical
 # to make_checkplot.sh except that a filtering
@@ -34,11 +34,11 @@
 mkdir /$1/$2/coadd_$3/cat
 
 if [ -f ${TEMPDIR}/chips.cat6 ]; then
-  rm  ${TEMPDIR}/chips.cat6
+  rm -f  ${TEMPDIR}/chips.cat6
 fi
 
 if [ -f ${TEMPDIR}/chips.cat5 ]; then
-  rm  ${TEMPDIR}/chips.cat5
+  rm -f  ${TEMPDIR}/chips.cat5
 fi
 
 if [ ! -f /$1/$2/cat/chips.cat6 ]; then 
@@ -48,8 +48,8 @@ if [ ! -f /$1/$2/cat/chips.cat6 ]; then
 fi
 
 if [ ! -f ${TEMPDIR}/chips.cat6 ] && [ ! -f ${TEMPDIR}/chips.cat5 ]; then
-  echo "no chips.cat5 and chips.cat6 in ${TEMPDIR}; exiting"
-  log_status 1 "no chips.cat5 and chips.cat6 in ${TEMPDIR}"
+  echo "adam-look | error: no chips.cat5 and chips.cat6 in ${TEMPDIR}; exiting"
+  #adam-BL# log_status 1 "no chips.cat5 and chips.cat6 in ${TEMPDIR}"
   exit 1
 fi 
 
@@ -301,4 +301,4 @@ echo "hardcopy"
 fi
 
 
-log_status $?
+#adam-BL# log_status $?

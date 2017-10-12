@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # script that creates an illumination correction and
 # fringe image out of a blank sky field (superflat)
 
@@ -30,4 +31,4 @@ do
   ${P_SEX} /$1/$2/$2_${CHIP}.fits -c ${CONF}/illumfringe_fringe.sex -CHECKIMAGE_NAME ${RESULTDIR[${CHIP}]}/$2_${CHIP}_fringe.fits -BACK_SIZE 256
 done
 
-log_status $?
+#adam-BL# log_status $?

@@ -63,7 +63,7 @@ echo $3
 
 
 # remove old catalogs
-#rm /$1/$2/cat/*
+#rm -f /$1/$2/cat/*
 
 bla=(1)
 echo $5
@@ -207,8 +207,8 @@ do
 				#-t STDTAB -c ${PHOTCONF}/make_ssc_3SEC.conf
 
 	    fi
-	    rm ${TEMPDIR}/seeing_$$.cat
-	    rm ${TEMPDIR}/tmp_$$.cat
+	    rm -f ${TEMPDIR}/seeing_$$.cat
+	    rm -f ${TEMPDIR}/tmp_$$.cat
     done
   }
   ${P_LDACPASTE} -i /$1/$2/cat/*_${CHIP}$3_merg.cat \
@@ -216,9 +216,9 @@ do
 
 done
 
-rm ${TEMPDIR}/singleastromimages_$$
+rm -f ${TEMPDIR}/singleastromimages_$$
 
 
-log_status $?
+#adam-BL# log_status $?
 
 

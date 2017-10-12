@@ -1,6 +1,7 @@
-#!/bin/bash -xvu
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xvu
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # the script runs analyseldac over the objects previously
 # used in the singleastrom step.
 
@@ -29,7 +30,7 @@
 # $3: image extension (ext) on ..._iext.fits (i is the chip number)
 # $4: chips to be processed
 
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1
 {
 echo "VERBOSE = DEBUG"   
 echo "COL_NAME  = cl" 
@@ -50,16 +51,16 @@ do
       BASE=`basename ${file} .fits`
       #
       # now convert the SExtractor cat to one readable by analyseldac:
-      if [ -f /$1/$2/cat/${BASE}.cat ]; then
+      if [ -f "/$1/$2/cat/${BASE}.cat" ]; then
 	  ${P_LDACCONV} -b 1 -c R -i /$1/$2/cat/${BASE}.cat -o /$1/$2/cat/${BASE}.cat0 
 
       else
 	  continue
       fi 
 
-      if [ ! -f /$1/$2/cat/${BASE}.cat0 ]; then 
-	  echo "no catalog /$1/$2/cat/${BASE}.cat0 presnet; exiting"
-	  log_status 1 "no catalog /$1/$2/cat/${BASE}.cat0 present; exiting"
+      if [ ! -f "/$1/$2/cat/${BASE}.cat0" ]; then 
+	  echo "no catalog /$1/$2/cat/${BASE}.cat0 present; exiting"
+	  #adam-BL#log_status 1 "no catalog /$1/$2/cat/${BASE}.cat0 present; exiting"
 	  exit 1
       fi 
 
@@ -100,7 +101,11 @@ do
       
       ${P_ASCTOLDAC} -i ${TEMPDIR}/tmp.asc_$$ -c ${TEMPDIR}/asctoldac_tmp.conf_$$ -t HFINDPEAKS \
  		     -o ${TEMPDIR}/hfind.cat_$$ -b 1 -n "KSB"
-      rm ${TEMPDIR}/asctoldac_tmp.conf_$$
+      exit_stat=$?
+      if [ "${exit_stat}" -gt "0" ]; then
+	      exit ${exit_stat};
+      fi
+      rm -f ${TEMPDIR}/asctoldac_tmp.conf_$$
       
       # now transfer the HFINDPEAKS table to the SEX catalog
       ${P_LDACADDTAB} -i ${TEMPDIR}/tmp12.cat_$$ -o /$1/$2/cat/${BASE}_tmp1.cat1 \
@@ -127,11 +132,11 @@ do
 
       STEPSIZE=0.05
       ${P_PREANISOTROPY} -i /$1/$2/cat/${BASE}_ksb.cat1 -t OBJECTS \
-                         -k rh mag -s ${STEPSIZE} -c rh 1.0 10.0 snratio 20.0 10000.0 >& tmp1.asc_$$
-      MINRH=`awk '($2=="propose") { print $8-'${STEPSIZE}'}' tmp1.asc_$$`
-      MAXRH=`awk '($2=="propose") { print $12+'${STEPSIZE}'}' tmp1.asc_$$`
-      MAXMAG=`awk '($2=="propose") { print $14}' tmp1.asc_$$`
-      MINMAG=`awk '($2=="propose") { print $18}' tmp1.asc_$$`
+                         -k rh mag -s ${STEPSIZE} -c rh 1.0 10.0 snratio 20.0 10000.0 >& ${TEMPDIR}/tmp1.asc_$$
+      MINRH=`awk '($2=="propose") { print $8-'${STEPSIZE}'}' ${TEMPDIR}/tmp1.asc_$$`
+      MAXRH=`awk '($2=="propose") { print $12+'${STEPSIZE}'}' ${TEMPDIR}/tmp1.asc_$$`
+      MAXMAG=`awk '($2=="propose") { print $14}' ${TEMPDIR}/tmp1.asc_$$`
+      MINMAG=`awk '($2=="propose") { print $18}' ${TEMPDIR}/tmp1.asc_$$`
       LINE="rh $MINRH $MAXRH MAG_AUTO $MAXMAG $MINMAG"
 
       magdiff=`awk 'BEGIN{print '${MAXMAG}'-'${MINMAG}'}'`
@@ -139,13 +144,14 @@ do
       MAXMAG=`awk 'BEGIN{print ('${magdiff}'>0.5 ? '${MAXMAG}' : '${MAXMAG}'-2.0)}'`
       MINMAG=`awk 'BEGIN{print ('${magdiff}'>0.5 ? '${MINMAG}' : '${MINMAG}'+2.0)}'`
 
-      ANISOLINE=`${P_GAWK} '($2=="propose") { print $10,'${MINRH}','${MAXRH}',$16,'${MAXMAG}','${MINMAG}'}' tmp1.asc_$$`
+      ANISOLINE=`${P_GAWK} '($2=="propose") { print $10,'${MINRH}','${MAXRH}',$16,'${MAXMAG}','${MINMAG}'}' ${TEMPDIR}/tmp1.asc_$$`
 
-###      ANISOLINE=`${P_GAWK} '($2=="propose") { print $10,$8,$12,$16,$14,$18}' tmp1.asc_$$`
+###      ANISOLINE=`${P_GAWK} '($2=="propose") { print $10,$8,$12,$16,$14,$18}' ${TEMPDIR}/tmp1.asc_$$`
       ${P_ANISOTROPY} -i /$1/$2/cat/${BASE}_ksb.cat1 -c ${ANISOLINE} \
                       -o /$1/$2/cat/${BASE}_ksb_tmp.cat2 -j 5.0 -e 2.0
 
-      if [ ! -f /$1/$2/cat/${BASE}_ksb_tmp.cat2 ]; then
+      if [ ! -f "/$1/$2/cat/${BASE}_ksb_tmp.cat2" ]; then
+	      echo "adam-look inconsequential error: no biggie if you got an error just now that looks like 'ERROR(anisotropy): not enough stars after preselection'"
 
 	  ${P_LDACTOASC} -i /$1/$2/cat/${BASE}_ksb.cat1 \
                          -t OBJECTS -b -k rh mag cl snratio |\
@@ -168,8 +174,8 @@ do
       ${P_LDACFILTER} -i /$1/$2/cat/${BASE}_ksb_tmp.cat2 \
                       -o /$1/$2/cat/${BASE}_ksb.cat2 -c "(cl=2);"
 
-      if [ ! -s /$1/$2/cat/${BASE}_ksb.cat2 ]; then
-	  log_status 3 "Catalog ${BASE}_ksb.cat2 not produced!"
+      if [ ! -s "/$1/$2/cat/${BASE}_ksb.cat2" ]; then
+	  #adam-BL#log_status 3 "Catalog ${BASE}_ksb.cat2 not produced!"
 	  exit 3
       fi
 
@@ -195,7 +201,7 @@ do
     echo "box"
     echo "expand 1.3"
     echo "xlabel r_h"
-    echo "ylabel MAG\_AUTO"
+    echo "ylabel MAG_AUTO"
       echo "relocate (17600 32000)"
     echo "putlabel 5 '${BASE}'"
     echo "expand 0.4"
@@ -221,14 +227,14 @@ do
 
     done
   }
-  rm ${TEMPDIR}/psfimages_${CHIP}_$$
+  rm -f ${TEMPDIR}/psfimages_${CHIP}_$$
 done
 
-#rm ${TEMPDIR}/*_ksb.cat1
-#rm ${TEMPDIR}/*_stars.fake.cat
-#rm ${TEMPDIR}/asctoldac_stars_tmp.conf_$$
-#rm ${TEMPDIR}/tmp*cat_$$
-#rm ${TEMPDIR}/tmp*asc_$$
-#rm ${TEMPDIR}/hfind.cat_$$
+rm -f ${TEMPDIR}/*_ksb.cat1
+rm -f ${TEMPDIR}/*_stars.fake.cat
+rm -f ${TEMPDIR}/asctoldac_stars_tmp.conf_$$
+rm -f ${TEMPDIR}/tmp*cat_$$
+rm -f ${TEMPDIR}/tmp*asc_$$
+rm -f ${TEMPDIR}/hfind.cat_$$
 
-log_status 0
+#adam-BL#log_status 0
