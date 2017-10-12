@@ -1,8 +1,0 @@
-cp 2010-11-04_W-C-RC/reg/SUBARU_*.reg 2010-12-05_W-J-V/reg/
-cp 2010-04-15_W-S-I+/reg/SUBARU_*.reg 2010-03-12_W-J-V/reg/
-cp 2010-04-15_W-S-I+/reg/SUBARU_*.reg 2010-03-12_W-S-I+/reg/
-cp 2010-04-15_W-S-I+/reg/SUBARU_*.reg 2009-03-28_W-S-I+/reg/
-cp 2006-03-04_W-C-RC/reg/globalweight_*.reg 2007-02-13_W-S-I+/reg/
-cp 2006-03-04_W-C-RC/reg/globalweight_*.reg 2007-02-13_W-J-V/reg/
-cp 2006-03-04_W-C-RC/reg/SUBARU_*.reg 2007-02-13_W-S-I+/reg/
-cp 2006-03-04_W-C-RC/reg/SUBARU_*.reg 2007-02-13_W-J-V/reg/

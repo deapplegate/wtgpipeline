@@ -1,7 +1,0 @@
-A2744 has SCIENCE/BIAS (old data)
-drwxrwxr-x  3 awright ki   25 Jul 23  2013 2008-08-01_BIAS/
-drwxrwxr-x 13 awright ki 4.0K Aug  1  2013 2008-08-01_W-S-I+/
-This data will be used to superflat the A2744 2008-08-01_W-S-I+ data. Do I copy it into 2008-08-01_W-S-I+/ and process it all together? Or just combine 2008-07-30_W-S-I+/ & 2008-08-01_W-S-I+/, then combine 2008-08-24 and 2008-08-28?
-drwxr-xr-x  3 awright ki   28 Oct  9 20:58 2008-07-30_W-S-I+/
-drwxr-xr-x  3 awright ki   28 Oct  9 21:11 2008-08-28_W-S-I+/
-drwxr-xr-x  3 awright ki   28 Oct  9 21:11 2008-08-24_W-S-I+/

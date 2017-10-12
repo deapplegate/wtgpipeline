@@ -1,1 +1,0 @@
-../adam-do_catchup_new_data.sh
