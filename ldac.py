@@ -144,7 +144,7 @@ def openObjectFile(filename, table='OBJECTS'):
     if hdulist is None:
         return None
     cat = openObjects(hdulist, table)
-    #hdulist.close()
+    hdulist.close()
     if cat is None:
         return None
     cat.sourcefile = filename
