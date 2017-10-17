@@ -1,11 +1,12 @@
-#!/bin/bash -uxv
+#!/bin/bash
+set -uxv
 ########################
 # Process Photometry, from masked, coadded images through photo-zs
 #
 # Makes some assumptions. Custom jobs should be run manually.
 #######################
 
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1
 
 
 
@@ -16,7 +17,7 @@ mode=$3
 export BONN_TARGET=$cluster
 export BONN_FILTER=$detect_filter
 
-./BonnLogger.py clear
+#adam-BL#./BonnLogger.py clear
 
 #SDSS CALIB or blank for all
 
@@ -45,13 +46,15 @@ done
 
 ########################
 
-subarudir=/nfs/slac/g/ki/ki05/anja/SUBARU
+subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 export subarudir
-SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 export SUBARUDIR
 
-photrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/photometry
-lensingrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/lensing
+#adam#photrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/photometry
+#adam#lensingrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/lensing
+photrepo=/nfs/slac/kipac/fs1/u/awright/SUBARU/photometry
+lensingrepo=/nfs/slac/kipac/fs1/u/awright/SUBARU/lensing
 
 queue=kipac-xocq
 
@@ -188,7 +191,7 @@ echo -----------------------------------
 
     if [ $fit_calibration -eq 1 ]; then
 
-	rm ${photdir}/calibration_plots/*
+	rm -f ${photdir}/calibration_plots/*
 
 	if [ -z "${isSpecial}" ]; then
 	
@@ -207,13 +210,15 @@ echo -----------------------------------
 		exit 6
 	    fi
 	    
-	    longfilters=`./dump_cat_filters.py ${star_cat} | grep ${filter}`
+	    #old#longfilters=`./dump_cat_filters.py ${star_cat} | grep ${filter}`
+	    longfilters=`./dump_cat_filters.py -a ${star_cat} | grep ${filter}`
 	    
 	    ./transfer_photocalibration.py -c ${cluster} -f SUBARU-10_2-1-${filter}_3sec ${longfilters} ${spec_flag}
 	    
 	else
 
-	    longfilter=`./dump_cat_filters.py ${star_cat}| awk -v ORS=' ' -F'-' '($4 ~ /^'${filter}'/){print}'`
+	    #old#longfilters=`./dump_cat_filters.py ${star_cat} | grep ${filter}`
+	    longfilters=`./dump_cat_filters.py -a ${star_cat} | grep ${filter}`
 
 	    ./fit_phot.py \
 		-c ${cluster} \
@@ -228,7 +233,8 @@ echo -----------------------------------
 		exit 6
 	    fi
 	    
-	    longfilters=`./dump_cat_filters.py ${star_cat} | awk -v ORS=' ' -F'-' '($4 ~ /^'${filter}'/){print}'`
+	    #old#longfilters=`./dump_cat_filters.py ${star_cat} | grep ${filter}`
+	    longfilters=`./dump_cat_filters.py -a ${star_cat} | grep ${filter}`
 	    
 	    ./transfer_photocalibration.py ${cluster} ${longfilter} ${longfilters}
 

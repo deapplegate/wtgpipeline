@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#. BonnLogger.sh
+#. log_start
 
 # $Id: process_bias_4channels_eclipse_para.sh,v 1.1 2009-01-29 00:09:09 anja Exp $
 
@@ -16,13 +17,20 @@
 
 
 # preliminary work:
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/instrum.out 2>&1
 
 for CHIP in $3
 do
   if [ ${NOTPROCESS[${CHIP}]:=0} -eq 0 ]; then
 
-    FILES=`ls ${1}/${2}/*_${CHIP}.fits`
+    #adam-added# I added this so that I don't keep getting this trying to process BIAS_#.fits
+    \ls -1 $1/$4/*_${CHIP}.fits > files_${CHIP}_$$
+    FILES=`grep -v "BIAS_${CHIP}.fits" files_${CHIP}_$$`
+    rm -f files_${CHIP}_$$
+    if [ -z "${FILES}" ]; then
+	    continue
+    fi
+
 
     CHANNEL=1
     while [ "${CHANNEL}" -le "${NCHANNELS}" ]
@@ -49,7 +57,8 @@ do
     done
 
 #---> paste four fits files
-    for file in ${FILES}; do
+    for file in ${FILES}
+    do
 	basename=`basename $file .fits`
 	./horizontal_paste.py -o ${1}/${2}/${basename}OC.fits `ls ${1}/${2}/${basename}OC_CH*.fits`
     done
@@ -60,9 +69,9 @@ do
                     -o ${1}/${2}/$2_${CHIP}.fits \
                     -e 0 1
 
-    rm bias_images_$$
+    rm -f bias_images_$$
 
   fi
 done
 
-log_status $?
+#log_status $?

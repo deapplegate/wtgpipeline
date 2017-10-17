@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # checks images for integrity. For the moment
 # this consists of calculating the mode and
 # shifting images that are under/over a given mode
@@ -52,7 +53,7 @@
 . ${INSTRUMENT:?}.ini
 
 if [ -f alldata_$$.dat ]; then
-  rm alldata_$$.dat
+  rm -f alldata_$$.dat
 fi
 
 i=1
@@ -98,5 +99,5 @@ cat ${TEMPDIR}/move_$$ |\
 }
 
 # clean up:
-rm ${TEMPDIR}/alldata_$$.dat ${TEMPDIR}/move_$$ ${TEMPDIR}/immode.dat_$$
-log_status $?
+rm -f ${TEMPDIR}/alldata_$$.dat ${TEMPDIR}/move_$$ ${TEMPDIR}/immode.dat_$$
+#adam-BL# log_status $?

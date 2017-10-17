@@ -1,0 +1,42 @@
+adam_do_multiple_photoz.py
+
+## NFILT in .py files:
+adam_do_multiple_photoz.py:    #adam-SHNT: mag_cat is what? It has the key "NFILT"
+adam_do_multiple_photoz.py:    #adam-SHNT# figure out how to calculate NFILT and include it here
+adam_do_multiple_photoz.py:    #adam-tmp#cols.append(pyfits.Column(name='NFILT', format = 'J', array = mag.data.field('NFILT')))
+adam_tmp_calc_test_save.py:    #NFILT = p[1].data.field('NFILT_data')
+adam_tmp_calc_test_save.py:        if z_spec[i] < 1.2: # and NFILT[i] >= 5:
+calc_test_save.py:    #NFILT = p[1].data.field('NFILT_data')
+calc_test_save.py:        if z_spec[i] < 1.2: # and NFILT[i] >= 5:
+do_multiple_photoz.py:    cols.append(pyfits.Column(name='NFILT', format = 'J', array = mag.data.field('NFILT')))
+fit_DOUG.py:        kappacut = (phot['BPZ_Z_B_MAX'] - phot['BPZ_Z_B_MIN'] < 2.0)* (E<1.4)*(phot['BPZ_ODDS'] > 0.6) * (phot['NFILT'] > 4) * sp.calcWLViolationCut(r, beta, sigma_v = 1300)
+make_lephare_cats.py:            ''' Add up number of good filter measurements for each object NFILT '''
+make_lephare_cats.py:                bpz_cols.append(pyfits.Column(name='NFILT', format='D', array=copy(good_filts))) 
+make_lephare_cats.py:                bpz_cols.append(pyfits.Column(name='NFILT', format='D', array=copy(good_filts))) 
+make_lephare_cats.py:                #bpz_cols_info.write('NFILT\t' + str(colnum) + '\n')
+maxlike_general_filehandler.py:    nfilt = manager.matched_bpzcat['NFILT']
+plot_COSMOS2.py:        if U.field('NFILT')[i] == 6:
+plot_COSMOS2.py:        if U.field('NFILT')[i] == 6:
+plot_COSMOS2dhist.py:#mask = (U.field('BPZ_ODDS') > 0.95) * (U.field('BPZ_Z_B') > 0) * (U.field('BPZ_M_0') < 25) * (U.field('NFILT') == 6) * (C.field('zp_best') > 0)
+plot_COSMOS2dhist.py:mask = (U.field('BPZ_ODDS') > 0.95) * (U.field('BPZ_Z_B') > 0) *(U.field('BPZ_Z_B') < 1.2) * (U.field('BPZ_M_0') < 25) * (U.field('NFILT') == 5) * (C.field('zp_best') > 0)
+plot_rederr.py:        NFILT = t['NFILT_data']
+plot_rederr.py:        NFILT = t['EAZY_nfilt_data']
+plot_rederr.py:        if NFILT[i]>=4 and odds[i] > 0.9: # and mag[i] > 23:
+plot_rederr.py:            command = 'ldacjoinkey -i ' + phot_cat + '.STDTAB -o ' + cat + ' -p ' + photoz_cat + ' -k BPZ_Z_B BPZ_ODDS BPZ_M_0 NFILT -t STDTAB'
+redsequence.py:            mask = photoz.field('NFILT') > 3                                                                                                                                                             
+redsequence.py:        mask = photoz.field('NFILT') > 4
+redsequence.py:        print photoz.field('NFILT') 
+subset.py:#NFILT = p[1].data.field('NFILT_data')
+subset.py:    if z_spec[i] < 1.2: # and NFILT[i] >= 5:
+
+## NFILT in .sh files: (NOT IMPORTANT AT ALL!)
+~/bonnpipeline$ grep "NFILT" *.sh
+create_stellar_tracks.sh:NFILT=0
+create_stellar_tracks.sh:    NFILT=$(( ${NFILT} + 1 ))
+create_stellar_tracks.sh:    FILTER[${NFILT}]=${FILT}
+create_stellar_tracks.sh:if [ ${NFILT} -ge 3 ]; then
+create_stellar_tracks.sh:    IMAX=$(( ${NFILT} - 2 ))
+create_stellar_tracks.sh:    JMAX=$(( ${NFILT} - 1 ))
+create_stellar_tracks.sh:            while [ ${k} -le ${NFILT} ]
+~/bonnpipeline$ grep "create_stellar_tracks.sh" *.sh
+~/bonnpipeline$ grep "create_stellar_tracks.sh" *.py

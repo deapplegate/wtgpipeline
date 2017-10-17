@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 
 #CVSID="$Id: process_science_illum_fringe_eclipse_para.sh,v 1.13 2008-09-08 18:09:13 dapple Exp $"
 # the script corrects a set of Science frames
@@ -41,7 +42,7 @@
 # $6: chips to be processed
 
 # preliminary work:
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/instrum.out 2>&1
 echo $6
 for CHIP in $6
 do
@@ -123,10 +124,3 @@ do
     fi
     
 done
-
-
-
-
-
-
-log_status $exit_status

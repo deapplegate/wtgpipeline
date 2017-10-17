@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 
 # script to plot Pickles stellar tracks from a colour catalogue
 # Plots go to a subdirectory 'stellar tracks' from the first
@@ -100,7 +101,7 @@ if [ ${NFILT} -ge 3 ]; then
 		paste ${TEMPDIR}/${FILTER[${i}]}.asc_$$ ${TEMPDIR}/${FILTER[${j}]}.asc_$$ ${TEMPDIR}/${FILTER[${k}]}.asc_$$ | ${P_GAWK} '{ print $2-$3,$1-$2}' >\
                         ${TEMPDIR}/pickles.asc_$$
 		
-		rm ${TEMPDIR}/${FILTER[${i}]}.asc_$$ ${TEMPDIR}/${FILTER[${j}]}.asc_$$ ${TEMPDIR}/${FILTER[${k}]}.asc_$$
+		rm -f ${TEMPDIR}/${FILTER[${i}]}.asc_$$ ${TEMPDIR}/${FILTER[${j}]}.asc_$$ ${TEMPDIR}/${FILTER[${k}]}.asc_$$
 		
                 FILENAME="$1/stellar_tracks/${FILTER[${i}]}_${FILTER[${j}]}_${FILTER[${k}]}_${MAGQUANT}.eps"
                 if [ "${MAGINDEX}" != "" ]; then
@@ -144,6 +145,6 @@ fi
 
 
 # clean up:
-test -f ${TEMPDIR}/stellar.cat_$$ && rm ${TEMPDIR}/stellar.cat_$$
-test -f ${TEMPDIR}/stars.asc_$$   && rm ${TEMPDIR}/stars.asc_$$
-test -f ${TEMPDIR}/pickles.asc_$$ && rm ${TEMPDIR}/pickles.asc_$$
+test -f ${TEMPDIR}/stellar.cat_$$ && rm -f ${TEMPDIR}/stellar.cat_$$
+test -f ${TEMPDIR}/stars.asc_$$   && rm -f ${TEMPDIR}/stars.asc_$$
+test -f ${TEMPDIR}/pickles.asc_$$ && rm -f ${TEMPDIR}/pickles.asc_$$

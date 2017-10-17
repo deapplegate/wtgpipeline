@@ -1,6 +1,8 @@
 #!/bin/bash -u
-. BonnLogger.sh
-. log_start
+set -xv
+
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # ----------------------------------------------------------------
 # File Name:           create_skysub_para.sh
 # Author:              Thomas Erben (terben@astro.uni-bonn.de)
@@ -29,7 +31,7 @@
 # interruption.
 
 # File inclusions:
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/sub.out 2>&1
 
 # define various variables because of the '-u' script flag
 # (the use of undefined variables will be treated as errors!)
@@ -134,18 +136,18 @@ function cleanTmpFiles
 	for CHIP in ${!#}
         do
           test -f ${TEMPDIR}/skysub_images_${CHIP}_$$ && \
-               rm ${TEMPDIR}/skysub_images_${CHIP}_$$
+               rm -f ${TEMPDIR}/skysub_images_${CHIP}_$$
 
           ${P_FIND} ${RESULTDIR[${CHIP}]} \
-                    -name \*_${CHIP}$1_backsub.fits    -exec rm {} \;
+                    -name \*_${CHIP}$1_backsub.fits    -exec rm -f {} \;
           ${P_FIND} ${RESULTDIR[${CHIP}]} \
-                    -name \*_${CHIP}$1_noobj.fits      -exec rm {} \;
+                    -name \*_${CHIP}$1_noobj.fits      -exec rm -f {} \;
           ${P_FIND} ${RESULTDIR[${CHIP}]} \
-                    -name \*_${CHIP}$1_noobj_mode.fits -exec rm {} \;
+                    -name \*_${CHIP}$1_noobj_mode.fits -exec rm -f {} \;
           ${P_FIND} ${RESULTDIR[${CHIP}]} \
-                    -name \*_${CHIP}$1_skyback.fits    -exec rm {} \;
+                    -name \*_${CHIP}$1_skyback.fits    -exec rm -f {} \;
           ${P_FIND} ${RESULTDIR[${CHIP}]} \
-                    -name \*_${CHIP}$1_backsub.fits    -exec rm {} \;
+                    -name \*_${CHIP}$1_backsub.fits    -exec rm -f {} \;
         done
     else
         echo "Variable THELI_DEBUG set! No cleaning of temp. files in script $0"    
@@ -159,17 +161,20 @@ function cleanTmpFiles
 # check validity of command line arguments:
 if [ $# -ne 6 ]; then
     printUsage
-    log_status 1 "Bad command line"
+    #adam-BL# log_status 1 "Bad command line"
+    echo "adam-look | error: Bad command line"
     exit 1
 fi
 
 # Handling of program interruption by CRTL-C
 trap "echo 'Script $0 interrupted!! Cleaning up and exiting!'; \
-      cleanTmpFiles $3 \"${!#}\"; log_status 1 'Interupted'; exit 1" INT
+      cleanTmpFiles $3 \"${!#}\"; echo 'adam-look | error: Interupted'; exit 1" INT
+#adam-BL# trap "echo 'Script $0 interrupted!! Cleaning up and exiting!'; \
+#adam-BL#       cleanTmpFiles $3 \"${!#}\"; log_status 1 'Interupted'; exit 1" INT
 
 
 # Existence of image directory:
-test -d /$1/$2 || { echo "Can't find directory /$1/$2"; log_status 1 "Can't find directory /$1/$2"; exit 1; }
+test -d /$1/$2 || { echo "Can't find directory /$1/$2"; echo "adam-look | error: Can't find directory /$1/$2"; exit 1; }
 
 ##
 ## The main script starts here:
@@ -244,7 +249,8 @@ do
                         ${RESULTDIR[${CHIP}]}/${BASE}"_backsub.fits"
     else
       echo "Unknown background subtraction mode: $5; Exiting !!"
-      log_status 1 "Unknown background subtraction mode: $5"
+      #adam-BL# log_status 1 "Unknown background subtraction mode: $5"
+      echo "adam-look | error: Unknown background subtraction mode: $5"
       exit 1
     fi
     # We again estimate the mode of the 'skysubtracted' images and subtract
@@ -266,4 +272,4 @@ done
 # clean up and bye:
 cleanTmpFiles $3 "${!#}"
 
-log_status $?
+#adam-BL# log_status $?

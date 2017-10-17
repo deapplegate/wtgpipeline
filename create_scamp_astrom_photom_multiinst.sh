@@ -1,0 +1,1 @@
+/nfs/slac/g/ki/ki18/anja/DECAM/Lucie/reduce_DECam_copy/create_scamp_astrom_photom_multiinst.sh

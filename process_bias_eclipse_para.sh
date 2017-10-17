@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script processes a set of BIAS/DARK frames.
 # The images are overscan corrected and stacked without
 # any rescaling. This script is the parallel version
@@ -77,7 +78,8 @@ do
     # proper name is already there; if yes, do nothing !!
     if [ -f ${RESULTDIR[${CHIP}]}/$2_${CHIP}.fits ]; then
         echo "${RESULTDIR[${CHIP}]}/$2_${CHIP}.fits already present !!! Exiting !!"
-	log_status 1 "${RESULTDIR[${CHIP}]}/$2_${CHIP}.fits already present"
+	#adam-BL# log_status 1 "${RESULTDIR[${CHIP}]}/$2_${CHIP}.fits already present"
+	echo "adam-look | error: ${RESULTDIR[${CHIP}]}/$2_${CHIP}.fits already present"
         exit 1
     fi
   
@@ -106,9 +108,9 @@ do
       ln -s ${RESULTDIR[${CHIP}]}/$2_${CHIP}.fits $1/$2/$2_${CHIP}.fits
     fi
 
-    rm bias_images_$$
+    rm -f bias_images_$$
     
   fi
 done
 
-log_status $?
+#adam-BL# log_status $?

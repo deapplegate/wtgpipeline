@@ -1,0 +1,86 @@
+adam_in_case: has *.old files from things I switched, I'll keep them there in case I mess something up!
+Going to move some dirs to my_data dir (/nfs/slac/g/ki/ki01/awright/
+
+scratch -> /nfs/slac/g/ki/ki01/awright/scratch_bonnpipeline/
+pickles -> /nfs/slac/g/ki/ki01/awright/pickles_bonnpipeline/
+adam-analysis -> /nfs/slac/g/ki/ki01/awright/adam-analysis_bonnpipeline/
+adam-ORIGINALS -> /nfs/slac/g/ki/ki01/awright/adam-ORIGINALS_bonnpipeline/
+
+Could do the same thing with all of the files that are just copies of calc_test_save.py and calc_tmpsave.py, such as:
+	calc_tmpsave_from_pat_dir.py
+	pat.py
+	calc_resam.py
+	calc_test.*.py
+	and calc_test_save.*.py
+
+
+##### ls -lrSh : total 15M
+##### ls -alrSh: total 154M
+
+helpful command: find . -type f -name ".__afs*" -exec ls -lh {} \;
+
+##### fs lq    
+Volume Name                    Quota       Used %Used   Partition
+u.awright                    2000000    1833235   92%<<       33%    <<WARNING
+
+##### du -sh */
+39K	BiasStat/
+2.0M	adam-ORIGINALS/
+17M	adam-analysis/ (adam-analysis -> /nfs/slac/g/ki/ki01/awright/adam-analysis_bonnpipeline/)
+369K	adam-ascii_usefuls/
+12K	adam-badcol_10_3/
+70K	adam-parse_bash_logs/
+89K	adam-python_funcifier/
+25K	conf/
+1.7M	develop_simple_ic/
+115K	lensconf/
+472K	photconf/
+46K	photom/
+24M	pickles/ (pickles -> /nfs/slac/g/ki/ki01/awright/pickles_bonnpipeline/)
+382M	scratch/ (scratch -> /nfs/slac/g/ki/ki01/awright/scratch_bonnpipeline/)
+1023K	sfdir/
+998K	unused/
+
+##### for d in `\ls -1d */` ; do ls -lh1d ${d%/} ; done
+import sys
+import os, numpy
+import commands
+in_dirs=0
+dirs=["BiasStat","adam-ORIGINALS","adam-ascii_usefuls","adam-badcol_10_3","adam-parse_bash_logs","adam-python_funcifier","conf","develop_simple_ic","lensconf","photconf","photom","sfdir","unused"]
+for d in dirs:
+	out=commands.getoutput('du -sh /u/ki/awright/bonnpipeline/%s/' % (d))
+	size=out.split('\t')[0]
+	if "M" in size:
+		bytes=float(size[:-1])*1000000
+	else:
+		bytes=int(size.replace("K","000"))
+	in_dirs+=bytes
+
+##7M in dirs and 15M in files, but somehow 179M in all?
+##### du -sh bonnpipeline/
+179M	bonnpipeline/
+###############################
+
+Some Ongoing changes that I've made in many files repeatedly:
+
+1. new version of pyfits makes you switch from has_key to __contains__
+2. data directory is now /nfs/slac/g/ki/ki18/anja/SUBARU/ rather than /nfs/slac/g/ki/ki05/anja/SUBARU/
+3. commented out BonnLogger everywhere I could (tried to put in #adam-BL# wherever I made the change)
+
+Codes I wrote that are useful:
+Plot_cluster_seeing_e1e2.py: Makes plots of seeing measures and e1,e2 to determine which exposures look good. Use to determine which plots to include in the "good" coadd before running do_coadd_batch.sh
+
+
+## RENAMING THESE SUB-directories to adam-* names so I can keep track of them better
+mv adam_ascii_usefuls adam-ascii_usefuls
+mv adam_parse_bash_logs adam-parse_bash_logs
+#adam-analysis
+mv badcol_10_3 adam-badcol_10_3
+mv flags_10_2 adam-flags_10_2
+mv adam_simple_ic_stuff adam-simple_ic_stuff
+mv ORIGINALS adam-ORIGINALS
+
+grep -i "adam_ascii_usefuls\|adam_parse_bash_logs\|adam-analysis\|badcol_10_3\|flags_10_2\|adam_simple_ic_stuff" *.sh
+grep -i "adam_ascii_usefuls\|adam_parse_bash_logs\|adam-analysis\|badcol_10_3\|flags_10_2\|adam_simple_ic_stuff" *.py
+grep -i "adam_ascii_usefuls\|adam_parse_bash_logs\|adam-analysis\|badcol_10_3\|flags_10_2\|adam_simple_ic_stuff" *.log *.txt
+sed -i.old 's/badcol_10_3/adam-&/g' pipeline_masking.log

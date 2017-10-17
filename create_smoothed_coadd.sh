@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 ######################
 # $Id: create_smoothed_coadd.sh,v 1.2 2009-04-23 19:10:25 dapple Exp $
 #
@@ -75,7 +76,7 @@ done
 #
 #    test -f ${IMDIRREF}/${FIELD}_seeings_small_`echo ${FILTERS} |\
 #            awk 'BEGIN {FS = " "; OFS = ""} {$1 = $1; print $0}'`.asc && \
-#            rm ${IMDIRREF}/${FIELD}_seeings_small_`echo ${FILTERS} |\
+#            rm -f ${IMDIRREF}/${FIELD}_seeings_small_`echo ${FILTERS} |\
 #            awk 'BEGIN {FS = " "; OFS = ""} {$1 = $1; print $0}'`.asc
 #  fi
 #
@@ -156,7 +157,7 @@ do
 
       test -f ${IMDIRDESTREF}/${FIELD}_seeings_`echo ${FILTERS} |\
            awk 'BEGIN {FS = " "; OFS = ""} {$1 = $1; print $0}'`.asc && \
-           rm ${IMDIRDESTREF}/${FIELD}_seeings_`echo ${FILTERS} |\
+           rm -f ${IMDIRDESTREF}/${FIELD}_seeings_`echo ${FILTERS} |\
            awk 'BEGIN {FS = " "; OFS = ""} {$1 = $1; print $0}'`.asc 
     fi
    

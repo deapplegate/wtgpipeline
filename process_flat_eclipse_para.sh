@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # CVSId: $Id: process_flat_eclipse_para.sh,v 1.6 2008-12-17 00:43:10 dapple Exp $
 
 # the script processes a set of FLAT frames
@@ -108,8 +109,8 @@ do
       ln -s ${RESULTDIR[${CHIP}]}/$3_${CHIP}.fits $1/$3/$3_${CHIP}.fits
     fi  
 
-    rm flat_images_$$
+    rm -f flat_images_$$
   fi
 done
 
-log_status $?
+#adam-BL#log_status $?

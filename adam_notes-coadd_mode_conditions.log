@@ -1,0 +1,95 @@
+## questions about do_coadd_batch.sh (seach for adam-ask in the code for more)
+	Should the rotation/gabodsid/etc. modes, which do the weighted-coaddition, just like `good`, also include the quality cuts that `good` uses?
+	Where is it appropriate to include `(IMAGEID!=6)` for CONFIG!=10_3? (I'm guessing it's appropriate for gabodsid, rotation, and exposure. Is it appropriate for good/all where you could be using two different configs?)
+
+## what did the code look like when the coaddition was done?
+	if [ ${coadd} == "all" ] && [ ${filter} != "K" ] && [ ${filter} != "I" ]; then
+            calib=`awk 'BEGIN{if("'${filter}'"~"CALIB") print "1"; else print "0"}'`
+            if [ ${calib} -eq 0 ]; then
+		constructConditions all "" "((((RA>(${ra}-0.5))AND(RA<(${ra}+0.5)))AND((DEC>(${dec}-0.5))AND(DEC<(${dec}+0.5))))AND(SEEING<1.9))"
+            else
+		constructConditions all "" "(((RA>(${ra}-0.5))AND(RA<(${ra}+0.5)))AND((DEC>(${dec}-0.5))AND(DEC<(${dec}+0.5))))"
+
+	elif [ ${coadd} == "gabodsid" ]; then 
+            #adam-ask# I changed it to take CONFIG into account when considering the IMAGEID!=6 cut
+	    constructConditions gabodsid "(GABODSID=${GABODSID})" ""
+
+	elif [ ${coadd} == "good" ]; then
+	    #adam-ask# is this right? I mean you could be coadding two different configs here couldn't you (I'm not sure if we should in principle, but we do in practice)
+	    if [ "${CONFIG}" == "10_3" ]; then
+		constructConditions good "" "((seeing_rh_al<0.8)AND(e_abs<0.08))"
+	    else
+		constructConditions good "(IMAGEID!=6)" "((seeing_rh_al<0.8)AND(e_abs<0.08))"
+
+	elif [ ${coadd} == "rotation" ]; then 
+            #adam-ask# definitely wrong the old way, right? I changed it to take CONFIG into account when considering the IMAGEID!=6 cut
+	    constructConditions rotation "(((IMAGEID!=6)AND(GABODSID=${GABODSID}))AND(ROTATION=${ROTATION}))" ""
+
+	elif [ ${coadd} == "exposure" ] && [ ${filter} != "K" ] && [ ${filter} != "I" ]; then 
+	      constructConditions exposure "(EXPOSURE=${EXPOSURE})" ""
+
+	elif [ ${coadd} == "pretty" ]; then 
+	  CONDITION="(((((RA>(${ra}-0.5))AND(RA<(${ra}+0.5)))AND(DEC>(${dec}-0.5)))AND(DEC<(${dec}+0.5)))AND(SEEING<1.9));"
+
+	elif [ ${coadd} == "all" ] && [ ${filter} == "K" ] || [ ${filter} == "I" ]; then
+	    constructConditions ${coadd} "(SEEING<1.9)" ""
+
+## what's written in the file headers?
+	/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE$ fls=`\ls coadd_MACS1226+21_*/coadd.fits`
+	/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE$ for fl in $fls; do echo $fl ; dfits $fl | grep COND ; done
+	coadd_MACS1226+21_SUPA0046908/coadd.fits
+	COND1   = '(EXPOSURE=1);'
+	coadd_MACS1226+21_SUPA0046909/coadd.fits
+	COND1   = '(EXPOSURE=2);'
+	coadd_MACS1226+21_SUPA0046910/coadd.fits
+	COND1   = '(EXPOSURE=3);'
+	coadd_MACS1226+21_SUPA0046911/coadd.fits
+	COND1   = '(EXPOSURE=4);'
+	coadd_MACS1226+21_SUPA0046912/coadd.fits
+	COND1   = '(EXPOSURE=5);'
+	coadd_MACS1226+21_SUPA0046913/coadd.fits
+	COND1   = '(EXPOSURE=6);'
+	coadd_MACS1226+21_SUPA0046914/coadd.fits
+	COND1   = '(EXPOSURE=7);'
+	coadd_MACS1226+21_SUPA0118331/coadd.fits
+	COND1   = '(EXPOSURE=8);'
+	coadd_MACS1226+21_SUPA0118332/coadd.fits
+	COND1   = '(EXPOSURE=9);'
+	coadd_MACS1226+21_SUPA0118333/coadd.fits
+	COND1   = '(EXPOSURE=10);'
+	coadd_MACS1226+21_SUPA0118334/coadd.fits
+	COND1   = '(EXPOSURE=11);'
+	coadd_MACS1226+21_SUPA0118335/coadd.fits
+	COND1   = '(EXPOSURE=12);'
+	coadd_MACS1226+21_SUPA0118336/coadd.fits
+	COND1   = '(EXPOSURE=13);'
+	coadd_MACS1226+21_all/coadd.fits
+	COND1   = '((((RA>(186.71268-0.'
+	COND2   = '5))AND(RA<(186.71268'
+	COND3   = '+0.5)))AND((DEC>(21.'
+	COND4   = '831938-0.5))AND(DEC<'
+	COND5   = '(21.831938+0.5))))AN'
+	COND6   = 'D(SEEING<1.9));'
+	coadd_MACS1226+21_gab2619-rot0/coadd.fits
+	COND1   = '(((IMAGEID!=6)AND(GA'
+	COND2   = 'BODSID=2619))AND(ROT'
+	COND3   = 'ATION=0));'
+	coadd_MACS1226+21_gab2619-rot1/coadd.fits
+	COND1   = '(((IMAGEID!=6)AND(GA'
+	COND2   = 'BODSID=2619))AND(ROT'
+	COND3   = 'ATION=1));'
+	coadd_MACS1226+21_gab4060-rot0/coadd.fits
+	COND1   = '(((IMAGEID!=6)AND(GA'
+	COND2   = 'BODSID=4060))AND(ROT'
+	COND3   = 'ATION=0));'
+	coadd_MACS1226+21_gab4060-rot1/coadd.fits
+	COND1   = '(((IMAGEID!=6)AND(GA'
+	COND2   = 'BODSID=4060))AND(ROT'
+	COND3   = 'ATION=1));'
+	coadd_MACS1226+21_gabodsid2619/coadd.fits
+	COND1   = '(GABODSID=2619);'
+	coadd_MACS1226+21_gabodsid4060/coadd.fits
+	COND1   = '(GABODSID=4060);'
+	coadd_MACS1226+21_good/coadd.fits
+	COND1   = '((seeing_rh_al<0.8)A'
+	COND2   = 'ND(e_abs<0.08));'

@@ -1,15 +1,26 @@
-#!/bin/bash -uxv
+#!/bin/bash
+set -uxv
+#adam-use# use to make the coadd.stars.reg file (without input mask file) or to apply a coadd mask/reg file to the coadd flags file
+#adam-example# ./mask_coadd.sh MACS1226+21 W-C-RC coadd.stars.reg 2>&1 | tee -a OUT-mask_coadd.stars.log
+#adam-example# ./mask_coadd.sh MACS1226+21 W-C-RC coadd.asteroids.reg 2>&1 | tee -a OUT-mask_coadd.asteroids.log
 
-subarudir=$1
-cluster=$2
-filter=$3
+#adam-old# subarudir=$1
+#adam-old# cluster=$2
+#adam-old# filter=$3
+subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU/
+cluster=$1
+filter=$2
 
-flagFile=
+flagFile=''
+if [ $# -gt 2 ]; then
+    flagFile=$3
+fi
+lenstype='good'
 if [ $# -gt 3 ]; then
-    flagFile=$4
+    lenstype=$4
 fi
 
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1
 
 workdir=${subarudir}/${cluster}/masks
 
@@ -17,11 +28,12 @@ if [ ! -d $workdir ]; then
     mkdir $workdir
 fi
 
-coadd_dir=${subarudir}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good
+coadd_dir=${subarudir}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_${lenstype}
 
+#if no region file given, then make the coadd.stars.reg file
 if [ -z "$flagFile" ]; then
 
-./maskstars.sh -i ${coadd_dir}/coadd.fits \
+    ./maskstars.sh -i ${coadd_dir}/coadd.fits \
     -o ${workdir}/coadd.stars.reg \
     -a USNOB1 \
     -s ${AUTOMASKCONF}/SUBARU_V_15.reg \
@@ -30,6 +42,7 @@ if [ -z "$flagFile" ]; then
 fi
 
 
+#if you give an input region file given, then apply it to the coadd
 if [ ! -z "$flagFile" ]; then
 
     base=`basename $flagFile .reg`
@@ -49,7 +62,3 @@ if [ ! -z "$flagFile" ]; then
     mv ${coadd_dir}/coadd.flag.masked.fits ${coadd_dir}/coadd.flag.fits
 
 fi
-
-
-
-

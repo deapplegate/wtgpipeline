@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script cleanes a directory from files
 # with a given prefix/ending
 # The script takes into account links
@@ -34,7 +34,7 @@
 . ${INSTRUMENT:?}.ini
 
 if [ -f ${TEMPDIR}/tmp_$$ ]; then
-  rm ${TEMPDIR}/tmp_$$
+  rm -f ${TEMPDIR}/tmp_$$
 fi
 
 #
@@ -57,13 +57,13 @@ cat ${TEMPDIR}/tmp_$$ |\
       # if REALFILE is again a link, only the
       # link is deleted but NO other files
       if [ -L ${REALFILE} ] || [ ! -e ${REALFILE} ]; then
-        rm ${file}
+        rm -f ${file}
       fi
     fi
   done
 }
 
-rm ${TEMPDIR}/tmp_$$
+rm -f ${TEMPDIR}/tmp_$$
 # 
 # now do the real deleting of files
 #
@@ -80,23 +80,12 @@ cat ${TEMPDIR}/tmp_$$ |\
   do
     if [ -L ${file} ]; then
       LINK=`${P_READLINK} ${file}`
-      rm ${LINK}
-      rm ${file}
+      rm -f ${LINK}
+      rm -f ${file}
     else
-      rm ${file}
+      rm -f ${file}
     fi
   done
 }
 
-
-
-
-
-
-
-
-
-
-
-
-log_status $?
+#adam-BL# log_status $?

@@ -1,7 +1,7 @@
 #! /bin/bash -xv
 #adam-does# consolidate directories
-#adam-call_example# 	./do_linking_filter_dirs.sh "MACS0416-24" "W-C-RC_2010-11-04 W-J-B_2010-11-04 W-S-Z+_2010-11-04"
-# 	./do_linking_filter_dirs.sh "MACS1226+21" "W-C-IC_2010-02-12 W-C-IC_2011-01-06 W-C-RC_2006-03-04 W-C-RC_2010-02-12 W-J-B_2010-02-12 W-J-V_2010-02-12 W-S-G+_2010-04-15 W-S-I+_2010-04-15 W-S-Z+_2011-01-06"
+#adam-call_example# 	./adam_do_linking_filter_dirs.sh "MACS0416-24" "W-C-RC_2010-11-04 W-J-B_2010-11-04 W-S-Z+_2010-11-04"
+# 	./adam_do_linking_filter_dirs.sh "MACS1226+21" "W-C-IC_2010-02-12 W-C-IC_2011-01-06 W-C-RC_2006-03-04 W-C-RC_2010-02-12 W-J-B_2010-02-12 W-J-V_2010-02-12 W-S-G+_2010-04-15 W-S-I+_2010-04-15 W-S-Z+_2011-01-06"
 
 . progs.ini
 . bash_functions.include

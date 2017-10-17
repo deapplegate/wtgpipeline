@@ -5,12 +5,10 @@
 #adam-example# ./adam_CTcorr_run_correction_para.py 'W-C-RC' '2011-11-04' 'MACS0416-24' 'OCFR'
 # so it's either: ./parallel_manager.sh ./adam_CTcorr_run_correction_para.py ${filter} ${run} ${cluster} ${ending}
 # or it's       : ./adam_CTcorr_run_correction_para.py ${filter} ${run} ${cluster} ${ending}
-import astropy.io.fits as pyfits
-import sys
-import os
+import astropy, astropy.io.fits as pyfits
+import sys,os,inspect
 sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
 from import_tools import *
-import inspect
 curfile=os.path.abspath(inspect.getfile(inspect.currentframe()))
 FileString=os.path.basename(curfile)
 args=imagetools.ArgCleaner(sys.argv,FileString)

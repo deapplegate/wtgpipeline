@@ -9,9 +9,10 @@ import matplotlib.pyplot as plt
 import glob
 import sys ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
 import imagetools
-import astropy.io.fits as pyfits
+import astropy, astropy.io.fits as pyfits
 import os
 input_dir=sys.argv[1]
+ending=sys.argv[2]
 input_dir=input_dir.replace('//','/')
 if not input_dir.endswith('/'):
 	input_dir+='/'
@@ -32,7 +33,7 @@ dir_autosuppression=input_dir+'autosuppression/'
 if not os.path.exists(dir_autosuppression):
 	os.makedirs(dir_autosuppression)
 
-coadd_fls=glob.glob(input_dir+'coadd_'+cluster+'_SUPA*/coadd.fits')
+coadd_fls=glob.glob(input_dir+'coadd_'+cluster+'_SUPA01*/coadd.fits')
 orig_dir=input_dir.replace('/SCIENCE/','')+"_*/SCIENCE/"
 for coadd_fl in coadd_fls:
 	coadd_img=imagetools.GetImage(coadd_fl)
@@ -41,7 +42,7 @@ for coadd_fl in coadd_fls:
 	head=pyfits.open(coadd_fl)[0].header
 	coadd_dir=os.path.dirname(coadd_fl)
 	supa=coadd_dir[-11:]
-	split_fl=orig_dir+supa+'_[0-9]*OCF.fits'
+	split_fl=orig_dir+supa+'_[0-9]*%s.fits' % (ending)
 	if len(glob.glob(split_fl))!=10:
 		raise Exception("split_fl: "+split_fl+" isn't returning 10 matches")
 	# make smoothed image

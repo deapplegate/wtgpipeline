@@ -22,7 +22,7 @@ if [ $# -ne 5 ] ; then
 fi
 
 if [ -f @in-$3_$4 ]; then
-   rm @in-$3_$4
+   rm -f @in-$3_$4
 fi
 
 # set TEMPDIR to a default value

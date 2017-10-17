@@ -1,0 +1,51 @@
+## Dependencies
+#scripts: config_bonn.py utilities.py bashreader.py sqlcl.py retrieve_test.py
+#python packages: MySQLdb, astropy, random, tempfile, traceback, commands, unittest, datetime , urllib , getopt, ephem, anydbm (as well as obvious ones like scipy, pylab, numpy, pickle, copy, glob, sys, os, re, time, string, math)
+#command line programs run: sex ldacconv ldactoasc ldaccalc dfits asctoldac ldacjoinkey ldacfilter ldacaddkey associate make_ssc
+#Note that the program paths used in simple_ic.py should be taken from progs.ini for the sake of consistency, since os.system kinda uses whatever paths it wants! program paths in progs.ini used in this code: "p_sex","p_ldacconv","p_ldactoasc","p_ldaccalc","p_dfits","p_asctoldac","p_ldacjoinkey","p_ldacfilter","p_ldacaddkey","p_associate","p_makessc"
+
+
+## IMPORTANT Setting up and Running the Code
+
+#when starting to apply simple IC on a new cluster, first search for #adam-Warning# in this code. Wherever this tag appears, you'll find things that have to be changed from time to time (e.g. paths, object names, filters, runs, and features that haven't been tested) This is the stuff that would be well-suited for command line inputs in the future.
+#Must have environment variable 'bonn' set to bonnpipeline path
+#Must have progs.ini in bonnpipeline path
+
+
+## Notes on simple_ic.py
+
+#The illumination correction or "star flat" implimented here is the exact one in Kelly2012 (arXiv:1208.0602) aka Weighing the Giants II. The relevant stuff is in section 3 (pages 2-6). Just a caveat to point out from the beginning, as noted in the paper (see 3.6), another option for this correction is to correct using the Jacobian of the astrometric solution to correct for the geometric distortion as in Capak et al. (2007). The Capak 2007 technique used for COSMOS is not used here, we have reason to believe it is almost as good (we know its much simpler), but not quite as good as ours, as the paper says "The COSMOS correction, including the ~3% explicit adjustment for pixel size, agrees with our corrections to ~(1-2)% within 13' of the center of the field. The only difference with the COSMOS total correction that we find is that the B and z+ corrections may be ~1% greater than one would expect from only the geometric effect within 13'". All that to say that if implimenting the simple_ic technique is too much trouble, you might want to use the COSMOS technique, and if you code up the COSMOS technique in python, then you might want to email the code to awright3@stanford.edu :)
+#Many things here are tailor-made for SUBARU, and for the 10_3 configuration more specifically, so cut params might need to be tweaked.
+#simple_ic.py was written as a simplification of the old script calc_test_save.py. In the attempt to simplify, certain things were left out, other things were included, but not tested, and therefore will not work (we'll cross that bridge when we come to it). The main things here are that two features mentioned in the paper aren't in this code:
+#	1.) As is, simple_ic.py requires the cluster be in the SDSS footprint. Modifying the code so it will work for a different external catalog wouldnt be much work (see funcs tagged with #SDSS, they are the ones that would need to be changed). Modifying the code so the external catalog could be made from SuprimeCam or MegaPrime magnitudes corrected by a previous successful star-flat fit might be a little more work.
+#	2.) As is, simple_ic.py requires that each OBJECT/PPRUN fit was successful. This means, that the paper says "When the star-flat fit does not meet the sigma_jack criterion, we look for a satisfactory star flat for a different filter of the same field and use the corrected star magnitudes as reference cat magnitudes. When even these additional constraints do not yield an acceptable solution, we correct the data by the satisfactory star flat for data taken closest in time (with the same filter and chip configuration)", but this isn't automated in the code as is. In order to automate it, one would have to fix some things in the funcs "run_correction" and "find_nearby", as of right now these funtions aren't run at all. Confusedly, using a correction from a different run is referred to as "bootstrap"ping in the code.
+#All this to say that using this script for images with low stellar density in the field, exposures without camera rotations, no overlap with the SDSS footprint, and/or minimal telescope dithers between exposures might require some fixes.
+
+
+## Comments key
+
+# Here are what my comments mean
+#------------------------------|-------------------------------------------------------------------------------------------------------------------------------------#
+#adam-Warning#		       this is OK for now, but shouldn't be kept like this long-term
+#adam-tmp#		       this is commented out temporarily or it's a temporary line/block
+#adam-no_more#                 this particular line used to be #adam-tmp#, but it isn't needed anymore, but I'm going to keep it around in case I might want it later
+#adam-SHNT#		       Start Here Next Time (SHNT)
+#adam-ask#		       I have a question to ask about this line/block of code
+#adam-del#		       I think this should be removed later
+#adam-fragments_removed#        this portion of the code was removed, if you want to recover it, it can be found in the fragments_removed.py file
+#adam-note#                    most important note about whats going on here
+#adam-watch#                   If there are problems with this func, then you might want to take another look at whats going on here:
+#                              Either I'm suspicious of this part,
+#                              or I didn't look at it in-depth,
+#                              or I might have changed something (ex. the name of a file), which will later need to be made consistent with other funcs coppied in from calc_test_save.py
+
+
+## Step by step
+
+# all functions (funcs) have tags to classify them and which step they belong to. (i.e. #main is the main code for a given step and must be called in the body of simple_ic.py, #intermediate means the func is called by another func, etc.)
+#Here are the steps that simple_ic.py carries out: (in parentheses are the funcs that each step begins with, i.e. the func with the tag #main)
+#step1_add_database: first enter all exposures into the database (gather_exposures)
+#step2_sextract    : run sextractor on them (get_astrom_run_sextract)
+#step3_run_fit     : get the sdss catalogs and do fitting (match_OBJNAME)
+#step4_test_fit    : assess the quality of the fit (testgood,sort_results)
+#step5_correct_ims : apply correction to the data (currently it's construct_correction) (later maybe run_correction, find_nearby)

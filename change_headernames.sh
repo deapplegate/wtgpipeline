@@ -1,6 +1,6 @@
 #!/bin/bash -u
 
-subarudir=/nfs/slac/g/ki/ki05/anja/SUBARU
+subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 clusters=`ls ${subarudir}`
 for cluster in ${clusters}; do

@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # this script performs resampling of data with swarp
 # preparing the final coaddition. It can perform
 # its task in parallel mode.
@@ -55,7 +56,7 @@
 #$5: location of the global coadd.head file
 
 # preliminary work:
-. progs.ini
+. progs.ini > /tmp/out.out 2>&1
 
 # construct a unique name for the coadd.head file
 # of this co-addition:
@@ -66,7 +67,7 @@
 TMPNAME_1=`echo ${1##/*/} | sed -e 's!/\{2,\}!/!g' -e 's!^/*!!' -e 's!/*$!!'`
 TMPNAME_2=`echo ${2} | sed -e 's!/\{2,\}!/!g' -e 's!^/*!!' -e 's!/*$!!'`
 COADDFILENAME=${TMPNAME_1}_${TMPNAME_2}_${4}
-DIR=`pwd`
+BONNDIR=`pwd`
 
 for CHIP in $6
 do
@@ -82,9 +83,9 @@ do
         cp $5/coadd_${COADDFILENAME}.head ./coadd.head
     fi
 
-    ${P_FIND} . -maxdepth 1 -name \*_${CHIP}$3.copy.weight.fits > ./weights_$$.list
+    ${P_FIND} . -maxdepth 1 -name \*_${CHIP}$3.copy.weight.fits > ${TEMPDIR}/weights_$$.list
 
-    cat ./weights_$$.list |\
+    cat ${TEMPDIR}/weights_$$.list |\
     {
     while read file
     do
@@ -110,49 +111,52 @@ do
       } > ${TEMPDIR}/${BASE}.ww_$$
       
       ${P_WW} -c ${TEMPDIR}/${BASE}.ww_$$
-      rm ${TEMPDIR}/${BASE}.ww_$$
+      rm -f ${TEMPDIR}/${BASE}.ww_$$
       
       ic '1e-6 %1 %1  0 == ?' tmp2_$$.weight.fits > ${file}
 
-      rm tmp_$$.weight.fits tmp2_$$.weight.fits
+      rm -f tmp_$$.weight.fits tmp2_$$.weight.fits
     done
     }
 
-    ${P_FIND} . -maxdepth 1 -name \*_${CHIP}$3.fits > ./files_$$.list
+    ${P_FIND} . -maxdepth 1 -name \*_${CHIP}$3.fits > ${TEMPDIR}/files_$$.list
 
   # test whether we have something to do at all! In case that only individual
   # chips need to be co-added it may be that the preceeding find command returns
   # an empty file.
 
-    if [ -s ./files_$$.list ]; then
+    if [ -s ${TEMPDIR}/files_$$.list ]; then
     
       ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
                  -RESAMPLE Y -COMBINE N \
                  -RESAMPLE_SUFFIX .$4.resamp.fits \
-                 -RESAMPLE_DIR . -INPUTIMAGE_LIST ./files_$$.list\
+                 -RESAMPLE_DIR . @${TEMPDIR}/files_$$.list\
                  -NTHREADS 1 #-VERBOSE_TYPE QUIET
+                 #adam-old#-RESAMPLE_DIR . -INPUTIMAGE_LIST ${TEMPDIR}/files_$$.list\
 
-	rm ./files_$$.list
+	rm -f ${TEMPDIR}/files_$$.list
 
     fi
 
-    ${P_FIND} . -maxdepth 1 -name \*_${CHIP}$3.copy.fits > ./files_copy_$$.list
+    ${P_FIND} . -maxdepth 1 -name \*_${CHIP}$3.copy.fits > ${TEMPDIR}/files_copy_$$.list
 
-    if [ -s ./files_copy_$$.list ]; then
+    if [ -s ${TEMPDIR}/files_copy_$$.list ]; then
     
       ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
                  -RESAMPLE Y -COMBINE N \
                  -RESAMPLE_SUFFIX .$4.resamp.fits \
-                 -RESAMPLE_DIR . -INPUTIMAGE_LIST ./files_copy_$$.list\
+                 -RESAMPLE_DIR . @${TEMPDIR}/files_copy_$$.list\
                  -NTHREADS 1 -RESAMPLING_TYPE BILINEAR
+                 #adam-old# -RESAMPLE_DIR . -INPUTIMAGE_LIST ${TEMPDIR}/files_copy_$$.list\
+      if [ "$?" -gt "0" ]; then exit $? ; fi
 
-	rm ./files_copy_$$.list
+      rm -f ${TEMPDIR}/files_copy_$$.list
 
     fi
 
 
-    ${P_FIND} . -name \*_${CHIP}$3.copy.$4.resamp.weight.fits > filelist_$$
-    cat filelist_$$ |\
+    ${P_FIND} . -name \*_${CHIP}$3.copy.$4.resamp.weight.fits > ${TEMPDIR}/filelist_$$
+    cat ${TEMPDIR}/filelist_$$ |\
     {
     while read file
     do
@@ -161,7 +165,7 @@ do
     done
     }
 
-    cd ${DIR}
+    cd ${BONNDIR}
 
 done  
-log_status $?
+#adam-BL#log_status $?

@@ -1,10 +1,16 @@
-#!/bin/bash -u
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 
 ###############
 # $Id: process_superflat_para.sh,v 1.7 2009-02-10 19:34:42 anja Exp $
 ###############
+
+# adam:
+# if you have two different superflat_exclusion files to try out, then just place one within
+# a subdirectory (e.g. SCIENCE_DOMEFLAT_SET2/superflat_exclusion) and it'll use that one
+# ALSO: it will run (but not re-run) the superflat fixer python script
 
 # 2009-02-08 (AvdL):
 # exposures from which any chip is listed in superflat_exclusion
@@ -20,7 +26,7 @@
 
 
 # preliminary work:
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/subaru.out 2>&1
 
 
 if [ ! -d $1/$2/SUB_IMAGES ]; then
@@ -44,6 +50,7 @@ do
 	    MOVE_SUB=0
 	fi
 
+	#adam: this is where I pasted the old stuff in
 	i=0
 	STATFILES=""
 	for file in ${FILES}
@@ -64,12 +71,11 @@ do
             n=n+1; mean=mean+$2} END {print mean/n}' science_images_$$`
 
 	if [ "$RESULTMODE" = "" ]; then
-	    log_status 2 "No ResultMode"
 	    exit 2
 	fi
 	
-    # modify the input list of images
-    # in case we have to reject files for the superflat:
+        # modify the input list of images
+        # in case we have to reject files for the superflat:
 	if [ -s $1/superflat_exclusion ]; then
 	    echo "Reading Superflat_Exclusion"
 	    ${P_GAWK} 'BEGIN {nex = 0; while (getline <"'$1'/superflat_exclusion" > 0) {
@@ -91,16 +97,13 @@ do
 	    cp science_images_$$ science_coadd_images_$$
 	fi
 
-  
-  
-    # do the combination
+        # do the combination
 	
 	${P_IMCOMBFLAT_IMCAT} -i science_coadd_images_$$ \
             -o $1/$2/${2}_${CHIP}.fits \
             -s 1 -e 0 1 -m ${RESULTMODE}
 	
 	if [ ! -s $1/$2/${2}_${CHIP}.fits ]; then
-	    log_status 5 "Superflat not created"
 	    exit 5
 	fi
 
@@ -111,7 +114,3 @@ do
 	
     fi
 done
-
-
-
-log_status $?

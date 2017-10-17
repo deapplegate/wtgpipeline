@@ -1,4 +1,4 @@
-#!/bin/bash -u
+#!/bin/bash -xv
 # ----------------------------------------------------------------
 # File Name:           create_binnedmosaics.sh
 # Author:              Thomas Erben (terben@astro.uni-bonn.de)
@@ -12,7 +12,7 @@
 # 20.09.2007:
 # script written
 
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/instrum.ini.out 2>&1
 
 # define THELI_DEBUG because of the '-u' script flag
 # (the use of undefined variables will be treated as errors!)
@@ -82,7 +82,7 @@ function cleanTmpFiles
     if [ -z ${THELI_DEBUG} ]; then
         echo "Cleaning temporary files for script $0"
 
-        rm ${TEMPDIR}/image_list_$$
+        rm -f ${TEMPDIR}/image_list_$$
     else
         echo "Variable THELI_DEBUG set! No cleaning of temp. files in script $0"    
     fi
@@ -121,11 +121,12 @@ if [ ! -d BINNED ]; then
   mkdir BINNED
 fi
 
-test -f ${TEMPDIR}/image_list_$$ && rm ${TEMPDIR}/image_list_$$
+test -f ${TEMPDIR}/image_list_$$ && rm -f ${TEMPDIR}/image_list_$$
 
 # note that we assume that FITS images are always present for
 # ALL chips; also if they have the BADCCD flag set!
 ${P_FIND} . -name $3\*_2$4.fits > ${TEMPDIR}/image_list_$$
+wc -l ${TEMPDIR}/image_list_$$
 
 while read file
 do

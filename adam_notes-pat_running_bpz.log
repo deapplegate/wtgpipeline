@@ -1,0 +1,6 @@
+if cluster != 'COSMOS_PHOTOZ': magflux = 'FLUX'
+make_lephare_cats.doit(cluster,DETECT_FILTER,filterlist, inputcat_alter,speccat,outspeccat,outfullcat,spec,'','',magtype=magtype,randsample=False,magflux=magflux,inputcat_zlist=inputcat_zlist)
+#do_multiple_photoz.do_it(cluster,DETECT_FILTER, AP_TYPE, filterlist,inputcat_alter, calib_type,spec,use_spec,SPECTRA, picks,magtype=magtype,randsample=False,magflux=magflux,short=short,ID=ID,only_type=only_type)
+
+in make_lephare_cats, seems to prefer R-band for M_0
+might want to check out make_lephare_cats.doit when trying to figure out how to run bpz on "COSMOS_PHOTOZ"

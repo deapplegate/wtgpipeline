@@ -1,7 +1,8 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 ###############
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # CVSId: $Id: unfixbadccd_para.sh,v 1.2 2009-12-02 22:47:18 anja Exp $
 ##########################################################
 ##########################################################
@@ -53,8 +54,8 @@ for chip in ${chips}; do
 	done
     } < unfixbadccd_stats_$$
 
-    rm unfixbadccd_stats_$$
+    rm -f unfixbadccd_stats_$$
 
 done
 
-log_status 0
+#adam-BL# log_status 0

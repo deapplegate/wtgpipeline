@@ -1,0 +1,14 @@
+A2204			2009-03-28_W-J-V  enough 71 frames
+A2204			2009-09-19_W-J-V  enough 9 targets: SSA22-new2 A370 RXCJ2043.2-2144 RXCJ2211.7-0350 A2537 ZWCL0104.4+0048 A2813 A0305 A0368
+MACSJ1115+01	        2009-04-29_W-S-Z+ enough LOTS OF DEEP FIELD/COSMOS STUFF (rm SUPA0107617* and SUPA0107773* and SUPA0107823* )
+MACSJ1115+01	        2009-04-29_W-J-B  enough 5 targets, 
+MACSJ1115+01     	2010-03-12_W-J-B  enough MACSJ1149+22 (see superflat_targets_2010-03-12_VI.log)
+MACSJ1115+01     	2010-03-12_W-S-Z+ enough (see superflat_targets_2010-03-12_VI.log)
+MACSJ1115+01     	2010-03-12_W-C-RC enough (see superflat_targets_2010-03-12_VI.log)
+RXJ2129+00       	2010-11-04_W-J-B  enough MACS0416
+RXJ2129+00       	2010-11-04_W-S-Z+ enough MACS0416
+RXJ2129+00      	2012-07-23_W-C-RC enough (UTC 10:30-13:00 might be bad mcal_20120723.png)
+RXJ2129+00 		2013-06-10_W-S-Z+ enough 6 targets (probably ok, see ) have 5 targets for "2013-06-10_W-S-Z+" and A2744 from "2013-07-15_W-S-Z+". IF NEED BE, could use "2013-12-01_W-S-Z+" which is in A2744_backburner_dir/2013_potential_SUPERFLATS/
+
+for dir in `\ls -d fs*/` ; do dfits ${dir}/SUPA01*.fits | fitsort DATE-OBS FILTER01 OBJECT > ${dir}/inv.txt ; done
+for dir in `\ls -d fs*/` ; do awk '{print $2,$3}' ${dir}/inv.txt | uniq > ${dir}/ppruns.txt ; awk '{print $3}' ${dir}/inv.txt | uniq > ${dir}/filters.txt ; done

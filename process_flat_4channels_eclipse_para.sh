@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 #. BonnLogger.sh
 #. log_start
 # CVSId: $Id: process_flat_4channels_eclipse_para.sh,v 1.1 2009-01-29 00:09:09 anja Exp $
@@ -37,7 +38,7 @@
 # The clipped mean turned out to be too affected by outliers.
 
 # preliminary work:
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/instrum.out 2>&1
 
 #
 # the resultdir is where the output coadded images
@@ -58,7 +59,14 @@ done
 for CHIP in $4
 do
   if [ ${NOTPROCESS[${CHIP}]:=0} -eq 0 ]; then
-    FILES=`ls $1/$3/*_${CHIP}.fits`
+
+    #adam-added# I added this so that I don't keep getting this trying to process FLAT_#.fits
+    \ls -1 $1/$3/*_${CHIP}.fits > files_${CHIP}_$$
+    FILES=`grep -v "FLAT_${CHIP}.fits" files_${CHIP}_$$`
+    rm -f files_${CHIP}_$$
+    if [ -z "${FILES}" ] ; then
+	    continue
+    fi
 
     CHANNEL=1
     while [ "${CHANNEL}" -le "${NCHANNELS}" ]
@@ -84,8 +92,9 @@ do
     CHANNEL=$(( ${CHANNEL} + 1 ))
     done
 
-#---> paste four fits files
-    for file in ${FILES}; do
+    #---> paste four fits files
+    for file in ${FILES}
+    do
 	basename=`basename $file .fits`
 	./horizontal_paste.py -o ${1}/${3}/${basename}OC_CHall.fits `ls ${1}/${3}/${basename}OC_CH?.fits`
     done
@@ -100,8 +109,12 @@ do
         -OUTPUT_DIR /$1/$3/ \
         -OUTPUT_SUFFIX OC.fits       
 
+    mkdir /$1/$3/tmp_OC/
+    mv /$1/$3/*_${CHIP}OC.fits /$1/$3/tmp_OC/
     ${P_RENAME} 's/OC_CHallOC/OC/g' /$1/$3/*${CHIP}OC_CHallOC.fits
-  
+    mv -n /$1/$3/tmp_OC/*_${CHIP}OC.fits /$1/$3/
+
+    rm -rf /$1/$3/tmp_OC/
     # and combine them
     ${P_IMSTATS} `ls /$1/$3/*_${CHIP}OC.fits`\
                  -s ${STATSXMIN} ${STATSXMAX} ${STATSYMIN} ${STATSYMAX}\
@@ -114,8 +127,8 @@ do
       ln -s ${RESULTDIR[${CHIP}]}/$3_${CHIP}.fits $1/$3/$3_${CHIP}.fits
     fi  
 
-    rm /$1/$3/*_${CHIP}OC_CH?.fits /$1/$3/*_${CHIP}OC_CHall.fits
-    rm flat_images_$$
+    rm -f /$1/$3/*_${CHIP}OC_CH?.fits /$1/$3/*_${CHIP}OC_CHall.fits
+    rm -f flat_images_$$
   fi
 done
 

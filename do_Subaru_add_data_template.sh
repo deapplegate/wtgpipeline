@@ -8,7 +8,7 @@
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 run=2007-07-18
 filter="W-J-B"

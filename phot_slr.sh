@@ -4,7 +4,7 @@
 # $2: star catalog
 # $3: Mag name (ISO, APER1, etc)
 
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1
 
 MAINDIR=$1
 STARCAT=$2
@@ -18,16 +18,17 @@ export SLR_INSTALL=/nfs/slac/g/ki/ki06/anja/software/slr
 export SLR_DATA=/nfs/slac/g/ki/ki06/anja/software/slr/example_data
 
 
-./dump_cat_filters.py ${MAINDIR}/${STARCAT} | awk '($1 !~ /COADD/){print}' > filters.raw.list_$$
+#old#./dump_cat_filters.py ${MAINDIR}/${STARCAT} | awk '($1 !~ /COADD/){print}' > filters.raw.list_$$
+./dump_cat_filters.py -a ${MAINDIR}/${STARCAT} | awk '($1 !~ /COADD/){print}' > filters.raw.list_$$
 
-rm filters.wc.list_$$
+rm -f filters.wc.list_$$
 while read filterlong
 do
   nobj=`./ldactoasc.py -i ${MAINDIR}/${STARCAT} -t OBJECTS MAG_${MAGTYPE}-${filterlong} | awk '{if($1>-90) print $0}' | wc | awk '{print $1}'`
   echo ${filterlong} ${nobj} >> filters.wc.list_$$ 
 done < filters.raw.list_$$
 
-rm filters.list_$$
+rm -f filters.list_$$
 
 for filter in W-J-B W-J-V W-C-RC W-C-IC W-S-I+ W-S-Z+ u g r i z K WHT-0-1-U WHT-0-1-B
 do
@@ -66,7 +67,7 @@ done
 outline="ALPHA_J2000 DELTA_J2000"
 outheader="# ID type tmixed RA Dec "
 
-rm ${MAINDIR}/slr.offsets.list
+rm -f ${MAINDIR}/slr.offsets.list
 nfilt=0
 nK=1000
 
@@ -174,7 +175,7 @@ do
 echo ${outline}
 
 done < filters.list_$$
-rm filters.list_$$ filters.wc.list_$$ filters.raw.list_$$
+rm -f filters.list_$$ filters.wc.list_$$ filters.raw.list_$$
 
 echo ${outheader} > ${MAINDIR}/stars_4slr.ctab
 
@@ -802,7 +803,7 @@ fi
 
 
   
-if [ -s ${MAINDIR}/slr.offsets.list ]; then
+if [ -s "${MAINDIR}/slr.offsets.list" ]; then
     prob=`awk 'BEGIN{prob=0}{if($3=="") prob++}END{print prob}' slr.offsets.list`
     if [ ${prob} -gt 0 ]; then
        echo "Not all filters calibrated!!!"

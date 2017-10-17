@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # The script allows to write a photometric solution into 
 # image headers. The filename of the file containing photometric
 # solutions has to have the contents:
@@ -66,4 +66,4 @@ do
      i=$(( $i + 1 ))
    done
 done < ${TEMPDIR}/night_${4}_img_list_$$.asc
-log_status $?
+#adam-BL# log_status $?

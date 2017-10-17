@@ -1,0 +1,54 @@
+superflat_directions.log
+adam-look| Todo: Inspect SCIENCE_SKYFLAT_SET1/BINNED frames for bright stars, autotracker shadows, etc.
+adam-look| ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_norm/BINNED/Z2089/SUPA*_mosOCFN.fits &
+adam-look| ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_norm/BINNED/Z2701/SUPA*_mosOCFN.fits &
+adam-look| Todo: Inspect SCIENCE_DOMEFLAT_SET1/BINNED frames for bright stars, autotracker shadows, etc.
+adam-look| ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-S-Z+/SCIENCE_norm/BINNED/MACSJ0159.8-0849/SUPA*_mosOCFN.fits &
+adam-look| ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-S-Z+/SCIENCE_norm/BINNED/MACSJ0429.6-0253/SUPA*_mosOCFN.fits &
+adam-look| ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-S-Z+/SCIENCE_norm/BINNED/Z2089/SUPA*_mosOCFN.fits &
+adam-look| Todo: Inspect SCIENCE_DOMEFLAT_SET1/BINNED frames for bright stars, autotracker shadows, etc.
+adam-look| ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-J-B/SCIENCE_norm/BINNED/MACSJ0159.8-0849/SUPA*_mosOCFN.fits &
+adam-look| ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-J-B/SCIENCE_norm/BINNED/MACSJ0429.6-0253/SUPA*_mosOCFN.fits &
+adam-look| ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-J-B/SCIENCE_norm/BINNED/Z2089/SUPA*_mosOCFN.fits &
+adam-look| ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-J-B/SCIENCE_norm/BINNED/Z2701/SUPA*_mosOCFN.fits &
+count_for_consistency.sh
+#!/bin/bash
+
+#adam-does# give it a pprun and it sees if there are a consistent number of files there
+#adam-example# ./count_for_consistency.sh 2010-11-04_W-S-Z+
+
+pprun=$1
+SUBARUDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/"
+dir=${SUBARUDIR}/${pprun}/
+echo ""
+echo "######## ${pprun} ########"
+
+for chip in 1 2 3 4 5 6 7 8 9 10
+do
+	splitNum=`ls -1 ${dir}/SCIENCE/SUPA*_${chip}.fits | wc -l`
+	OCFNum=`ls -1 ${dir}/SCIENCE/SUPA*_${chip}OCF.fits | wc -l`
+	OCFNNum=`ls -1 ${dir}/SCIENCE_norm/SUPA*_${chip}OCFN.fits | wc -l`
+	echo "chip=${chip} (none OCF OCFN): $splitNum $OCFNum $OCFNNum"
+done
+
+echo "total number consistent too if these are the same:"
+ls -1 ${dir}/SCIENCE/ORIGINALS/SUPA*.fits | wc -l
+ls -1 ${dir}/SCIENCE_norm/BINNED/SUPA*.fits | wc -l
+make_superflats.tmp.sh
+#!/bin/bash
+set -xv
+
+ds9 -scale limits .998 1.002 -cmap bb -frame lock scale -frame lock image -geometry 2000x2000 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-J-B/SCIENCE_DOMEFLAT_SET*_norm/BINNED/SCIENCE_DOMEFLAT_SET*_illum256.fits -zoom to fit &
+ds9 -scale limits .998 1.002 -cmap bb -frame lock scale -frame lock image -geometry 2000x2000 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET*_norm/BINNED/SCIENCE_SKYFLAT_SET*_illum256.fits -zoom to fit &
+ds9 -scale limits .998 1.002 -cmap bb -frame lock scale -frame lock image -geometry 2000x2000 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-S-Z+/SCIENCE_DOMEFLAT_SET*_norm/BINNED/SCIENCE_DOMEFLAT_SET*_illum256.fits -zoom to fit &
+exit 0;
+
+ds9 -scale limits .998 1.002 -cmap bb -frame lock scale -frame lock image -geometry 2000x2000 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-J-B/SCIENCE_DOMEFLAT_SET*_norm/BINNED/SCIENCE_DOMEFLAT_SET*_res256_mos.fits -zoom to fit &
+ds9 -scale limits .998 1.002 -cmap bb -frame lock scale -frame lock image -geometry 2000x2000 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET*_norm/BINNED/SCIENCE_SKYFLAT_SET*_res256_mos.fits -zoom to fit &
+ds9 -scale limits .998 1.002 -cmap bb -frame lock scale -frame lock image -geometry 2000x2000 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-S-Z+/SCIENCE_DOMEFLAT_SET*_norm/BINNED/SCIENCE_DOMEFLAT_SET*_res256_mos.fits -zoom to fit &
+ds9 -zscale -cmap bb -frame lock scale -frame lock image -geometry 2000x2000 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-S-Z+/SCIENCE_DOMEFLAT_SET*_norm/BINNED/SCIENCE_DOMEFLAT_SET*_mos_fringe256.fits -zoom to fit &
+
+adam_rescale-postH_preprocess_2015-12-15_W-C-RC-superflats.sh
+postH_preprocess_2015-12-15_W-C-RC-superflats.sh
+process_science_illum_eclipse_para.sh
+process_superflat_rescale_obj_subs.sh

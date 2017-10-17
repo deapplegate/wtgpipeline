@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 
 
 for job in photoqueue/submitted.*.extract; do 
@@ -8,7 +9,7 @@ for job in photoqueue/submitted.*.extract; do
     stat=`./check_extract_stat.sh $cluster $filter $mode` 
     if [ "$stat" == "OK" ]; then 
 	pushd ~/subaru/$cluster/PHOTOMETRY_${filter}_${mode} 
-	rm */unstacked/*.fits 
+	rm -f */unstacked/*.fits 
 	popd 
     fi 
 done

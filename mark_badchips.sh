@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # ----------------------------------------------------------------
 # File Name:           mark_badchips.sh
 # Author:              Thomas Erben (terben@astro.uni-bonn.de)
@@ -60,13 +60,14 @@ function printUsage
 
 # Handling of program interruption by CRTL-C
 trap "echo 'Script $0 interrupted!! Cleaning up and exiting!'; \
-      log_status 0 'Interupted'; \
-      exit 0" INT
+      echo 'adam-look | error: Interupted'; \
+      exit 1" INT
  
 # check validity of command line arguments:
 if [ $# -ne 5 ]; then
     printUsage
-    log_status 1 'Invalid Command Line'
+    #adam-BL# log_status 1 'Invalid Command Line'
+    echo 'adam-look | error: Invalid Command Line'
     exit 1
 fi
 
@@ -95,4 +96,4 @@ do
     done
 done
 
-log_status $?
+#adam-BL# log_status $?

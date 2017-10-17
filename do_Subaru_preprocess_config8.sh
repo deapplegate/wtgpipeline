@@ -8,7 +8,7 @@
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 run=2000-08-06
 filter="W-C-RC"
@@ -42,7 +42,7 @@ export TEMPDIR='.'
 
 #######################################
 ## Reset Logger
-./BonnLogger.py clear
+#adam-BL#./BonnLogger.py clear
 
 ##################################################################
 ### create and load the SUBARU.ini file
@@ -56,15 +56,15 @@ export INSTRUMENT=SUBARU
 
 #################################################################
 ## Capture Variables
-./BonnLogger.py config \
-    run=${run} \
-    filter=${filter} \
-    FLAT=${FLAT} \
-    SET=${SET} \
-    SKYBACK=${SKYBACK} \
-    FRINGE=${FRINGE} \
-    STANDARDSTARS=${STANDARDSTARS} \
-    config=${config}
+#adam-BL#./BonnLogger.py config \
+#adam-BL#    run=${run} \
+#adam-BL#    filter=${filter} \
+#adam-BL#    FLAT=${FLAT} \
+#adam-BL#    SET=${SET} \
+#adam-BL#    SKYBACK=${SKYBACK} \
+#adam-BL#    FRINGE=${FRINGE} \
+#adam-BL#    STANDARDSTARS=${STANDARDSTARS} \
+#adam-BL#    config=${config}
 
 
 ##################################################################
@@ -443,7 +443,7 @@ export INSTRUMENT=SUBARU
 ##CHECKPOINT
 ####################################
 exit 0;
-./BonnLogger.py checkpoint Preprocess
+#adam-BL#./BonnLogger.py checkpoint Preprocess
 
 #################################################################################
 ###  script for the coaddition:

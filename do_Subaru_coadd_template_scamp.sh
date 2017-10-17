@@ -12,7 +12,7 @@
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 cluster="A2219"  # cluster nickname as in /nfs/slac/g/ki/ki02/xoc/anja/SUBARU/SUBARU.list
 
@@ -57,7 +57,7 @@ LINE=""
 
 #######################################
 ## Reset Logger
-./BonnLogger.py clear
+#adam-BL#./BonnLogger.py clear
 
 ##############################
 ### prep stuff, per filter ###
@@ -65,9 +65,9 @@ LINE=""
 
 ##################################################################
 ### Capture Variables
-./BonnLogger.py config \
-    cluster=${cluster} \
-    filterlist="${FILTERS}"
+#adam-BL#./BonnLogger.py config \
+#adam-BL#    cluster=${cluster} \
+#adam-BL#    filterlist="${FILTERS}"
 
 for filter in ${FILTERS}
 do
@@ -86,12 +86,12 @@ do
 
   echo ${ending}
 
-  ./BonnLogger.py clear
-  ./BonnLogger.py config \
-      cluster=${cluster} \
-      filter=${filter} \
-      config=${config} \
-      ending=${ending}
+  #adam-BL#  ./BonnLogger.py clear
+  #adam-BL#  ./BonnLogger.py config \
+  #adam-BL#      cluster=${cluster} \
+  #adam-BL#      filter=${filter} \
+  #adam-BL#      config=${config} \
+  #adam-BL#      ending=${ending}
 
   ##########################
   ### prepare coaddition ###
@@ -143,13 +143,13 @@ if [ ${ASTROMMETHOD} != "SCAMP" ]; then
 
   export BONN_FILTER=${filter}
   echo ${filter}
-  ./BonnLogger.py clear
-  ./BonnLogger.py config \
-      cluster=${cluster} \
-      filter=${filter} \
-      config=${config} \
-      ending=${ending} \
-      astrommethod=${ASTROMMETHOD}
+  #adam-BL#  ./BonnLogger.py clear
+  #adam-BL#  ./BonnLogger.py config \
+  #adam-BL#      cluster=${cluster} \
+  #adam-BL#      filter=${filter} \
+  #adam-BL#      config=${config} \
+  #adam-BL#      ending=${ending} \
+  #adam-BL#    astrommethod=${ASTROMMETHOD}
 
   ### makes astrom/ and headers/
   ./create_run_list.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE ${ending} ROTATION uniqruns_$$.txt NOSPLIT
@@ -179,12 +179,12 @@ else
 
   export BONN_FILTER=${FILTERS}
 
-  ./BonnLogger.py clear
-  ./BonnLogger.py config \
-      cluster=${cluster} \
-      filterlist="${FILTERS}" \
-      astrommethod=${ASTROMMETHOD} \
-      astrometrycat=${ASTROMETRYCAT} \
+  #adam-BL#./BonnLogger.py clear
+  #adam-BL#./BonnLogger.py config \
+  #adam-BL#    cluster=${cluster} \
+  #adam-BL#    filterlist="${FILTERS}" \
+  #adam-BL#    astrommethod=${ASTROMMETHOD} \
+  #adam-BL#    astrometrycat=${ASTROMETRYCAT} \
 
   ./create_scamp_astrom_photom.sh ${LINE} ${ASTROMETRYCAT}
 
@@ -208,13 +208,13 @@ do
   testfile=`ls -1 $SUBARUDIR/$cluster/${filter}/SCIENCE/SUPA*_2*.fits | awk 'NR>1{exit};1'`
   ending=`basename ${testfile} | awk -F'_2' '{print $2}' | awk -F'.' '{print $1}'`
 
-  ./BonnLogger.py config \
-      cluster=${cluster} \
-      filter=${filter} \
-      config=${config} \
-      ending=${ending} \
-      astrommethod=${ASTROMMETHOD} \
-      astrometrycat=${ASTROMETRYCAT} \
+  #adam-BL#./BonnLogger.py config \
+  #adam-BL#    cluster=${cluster} \
+  #adam-BL#    filter=${filter} \
+  #adam-BL#    config=${config} \
+  #adam-BL#    ending=${ending} \
+  #adam-BL#    astrommethod=${ASTROMMETHOD} \
+  #adam-BL#    astrometrycat=${ASTROMETRYCAT} \
 
   ### makes plots/
   ./create_stats_table.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE ${ending} headers${ASTROMADD}
@@ -264,7 +264,7 @@ do
   ###################################
   ##CHECKPOINT
   ###################################
-#  ./BonnLogger.py checkpoint Coadd
+#  #adam-BL#./BonnLogger.py checkpoint Coadd
 
 done
 

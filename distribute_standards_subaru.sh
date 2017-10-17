@@ -2,8 +2,8 @@
 
 # $Id: distribute_standards_subaru.sh,v 1.3 2009-02-12 23:55:34 dapple Exp $#
 
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script collects some header keywords of a directory with raw fits
 # files into an LDAC catalog with a FILES table. These data are then
 # used to distinguish 'sets' of images
@@ -57,7 +57,8 @@ rm -f ${TEMPDIR}/*_$$
 ${P_FIND} $1/$2/ -name \*$3.fits -print > ${TEMPDIR}/images_$$
 
 if [ ! -s ${TEMPDIR}/images_$$ ]; then
-    log_status 2 "No images to work on"
+    #adam-BL# log_status 2 "No images to work on"
+    echo "adam-look | error: No images to work on"
     exit 2
 fi
 
@@ -153,4 +154,4 @@ cat ${TEMPDIR}/nicknames.dat_$$ |\
 
 rm -f ${TEMPDIR}/*_$$
 
-log_status $?
+#adam-BL# log_status $?

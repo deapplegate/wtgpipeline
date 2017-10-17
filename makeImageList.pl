@@ -12,9 +12,9 @@
 ##################
 
 use ds9xpautils;
-use BonnLogger;
+#use BonnLogger;
 
-log_force_start;
+#log_force_start;
 
 $usage = "
 
@@ -63,7 +63,7 @@ defined($Options{'b'}) and $doChips = 0;
 defined($Options{'i'}) and $doBinned = 0;
 
 if (scalar(@ARGV) != 3){
-    log_status(1,"Invalid Command Line");
+    #log_status(1,"Invalid Command Line");
     die $usage;
 }
 
@@ -108,7 +108,7 @@ foreach $file (@sortedFiles){
 
 close(OUTPUT);
 
-log_status_and_exit(0);
+#log_status_and_exit(0);
 
 ###################################
 

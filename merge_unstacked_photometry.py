@@ -4,7 +4,7 @@
 #   and relative zeropoints, merge into one photometric catalog
 ######################
 
-import re, unittest, numpy, astropy.io.fits as pyfits, ldac, sys, math
+import re, unittest, numpy, astropy, astropy.io.fits as pyfits, ldac, sys, math
 from optparse import OptionParser
 
 ######################
@@ -193,7 +193,7 @@ def _combineFluxs(fluxs, errs, flags,
 
 def _extractColumn(cat, key):
 
-    for col in cat.hdu.columns.data:
+    for col in cat.hdu.columns:
         if col.name == key:
             return col
 

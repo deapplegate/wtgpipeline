@@ -1,9 +1,10 @@
 global astrom
 global tmpdir
 import traceback, tempfile
-tmpdir = '/tmp/pkelly/'
+#print tmpdir
+#tmpdir = '/tmp/pkelly/'
 astrom='solve-field'
-
+import astropy, astropy.io.fits as pyfits
 
 def length_swarp(SUPA,FLAT_TYPE,CHIPS):
     import os, re, utilities, bashreader, sys, string
@@ -90,7 +91,7 @@ def fix_radec(SUPA,FLAT_TYPE):
     #outfile = '' + search_params['TEMPDIR'] + 'stub'
     #cats = [{'im_type': 'MAIN', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS..fixwcs.rawconv'}, {'im_type': 'D', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.D.fixwcs.rawconv'}]
 
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import astropy, astropy.io.fits as pyfits, sys, os, re, string, copy
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
 
@@ -269,7 +270,7 @@ def fix_radec(SUPA,FLAT_TYPE):
     save_exposure({'fixradec':1,'fixradecCR':0},SUPA,FLAT_TYPE)
 
 def mk_tab(list):
-    import astropy.io.fits as pyfits
+    import astropy, astropy.io.fits as pyfits
     from pyfits import Column        
     import numarray 
     cols = []
@@ -283,7 +284,7 @@ def mk_tab(list):
     return hdu
 
 def merge(t1,t2):
-    import astropy.io.fits as pyfits
+    import astropy, astropy.io.fits as pyfits
     t = t1.columns + t2[1].columns
     hdu = pyfits.BinTableHDU.from_columns(t)
     return hdu
@@ -315,7 +316,7 @@ def cutout(infile,mag,color='red'):
     utilities.run('mkreg.pl -c -rad 8 -xcol 0 -ycol 1 -wcs -colour ' + color + ' /tmp/' +  outfile)
 
 def get_median(cat,key):
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import astropy, astropy.io.fits as pyfits, sys, os, re, string, copy
 
     p = pyfits.open(cat)
     magdiff = p[1].data.field(key)
@@ -324,7 +325,7 @@ def get_median(cat,key):
     return magdiff[int(len(magdiff)/2)] 
 
 def coordinate_limits(cat):
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import astropy, astropy.io.fits as pyfits, sys, os, re, string, copy
 
     p = pyfits.open(cat)
 
@@ -362,7 +363,7 @@ def combine_cats(cats,outfile,search_params):
     #outfile = '' + search_params['TEMPDIR'] + 'stub'
     #cats = [{'im_type': 'MAIN', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS..fixwcs.rawconv'}, {'im_type': 'D', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.D.fixwcs.rawconv'}]
 
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import astropy, astropy.io.fits as pyfits, sys, os, re, string, copy
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
 
@@ -417,7 +418,7 @@ def paste_cats(cats,outfile,index=2): #cats,outfile,search_params):
     #print outfile, cats
       
   
-    import astropy.io.fits as pyfits, sys, os, re, string, copy        
+    import astropy, astropy.io.fits as pyfits, sys, os, re, string, copy        
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
     tables = {} 
@@ -544,7 +545,6 @@ def get_pprun(SUPA,FLAT_TYPE):
     
 
     save_exposure({'PPRUN':PPRUN},SUPA,FLAT_TYPE)                                                                                                                                                           
-
 
 def select_analyze():
     import MySQLdb, sys, os, re, time, string 
@@ -848,16 +848,13 @@ def save_exposure(dict,SUPA=None,FLAT_TYPE=None):
 
     db2.close()
 
-
 def initialize(filter,OBJNAME):
     import os, re, bashreader, sys, string, utilities
     from glob import glob
     from copy import copy
-
     dict = bashreader.parseFile(os.environ['bonn'] + 'progs.ini')
     for key in dict.keys():
         os.environ[key] = str(dict[key])
-    import os
     ppid = str(os.getppid())
     PHOTCONF = os.environ['bonn'] + '/photconf/'
     #TEMPDIR = '/usr/work/pkelly/' + ppid + '/'
@@ -865,9 +862,7 @@ def initialize(filter,OBJNAME):
     os.system('mkdir ' + TEMPDIR)
     path='/nfs/slac/g/ki/ki05/anja/SUBARU/%(OBJNAME)s/' % {'OBJNAME':OBJNAME}
     search_params = {'path':path, 'OBJNAME':OBJNAME, 'FILTER':filter, 'PHOTCONF':PHOTCONF, 'DATACONF':os.environ['DATACONF'], 'TEMPDIR':TEMPDIR} 
-
     return search_params
-
 
 def update_dict(SUPA,FLAT_TYPE):    
     import utilities
@@ -875,7 +870,6 @@ def update_dict(SUPA,FLAT_TYPE):
     print dict['file']
     kws = utilities.get_header_kw(dict['file'],['ROTATION','OBJECT','GABODSID','CONFIG','EXPTIME','AIRMASS','INSTRUM','PPRUN','BADCCD']) # return KEY/NA if not SUBARU 
     save_exposure(kws,SUPA,FLAT_TYPE)
-    
 
 def gather_exposures(OBJNAME,filters=None):
     if not filters:
@@ -957,8 +951,6 @@ def gather_exposures(OBJNAME,filters=None):
 
     return exposures
 
-
-
 def find_seeing(SUPA,FLAT_TYPE):     
     import os, re, utilities, sys
     from copy import copy
@@ -1035,7 +1027,6 @@ def find_seeing(SUPA,FLAT_TYPE):
 
     print file_seeing, SUPA, PIXSCALE
 
-
 def length_DEPRECATED(SUPA,FLAT_TYPE):
     import os, re, utilities, bashreader, sys, string
     from copy import copy
@@ -1054,7 +1045,6 @@ def length_DEPRECATED(SUPA,FLAT_TYPE):
     print res, res[0] 
     print search_params['path'], search_params['fil_directory'], 'list'
     save_exposure({'path':search_params['path'],'fil_directory':search_params['fil_directory']},SUPA,FLAT_TYPE)
-
 
     ''' get the CRPIX values '''
     start = 1
@@ -1127,7 +1117,7 @@ def fix_chips(SUPA,FLAT_TYPE):
     #outfile = '' + search_params['TEMPDIR'] + 'stub'
     #cats = [{'im_type': 'MAIN', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS..fixwcs.rawconv'}, {'im_type': 'D', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.D.fixwcs.rawconv'}]
 
-    import astropy.io.fits as pyfits, sys, os, re, string, copy
+    import astropy, astropy.io.fits as pyfits, sys, os, re, string, copy
     from config_bonn import cluster, tag, arc, filters
     ppid = str(os.getppid())
 
@@ -1198,7 +1188,7 @@ def plot_chips(x1,y1):
     #x1, y1 = length('SUPA0002955','DOMEFLAT')
     #x2, y2 = length('SUPA0002956','DOMEFLAT')
 
-    import numpy, math, pyfits, os                                                                              
+    import numpy, math, astropy, astropy.io.fits as pyfits, os                                                                              
     import copy
     from ppgplot   import *
 
@@ -1224,7 +1214,6 @@ def plot_chips(x1,y1):
     
     pgbox()
     pgend()
-
 
 def sdss_coverage(SUPA,FLAT_TYPE):
     import commands, string                                                                                    
@@ -1254,48 +1243,48 @@ def sdss_coverage(SUPA,FLAT_TYPE):
     save_exposure({'sdss_coverage':sdss_coverage},SUPA,FLAT_TYPE)
     return sdss_coverage
 
-def sextract(SUPA,FLAT_TYPE):
-    import os, re, utilities, bashreader, sys, string
-    from copy import copy
-    from glob import glob
-
-    trial = False 
+namespace_tmpsave=globals()
+def sextract(SUPA,FLAT_TYPE,subpath='/nfs/slac/g/ki/ki05/anja/SUBARU/'):
+    try:
+        import os, re, utilities, bashreader, sys, string
+        from copy import copy
+        from glob import glob
+        trial = False 
+        dict = get_files(SUPA,FLAT_TYPE)
+        search_params = initialize(dict['FILTER'],dict['OBJNAME'])
+        search_params.update(dict)
+        path=subpath+'%(OBJNAME)s/' % {'OBJNAME':search_params['OBJNAME']}
+        #path='/nfs/slac/g/ki/ki05/anja/SUBARU/%(OBJNAME)s/' % {'OBJNAME':search_params['OBJNAME']}
+        #subpath='/nfs/slac/g/ki/ki05/anja/SUBARU/'
+        search_params['CRPIX1ZERO'] = -999 
+        search_params['CRPIX2ZERO'] = -999 
     
-    dict = get_files(SUPA,FLAT_TYPE)
-    search_params = initialize(dict['FILTER'],dict['OBJNAME'])
-    search_params.update(dict)
-    path='/nfs/slac/g/ki/ki05/anja/SUBARU/%(OBJNAME)s/' % {'OBJNAME':search_params['OBJNAME']}
-    subpath='/nfs/slac/g/ki/ki05/anja/SUBARU/'
-    search_params['CRPIX1ZERO'] = -999 
-    search_params['CRPIX2ZERO'] = -999 
-
-    print search_params
-
-    print SUPA, FLAT_TYPE, search_params['files'] 
-    kws = utilities.get_header_kw(search_params['files'][0],['PPRUN'])
-    print kws['PPRUN']
-    pprun = kws['PPRUN']
-
-    #fs = glob.glob(subpath+pprun+'/SCIENCE_DOMEFLAT*.tarz')
-    #if len(fs) > 0: 
-    #    os.system('tar xzvf ' + fs[0])
-    #fs = glob.glob(subpath+pprun+'/SCIENCE_SKYFLAT*.tarz')
-    #if len(fs) > 0: 
-    #    os.system('tar xzvf ' + fs[0])
-
-
-    search_params['files'].sort()
-
-    children = []
-    if 1:
+        #adam# print search_params
+    
+        print SUPA, FLAT_TYPE, search_params['files'] 
+        kws = utilities.get_header_kw(search_params['files'][0],['PPRUN'])
+        print kws['PPRUN']
+        pprun = kws['PPRUN']
+    
+        #fs = glob.glob(subpath+pprun+'/SCIENCE_DOMEFLAT*.tarz')
+        #if len(fs) > 0: 
+        #    os.system('tar xzvf ' + fs[0])
+        #fs = glob.glob(subpath+pprun+'/SCIENCE_SKYFLAT*.tarz')
+        #if len(fs) > 0: 
+        #    os.system('tar xzvf ' + fs[0])
+    
+        search_params['files'].sort()
+    
+        children = []
         for image in search_params['files']:
             ROOT = re.split('\.',re.split('\/',image)[-1])[0]
             BASE = re.split('O',ROOT)[0]
             NUM = re.split('O',re.split('\_',ROOT)[1])[0]
             print image, search_params['CRVAL1ASTROMETRY_'+NUM]
-
+    
         for image in search_params['files']:
             print image
+            #import ipdb; ipdb.set_trace() # BREAKPOINT (`c` or `n` to continue)
             child = False 
             if not trial:
                 child = os.fork()           
@@ -1325,110 +1314,100 @@ def sextract(SUPA,FLAT_TYPE):
                     params['finalflagim'] = weightim
                     im = "/%(path)s/%(fil_directory)s/SCIENCE/%(ROOT)s.fits" % params
                     crpix = utilities.get_header_kw(im,['CRPIX1','CRPIX2'])
-                    
                     #if search_params['SDSS_coverage'] == 'yes': catalog = 'SDSS-R6'
                     #else: catalog = '2MASS'
-
-                    if 1: 
-                        command = 'mkdir -p %(TEMPDIR)s' % params
-                        print command
-                        os.system(command)
-                        imfix = "%(TEMPDIR)s/%(ROOT)s.fixwcs.fits" % params
-                        print imfix
-                        
-                        os.system('mkdir ' + search_params['TEMPDIR'])
-                        command = "cp " + im + " " + imfix
-                        print command
-                        print 'copying file', im
-                        utilities.run(command)
-                        print 'finished copying'
-                        
-                        
-
+                    command = 'mkdir -p %(TEMPDIR)s' % params
+                    print command
+                    os.system(command)
+                    imfix = "%(TEMPDIR)s/%(ROOT)s.fixwcs.fits" % params
+                    print imfix
+                    
+                    os.system('mkdir ' + search_params['TEMPDIR'])
+                    command = "cp " + im + " " + imfix
+                    print command
+                    print 'copying file', im
+                    utilities.run(command)
+                    print 'finished copying'
+    
                     ''' now run sextractor '''
-                    if 1:
-                        main_file = '%(TEMPDIR)s/%(ROOT)s.fixwcs.fits' % params
-                        doubles_raw = [{'file_pattern':main_file,'im_type':''},]
-                                       #{'file_pattern':subpath+pprun+'/SCIENCE_DOMEFLAT*/'+BASE+'OC*.fits','im_type':'D'},
-                                       #{'file_pattern':subpath+pprun+'/SCIENCE_SKYFLAT*/'+BASE+'OC*.fits','im_type':'S'}]
-                                       #{'file_pattern':subpath+pprun+'/SCIENCE/OC_IMAGES/'+BASE+'OC*.fits','im_type':'OC'}
-                                       # ] 
-                                                                                                                                  
-                        print doubles_raw
-                        doubles_output = []
-                        print doubles_raw
-                        for double in doubles_raw:
-                            file = glob(double['file_pattern'])
-                            print double['file_pattern']
-                            print len(file)
-                            if len(file) > 0:
-                                params.update(double) 
-                                params['double_cat'] = '%(TEMPDIR)s/%(ROOT)s.%(im_type)s.fixwcs.cat' % params
-                                params['file_double'] = file[0]
-                                #print params
-                                #for par in ['fwhm','GAIN']:
-                                #    print par, type(params[par]), params[par]
-
-                                
-
-                                catname = "%(TEMPDIR)s/%(ROOT)s.cat" % params
-                                print command
-                                
-
-                                command = "sex %(TEMPDIR)s%(ROOT)s.fixwcs.fits -c %(PHOTCONF)s/phot.conf.sex \
-                                -PARAMETERS_NAME %(PHOTCONF)s/phot.param.sex \
-                                -CATALOG_NAME %(double_cat)s \
-                                -FILTER_NAME %(DATACONF)s/default.conv\
-                                -FILTER  Y \
-                                -FLAG_TYPE MAX\
-                                -FLAG_IMAGE ''\
-                                -SEEING_FWHM %(fwhm).3f \
-                                -DETECT_MINAREA 3 -DETECT_THRESH 3 -ANALYSIS_THRESH 3 \
-                                -MAG_ZEROPOINT 27.0 \
-                                -GAIN %(GAIN).3f \
-                                -WEIGHT_IMAGE /%(path)s/%(fil_directory)s/WEIGHTS/%(ROOT)s.weight.fits\
-                                -WEIGHT_TYPE MAP_WEIGHT" % params
-
-                                #-CHECKIMAGE_TYPE BACKGROUND,APERTURES,SEGMENTATION\
-                                #-CHECKIMAGE_NAME /%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.background.fits,/%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.apertures.fits,/%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.segmentation.fits\
-                                catname = "%(TEMPDIR)s/%(ROOT)s.cat" % params
-                                print command
-                                
-                                utilities.run(command,[catname])
-                                command = 'ldacconv -b 1 -c R -i ' + params['double_cat']  + ' -o '  + params['double_cat'].replace('cat','rawconv')
-                                print command
-                                utilities.run(command)
-                                #command = 'ldactoasc -b -q -i ' + params['double_cat'].replace('cat','rawconv') + '  -t OBJECTS\
-                                #        -k ALPHA_J2000 DELTA_J2000 > ' + params['double_cat'].replace('cat','pos')
-                                #print command
-                                #utilities.run(command)
-                                #print 'mkreg.pl -c -rad 8 -xcol 0 -ycol 1 -wcs -colour green ' + params['double_cat'].replace('cat','pos')
-                                #utilities.run(command)
-                                #print params['double_cat'].replace('cat','pos')
-                                # Xpos_ABS is difference of CRPIX and zero CRPIX
-                                doubles_output.append({'cat':params['double_cat'].replace('cat','rawconv'),'im_type':double['im_type']})
-                        
-                        print doubles_output
-                        print '***********************************'
-                        
-                        outfile = params['TEMPDIR'] + params['ROOT'] + '.conv'
-                        combine_cats(doubles_output,outfile,search_params)
-                        
-                        #outfile_field = params['TEMPDIR'] + params['ROOT'] + '.field'
-                        #command = 'ldacdeltab -i ' + outfile + ' -t FIELDS -o ' + outfile_field
-                        #utilities.run(command)
-                        
-                        command = 'ldactoasc -b -q -i ' + outfile + '  -t OBJECTS\
-                                        -k ALPHA_J2000 DELTA_J2000 > ' + outfile.replace('conv','pos')
-                        print command
-                        utilities.run(command)
-                        command = 'mkreg.pl -c -rad 8 -xcol 0 -ycol 1 -wcs -colour green ' + outfile.replace('conv','pos')
-                        print command
-                        utilities.run(command)
-                        print outfile
-                        command = 'ldaccalc -i ' + outfile + ' -o ' + params['TEMPDIR'] + params['ROOT'] + '.newpos -t OBJECTS -c "(Xpos + ' +  str(float(search_params['CRPIX1ZERO']) - float(crpix['CRPIX1'])) + ');" -k FLOAT -n Xpos_ABS "" -c "(Ypos + ' + str(float(search_params['CRPIX2ZERO']) - float(crpix['CRPIX2'])) + ');" -k FLOAT -n Ypos_ABS "" -c "(Ypos*0 + ' + str(params['NUM']) + ');" -k FLOAT -n CHIP "" ' 
-                        print command
-                        utilities.run(command)
+                    main_file = '%(TEMPDIR)s/%(ROOT)s.fixwcs.fits' % params
+                    doubles_raw = [{'file_pattern':main_file,'im_type':''},]
+                                   #{'file_pattern':subpath+pprun+'/SCIENCE_DOMEFLAT*/'+BASE+'OC*.fits','im_type':'D'},
+                                   #{'file_pattern':subpath+pprun+'/SCIENCE_SKYFLAT*/'+BASE+'OC*.fits','im_type':'S'}]
+                                   #{'file_pattern':subpath+pprun+'/SCIENCE/OC_IMAGES/'+BASE+'OC*.fits','im_type':'OC'} ] 
+                    print doubles_raw
+                    doubles_output = []
+                    for double in doubles_raw:
+                        file = glob(double['file_pattern'])
+                        print double['file_pattern']
+                        print len(file)
+                        if len(file) > 0:
+                            params.update(double) 
+                            params['double_cat'] = '%(TEMPDIR)s/%(ROOT)s.%(im_type)s.fixwcs.cat' % params
+                            params['file_double'] = file[0]
+                            #print params
+                            #for par in ['fwhm','GAIN']:
+                            #    print par, type(params[par]), params[par]
+    
+                            catname = "%(TEMPDIR)s/%(ROOT)s.cat" % params
+                            command_keys=["TEMPDIR","ROOT","PHOTCONF","double_cat","DATACONF","fwhm","GAIN","path","fil_directory","ROOT"]
+                            print "\n"
+                            fwhm=pyfits.open(image)[0].header['MYSEEING']
+                            params['fwhm']=fwhm
+                            for ckey in command_keys:
+                                print "params['",ckey,"']=",params[ckey]
+                            command = "sex %(TEMPDIR)s%(ROOT)s.fixwcs.fits -c %(PHOTCONF)s/phot.conf.sex \
+                            -PARAMETERS_NAME %(PHOTCONF)s/phot.param.sex \
+                            -CATALOG_NAME %(double_cat)s \
+                            -FILTER_NAME %(DATACONF)s/default.conv\
+                            -FILTER  Y \
+                            -FLAG_TYPE MAX\
+                            -FLAG_IMAGE ''\
+                            -SEEING_FWHM %(fwhm).3f \
+                            -DETECT_MINAREA 3 -DETECT_THRESH 3 -ANALYSIS_THRESH 3 \
+                            -MAG_ZEROPOINT 27.0 \
+                            -GAIN %(GAIN).3f \
+                            -WEIGHT_IMAGE /%(path)s/%(fil_directory)s/WEIGHTS/%(ROOT)s.weight.fits\
+                            -WEIGHT_TYPE MAP_WEIGHT" % params
+                            print command
+                            #-CHECKIMAGE_TYPE BACKGROUND,APERTURES,SEGMENTATION\
+                            #-CHECKIMAGE_NAME /%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.background.fits,/%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.apertures.fits,/%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.segmentation.fits\
+                            catname = "%(TEMPDIR)s/%(ROOT)s.cat" % params
+                            print command
+                            
+			    #adam# utilities.run(command,[catname])
+                            out_sex=utilities.run(command)
+                            command = 'ldacconv -b 1 -c R -i ' + params['double_cat']  + ' -o '  + params['double_cat'].replace('cat','rawconv')
+                            print command
+                            out_ldacconv=utilities.run(command)
+                            #command = 'ldactoasc -b -q -i ' + params['double_cat'].replace('cat','rawconv') + '  -t OBJECTS\
+                            #        -k ALPHA_J2000 DELTA_J2000 > ' + params['double_cat'].replace('cat','pos')
+                            #print command
+                            #utilities.run(command)
+                            #print 'mkreg.pl -c -rad 8 -xcol 0 -ycol 1 -wcs -colour green ' + params['double_cat'].replace('cat','pos')
+                            #utilities.run(command)
+                            #print params['double_cat'].replace('cat','pos')
+                            # Xpos_ABS is difference of CRPIX and zero CRPIX
+                            doubles_output.append({'cat':params['double_cat'].replace('cat','rawconv'),'im_type':double['im_type']})
+                    
+                    print doubles_output
+                    print '***********************************'
+                    outfile = params['TEMPDIR'] + params['ROOT'] + '.conv'
+                    combine_cats(doubles_output,outfile,search_params)
+                    
+                    #outfile_field = params['TEMPDIR'] + params['ROOT'] + '.field'
+                    #command = 'ldacdeltab -i ' + outfile + ' -t FIELDS -o ' + outfile_field
+                    #utilities.run(command)
+                    command = 'ldactoasc -b -q -i ' + outfile + '  -t OBJECTS -k ALPHA_J2000 DELTA_J2000 > ' + outfile.replace('conv','pos')
+                    print command
+                    out_ldactoasc=utilities.run(command)
+                    command = 'mkreg.pl -c -rad 8 -xcol 0 -ycol 1 -wcs -colour green ' + outfile.replace('conv','pos')
+                    print command
+                    out_mkreg=utilities.run(command)
+                    print outfile
+                    command = 'ldaccalc -i ' + outfile + ' -o ' + params['TEMPDIR'] + params['ROOT'] + '.newpos -t OBJECTS -c "(Xpos + ' +  str(float(search_params['CRPIX1ZERO']) - float(crpix['CRPIX1'])) + ');" -k FLOAT -n Xpos_ABS "" -c "(Ypos + ' + str(float(search_params['CRPIX2ZERO']) - float(crpix['CRPIX2'])) + ');" -k FLOAT -n Ypos_ABS "" -c "(Ypos*0 + ' + str(params['NUM']) + ');" -k FLOAT -n CHIP "" ' 
+                    print command
+                    out_ldaccalc=utilities.run(command)
                 except:
                     print traceback.print_exc(file=sys.stdout)
                     sys.exit(0)
@@ -1438,46 +1417,45 @@ def sextract(SUPA,FLAT_TYPE):
                 #    print 'finishing' 
                 #    sys.exit(0)
                 #sys.exit(0)
+        import time ; time.sleep(100) #adam
         print children
         for child in children:  
             print 'waiting for', child
             os.waitpid(child,0)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
         print 'finished waiting'
-
-    pasted_cat = path + 'PHOTOMETRY/ILLUMINATION/' + 'pasted_' + SUPA + '_' + search_params['FILTER'] + '_' + str(search_params['ROTATION']) + '.cat'
-    print pasted_cat
-    os.system('mkdir -p ' + path + 'PHOTOMETRY/ILLUMINATION/')
-
-    from glob import glob        
-    outcat = search_params['TEMPDIR'] + 'tmppaste_' + SUPA + '.cat'
-    newposlist = glob(search_params['TEMPDIR'] + SUPA + '*newpos')
-    print search_params['TEMPDIR'] + SUPA + '*newpos'
-    if len(newposlist) > 1:
-        #command = 'ldacpaste -i ' + search_params['TEMPDIR'] + SUPA + '*newpos -o ' + pasted_cat 
-        #print command
-        files = glob(search_params['TEMPDIR'] + SUPA + '*newpos')
-        print files, search_params['TEMPDIR'] + SUPA + '*newpos'
-        paste_cats(files,pasted_cat)
-    else:
-        command = 'cp ' + newposlist[0] + ' ' + pasted_cat 
-        utilities.run(command)
-    save_exposure({'pasted_cat':pasted_cat,'resam':0},SUPA,FLAT_TYPE)
-
-    command = "rm -rf " + search_params['TEMPDIR']  
-    os.system(command)
-
-    #fs = glob.glob(subpath+pprun+'/SCIENCE_DOMEFLAT*.tarz'.replace('.tarz','')) 
-    #if len(fs) > 0: 
-    #    os.system('tar xzvf ' + fs[0])
-                                                            
-    #fs = glob.glob(subpath+pprun+'/SCIENCE_SKYFLAT*.tarz'.replace('.tarz',''))
-    #fs = glob.glob(subpath+pprun+'/SCIENCE_SKYFLAT*.tarz')
-    #if len(fs) > 0: 
-    #    os.system('tar xzvf ' + fs[0])
-
-
-    #return exposures, LENGTH1, LENGTH2 
+    
+        pasted_cat = path + 'PHOTOMETRY/ILLUMINATION/' + 'pasted_' + SUPA + '_' + search_params['FILTER'] + '_' + str(search_params['ROTATION']) + '.cat'
+        print pasted_cat
+        os.system('mkdir -p ' + path + 'PHOTOMETRY/ILLUMINATION/')
+    
+        from glob import glob        
+        outcat = search_params['TEMPDIR'] + 'tmppaste_' + SUPA + '.cat'
+        newposlist = glob(search_params['TEMPDIR'] + SUPA + '*newpos')
+        print search_params['TEMPDIR'] + SUPA + '*newpos'
+        if len(newposlist) > 1:
+            #command = 'ldacpaste -i ' + search_params['TEMPDIR'] + SUPA + '*newpos -o ' + pasted_cat 
+            #print command
+            files = glob(search_params['TEMPDIR'] + SUPA + '*newpos')
+            print files, search_params['TEMPDIR'] + SUPA + '*newpos'
+            paste_cats(files,pasted_cat)
+        else:
+            command = 'cp ' + newposlist[0] + ' ' + pasted_cat 
+            out_cp=utilities.run(command)
+        save_exposure({'pasted_cat':pasted_cat,'resam':0},SUPA,FLAT_TYPE)
+    
+        command = "rm -rf " + search_params['TEMPDIR']  
+        out_rm=os.system(command)
+        #fs = glob.glob(subpath+pprun+'/SCIENCE_DOMEFLAT*.tarz'.replace('.tarz','')) 
+        #if len(fs) > 0: 
+        #    os.system('tar xzvf ' + fs[0])
+        #fs = glob.glob(subpath+pprun+'/SCIENCE_SKYFLAT*.tarz'.replace('.tarz',''))
+        #fs = glob.glob(subpath+pprun+'/SCIENCE_SKYFLAT*.tarz')
+        #if len(fs) > 0: 
+        #    os.system('tar xzvf ' + fs[0])
+        #return exposures, LENGTH1, LENGTH2 
+    except:
+	namespace_tmpsave.update(locals())
+	raise
 
 def get_sdss_obj(SUPA, FLAT_TYPE):
     dict = get_files(SUPA,FLAT_TYPE)
@@ -1734,7 +1712,7 @@ def phot(SUPA,FLAT_TYPE):
             
             good = photo_abs_new.run_through('illumination',infile='' + search_params['TEMPDIR'] + 'input.asc',output='' + search_params['TEMPDIR'] + 'photo_res',extcoeff=d['color1'],sigmareject=6,step='STEP_1',bandcomp=d['FILTER'],color1which=d['color1'],color2which=d['color2'])
             
-            import astropy.io.fits as pyfits
+            import astropy, astropy.io.fits as pyfits
             cols = [] 
             for key in ['corr_data','color1_good','color2_good','magErr_good','X_good','Y_good','airmass_good']: 
                 cols.append(pyfits.Column(name=key, format='E',array=good[key]))
@@ -1753,7 +1731,7 @@ def phot(SUPA,FLAT_TYPE):
             save_fit(good['fits'],im_type,type,SUPA,FLAT_TYPE)
 
 def nightrun():
-    import MySQLdb, sys, os, re, time, utilities, pyfits
+    import MySQLdb, sys, os, re, time, utilities, astropy, astropy.io.fits as pyfits
     from copy import copy
     db2 = MySQLdb.connect(db='subaru', user='weaklensing', passwd='darkmatter', host='ki-sr01.slac.stanford.edu')
     c = db2.cursor()
@@ -1832,7 +1810,7 @@ def nightrun():
             #except: print 'failed'
 
 def auto_print():
-    import MySQLdb, sys, os, re, time, utilities, pyfits
+    import MySQLdb, sys, os, re, time, utilities, astropy, astropy.io.fits as pyfits
     from copy import copy
     db2 = MySQLdb.connect(db='subaru', user='weaklensing', passwd='darkmatter', host='ki-sr01.slac.stanford.edu')
     c = db2.cursor()
@@ -1905,7 +1883,7 @@ def describe_db(c,dbs=['illumination_db']):
     return keys    
 
 def printer():
-    import MySQLdb, sys, os, re, time, utilities, pyfits
+    import MySQLdb, sys, os, re, time, utilities, astropy, astropy.io.fits as pyfits
     from copy import copy
     db2 = MySQLdb.connect(db='subaru', user='weaklensing', passwd='darkmatter', host='ki-sr01.slac.stanford.edu')
     c = db2.cursor()
@@ -2009,7 +1987,7 @@ if 0:
         f.close()
 
 def get_sdss(dict):
-    import MySQLdb, sys, os, re, time, utilities, pyfits
+    import MySQLdb, sys, os, re, time, utilities, astropy, astropy.io.fits as pyfits
     from copy import copy
     import os
     search_params = initialize(dict['FILTER'],dict['OBJNAME'])
@@ -2038,10 +2016,9 @@ def get_sdss(dict):
 
     return cov, outcat
 
-
 def match_OBJNAME(SDSS=False):
 
-    import MySQLdb, sys, os, re, time, utilities, pyfits
+    import MySQLdb, sys, os, re, time, utilities, astropy, astropy.io.fits as pyfits
     from copy import copy
     db2 = MySQLdb.connect(db='subaru', user='weaklensing', passwd='darkmatter', host='ki-sr01.slac.stanford.edu')
     c = db2.cursor()
@@ -2155,7 +2132,7 @@ def match_OBJNAME(SDSS=False):
             print sys.exc_info()
 
 def add_gradient(cat_list):
-    import astropy.io.fits as pyfits, os
+    import astropy, astropy.io.fits as pyfits, os
     cat_grads = []
     for cat in cat_list:
         print cat
@@ -2170,7 +2147,7 @@ def add_gradient(cat_list):
     return cat_grads 
 
 def add_correction(cat_list):
-    import astropy.io.fits as pyfits, os
+    import astropy, astropy.io.fits as pyfits, os
     cat_grads = []
     
     EXPS = getTableInfo()
@@ -2280,7 +2257,6 @@ def make_ssc_config_few(list):
 
     out.close()
 
-
 def make_ssc_config_colors(list):
 
     ofile = '/tmp/tmp.cat'
@@ -2387,7 +2363,7 @@ def match_inside(SUPA1,SUPA2,FLAT_TYPE):
     print outcat
 
 def getTableInfo():
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string
+    import astropy, astropy.io.fits as pyfits, sys, os, re, string, copy , string
     
     p = pyfits.open('/tmp/final.cat')
     tbdata = p[1].data
@@ -2408,9 +2384,8 @@ def getTableInfo():
                 ROTS[ROT].append(IMAGE)
     return ROTS
 
-
 def diffCalcNew():
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string
+    import astropy, astropy.io.fits as pyfits, sys, os, re, string, copy , string
     
     p = pyfits.open('/tmp/final.cat')
     tbdata = p[1].data
@@ -2449,7 +2424,7 @@ def diffCalcNew():
 
 def starConstruction(EXPS):
     ''' the top two most star-like objects have CLASS_STAR>0.9 and, for each rotation, their magnitudes differ by less than 0.01 '''
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string, scipy
+    import astropy, astropy.io.fits as pyfits, sys, os, re, string, copy , string, scipy
     
     p = pyfits.open('/tmp/final.cat')
     table = p[1].data
@@ -2480,7 +2455,7 @@ def starConstruction(EXPS):
 
 def selectGoodStars(EXPS,true_sdss):
     ''' the top two most star-like objects have CLASS_STAR>0.9 and, for each rotation, their magnitudes differ by less than 0.01 '''
-    import astropy.io.fits as pyfits, sys, os, re, string, copy , string, scipy
+    import astropy, astropy.io.fits as pyfits, sys, os, re, string, copy , string, scipy
     
     p = pyfits.open('/tmp/final.cat')
     #print p[1].columns
@@ -2608,7 +2583,7 @@ def diffCalc(SUPA1,FLAT_TYPE):
     search_params = initialize(dict['FILTER'],dict['OBJNAME'])
     search_params.update(dict)
 
-    import astropy.io.fits as pyfits, sys, os, re, string, copy 
+    import astropy, astropy.io.fits as pyfits, sys, os, re, string, copy 
     
     print search_params['matched_cat_self']
     p = pyfits.open(search_params['matched_cat_self'])
@@ -2649,7 +2624,7 @@ def diffCalc(SUPA1,FLAT_TYPE):
 
 def calcDataIllum(file, LENGTH1, LENGTH2, data,magErr, X, Y, pth='/nfs/slac/g/ki/ki04/pkelly/plots/', rot=0):
     
-    import numpy, math, pyfits, os                                                                              
+    import numpy, math, astropy, astropy.io.fits as pyfits, os                                                                              
     from ppgplot   import *
 
     #print size_x, size_y, bin, size_x/bin
@@ -2823,7 +2798,6 @@ def calcDataIllum(file, LENGTH1, LENGTH2, data,magErr, X, Y, pth='/nfs/slac/g/ki
 
     return
 
-
 def make_model(ROTS):
     #polyterms = [['X','X','X'],['X','X','Y'],['X','Y','Y'],['Y','Y','Y'],['X','X'],['X','Y'],['Y','Y'],['X'],['Y']]
     polyterms = [['Xpos_ABS','Xpos_ABS'],['Xpos_ABS','Ypos_ABS'],['Ypos_ABS','Ypos_ABS'],['Xpos_ABS'],['Ypos_ABS']]
@@ -2989,9 +2963,8 @@ class phot_funct:
         status = 0
         return([model, (model-y)/err])
 
-
 def calcIllum(size_x, size_y, bin, fit):
-    import numpy, math, pyfits, os                                                                              
+    import numpy, math, astropy, astropy.io.fits as pyfits, os                                                                              
     fitvars = fit['class'].fitvars
     x,y = numpy.meshgrid(numpy.arange(0,size_x,bin),numpy.arange(0,size_y,bin))
     F=0.1
@@ -3041,7 +3014,6 @@ def starStats(supas):
     for key in dict.keys():
         print key, dict[key]
 
-
 def add_single_correction(x,y,fitvars):
     cheby_x = [{'n':'0x','f':lambda x,y:1.},{'n':'1x','f':lambda x,y:x},{'n':'2x','f':lambda x,y:2*x**2-1},{'n':'3x','f':lambda x,y:4*x**3.-3*x}] 
     cheby_y = [{'n':'0y','f':lambda x,y:1.},{'n':'1y','f':lambda x,y:y},{'n':'2y','f':lambda x,y:2*y**2-1},{'n':'3y','f':lambda x,y:4*y**3.-3*y}]
@@ -3059,7 +3031,7 @@ def add_single_correction(x,y,fitvars):
     return epsilon
 
 def illum():
-    import MySQLdb, sys, os, re, time, utilities, pyfits
+    import MySQLdb, sys, os, re, time, utilities, astropy, astropy.io.fits as pyfits
     from copy import copy
     db2 = MySQLdb.connect(db='subaru', user='weaklensing', passwd='darkmatter', host='ki-sr01.slac.stanford.edu')
     c = db2.cursor()
@@ -3187,10 +3159,9 @@ def calcDither(supas):
     print crval1s, crval2s, numpy.std(crval1s)*3600, numpy.std(crval2s)*3600
     return numpy.std(crval1s)*3600, numpy.std(crval2s)*3600
 
-
 def compSurfaceDiff(images, xpix=None, ypix=None):
     import numpy, scipy
-    import sys, pyfits
+    import sys, astropy, astropy.io.fits as pyfits
 
     surfs = [pyfits.getdata(surfname) for surfname in images]
 
@@ -3248,7 +3219,6 @@ def linear_fit(CLUSTER,FILTER,PPRUN):
     #ROTS, data, err, X, Y, maxVal, classStar = diffCalcNew()
     #save = {'ROTS': ROTS, 'data':data,'err':err,'X':X,'Y':Y,'maxVal':maxVal,'classStar':classStar}
     #uu = open('/tmp/store','w')
-    #import pickle
     #pickle.dump(save,uu)
     #uu.close()
    
@@ -3270,11 +3240,9 @@ def linear_fit(CLUSTER,FILTER,PPRUN):
     if 1:
         EXPS, star_good,supas = selectGoodStars(EXPS,true_sdss)               
         uu = open('/tmp/selectGoodStars','w')
-        import pickle
         pickle.dump({'EXPS':EXPS,'star_good':star_good,'supas':supas},uu)
         uu.close()
 
-    import pickle
     f=open('/tmp/selectGoodStars','r')
     m=pickle.Unpickler(f)
     d=m.load()
@@ -3296,7 +3264,7 @@ def linear_fit(CLUSTER,FILTER,PPRUN):
         samples = [['nosdss',cheby_terms_no_linear]]
     for sample,cheby_terms_use in samples:
         import scipy
-        import astropy.io.fits as pyfits
+        import astropy, astropy.io.fits as pyfits
         p = pyfits.open('/tmp/final.cat')
         table = p[1].data
         
@@ -3531,7 +3499,6 @@ def linear_fit(CLUSTER,FILTER,PPRUN):
                 Af = open('A','w')
                 Bf = open('b','w')
                 
-                                                                                                                                                                        
                 for ele in Ainst_expand:
                     Af.write(str(ele[0]) + ' ' + str(ele[1]) + ' ' + str(ele[2]) + '\n')
                     #print ele, y_length, x_length
@@ -3628,7 +3595,7 @@ def linear_fit(CLUSTER,FILTER,PPRUN):
                     size_x=8000
                     size_y=10000
                     bin=100
-                    import numpy, math, pyfits, os                                                                              
+                    import numpy, math, astropy, astropy.io.fits as pyfits, os                                                                              
                     x,y = numpy.meshgrid(numpy.arange(0,size_x,bin),numpy.arange(0,size_y,bin))
                     F=0.1
                     print 'calculating'
@@ -3712,7 +3679,7 @@ def residual_plots():
         size_x=8000
         size_y=10000
         bin=100
-        import numpy, math, pyfits, os                                                                              
+        import numpy, math, astropy, astropy.io.fits as pyfits, os                                                                              
         x,y = numpy.meshgrid(numpy.arange(0,size_x,bin),numpy.arange(0,size_y,bin))
         F=0.1
         print 'calculating'
@@ -3752,8 +3719,6 @@ def residual_plots():
         print 'done'
     return
 
-
-
 def fit():
     maxSigIter=50
     solutions = [] 
@@ -3777,23 +3742,15 @@ def fit():
     print fit
     star_good = selectGoodStars(EXPS)
     uu = open('/tmp/store','w')
-    import pickle
     pickle.dump(star_good,uu)
     uu.close()
 
-    import pickle
     f=open('/tmp/store','r')
     m=pickle.Unpickler(f)
     star_good=m.load()
-
-
-
-
-
-
     fit['class'] = phot_funct(fit['model'],fit['fixed'],EXPS,star_good,fit['apply'])
 
-    import astropy.io.fits as pyfits
+    import astropy, astropy.io.fits as pyfits
     p = pyfits.open('/tmp/final.cat')
     table = p[1].data
 
@@ -3808,10 +3765,6 @@ def fit():
         #import optimize
         #params, covar, info, mesg, ier = optimize.leastsq(func,guess,args = (points,vals,errs), full_output=True)
         
-
-
-
-
         import mpfit
         m =  mpfit.mpfit(func, functkw=fa,
                          parinfo=fit['class'].parstart,
@@ -3837,8 +3790,6 @@ def fit():
         #condition, redchisq = SigmaCond(params, data_save, data,
         #                           airmass_save, airmass,
         #                           color1_save, color1, color2_save, color2, err_save, err, sigmareject)
-                                                                                                                                                                                                               
-
 
         calcIllum(10000, 10000, 100, fit)
 
@@ -3901,7 +3852,7 @@ def apply_photometric_calibration(SUPA,FLAT_TYPE):
     search_params.update(dict)
 
     print dict['starcat']
-    import astropy.io.fits as pyfits
+    import astropy, astropy.io.fits as pyfits
     hdulist1 = pyfits.open(dict['starcat'])
     #print hdulist1["STDTAB"].columns
     table = hdulist1["STDTAB"].data
@@ -3943,7 +3894,7 @@ def apply_photometric_calibration(SUPA,FLAT_TYPE):
     save_exposure({'sdssmatch':outcat},SUPA,FLAT_TYPE)
 
 def plot_color(color,data):
-    import numpy, math, pyfits, os                                                                              
+    import numpy, math, astropy, astropy.io.fits as pyfits, os                                                                              
     import copy
     from ppgplot   import *
 
@@ -4073,8 +4024,6 @@ def gather_exposures_all(OBJNAME=None,FILTER=None,filters=None):
                         c = db2.cursor()
                        
                         #print file, 'file'
-
-
                         for file in files:
 
                             try:
@@ -4231,9 +4180,8 @@ def run_telarchive(ra,dec,objname):
     print objname, d 
     return d 
 
-
 def get_observations():
-    import MySQLdb, sys, os, re, time, utilities, pyfits
+    import MySQLdb, sys, os, re, time, utilities, astropy, astropy.io.fits as pyfits
     from copy import copy
     db2 = MySQLdb.connect(db='subaru', user='weaklensing', passwd='darkmatter', host='ki-sr01.slac.stanford.edu')
     c = db2.cursor()
@@ -4315,9 +4263,8 @@ def get_observations():
         print command
         c.execute(command)
 
-
 def get_sdss_cats(OBJNAME=None):
-    import MySQLdb, sys, os, re, time, utilities, pyfits
+    import MySQLdb, sys, os, re, time, utilities, astropy, astropy.io.fits as pyfits
     from copy import copy
     db2 = MySQLdb.connect(db='subaru', user='weaklensing', passwd='darkmatter', host='ki-sr01.slac.stanford.edu')
     c = db2.cursor()
@@ -4427,7 +4374,6 @@ def get_sdss_cats(OBJNAME=None):
             import traceback
             print traceback.print_exc(file=sys.stdout)
             raw_input()
-
 
 if __name__ == '__main__': 
     import sys, os 

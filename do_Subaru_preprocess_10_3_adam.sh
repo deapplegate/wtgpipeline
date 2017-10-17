@@ -256,7 +256,11 @@ done
 #adam# this will use the flats and darks to make run_filter/WEIGHTS/global*.fits
 #adam# this uses the tools I've developed, it applies the SUPER WIDE uniform cuts, then uses WeightMasker and region files to mask out bad pixels in globalweights_1.fits
 #############SUPER WIDE BASE_WEIGHT LIMITS USED HERE!########################
+#adam# to mess with limits, see ~/thiswork/scripts/Plot_Light_Cutter.py
 #adam# The DARK limits are the same unless config changes (these were fit by eye)
+#adam# The FLAT limits may not be the same
+#adam# The DARK limits are the same unless config changes (these were fit by eye)
+
 #10_3#super wide limits that I just use because this doesn't matter much at this point (this is found by taking the min of the lower limits and max of the upper limits for all "by eye" limits for each filter, then taking min-.04 and max+.04 so that I'm sure this will cut almost nothing out)
 ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.42 1.00 DARK -1.73 4.15 1
 ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.74 1.07 DARK -1.88 4.6 2
@@ -268,17 +272,6 @@ done
 ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.81 1.15 DARK -2.04 4.75 8
 ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.59 1.05 DARK -1.43 4.6 9
 ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.3 1.03 DARK -1.58 4.75 10 # 13
-#10_2# use these ultra-wide limits for 10_2 where CCD #6 has super low counts so we don't use it. Also, I've copied over DARK frames and have fit limits for them.
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.22 1.24 DARK -4.43 10.06 1
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.54 1.31 DARK -4.43 9.06 2
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.59 1.35 DARK -4.43 8.45 3
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.49 1.32 DARK -4.43 6.84 4
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.12 1.3 DARK -4.63 7.04 5
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.17 1.31 DARK -4.43 6.84 6
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.54 1.34 DARK -4.43 13.29 7
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.61 1.39 DARK -4.43 6.84 8
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.39 1.29 DARK -4.43 6.84 9
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.1 1.27 DARK -4.43 6.64 10
 #adam-notes# find "By Eye" limits for old filters/runs in do_Subaru_preprocess_notes.sh search #BY EYE LIMITS
 #exit 0; #13
 #adam# make weighted science images

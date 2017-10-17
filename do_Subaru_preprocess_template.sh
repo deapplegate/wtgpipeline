@@ -8,7 +8,7 @@
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 
 run=2002-12-03
@@ -46,7 +46,7 @@ export TEMPDIR='.'
 
 ########################################
 ### Reset Logger
-./BonnLogger.py clear
+#adam-BL#./BonnLogger.py clear
 
 ##################################################################
 ### create and load the SUBARU.ini file
@@ -60,15 +60,15 @@ export INSTRUMENT=SUBARU
 
 ##################################################################
 ### Capture Variables
-./BonnLogger.py config \
-    run=${run} \
-    filter=${filter} \
-    FLAT=${FLAT} \
-    SET=${SET} \
-    SKYBACK=${SKYBACK} \
-    FRINGE=${FRINGE} \
-    STANDARDSTARS=${STANDARDSTARS} \
-    config=${config}
+#adam-BL#./BonnLogger.py config \
+#adam-BL#    run=${run} \
+#adam-BL#    filter=${filter} \
+#adam-BL#    FLAT=${FLAT} \
+#adam-BL#    SET=${SET} \
+#adam-BL#    SKYBACK=${SKYBACK} \
+#adam-BL#    FRINGE=${FRINGE} \
+#adam-BL#    STANDARDSTARS=${STANDARDSTARS} \
+#adam-BL#    config=${config}
 
 
 ##################################################################
@@ -193,9 +193,9 @@ export INSTRUMENT=SUBARU
 #for ((CHIP=1;CHIP<=${NCHIPS};CHIP++));
 #do
 #
-#    rm SCIENCE_${CHIP}.fits
-#    rm SCIENCE_${CHIP}_illum.fits
-#    rm SCIENCE_${CHIP}_fringe.fits
+#    rm -f SCIENCE_${CHIP}.fits
+#    rm -f SCIENCE_${CHIP}_illum.fits
+#    rm -f SCIENCE_${CHIP}_fringe.fits
 #
 #    ln -s ../$SCIENCEDIR/${SCIENCEDIR}_${CHIP}.fits SCIENCE_${CHIP}.fits
 #    ln -s ../$SCIENCEDIR/${SCIENCEDIR}_${CHIP}_illum${SKYBACK}.fits SCIENCE_${CHIP}_illum.fits

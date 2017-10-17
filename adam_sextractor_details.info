@@ -1,0 +1,19 @@
+## old sextractor (wtg and using before march14 2017)
+SExtractor Version 2.2.2 year 2001: /afs/slac/u/ki/anja/software/ldacpipeline-0.12.20/bin/Linux_64//sex_theli
+
+## new sextractor
+/afs/slac/g/ki/software/sextractor/2.19.5/bin/sex /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/Y_DECam//single_V0.0.2A//dec209373_62OXCLFSF.sub.fits -c /afs/slac/u/ki/anja/software/ldacpipeline-0.12.20/conf/reduction/singleastrom.conf.sex -CATALOG_NAME //nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/Y_DECam//single_V0.0.2A//cat_scamp/dec209373_62OXCLFSF.cat2 -SEEING_FWHM 1.655140042 -PARAMETERS_NAME singleastrom.param.sex_noflags2 -DETECT_MINAREA 3 -DETECT_THRESH 2.5 -WEIGHT_IMAGE //nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/Y_DECam//single_V0.0.2A//dec209373_62OXCLFSF.weight.fits -WEIGHT_TYPE MAP_WEIGHT
+/afs/slac/g/ki/software/sextractor/2.19.5/bin/sex -dc
+/afs/slac/g/ki/software/sextractor/2.19.5/bin/sex -dc > sex.conf_v2.19.5
+/afs/slac/g/ki/software/sextractor/2.19.5/bin/sex -dp > sex.params_v2.19.5
+
+## keywords I'll need: (see singleastrom.param.sex_noflags2):
+X_WIN
+Y_WIN
+SNR_WIN
+SPREAD_MODEL
+
+#
+[3/14/17, 9:47:41 AM] Lucie Baumont: SNR_WIN
+[3/14/17, 9:55:47 AM] Anja von der Linden: /afs/slac/g/ki/software/sextractor/2.19.5/bin/sex -dp | grep SPREAD
+[3/14/17, 9:57:13 AM] Lucie Baumont: http://www.astromatic.net/forum/showthread.php?tid=920

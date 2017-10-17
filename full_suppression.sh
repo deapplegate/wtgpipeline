@@ -21,7 +21,7 @@ if [ -z "${options}" ]; then
     options="CLEAN REGEN SUPPRESS MOVE IC BADCCD"
 fi
 
-subarudir=/nfs/slac/g/ki/ki05/anja/SUBARU
+subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 CLEAN=`echo $options | grep CLEAN`
 if [ -n "${CLEAN}" ]; then

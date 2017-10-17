@@ -2,8 +2,8 @@
 
 # $Id: distribute_sets_subaru.sh,v 1.21 2009-06-19 02:10:47 anja Exp $#
 
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script collects some header keywords of a directory with raw fits
 # files into an LDAC catalog with a FILES table. These data are then
 # used to distinguish 'sets' of images
@@ -24,6 +24,8 @@
 # A ${TEMPDIR} was mssing when creating the initial
 # file list.
 
+#adam-example# ./distribute_sets_subaru.sh ${SUBARUDIR} ${run}_${filter}/SCIENCE ${ending} 1000 ${SUBARUDIR}/SUBARU.list WEIGHTS
+
 #$1: main directory
 #$2: run/science directory
 #$3: image extension (ext) on ..._iext.fits (i is the chip number)
@@ -31,7 +33,7 @@
 #$5: lookup file: nick full_name ra dec nicknames
 #$6: weights directory
 
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/out.log 2>&1
 
 # configuration parameters:
 
@@ -55,7 +57,8 @@ DECKEY="CRVAL2"
 ${P_FIND} $1/$2/ -name \*$3.fits -print > ${TEMPDIR}/images_$$
 
 if [ ! -s ${TEMPDIR}/images_$$ ]; then
-    log_status 2 "No images to work on"
+    #adam-BL# log_status 2 "No images to work on"
+    echo "adam-look | error: No images to work on"
     exit 2
 fi
 
@@ -84,7 +87,7 @@ cat ${TEMPDIR}/images_$$ |\
 	nick=${CLUSTER}
     fi
 
-    echo "${CLUSTER} ${nick}"
+    echo "CLUSTER: ${CLUSTER} nick: ${nick}"
     nnnick=`echo ${nick} | wc | awk '{print $2}'`
 
     if [ ${nnnick} -ne 1 ]; then
@@ -134,4 +137,4 @@ cat ${TEMPDIR}/images_$$ |\
 
 rm -f ${TEMPDIR}/images_$$
 
-log_status $?
+#adam-BL# log_status $?

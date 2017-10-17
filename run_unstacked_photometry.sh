@@ -1,4 +1,5 @@
-#!/bin/bash -uxv
+#!/bin/bash
+set -uxv
 ##########################
 # Takes a directory coadded by all, and by exposure
 #   and measures and compiles photometry on a per exposure basis
@@ -103,7 +104,7 @@ done
 # Sort catalogs by instrument and config
 
 if [ -e unstacked.exp.list_$$ ]; then
-    rm unstacked.exp.list_$$
+    rm -f unstacked.exp.list_$$
 fi
 
 ############################
@@ -175,12 +176,4 @@ instrum=`awk '{if (NR==1) print $2}' unstacked.exp.list_$$ | awk -F'-' '{print $
 
 ./combine_unstacked_config_cats.py $unstacked_dir/$cluster.$filter.unstacked.cat $instrum $mastercat $merge_line
 
-    
-
-rm unstacked.exp.list_$$
-
-
-
-
-
-
+rm -f unstacked.exp.list_$$

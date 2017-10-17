@@ -112,31 +112,31 @@ def publicationBias(consols, contamconsols, mass_colors = default_masscolors, do
         errs[1,:] = medians - hpds[:,0]
         line = pylab.errorbar(zs + offset, medians, errs, label = r'%d $M_{\odot}^{14}$' % cur_mass, marker='o', linewidth=0.2, color = mass_colors[cur_mass] )
 
-    for cur_mass, offset in zip(mass_s, np.arange(offsetStart, offsetStart + nlines*deltaOffset, deltaOffset)):
+    if contamconsols!=None:
+	    for cur_mass, offset in zip(mass_s, np.arange(offsetStart, offsetStart + nlines*deltaOffset, deltaOffset)):
 
-        zs = sorted([ x[0] for x in keys_to_use[cur_mass] ])
+		zs = sorted([ x[0] for x in keys_to_use[cur_mass] ])
 
-        min_z = min(min_z, min(zs))
-        max_z = max(max_z, max(zs))
+		min_z = min(min_z, min(zs))
+		max_z = max(max_z, max(zs))
 
-        cur_consols = [ contamconsols[(cur_z, cur_mass)] for cur_z in zs ]
+		cur_consols = [ contamconsols[(cur_z, cur_mass)] for cur_z in zs ]
 
-        medians = []
-        hpds = []
-        for cur_consol in cur_consols:
-            cur_median, cur_hpd = bootstrapMedian(cur_consol[1]/cur_consol[0])
-            medians.append(cur_median)
-            hpds.append(cur_hpd)
+		medians = []
+		hpds = []
+		for cur_consol in cur_consols:
+		    cur_median, cur_hpd = bootstrapMedian(cur_consol[1]/cur_consol[0])
+		    medians.append(cur_median)
+		    hpds.append(cur_hpd)
 
-        medians = np.array(medians)
-        hpds = np.array(hpds)
-        
-        errs = np.zeros((2, len(zs)))
-        errs[0,:] = hpds[:,1] - medians
-        errs[1,:] = medians - hpds[:,0]
-        line = pylab.plot(zs + offset, medians, '%s-.' % mass_colors[cur_mass], marker='None', linewidth=0.5)
+		medians = np.array(medians)
+		hpds = np.array(hpds)
+		
+		errs = np.zeros((2, len(zs)))
+		errs[0,:] = hpds[:,1] - medians
+		errs[1,:] = medians - hpds[:,0]
+		line = pylab.plot(zs + offset, medians, '%s-.' % mass_colors[cur_mass], marker='None', linewidth=0.5)
 
-    
     pylab.grid()
     pylab.axis([min_z-0.05, max_z + 0.05, -.1001, +.1001])
     pylab.xlabel(r'Z')

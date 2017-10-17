@@ -1,4 +1,5 @@
-#!/bin/bash -uxv
+#!/bin/bash
+set -uxv
 ########################
 # Process Photometry, from masked, coadded images through photo-zs
 #
@@ -7,7 +8,7 @@
 # This runs on SDSS fields, but detects stars independently in each exposure
 #######################
 
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1
 
 cluster=$1
 #PHOTO SDSS CALIB APPLY SLR or blank for ALL
@@ -62,7 +63,7 @@ fi
 
 ########################
 
-subarudir=/nfs/slac/g/ki/ki05/anja/SUBARU
+subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 #filters=`grep "${cluster}" cluster.status | awk -v ORS=' ' '($1 !~ /#/){print $2}'`
 filters=`grep "${cluster}" cluster_cat_filters.dat | awk -v ORS=' ' '{for(i=3;i<=NF;i++){if($i!~"CALIB" && $i!="K") print $i}}'`
@@ -178,11 +179,12 @@ for filter in $filters; do
 
     if [ $fit_calibration -eq 1 ]; then
 
-	rm ${subarudir}/${cluster}/PHOTOMETRY/calibration_plots/*
+	rm -f ${subarudir}/${cluster}/PHOTOMETRY/calibration_plots/*
 
 	if [ -z "${isSpecial}" ]; then
 
-	    ftype=`./dump_cat_filters.py ${star_cat} | grep ${filter} | awk -v ORS=' ' '($1 !~ /COADD/){print}' | awk -F'-' '{print $1"-"$2"-"$3}'`
+	    #old#ftype=`./dump_cat_filters.py ${star_cat} | grep ${filter} | awk -v ORS=' ' '($1 !~ /COADD/){print}' | awk -F'-' '{print $1"-"$2"-"$3}'`
+	    ftype=`./dump_cat_filters.py -a ${star_cat} | grep ${filter} | awk -v ORS=' ' '($1 !~ /COADD/){print}' | awk -F'-' '{print $1"-"$2"-"$3}'`
 
 	    ./fit_phot.py \
 		-c ${cluster} \
@@ -198,7 +200,8 @@ for filter in $filters; do
 		    exit 6
 		fi
 
-	    longfilters=`./dump_cat_filters.py ${star_cat} | grep ${filter} | awk -v ORS=' ' '{print}'`
+	    #old#longfilters=`./dump_cat_filters.py ${star_cat} | grep ${filter} | awk -v ORS=' ' '{print}'`
+	    longfilters=`./dump_cat_filters.py -a ${star_cat} | grep ${filter} | awk -v ORS=' ' '{print}'`
 	    
 	    ./transfer_photocalibration.py ${cluster} ${ftype}-${filter}_3sec ${longfilters}
 
@@ -207,7 +210,8 @@ for filter in $filters; do
 	    
 	else
 
-	    longfilter=`./dump_cat_filters.py ${star_cat}| awk -v ORS=' ' -F'-' '($4 ~ /^'${filter}'/){print}'`
+	    #old#longfilter=`./dump_cat_filters.py ${star_cat}| awk -v ORS=' ' -F'-' '($4 ~ /^'${filter}'/){print}'`
+	    longfilter=`./dump_cat_filters.py -a ${star_cat}| awk -v ORS=' ' -F'-' '($4 ~ /^'${filter}'/){print}'`
 
 	    ./fit_phot.py \
 		-c ${cluster} \
@@ -222,7 +226,8 @@ for filter in $filters; do
 		exit 6
 	    fi
 	    
-	    longfilters=`./dump_cat_filters.py ${star_cat} | awk -v ORS=' ' -F'-' '($4 ~ /^'${filter}'/){print}'`
+	    #old#longfilters=`./dump_cat_filters.py ${star_cat} | awk -v ORS=' ' -F'-' '($4 ~ /^'${filter}'/){print}'`
+	    longfilters=`./dump_cat_filters.py -a ${star_cat} | awk -v ORS=' ' -F'-' '($4 ~ /^'${filter}'/){print}'`
 	    
 	    ./transfer_photocalibration.py ${cluster} ${longfilter} ${longfilters}
 

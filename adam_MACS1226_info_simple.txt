@@ -1,0 +1,6 @@
+#filter  time[s]  num_ims
+B        1620     9
+V        2160     6
+R        2160     6
+I        3960     19
+Z+       1440     6

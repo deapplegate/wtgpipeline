@@ -1,0 +1,22 @@
+#cd /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-J-B/SCIENCE/astrom_photom_scamp_2MASS/cat_photom
+ds9 -zscale -cmap bb /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/SUPA0125912_5OCFR.fits -regions load SUPA0125912_cat2reg.reg -catalog import tsv ascii_shorter.tsv &
+grep FLAG ascii_shorter.tsv 
+grep FLAG ascii_*
+ldactoasc -i SUPA0125912_5OCF.ldac -t LDAC_OBJECTS -k X_IMAGE Y_IMAGE NUMBER FLAGS IMAFLAGS_ISO MAX_TOTAL > a2_ascii_SUPA0125912_5OCF.txt
+ldacfilter -i SUPA0125912_5OCF.ldac -t LDAC_OBJECTS -c 'FLAGS<1;' -o a2_FLAGS0_SUPA0125912_5OCF.ldac
+wc -l SUPA0125912_5OCF.ldac
+wc -l a2_FLAGS0_SUPA0125912_5OCF.ldac 
+ldactoasc -i a2_FLAGS0_SUPA0125912_5OCF.ldac -t LDAC_OBJECTS -k X_IMAGE Y_IMAGE NUMBER FLAGS IMAFLAGS_ISO MAX_TOTAL > a2_FLAGS0_ascii_SUPA0125912_5OCF.txt
+ds9 -zscale -cmap bb /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/SUPA0125912_5OCFR.fits -regions load SUPA0125912_cat2reg.reg -catalog import tsv ascii_shorter.tsv &
+ds9 -zscale -cmap bb /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/SUPA0125912_5OCFR.fits -regions load SUPA0125912_cat2reg.reg -catalog import tsv a2_FLAGS0_ascii_SUPA0125912_5OCF.txt  &
+ldacfilter -i SUPA0125912_5OCF.ldac -t LDAC_OBJECTS -c 'FLAGS>0;' -o a2_FLAGSgt0_SUPA0125912_5OCF.ldac
+ldactoasc -i a2_FLAGSgt0_SUPA0125912_5OCF.ldac -t LDAC_OBJECTS -k X_IMAGE Y_IMAGE NUMBER FLAGS IMAFLAGS_ISO MAX_TOTAL > a2_FLAGSgt0_ascii_SUPA0125912_5OCF.txt
+ldacfilter -i SUPA0125912_5OCF.ldac -t LDAC_OBJECTS -c 'IMAFLAGS_ISO>0;' -o a2_IMAFLAGS_ISOgt0_SUPA0125912_5OCF.ldac
+ipython -i -- ~/InstallingSoftware/pythons/import_ascii.py ascii_SUPA0125912_5OCFR_no_probs.tsv 
+ldacdesc -i SUPA0125912_5OCFR.ldac -t LDAC_OBJECTS
+ldactoasc -i SUPA0125912_5OCFR.ldac -t LDAC_OBJECTS > SUPA0125912_5OCFR.txt
+ldactoasc -i SUPA0125912_5OCFR.ldac -t LDAC_OBJECTS -k IMAFLAGS_ISO
+ldactoasc -i SUPA0125912_5OCFR.ldac -t LDAC_OBJECTS -k IMAFLAGS_ISO -b > IMAFLAGS_ISO.txt
+vi IMAFLAGS_ISO.txt 
+ldactoasc -i SUPA0125912_5OCFR.ldac -t LDAC_OBJECTS -k NIMAFLAGS_ISO -b > NIMAFLAGS_ISO.txt
+vi NIMAFLAGS_ISO.txt 

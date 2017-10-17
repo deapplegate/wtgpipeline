@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 ######################
 # @file do_Subaru_10_2_DARK.sh
 # @author Douglas Applegate
@@ -71,8 +72,8 @@ function repack{
     done < uniqfiles_$$.txt
 
 
-    rm allfiles_$$.txt
-    rm uniqfiles_$$.txt
+    rm -f allfiles_$$.txt
+    rm -f uniqfiles_$$.txt
 
     echo "Done\n"
 
@@ -240,7 +241,7 @@ createMasterMask DARK_norm DARK_mask
 #    
 #### REPEAT MAKING THE MASK ###
 #
-#rm ${SUBARUDIR}/${DARKDIR}/DARK_mask/DARK_mask_*.fits
+#rm -f ${SUBARUDIR}/${DARKDIR}/DARK_mask/DARK_mask_*.fits
 #
 #createManualMask
 #

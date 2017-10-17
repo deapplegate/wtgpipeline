@@ -182,10 +182,13 @@ def processPklDir(dir, ext='out'):
         massdist = cPickle.load(input)
         input.close()
 
-        resultfile = ldac.openObjectFile(out)
-        masses = resultfile['masses']
-        del resultfile
-        
+	#adam-old# resultfile = ldac.openObjectFile(out)
+	#adam-old#masses = resultfile['masses']
+
+	resultfile = pyfits.open(out)
+	objtab=resultfile['OBJECTS']
+	masses = objtab.data['masses']
+	resultfile.close()
 
         key = (round(massdist.zcluster, 1), round(massdist.m500 / 1e14, 2))
         if key not in massdists:

@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 . ${INSTRUMENT:?}.ini
 
 # 25.11.03:
@@ -53,4 +54,4 @@ done
 
 cd ${DIRCUR}
 
-log_status $?
+#adam-BL# log_status $?

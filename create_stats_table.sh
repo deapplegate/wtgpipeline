@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # this script creates a STATS table from
 # the catalogs created with
 # 'create_astromcats_weights_para.sh'
@@ -98,7 +99,7 @@ fi
 # and absolute photometric info if present!!
 
 if [ -f ${TEMPDIR}/image_$$.dat ]; then
-  rm ${TEMPDIR}/image_$$.dat
+  rm -f ${TEMPDIR}/image_$$.dat
 fi
 
 # do we have information on absolute photometric calibration?
@@ -130,7 +131,7 @@ if [ -f /$1/$2/$4/${file}.head ]; then
             /$1/$2/$4/${file}.head > ${TEMPDIR}/zp_$$.txt
   if [ -s ${TEMPDIR}/zp_$$.txt ]; then
       RELZP=1
-      rm ${TEMPDIR}/zp_$$.txt
+      rm -f ${TEMPDIR}/zp_$$.txt
   fi
 fi
 
@@ -176,7 +177,7 @@ NEXP=$(( ${i} - 1 ))
 # or ${TEMPDIR}/image_$$.dat and
 # an exposure number:
 
-rm ${TEMPDIR}/tmp_$$.dat
+rm -f ${TEMPDIR}/tmp_$$.dat
 
 while read image bla
 do
@@ -320,10 +321,11 @@ ${P_LDACCALC} -i ${TEMPDIR}/tmp3_$$.cat -o /$1/$2/cat/chips.cat5 -c "(SEXSFWHM);
 ${P_LDACTESTEXIST} -i /$1/$2/cat/chips.cat5 -t OBJECTS -k e1 e2 cl
 
 if [ "$?" -gt "0" ]; then
-  rm ${TEMPDIR}/tmp*_$$.dat
-  rm ${TEMPDIR}/tmp*_$$.cat
-  rm ${TEMPDIR}/exp*_$$.cat
-  log_status 1
+  rm -f ${TEMPDIR}/tmp*_$$.dat
+  rm -f ${TEMPDIR}/tmp*_$$.cat
+  rm -f ${TEMPDIR}/exp*_$$.cat
+  #adam-BL# log_status 1
+  echo "adam-look | error: (doesnt exist) '${P_LDACTESTEXIST} -i /$1/$2/cat/chips.cat5 -t OBJECTS -k e1 e2 cl'=${P_LDACTESTEXIST} -i /$1/$2/cat/chips.cat5 -t OBJECTS -k e1 e2 cl" 
   exit 1;
 fi
 
@@ -348,10 +350,10 @@ ${P_LDACCALC} -i ${TEMPDIR}/tmp10_$$.cat -o /$1/$2/cat/chips.cat6 -c "(e1);" \
               -t OBJECTS -r STATS \
               -x EXPOSURE -s stddev
 
-rm ${TEMPDIR}/tmp*_$$.dat
-rm ${TEMPDIR}/tmp*_$$.cat
-rm ${TEMPDIR}/exp*_$$.cat
+rm -f ${TEMPDIR}/tmp*_$$.dat
+rm -f ${TEMPDIR}/tmp*_$$.cat
+rm -f ${TEMPDIR}/exp*_$$.cat
 
 
 
-log_status $?
+#adam-BL# log_status $?

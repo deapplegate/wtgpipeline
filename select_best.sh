@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # script to select N 'best' frames.
 # Best is defined here as distance from
 # the mean of the modes from all images.
@@ -80,4 +81,4 @@ if [ ${NEXPOSURES} -gt ${NFRAMES} ]; then
 fi 
 
  
-log_status $?
+#adam-BL# log_status $?

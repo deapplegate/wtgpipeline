@@ -144,10 +144,10 @@ def openObjectFile(filename, table='OBJECTS'):
     if hdulist is None:
         return None
     cat = openObjects(hdulist, table)
-    #hdulist.close()
     if cat is None:
         return None
     cat.sourcefile = filename
+    #hdulist.close()
     return cat
 
 def matchCommonSubsets(cat1, cat2, cat1id='SeqNr', cat2id = 'SeqNr'):

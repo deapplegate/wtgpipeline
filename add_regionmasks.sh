@@ -1,10 +1,10 @@
 #! /bin/bash -xv
+#adam-example# ./parallel_manager.sh add_regionmasks.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS
 
 # $1: main directory
 # $2: science dir.
 # $3: image extension (ext) on ..._iext.fits (i is the chip number)
 # $4: weight directory
-# $5: Filter to use for cosmic ray detection (OPTIONAL)
 # ${!#}: chips to be processed
 
 . ${INSTRUMENT:?}.ini
@@ -15,6 +15,7 @@ export WEIGHTSDIR=${1}/${4}
 for CHIP in ${!#}
 do
 
+  #find SCIENCE/*_#OCF.fits
   ${P_FIND} $1/$2/ -maxdepth 1 -name \*_${CHIP}$3.fits \
             -print > ${TEMPDIR}/crw_images_$$
 
@@ -25,6 +26,7 @@ do
   {
     while read file
     do
+      #loop over file=SCIENCE/*_#OCF.fits
       BASE=`basename ${file} $3.fits`
 
       {

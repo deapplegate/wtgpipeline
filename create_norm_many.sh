@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # CVSId: $Id$
 
 # 30.06.2008 (AvdL):
@@ -69,7 +70,8 @@ do
 
   exit_code=$?
   if [ $exit_code -ne 0 ]; then
-      log_status $exit_code "IMSTATS failure"
+      #adam-BL# log_status $exit_code "IMSTATS failure"
+      echo "adam-look | error: IMSTATS failure"
       exit $exit_code
   fi
 
@@ -102,16 +104,17 @@ do
     
     exit_code=$?
     if [ $exit_code -ne 0 ]; then
-        log_status $exit_code 'IC Failure'
+        #adam-BL# log_status $exit_code 'IC Failure'
+        echo 'adam-look | error: IC Failure'
         exit $exit_code
     fi
   
     i=$(( $i + 1 ))
   done
   
-  rm ${TEMPDIR}/immode.dat_$$
+  rm -f ${TEMPDIR}/immode.dat_$$
 
 done
 }
 
-log_status $?
+#adam-BL# log_status $?

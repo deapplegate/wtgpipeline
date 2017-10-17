@@ -1,0 +1,40 @@
+ls -lrth /nfs/slac/g/ki/ki05/anja/SUBARU/MACS1115+01/W-C-RC_2003-04-04/SCIENCE/
+#ls -lrth /nfs/slac/g/ki/ki05/anja/SUBARU/MACS1115+01/W-C-RC/SCIENCE/
+ending=OCFS
+./create_weights_raw_delink_para_CRNitschke_setup.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS ${filter}
+export ending=OCFS
+export run=2003-04-04
+#ls -lrth *coadd*
+export filter=${filter}
+echo $filter
+ls CRNitschke_MACS1115+01__W-C-RC.tmp.txt CRNitschke_MACS1115+01__W-C-RC.txt
+rm CRNitschke_MACS1115+01__W-C-RC.tmp.txt CRNitschke_MACS1115+01__W-C-RC.txt
+ls -lrth
+./create_weights_raw_delink_para_CRNitschke_setup.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS ${filter}
+mkdir tmpcat
+cd tmpcat/
+mkdir SCIENCE
+cd SCIENCE/
+ls -lrth /nfs/slac/g/ki/ki05/anja/SUBARU/MACS1115+01/W-C-RC_2003-04-04/SCIENCE/SUP*${ending}.fits .
+ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/MACS1115+01/W-C-RC_2003-04-04/SCIENCE/SUP*${ending}.fits .
+ls
+cd ../..
+ls
+#./create_weights_raw_delink_para_CRNitschke_setup.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS ${filter}
+vim create_weights_raw_delink_para_CRNitschke_setup.sh
+#mkdir tmpcat/WEIGHT
+vim create_weights_raw_delink_para_CRNitschke_setup.sh
+mkdir tmpcat/WEIGHTS
+cd tmpcat/WEIGHTS/
+ls
+ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/MACS1115+01/W-C-RC_2003-04-04/WEIGHTS/SUP*${ending}.fits .
+cd ..
+cd ..
+ls
+./create_weights_raw_delink_para_CRNitschke_setup.sh tmpcat/ SCIENCE ${ending} WEIGHTS ${filter}
+ls CRNitschke_${cluster}_${run}_${filter}.txt
+rm CRNitschke_${cluster}_${run}_${filter}.txt
+rm -r tmpcat/
+cat CRNitschke_final_MACS1115+01_2003-04-04_W-C-RC.txt 
+sed -i.old 's/tmpcat/\/nfs\/slac\/g\/ki\/ki18\/anja\/SUBARU/g' CRNitschke_final_MACS1115+01_2003-04-04_W-C-RC.txt 
+mv CRNitschke_*.old scratch

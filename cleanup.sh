@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 
 
 
@@ -42,7 +43,7 @@ function zipdir {
 	    gzip $files
 	fi
 	if [ -n "${files}" ] && [ -e "$1.tarz" ]; then
-	    rm $1.tarz
+	    rm -f $1.tarz
 	fi
     fi
     echo "Done"
@@ -72,19 +73,19 @@ zipdir SCIENCE_norm
 
 #NOT SPLIT_IMAGES, needed for badoverscan masking
 remdir SCIENCE/OC_IMAGES
-rm SCIENCE/*OC.fits
+rm -f SCIENCE/*OC.fits
 
 remdir SCIENCE_weighted
 remdir SCIENCE_mask
 zipdir WEIGHTS
 
 if [ -d DOMEFLAT_SET0 ]; then
-    rm DOMEFLAT_SET0/SUPA*.fits
+    rm -f DOMEFLAT_SET0/SUPA*.fits
     remdir DOMEFLAT_SET0/BINNED
 fi
 
 if [ -d SKYFLAT_SET0 ]; then
-    rm SKYFLAT_SET0/SUPA*.fits
+    rm -f SKYFLAT_SET0/SUPA*.fits
     remdir SKYFLAT_SET0/BINNED
 fi
 
@@ -105,7 +106,7 @@ FLATDIRS=`find . -maxdepth 1 -name 'SCIENCE_*_SET*' | awk -v ORS=' ' '!(/_norm/)
 for flatdir in $FLATDIRS; do
     FLAT=`basename $flatdir`
 
-    rm $FLAT/SUPA*_sub.fits
+    rm -f $FLAT/SUPA*_sub.fits
     remdir $FLAT/OCF_IMAGES
     remdir $FLAT/SUB_IMAGES
 

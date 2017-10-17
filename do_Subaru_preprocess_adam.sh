@@ -27,19 +27,18 @@ export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 #run=2006-03-04 ; filter="W-C-RC" ; FLAT=DOMEFLAT
 
 #DONE COMBINATIONS
+#A2744
+#run=2008-08-01 ; filter="W-S-I+" ; FLAT=DOMEFLAT
+#adam# also may need dark steps
 
 #WORKING ON IT COMBINATIONS
 #MACS0416 (or MACSJ0416-24)
-#run=2010-11-04 ; filter="W-C-RC" ; FLAT=DOMEFLAT
-#run=2010-11-04 ; filter="W-C-RC" ; FLAT=SKYFLAT
-#run=2010-11-04 ; filter="W-J-B" ; FLAT=DOMEFLAT
-#run=2010-11-04 ; filter="W-J-B" ; FLAT=SKYFLAT
-#run=2010-11-04 ; filter="W-S-Z+" ; FLAT=DOMEFLAT
-#run=2010-11-04 ; filter="W-S-Z+" ; FLAT=SKYFLAT
-#A2744
-run=2008-08-01 ; filter="W-S-I+" ; FLAT=DOMEFLAT
-#adam# also may need dark steps
-
+#(don't use) run=2010-11-04 ; filter="W-C-RC" ; FLAT=DOMEFLAT
+run=2010-11-04 ; filter="W-C-RC" ; FLAT=SKYFLAT
+#(don't use) run=2010-11-04 ; filter="W-J-B" ; FLAT=DOMEFLAT
+run=2010-11-04 ; filter="W-J-B" ; FLAT=SKYFLAT
+#(don't use) run=2010-11-04 ; filter="W-S-Z+" ; FLAT=DOMEFLAT
+run=2010-11-04 ; filter="W-S-Z+" ; FLAT=SKYFLAT
 
 export BONN_TARGET=${run}
 export BONN_FILTER=${filter}
@@ -87,10 +86,11 @@ fi
 #adam# this isn't a directory
 #./setup_SUBARU.sh ${SUBARUDIR}/${run}_RAWDATA
 #./setup_SUBARU.sh ${SUBARUDIR}/from_archive/Abell2744
+./setup_SUBARU.sh ${SUBARUDIR}/from_archive/MACSJ0416-24/ 
 export INSTRUMENT=SUBARU
 
 . ${INSTRUMENT:?}.ini
-
+exit 0;
 ##################################################################
 ### Capture Variables
 ./BonnLogger.py config \
@@ -127,7 +127,9 @@ export INSTRUMENT=SUBARU
 #STARTOVER-BEGIN NEW RUN#
 #### "process_split" splits the multi-extension files into one file per CCD, i.e. SUPA*_${chip}.fits
 #adam# splits BIAS files SUPA#.fits into SUPA#_1.fits, SUPA#_2.fits, ...
+#makes: SUPA0046882_1.fits
 #./process_split_Subaru_eclipse.sh ${SUBARUDIR}/${run}_BIAS BIAS #1
+#1 made: SUPA0046882_1.fits
 #exit 0; #1
 #STARTOVER-BAD BIAS FRAMES REMOVED
 #### overscan-correct BIAS frames, OC+BIAS correct flats
@@ -136,17 +138,21 @@ export INSTRUMENT=SUBARU
 ##       1.) does overscan correct (O) & cuts the images (C) to make SUPA#_1OC.fits, SUPA#_2OC.fits, ...
 ##       2.) makes the master bias files BIAS_1.fits - BIAS_10.fits
 ##       (next line) 3.) and makes new dir /BINNED/ with BIAS_mos.fits and SUPA#_mosOC.fits
+#makes: SUPA0046882_1OC.fits, SUPA0046882_1OC_CH1.fits, BIAS_1.fits
 #./parallel_manager.sh ./process_bias_4channels_eclipse_para.sh ${SUBARUDIR}/${run}_BIAS BIAS #2
 #10_3#./parallel_manager.sh ./process_bias_4channels_eclipse_para.sh ${SUBARUDIR}/${run}_BIAS BIAS #2
 #10_2#./parallel_manager.sh ./process_bias_eclipse_para.sh ${SUBARUDIR}/${run}_BIAS BIAS #2
+#2 made: SUPA0046882_1OC.fits, SUPA0046882_1OC_CH1.fits, BIAS_1.fits
 #exit 0; #2
 #### creates overview mosaics; use these to identify bad frames
+#makes: BIAS/BINNED, BIAS/BINNED/BIAS_mos.fits, BIAS/BINNED/SUPA0046882_mosOC.fits
 #./create_binnedmosaics.sh ${SUBARUDIR}/${run}_BIAS BIAS BIAS "" 8 -32 #3
 #./create_binnedmosaics.sh ${SUBARUDIR}/${run}_BIAS BIAS SUP "" 8 -32 #3
 #./create_binnedmosaics.sh ${SUBARUDIR}/${run}_BIAS BIAS SUP "OC" 8 -32 #3
 #adam-DO check# after it creates the mosaics, look at the filter_BIAS/BIAS/BINNED/*_mosOC.fits folder and see if any of the frames are bad. delete them (in the /BIAS/BINNED, /BIAS/ORIGINALS, and /BIAS/ folders), then delete, in the /BIAS/ folder, the BIAS_*.fits files, and re-run the process_bias_4channel_eclipse_para.sh file so that the final averaged flats dont have these bad frames included (see #STARTOVER-BAD BIAS FRAMES REMOVED)
 #ds9 ${SUBARUDIR}/${run}_BIAS/BIAS/BINNED/*_mosOC.fits
 #echo "check: do any of the bias frames look like light is leaking in?"
+#3 made: BIAS/BINNED/, BIAS/BINNED/BIAS_mos.fits, BIAS/BINNED/SUPA0046882_mosOC.fits
 #exit 0; #3
 
 ####################################################################
@@ -157,9 +163,11 @@ export INSTRUMENT=SUBARU
 #BLOCK2-PER RFF# per Run per Filter and per Flat
 #STARTOVER-OTHER FLAT CHOSEN (make sure you change the FLAT up above!)
 #### re-split the flat files, write THELI headers  -->  SUPA*_${chip}.fits
+#makes: DOMEFLAT/SUPA0120759_1.fits
 #./process_split_Subaru_eclipse.sh ${SUBARUDIR}/${run}_${filter} ${FLAT} #4
 #adam-DO check skyflats# if you are doing sky flats, then stop here, run imstats ${SUBARUDIR}/${run}_${filter}/${FLAT}/SUPA*3.fits and see if the counts are comparable, not too high, not too low, etc. If you throw any out, delete every occurance of it (including in ORIGINALS, BINNED, from_archive, etc.).
 #imstats ${SUBARUDIR}/${run}_${filter}/${FLAT}/SUPA*3.fits
+#imstats ${SUBARUDIR}/${run}_${filter}/${FLAT}/SUPA*8.fits
 #echo "check: doing " ${FLAT} " if this is SKYFLAT, make sure the median counts are pretty close"
 #exit 0; #4
 
@@ -177,7 +185,7 @@ export INSTRUMENT=SUBARU
 #if [ ! -d ${SUBARUDIR}/${run}_${filter}/DARK ]; then
 #    mkdir ${SUBARUDIR}/${run}_${filter}/DARK
 #fi
-#10_3#  ln -s ${SUBARUDIR}/10_3_DARK/DARK/DARK_*.fits ${SUBARUDIR}/${run}_${filter}/DARK/
+#10_3#  ln -s /u/ki/awright/data/10_3_DARK/DARK/DARK_*.fits ${SUBARUDIR}/${run}_${filter}/DARK/
 ##ln -s ${SUBARUDIR}/${run}_DARK/DARK/DARK_*.fits ${SUBARUDIR}/${run}_${filter}/DARK/
 #exit 0; #dark3
 
@@ -195,12 +203,12 @@ export INSTRUMENT=SUBARU
 #./create_binnedmosaics.sh ${SUBARUDIR}/${run}_${filter} ${FLAT} SUP "OC" 8 -32 #7
 #adam-DO check# go to ${SUBARUDIR}/${run}_${filter}/${FLAT}/BINNED and ds9 *_mosOC.fits and see if any images have large gradients (only remove if really bad):
 #	* ds9 -zscale ~data/2011-01-06_W-S-Z+/DOMEFLAT/BINNED/SUPA*mosOC.fits -geometry 2000x2000 -zoom to fit
-#	*Then, for example if 5 and 8 are bad do "rm *8OC.fits *5OC.fits *CHallOC.fits SKYFLAT_5.fits SKYFLAT_8.fits".
+#	*Then, for example if 5 and 8 are bad do "rm -f *8OC.fits *5OC.fits *CHallOC.fits SKYFLAT_5.fits SKYFLAT_8.fits".
 #	* Then re-run process_flat_4channels_eclipse_para.sh on those frames:
 #		* see #STARTOVER-BAD FLAT FRAMES REMOVED
 #		* for example "./process_flat_4channels_eclipse_para.sh ~/data/2010-02-12_W-C-IC BIAS SKYFLAT 8" and the same thing with 5
 #	* Then re-run #7 and check again
-#ds9 -zscale -geometry 2000x2000 -zoom to fit ${SUBARUDIR}/${run}_${filter}/${FLAT}/BINNED/*mosOC.fits &
+#ds9 -zscale -geometry 2000x2000 ${SUBARUDIR}/${run}_${filter}/${FLAT}/BINNED/*mosOC.fits -zoom to fit &
 #echo "check: do any of the flats look like they have large gradients?"
 #exit 0; #7
 
@@ -209,6 +217,7 @@ export INSTRUMENT=SUBARU
 #### overscan, bias, flat -->  SUPA*_${chip}OCF.fits
 #adam# process the SCIENCE images result=(science-bias)/(flat-bias)
 #THIS TAKES ~15 min#
+#./parallel_manager.sh ./process_science_4channels_eclipse_para.sh ${SUBARUDIR}/${run}_${filter} BIAS ${FLAT} SCIENCE RESCALE ${FRINGE} #8
 #./parallel_manager.sh ./process_science_4channels_eclipse_para.sh ${SUBARUDIR}/${run}_${filter} BIAS ${FLAT} SCIENCE RESCALE ${FRINGE} #8
 #10_3#./parallel_manager.sh ./process_science_4channels_eclipse_para.sh ${SUBARUDIR}/${run}_${filter} BIAS ${FLAT} SCIENCE RESCALE ${FRINGE} #8
 #10_2#./parallel_manager.sh ./process_science_eclipse_para.sh ${SUBARUDIR}/${run}_${filter} BIAS ${FLAT} SCIENCE RESCALE ${FRINGE} #8
@@ -222,7 +231,12 @@ export INSTRUMENT=SUBARU
 #10_2#./create_norm_many.sh ${SUBARUDIR}/${run}_${filter} SCIENCE SUP OFC #9
 #10_2#./create_binnedmosaics.sh ${SUBARUDIR}/${run}_${filter} SCIENCE_norm SUP "OFCN" 8 -32 #9
 #adam-DO# if there is another type of flat (which hasn't been processed yet), change which flat you're using and start over at #STARTOVER-OTHER FLAT CHOSEN
-#	*mv ${SUBARUDIR}/${run}_${filter}/SCIENCE_norm ${SUBARUDIR}/${run}_${filter}/SCIENCE_norm_${FLAT}
+#maybe#mv ${SUBARUDIR}/${run}_${filter}/SCIENCE_norm ${SUBARUDIR}/${run}_${filter}/SCIENCE_norm_${FLAT}
+#maybe#if [ ! -d ${SUBARUDIR}/${run}_${filter}/SCIENCE_${FLAT} ]; then
+#maybe#    mkdir ${SUBARUDIR}/${run}_${filter}/SCIENCE_${FLAT}
+#maybe#    cp -r ${SUBARUDIR}/${run}_${filter}/SCIENCE/ ${SUBARUDIR}/${run}_${filter}/SCIENCE_${FLAT}/
+#maybe#fi
+#maybe#mv ${SUBARUDIR}/${run}_${filter}/SCIENCE_norm ${SUBARUDIR}/${run}_${filter}/SCIENCE_norm_${FLAT}
 #adam-DO check# choose which FLAT is better by comparing science images
 #ds9 -zscale -geometry 2000x2000 ${SUBARUDIR}/${run}_${filter}/SCIENCE_norm/BINNED/*mosOCFN.fits -zoom to fit &
 #10_3#ds9 -zscale -geometry 2000x2000 -zoom to fit ${SUBARUDIR}/${run}_${filter}/SCIENCE_norm/BINNED/*mosOCFN.fits &
@@ -230,6 +244,9 @@ export INSTRUMENT=SUBARU
 #echo "if there are two flats available and you still have to process the other one, then start over here"
 #echo "check: the normalized science images from which type of flat looks better?"
 #adam-DO pick/restart# determine which flat is better and continue on from here using only one flat (change beginning of script to make sure you have the right one, then go to #STARTOVER-OTHER FLAT CHOSEN)
+#ds9 -zscale -geometry 2000x2000 ${SUBARUDIR}/${run}_${filter}/SCIENCE_norm_${FLAT}/BINNED/*mosOCFN.fits -zoom to fit &
+#ds9 -zscale -geometry 2000x2000 ${SUBARUDIR}/${run}_${filter}/SCIENCE_norm_DOMEFLAT/BINNED/*mosOCFN.fits -zoom to fit &
+#ds9 -zscale -geometry 2000x2000 ${SUBARUDIR}/${run}_${filter}/SCIENCE_norm_SKYFLAT/BINNED/*mosOCFN.fits -zoom to fit &
 #exit 0; #9
 #### this is it if we assume we don't need a fringing correction...
 
@@ -244,6 +261,7 @@ export INSTRUMENT=SUBARU
 
 #BLOCK6-PER RF# per Run and per Filter (flat chosen already)
 #adam# normalizes the flat field: makes flat_norm directory and FLAT_norm/FLAT_norm_1-10.fits
+#SHNT
 #./create_norm.sh ${SUBARUDIR}/${run}_${filter} ${FLAT} #10
 #exit 0; #10
 
@@ -288,27 +306,48 @@ export INSTRUMENT=SUBARU
 #############SUPER WIDE BASE_WEIGHT LIMITS USED HERE!########################
 #adam# The DARK limits are the same unless config changes (these were fit by eye)
 #10_3#super wide limits that I just use because this doesn't matter much at this point (this is found by taking the min of the lower limits and max of the upper limits for all "by eye" limits for each filter, then taking min-.04 and max+.08 so that I'm sure this will cut almost nothing out)
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.42 1.04 DARK -1.73 4.15 1
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.74 1.11 DARK -1.88 4.6 2
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.79 1.15 DARK -1.88 4.9 3
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.69 1.12 DARK -1.88 5.35 4
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.32 1.1 DARK -2.94 5.95 5
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.37 1.11 DARK -1.88 5.5 6
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.74 1.14 DARK -1.73 4.75 7
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.81 1.19 DARK -2.04 4.75 8
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.59 1.09 DARK -1.43 4.6 9
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.3 1.07 DARK -1.58 4.75 10 # 13
-#10_2# use these ultra-wide limits for 10_2 where CCD #6 has super low counts so we don't use it. Also, I've copied over DARK frames and have fit limits for them.
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.22 1.24 DARK -4.43 10.06 1
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.54 1.31 DARK -4.43 9.06 2
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.59 1.35 DARK -4.43 8.45 3
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.49 1.32 DARK -4.43 6.84 4
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.12 1.3 DARK -4.63 7.04 5
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.17 1.31 DARK -4.43 6.84 6
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.54 1.34 DARK -4.43 13.29 7
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.61 1.39 DARK -4.43 6.84 8
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.39 1.29 DARK -4.43 6.84 9
-#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.1 1.27 DARK -4.43 6.64 10
+#STARTOVER-CHANGE DARK LIMS or CHANGE WeightMasker# 
+#adam# to mess with limits, see ~/thiswork/scripts/Plot_Light_Cutter.py
+#adam# The DARK limits are the same unless config changes (these were fit by eye)
+#adam# The FLAT limits may not be the same
+
+#10_3#super wide limits that I just use because this doesn't matter much at this point (this is found by taking the min of the lower limits and max of the upper limits for all "by eye" limits for each filter, then taking min-.04 and max+.04 so that I'm sure this will cut almost nothing out)
+#10_3# ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.42 1.04 DARK -1.73 4.15 1
+#10_3# ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.74 1.11 DARK -1.88 4.6 2
+#10_3# ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.79 1.15 DARK -1.88 4.9 3
+#10_3# ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.69 1.12 DARK -1.88 5.35 4
+#10_3# ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.32 1.1 DARK -2.94 5.95 5
+#10_3# ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.37 1.11 DARK -1.88 5.5 6
+#10_3# ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.74 1.14 DARK -1.73 4.75 7
+#10_3# ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.81 1.19 DARK -2.04 4.75 8
+#10_3# ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.59 1.09 DARK -1.43 4.6 9
+#10_3# ./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.3 1.07 DARK -1.58 4.75 10 # 13
+
+#10_2-new# use these ultra-wide BASE_WEIGHT limits for 10_2 where CCD #6 has super low counts so we don't use it. Also, I've copied over DARK frames and have fit limits for them.
+#10_2-new# CCD #7 has a very real feature along one edge in the darks that makes it so very little is cut out in the other CCDs, but in #7 more pixels are outside the limits
+#10_2#/create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.22 1.24 DARK -4.20 9.56 1
+#10_2#/create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.54 1.31 DARK -4.20 8.56 2
+#10_2#/create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.59 1.35 DARK -4.20 7.95 3
+#10_2#/create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.49 1.32 DARK -4.20 7.03 4
+#10_2#/create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.12 1.30 DARK -4.20 7.22 5
+#10_2#/create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.17 1.31 DARK -4.20 7.06 6
+#10_2#/create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.54 1.34 DARK -4.20 9.56 7
+#10_2#/create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.61 1.39 DARK -4.20 6.99 8
+#10_2#/create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.39 1.29 DARK -4.20 6.84 9
+#10_2#/create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.10 1.27 DARK -4.20 7.08 10
+
+#10_2-old# use these ultra-wide BASE_WEIGHT limits for 10_2 where CCD #6 has super low counts so we don't use it. Also, I've copied over DARK frames and have fit limits for them.
+#10_2-old#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.22 1.24 DARK -5.00 10.06 1
+#10_2-old#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.54 1.31 DARK -5.00 9.06 2
+#10_2-old#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.59 1.35 DARK -5.00 8.45 3
+#10_2-old#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.49 1.32 DARK -5.00 6.84 4
+#10_2-old#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.12 1.30 DARK -5.00 7.04 5
+#10_2-old#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.17 1.31 DARK -5.00 6.84 6
+#10_2-old#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.54 1.34 DARK -5.00 13.29 7
+#10_2-old#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.61 1.39 DARK -5.00 6.84 8
+#10_2-old#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.39 1.29 DARK -5.00 6.84 9
+#10_2-old#./create_global_weights_flags_para.sh ${SUBARUDIR}/${run}_${filter} BASE_WEIGHT 0.10 1.27 DARK -5.00 6.64 10
+
 #adam-notes# find "By Eye" limits for old filters/runs in do_Subaru_preprocess_notes.sh search #BY EYE LIMITS
 #exit 0; #13
 #adam# make weighted science images
@@ -319,9 +358,9 @@ export INSTRUMENT=SUBARU
 #Region files should be saved in $maindir/reg.
 #For precision masking, using mark_badpixel_regions.pl."
 #echo "Goto B: Global Weight Creation"
+./parallel_manager.sh WeightMasker.py ${SUBARUDIR}/${run}_${filter}/WEIGHTS #15
 #adam-DO check# MAKE SURE BAD THINGS (hot pixels, etc.) ARE COVERED BY REGION FILES:
 #	ds9 ${run}_${filter}/WEIGHTS/globalweight_*.fits
-./WeightMasker.py ${SUBARUDIR}/${run}_${filter}/WEIGHTS #15
 
 #adam-USELESS BLOCK# (i think so at least, i don't need that #?# command do I?
 ##########################################################
@@ -336,4 +375,5 @@ export INSTRUMENT=SUBARU
 ##CHECKPOINT
 ####################################
 ./BonnLogger.py checkpoint Preprocess
+#15 made: all of the plots DefectMasker makes and backup files and changed globalweights_#.fits
 exit 0; #15

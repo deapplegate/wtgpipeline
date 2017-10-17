@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 . ${INSTRUMENT:?}.ini
 
 # this script performs astrometry by using astrometrix 
@@ -57,7 +58,7 @@
 ls -1 /$1/$2/*$3.fits > ${TEMPDIR}/tmp.asc
 
 if [ -f $2.list ]; then
-  rm $2.list 
+  rm -f $2.list 
 fi
 
 cat ${TEMPDIR}/tmp.asc |\
@@ -142,7 +143,7 @@ FILES=`ls *$3.ldac`
 for CAT in ${FILES}
 do
   if [ -L ${CAT} ]; then
-    rm ${CAT}
+    rm -f ${CAT}
   fi
 done
 
@@ -151,4 +152,4 @@ cd ${DIR}
 
 
 
-log_status $?
+#adam-BL# log_status $?

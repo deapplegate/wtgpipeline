@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script processes a set of Standard star frames
 # the images are overscan corrected, debiased and flatfielded.
 # For further processing superflats are NOT created from the
@@ -106,4 +107,4 @@ do
 
 done
 
-log_status $exit_code
+#adam-BL# log_status $exit_code

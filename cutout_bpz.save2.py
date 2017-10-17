@@ -1,6 +1,9 @@
+import scipy, random
+import os, string
 import math, re, sys
 import pylab  # matplotlib
 import os
+import astropy, astropy.io.fits as pyfits
 if not 'sne' in os.environ:
     os.environ['sne'] = '/nfs/slac/g/ki/ki04/pkelly'
 #os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] +':/nfs/slac/g/ki/ki04/pkelly/lib/python2.5/site-packages/PIL/'
@@ -53,7 +56,6 @@ def make_thecorrections(cluster,DETECT_FILTER,SPECTRA='CWWSB_capak.list',AP_TYPE
     pagemain = open(os.environ['sne'] + '/photoz/' + cluster + '/' + SPECTRA + '/index.html','w')    
     pagemain.write('<table align=left><tr><td colspan=5 class="dark"><h1>' + cluster + '</h1></td></tr><tr><td colspan=5><a href=http://www.slac.stanford.edu/~pkelly/photoz/' + cluster + '/stars.html>Stellar Color-Color Plots</a><td></tr><tr><td colspan=5><a href=redsequence.html>Red Sequence Redshifts</a><td></tr><tr><td><a href=objects.html>Photoz Plots</a><td></tr><tr><td><a href=thecorrections.html>Correction Plots</a><td></tr><tr><td><a href=zdistribution.html>Z Distribution</a><td></tr></table>\n')
     pagemain.close()
-    import astropy.io.fits as pyfits, pylab, scipy
     p = pyfits.open(outputcat)['STDTAB'].data
     pylab.clf()
     pylab.hist(p.field('BPZ_ODDS'),bins=scipy.arange(0,1,0.02))
@@ -145,7 +147,6 @@ def make_thecorrections(cluster,DETECT_FILTER,SPECTRA='CWWSB_capak.list',AP_TYPE
 
 
 def convert_probs_to_fits(file):
-    import scipy, pyfits
     p = open(file).readlines()[0]
     
     print 'reading in ' + file
@@ -175,7 +176,6 @@ def convert_probs_to_fits(file):
 
 
 def star_num(filters,catalog,starcatalog,cluster,magtype,name_suffix=''):
-    import random, pyfits
     print catalog, starcatalog
     p = pyfits.open(catalog)['OBJECTS'].data
     s = pyfits.open(starcatalog)
@@ -344,7 +344,6 @@ def mkcolorcolor(filt,catalog,starcatalog,cluster,magtype,name_suffix=''):
     locus_c = get_locus()
 
     locus_c_old = locus()
-    import os, random, pyfits, string
     base = os.environ['sne'] + '/photoz/' + cluster + '/'
     file_web = 'stars' + name_suffix + '.html'        
     print base + file_web
@@ -880,7 +879,7 @@ from utilities import *
 def run(cluster):
 
     ratio = []
-    import astropy.io.fits as pyfits
+    import astropy, astropy.io.fits as pyfits
     import os
     import os, sys, bashreader, commands
     from config_bonn import appendix, tag, arc, filters, filter_root, appendix_root
@@ -984,7 +983,7 @@ def run(cluster):
         pagemain = open(os.environ['sne'] + '/photoz/' + cluster + '/' + SPECTRA + '/index.html','w')    
         pagemain.write('<table align=left><tr><td colspan=5 class="dark"><h1>' + cluster + '</h1></td></tr><tr><td colspan=5><a href=http://www.slac.stanford.edu/~pkelly/photoz/' + cluster + '/stars.html>Stellar Color-Color Plots</a><td></tr><tr><td colspan=5><a href=redsequence.html>Red Sequence Redshifts</a><td></tr><tr><td><a href=objects.html>Photoz Plots</a><td></tr><tr><td><a href=thecorrections.html>Correction Plots</a><td></tr><tr><td><a href=zdistribution.html>Z Distribution</a><td></tr></table>\n')
         pagemain.close()
-        import astropy.io.fits as pyfits, pylab, scipy
+        import astropy, astropy.io.fits as pyfits, pylab, scipy
         p = pyfits.open(outputcat)['STDTAB'].data
         pylab.clf()
         pylab.hist(p.field('BPZ_ODDS'),bins=scipy.arange(0,1,0.02))

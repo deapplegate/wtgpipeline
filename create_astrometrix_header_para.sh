@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # 15.01.03:
 # - included correct treatment of link structure
 # - more robust conversion from ASCII Astrometrix header
@@ -85,10 +86,4 @@ do
   }
 done
 
-
-
-
-
-
-
-log_status $?
+#adam-BL# log_status $?

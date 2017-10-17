@@ -1,3 +1,8 @@
+#adam-use# I THINK: that this is only useful if you have some spec-z's, have already run redsequence.py, and want to examine how well you did getting photo-z's for red-sequence galaxies
+# usage: python redsequence [options]
+# 	Identifies and fits the red sequence using apparent magnitude and one color.
+# 	Option of identifying star column and only using objects larger.
+
 def twodhist(xs,ys,fname):        
 
     import scipy

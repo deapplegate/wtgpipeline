@@ -1,0 +1,12 @@
+for fl in do_multiple_photoz.py maxlike_subaru_filehandler.py merge_unstacked_photometry.py photocalibrate_cat.NEW.py photocalibrate_cat.py qc_wrapper.py prefilter_mlcc_bootstrap.sh
+do
+	echo ${fl} > ${fl}.tmp.del
+	echo "############### head   ######################" >> ${fl}.tmp.del
+	head -n 8 ${fl} >> ${fl}.tmp.del
+	echo "############### #lines ######################" >> ${fl}.tmp.del
+	wc -l ${fl} >> ${fl}.tmp.del
+	echo "############### APER   ######################" >> ${fl}.tmp.del
+	grep -n "APER-\|APER[0-1]-\|^def\ "  ${fl} >> ${fl}.tmp.del
+	echo "############### svnlog ######################" >> ${fl}.tmp.del
+	svn log ${fl}  >> ${fl}.tmp.del
+done

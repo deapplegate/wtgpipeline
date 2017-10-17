@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # calculated fringe values with the method:
 # mode of science frame/mode of background frame
 #
@@ -76,10 +77,4 @@ do
   i=$(( $i + 1 ))
 done
 
-
-
-
-
-
-
-log_status $?
+#adam-BL# log_status $?

@@ -1,0 +1,61 @@
+> *Error* while reading //nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/u_DECam//single_V0.0.2A//dec084897_22OXCLFS.weight.fits
+mkdir: cannot create directory `//nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/z_DECam//single_V0.0.2A//cat_scamp': Permission denied
++ echo 'adam-look: LINE= /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/u_DECam/ single_V0.0.2A  /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/g_DECam/ single_V0.0.2A  /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/r_DECam/ single_V0.0.2A  /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/i_DECam/ single_V0.0.2A  /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/z_DECam/ single_V0.0.2A  /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/Y_DECam/ single_V0.0.2A '
+adam-look: LINE= /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/u_DECam/ single_V0.0.2A  /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/g_DECam/ single_V0.0.2A  /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/r_DECam/ single_V0.0.2A  /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/i_DECam/ single_V0.0.2A  /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/z_DECam/ single_V0.0.2A  /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/Y_DECam/ single_V0.0.2A 
+/gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/u_DECam/ single_V0.0.2A  /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/g_DECam/ single_V0.0.2A  /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/r_DECam/ single_V0.0.2A  /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/i_DECam/ single_V0.0.2A  /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/z_DECam/ single_V0.0.2A  /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/Y_DECam/ single_V0.0.2A 
++ echo 'adam-look: ./create_scamp_astrom_photom.sh ${LINE} ${ASTROMETRYCAT}'
+adam-look: ./create_scamp_astrom_photom.sh ${LINE} ${ASTROMETRYCAT}
+
+cp finish_scamp_cat_z_chipsnum1.sh make_scamp_cats_Y.sh
+
+#bsub -W 7000 -R rhel60 -o /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_u.out -e /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_u.err ./adam_DECam-create_astromcats_scamp_para-bsub_u.sh
+bsub -We 7100 -R rhel60 -o /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_g.out -e /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_g.err ./adam_DECam-create_astromcats_scamp_para-bsub_g.sh
+bsub -We 7100 -R rhel60 -o /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_r.out -e /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_r.err ./adam_DECam-create_astromcats_scamp_para-bsub_r.sh
+bsub -We 7100 -R rhel60 -o /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_i.out -e /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_i.err ./adam_DECam-create_astromcats_scamp_para-bsub_i.sh
+bsub -We 7100 -R rhel60 -o /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_z.out -e /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_z.err ./adam_DECam-create_astromcats_scamp_para-bsub_z.sh
+#bsub -We 7100 -R rhel60 -o /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_Y.out -e /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-adam_DECam-create_astromcats_scamp_para-bsub_Y.err ./adam_DECam-create_astromcats_scamp_para-bsub_Y.sh
+
+
+#!/bin/bash
+set -xv
+
+for chip in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 
+do
+	chipnum=`\ls dec[0-9]*_${chip}OXCLFS.segmentation.fits | wc -l` 
+	chipnum32M=`\ls -lrth dec[0-9]*_${chip}OXCLFS.segmentation.fits | grep "32M" | wc -l` 
+	echo "chip=${chip}: 32M ${chipnum32M} (chipnum=${chipnum})" >> cats.log 
+done
+#!/bin/bash
+set -xv
+#adam-does# basically this is do_Subaru_register_4batch.sh "astrom" mode
+export cluster=A2204
+export INSTRUMENT=DECam
+
+#ALLCATS=`\ls /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/{u,g,r,i,z,Y}_DECam/single_V0.0.2A/dec*_*OXCLFSF.sub.fits`
+LINE=""
+for filter in u g r i z Y
+do
+	#num=`\ls /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/${cluster}/${filter}_DECam/single_V0.0.2A/dec*_*OXC*.flag.fits | wc -l`
+	#\/nfs\/slac\/g\/ki\/ki18\/anja\/DECAM\/CLUSTERSCOLLAB_V0.0.2\/${cluster}\/${filter}_DECam\/
+        #\ls /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/${filter}_DECam/single_V0.0.2A/dec*_*OXCL*.sub.fits > subims.log
+        #\ls /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/${filter}_DECam/single_V0.0.2A/dec*_*OXCL*.weight.fits > weightims.log
+        #\ls /nfs/slac/g/ki/ki18/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/${filter}_DECam/single_V0.0.2A/dec*_*OXCL*.flag.fits > flagims.log
+        #sub_wt_flag=`wc -l subims.log weightims.log flagims.log`
+        #echo $filter , $sub_wt_flag >> decam_data.log
+        #./parallel_manager.sh ./create_astromcats_scamp_para.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS
+	for chip in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 
+	do
+		chipnum=`\ls ~/A2204_data/${filter}_DECam/single_V0.0.2A/dec[0-9]*_${chip}OXC*.flag.fits | wc -l` 
+		echo $filter $chip $chipnum >> countit_a2204.tmp
+	done
+done
+
+
+#old run_scamp stuff
+/nfs/slac/g/ki/ki18/anja/DECAM/Lucie/reduce_DECam_copy/DECam.ini                                                                                                                        
+/nfs/slac/g/ki/ki18/anja/DECAM/Lucie/reduce_DECam_copy/DECam.ahead
+###############################
+Ok, the "FIELDS" table has length 1 because it's one big long string, something is wrong further up the pipeline, figure out what that is.
+
+ldacdesc -i dec084893_scamp.cat
+ldacdesc -i /nfs/slac/g/ki/ki05/anja/SUBARU/A2204/g/SCIENCE/astrom_photom_scamp_2MASS/cat_photom/SUPA0048663_scamp.cat

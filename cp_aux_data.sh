@@ -1,6 +1,9 @@
 #! /bin/bash -xv
-. BonnLogger.sh
-. log_start
+#adam-example# ./cp_aux_data.sh ${SUBARUDIR} /nfs/slac/g/ki/ki18/anja/SUBARU/from_archive/Z2701/
+#adam-example# ./cp_aux_data.sh ${SUBARUDIR} 2010-03-04_W-S-Z+ /nfs/slac/g/ki/ki18/anja/SUBARU/from_archive/Z2089/ (would put those from 2010-03-03 2010-03-04 & 2010-03-05 all in the same dir)
+#adam-example# ./cp_aux_data.sh ${SUBARUDIR} 2010-12-05_W-J-V ~/my_data/from_archive/fgas_preH_raw/Z2701/FLAT/DOMEFLAT_2010-12-05_W-J-V
+#. BonnLogger.sh
+#. log_start
 # copies auxiliary data (downloaded from the archive)
 # searches also one level of subdirectories from $2
 
@@ -35,7 +38,7 @@ while read FILE
 do
      cp ${FILE} ${SUBARUDIR}/tmpdir_$$
 done < cpfiles_$$.txt
-rm cpfiles_$$.txt
+rm -f cpfiles_$$.txt
 
 cd ${SUBARUDIR}/tmpdir_$$
 
@@ -69,11 +72,11 @@ do
 	BASE=`basename ${IMAGE}`
 	echo ${BASE}
 	mefcreate ${BASE}?.fits -OUTPUT_IMAGE ${BASE}.fits 
-	rm ${BASE}?.fits
+	rm -f ${BASE}?.fits
 done < uniqfiles_$$.txt
 
-rm allfiles_$$.txt
-rm uniqfiles_$$.txt
+rm -f allfiles_$$.txt
+rm -f uniqfiles_$$.txt
 
 # sort images by type, filter
 
@@ -83,7 +86,7 @@ while read IMAGE
 do
     BASE=`basename ${IMAGE}`
 
-    date=`dfits ${BASE} | fitsort DATE-OBS | awk '{if($1=="'${BASE}'") print $2}'`
+    date=`dfits -x 1 ${BASE} | fitsort DATE-OBS | awk '{if($1=="'${BASE}'") print $2}'`
 
     filter=`dfits -x 1 ${BASE} | fitsort FILTER01 | awk '{if($1=="'${BASE}'") print $2}'`
 
@@ -109,7 +112,7 @@ do
 	filter=${obstype}
 	if [ ${rundirspecified} -eq 0 ]; then
 	    RUNDIR="${date}_${obstype}"
-	fi
+        fi
     fi
 
     if [ ! -d ${SUBARUDIR}/${RUNDIR} ]; then
@@ -130,10 +133,10 @@ do
 
 done < allfiles_mef_$$.txt
 
-rm allfiles_mef_$$.txt
+rm -f allfiles_mef_$$.txt
 
 cd ${SUBARUDIR}
 rm -rf tmpdir_$$
 
 cd $REDDIR
-log_status $?
+#log_status $?

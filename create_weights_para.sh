@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script creates weights for science frames.
 # It assumes the global weight images in the WEIGHT
 # directory and the reg files in the sciencedir/reg
@@ -120,7 +121,7 @@ do
       # then run weightwatcher
 
       ${P_WW} -c ${TEMPDIR}/${BASE}.ww_$$
-      rm ${TEMPDIR}/${BASE}.ww_$$
+      rm -f ${TEMPDIR}/${BASE}.ww_$$
 
       if [ "${RESULTDIR}" != "/$1/WEIGHTS" ]; then
         ln -s ${RESULTDIR}/${BASE}$3.weight.fits /$1/WEIGHTS/${BASE}$3.weight.fits
@@ -128,17 +129,17 @@ do
 
       # clean up temporary files
       if [ -f ${TEMPDIR}/cosmic_${CHIP}_$$.fits ]; then
-          rm ${TEMPDIR}/cosmic_${CHIP}_$$.fits
+          rm -f ${TEMPDIR}/cosmic_${CHIP}_$$.fits
       fi
       
       if [ -f ${TEMPDIR}/cosmic.cat_$$ ]; then
-          rm ${TEMPDIR}/cosmic.cat_$$
+          rm -f ${TEMPDIR}/cosmic.cat_$$
       fi
 
     done
   }
-  test -f ${TEMPDIR}/crw_images_$$ && rm  ${TEMPDIR}/crw_images_$$
+  test -f ${TEMPDIR}/crw_images_$$ && rm -f  ${TEMPDIR}/crw_images_$$
 done
 
 
-log_status $?
+#adam-BL# log_status $?

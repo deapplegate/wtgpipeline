@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # 30.05.04:
 # temporary files go to a TEMPDIR directory 
 #
@@ -27,7 +27,7 @@ REDDIR=`pwd`
 cd $1/$2/reg
 
 if [ -f ${TEMPDIR}/filelist_$$ ]; then
-   rm ${TEMPDIR}/filelist_$$
+   rm -f ${TEMPDIR}/filelist_$$
 fi
 
 ls *.reg > ${TEMPDIR}/filelist_$$
@@ -41,16 +41,15 @@ cat ${TEMPDIR}/filelist_$$ |\
 {
   while read file
   do
-    sed 's/polygon/POLYGON/g' ${file} > ${file}2
-    awk -F \( '{ if(index($1, "image") == 0 && index($1, "physical") == 0 ) print $0}' ${file}2 > ${file}3
     awk -F \( '{ if(index($1, "POLYGON") == 0) {
                    print "# " $0} else {print $0}
-              }' ${file}3 > ${file}4
-    mv ${file}4 ${file}
+              }' ${file} > ${file}2
+    sed 's/# image\;polygon/ POLYGON/g' ${file}2 > tmp_$$
+    mv tmp_$$ ${file}
   done
 }
 
-rm *.reg2 *.reg3 ${TEMPDIR}/filelist_$$
+rm -f *reg2 ${TEMPDIR}/filelist_$$
 
 cd $REDDIR
-log_status $?
+#adam-BL# log_status $?

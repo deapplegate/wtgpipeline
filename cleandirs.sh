@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # delete recursively empty directories
 # from a given start location.
 # It assumes that the UNIX programs
@@ -32,5 +32,5 @@ cat ${TEMPDIR}/alldirs_$$ |\
   done
 }
 
-rm ${TEMPDIR}/alldirs_$$
-log_status $?
+rm -f ${TEMPDIR}/alldirs_$$
+#adam-BL# log_status $?

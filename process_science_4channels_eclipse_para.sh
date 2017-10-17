@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script processes a set of Science frames
 # the images are overscan corrected, debiased, flatfielded 
 # and stacked with
@@ -93,7 +94,7 @@
 #$7: chips to be processed
 
 # preliminary work:
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/instrum.out 2>&1
 
 # the resultdir is where the output coadded images
 # will go. If ONE image of the corresponding chip
@@ -112,8 +113,15 @@ done
 for CHIP in $7
 do
   if [ ${NOTPROCESS[${CHIP}]:=0} -eq 0 ]; then
-    FILES=`ls $1/$4/*_${CHIP}.fits`
-  
+
+    #adam-added# I added this so that I don't keep getting this trying to process SCIENCE_#.fits
+    \ls -1 $1/$4/*_${CHIP}.fits > files_${CHIP}_$$
+    FILES=`grep -v "SCIENCE_${CHIP}.fits" files_${CHIP}_$$`
+    rm -f files_${CHIP}_$$
+    if [ -z "${FILES}" ]; then
+	    continue
+    fi
+
     for FILE in ${FILES}
     do
       if [ -L ${FILE} ]; then
@@ -123,11 +131,11 @@ do
   	     ln -s ${DIR}/${BASE}OFC.fits $1/$4/${BASE}OFC.fits
   	     RESULTDIR[${CHIP}]=`dirname ${LINK}`    
       fi
-    done 
-  
+    done
+
     MAXX=$(( ${CUTX[${CHIP}]} + ${SIZEX[${CHIP}]} - 1 ))
     MAXY=$(( ${CUTY[${CHIP}]} + ${SIZEY[${CHIP}]} - 1 ))
-  
+
     # build up list of all flatfields necessary for rescaling
     # when gains between chips are equalised here.
     i=1
@@ -142,7 +150,7 @@ do
         else
           FLATSTR="${FLATSTR},/$1/$3/$3_${i}.fits"
         fi
-      fi    
+      fi
       i=$(( $i + 1 ))
     done
   
@@ -163,7 +171,7 @@ do
       MAXX=$(( ${CUTX[${NCHIP}]} + ${SIZEX[${NCHIP}]} - 1 ))
       MAXY=$(( ${CUTY[${CHIP}]} + ${SIZEY[${CHIP}]} - 1 ))
   
-    # overscan correct and trim frames
+      # overscan correct and trim frames
       ${P_IMRED_ECL:?} ${FILES} \
 	  -MAXIMAGES ${NFRAMES}\
 	  -STATSSEC ${STATSXMIN},${STATSXMAX},${STATSYMIN},${STATSYMAX} \
@@ -178,14 +186,15 @@ do
     CHANNEL=$(( ${CHANNEL} + 1 ))
     done
 
-#---> paste four fits files
-    for file in ${FILES}; do
+    #---> paste four fits files
+    for file in ${FILES}
+    do
 	basename=`basename $file .fits`
-	./horizontal_paste.py -o ${1}/${4}/${basename}OC_CHall.fits `ls ${1}/${4}/${basename}OC_CH?.fits`
+	./horizontal_paste.py -o ${1}/${4}/${basename}OC_CHall.fits `\ls ${1}/${4}/${basename}OC_CH?.fits`
     done
 
     # bias subtraction and flat-fielding
-    ${P_IMRED_ECL:?} `ls /$1/$4/*_${CHIP}OC_CHall.fits` \
+    ${P_IMRED_ECL:?} `\ls /$1/$4/*_${CHIP}OC_CHall.fits` \
         -MAXIMAGES ${NFRAMES} \
         -STATSSEC ${STATSXMIN},${STATSXMAX},${STATSYMIN},${STATSYMAX} \
         -BIAS Y \
@@ -198,9 +207,14 @@ do
 	-OUTPUT_SUFFIX OCF.fits \
 	${FLATFLAG}
 
+    #adam# rename clobber/overwrite
+    mkdir /$1/$4/tmp_OCF/
+    mv /$1/$4/*_${CHIP}OCF.fits /$1/$4/tmp_OCF/
     ${P_RENAME} 's/OC_CHallOCF/OCF/g' /$1/$4/*_${CHIP}OC_CHallOCF.fits
+    mv -n /$1/$4/tmp_OCF/*_${CHIP}OCF.fits /$1/$4/
 
-    rm /$1/$4/*_${CHIP}OC_CH?.fits /$1/$4/*_${CHIP}OC_CHall.fits
+    #rm -rf /$1/$4/tmp_OCF/
+    rm -f /$1/$4/*_${CHIP}OC_CH?.fits /$1/$4/*_${CHIP}OC_CHall.fits
   
   fi
 
@@ -217,7 +231,7 @@ done
 for CHIP in $7
 do
   if [ ${NOTPROCESS[${CHIP}]:=0} -eq 0 ]; then
-    ls -1 /${RESULTDIR[${CHIP}]}/*_${CHIP}OCF.fits > ${TEMPDIR}/images-objects_$$
+    \ls -1 /${RESULTDIR[${CHIP}]}/*_${CHIP}OCF.fits > ${TEMPDIR}/images-objects_$$
     
     cat ${TEMPDIR}/images-objects_$$ |\
     {
@@ -262,7 +276,7 @@ do
     # of the combination from all images, so that
     # the combination where images have been excluded
     # can be scaled accordingly.
-    ${P_IMSTATS} `ls /$1/$4/*_${CHIP}OCF_sub.fits`\
+    ${P_IMSTATS} `\ls /$1/$4/*_${CHIP}OCF_sub.fits` \
                  -o science_images_$$
   
     RESULTMODE=`${P_GAWK} 'BEGIN {mean=0.0; n=0} ($1!="#") {
@@ -271,6 +285,7 @@ do
     # modify the input list of images
     # in case we have to reject files for the superflat:
     if [ -s /$1/superflat_exclusion ]; then
+      ./adam_superflat_exclusion_fixer.py /$1/superflat_exclusion
       ${P_GAWK} 'BEGIN {nex = 0; while (getline <"/'$1'/superflat_exclusion" > 0) {
                  gsub(" ", "", $1); if (length($1) >0) {ex[nex]=$1; nex++; }}}
                  {exclude = 0; i=0;
@@ -292,6 +307,7 @@ do
   
     # do the combination
   
+    #make SCIENCE_#.fits
     ${P_IMCOMBFLAT_IMCAT} -i science_coadd_images_$$\
                     -o ${RESULTDIR[${CHIP}]}/$4_${CHIP}.fits \
                     -s 1 -e 0 1 -m ${RESULTMODE}
@@ -305,6 +321,6 @@ do
 done
 
 
-log_status $?
+#adam-BL# log_status $?
 
-rm science_images_$$ science_coadd_images_$$ images-objects_$$
+rm -f science_images_$$ science_coadd_images_$$ images-objects_$$

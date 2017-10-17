@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # the script coadds images with
 # Emmanuels swarp program. It takes
 # the resampled images created by
@@ -51,9 +52,10 @@
 #$3: coadd identifier
 #$4: swarp COMBINE_TYPE (OPTIONAL: WEIGHTED as default)
 
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1
 
-DIR=`pwd`
+BONNDIR=`pwd`
+HEADDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/coadd_headers/" 
 
 # construct a unique name for the coadd.head file
 # of this co-addition:
@@ -68,17 +70,17 @@ COADDFILENAME=${TMPNAME_1}_${TMPNAME_2}_${3}
 cd /$1/$2/coadd_$3
 
 if [ ! -f coadd.head ]; then
-  cp ${DIR}/coadd_${COADDFILENAME}.head ./coadd.head
+  cp ${HEADDIR}/coadd_${COADDFILENAME}.head ./coadd.head
   cp ./coadd.head ./coadd.flag.head
 fi
 
 # collect the files to be co-added
 if [ -f files.list_$$ ]; then
-  rm files.list_$$
+  rm -f files.list_$$
 fi
 
 if [ -f files.sizes_$$ ]; then
-  rm files.sizes_$$
+  rm -f files.sizes_$$
 fi
 sleep 5
 
@@ -88,7 +90,7 @@ while read file naxis1 naxis2
 do
   if [ ${naxis1} -eq 1 ] || [ ${naxis2} -eq 1 ]; then
       base=`basename ${file} .sub.$3.resamp.fits`
-      rm ${base}*fits
+      rm -f ${base}*fits
   fi
 done < files.sizes_$$
 
@@ -96,7 +98,7 @@ ${P_FIND} . -name \*.sub.$3.resamp.fits -print > files.list_$$
 
 if [ ! -s files.list_$$ ]; then
     echo "No Files Found!"
-    log_status 2 "No Files Found!"
+    #adam-BL#log_status 2 "No Files Found!"
 fi
 
 ### set swarp COMBINE type:
@@ -115,9 +117,10 @@ ${P_SWARP} -c ${DATACONF}/create_coadd_swarp.swarp \
            -MEM_MAX 4096 \
            -VMEM_MAX 6144 \
            -VMEM_DIR "/tmp" \
-           -INPUTIMAGE_LIST files.list_$$
+           @files.list_$$
+           #adam-old#-INPUTIMAGE_LIST files.list_$$
 
-rm files.list_$$ files.sizes_$$
+rm -f files.list_$$ files.sizes_$$
 
 mv coadd.fits median.fits
 mv coadd.weight.fits median.weight.fits
@@ -125,8 +128,8 @@ mv coadd.weight.fits median.weight.fits
 swarp *copy*.resamp.fits median.fits -c ${DATACONF}/create_coadd_swarp.swarp \
            -RESAMPLE N -COMBINE Y -COMBINE_TYPE WEIGHTED
 
-rm median.fits median.weight.fits *.sub.*fits *.sub.head *.sub.copy.head
+rm -f median.fits median.weight.fits *.sub.*fits *.sub.head *.sub.copy.head
 
-cd ${DIR}
+cd ${BONNDIR}
 
-log_status $?
+#adam-BL#log_status $?

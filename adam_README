@@ -1,0 +1,63 @@
+## new
+adam_tmp-do_photometry_wait_then_run.sh
+adam_MACS1226_info.txt
+adam_quicktools_test_waitpid.sh
+adam_quicktools_test_waitpid_bjobs.sh
+adam_quicktools_nohupify_kill_job.sh
+adam_quicktools_nohupify_run_job.sh
+
+## Specific Clusters (MACS0416/1226)
+adam_view_coadds_MACS0416_and_MACS1226.sh
+adam_make_difference_coadds_MACS1226_and_MACS0416.sh
+adam_BBSSCR_stats_MACS1226.sh
+adam_BBSSCR_stats_MACS0416.sh
+adam_catchup_MACS0416.sh
+adam_coadd_MACS0416-24.sh
+adam_coadd_MACS1226+21.sh
+
+## adam_quicktools
+adam_quicktools_backup_and_rm_files.py
+adam_quicktools_backup_regs.py
+adam_quicktools_ds9_chips2mosaic.sh
+adam_quicktools_get_num_path_supa_chip_ending.py
+adam_quicktools_get_sextractor_shortened_error_log.sh
+adam_quicktools_nohupify_kill_job.sh
+adam_quicktools_nohupify_run_job.sh
+adam_quicktools_reg_phys2wcs.sh
+adam_quicktools_test_waitpid.sh
+adam_quicktools_test_waitpid_bjobs.sh
+
+## adam_vars
+adam_vars_show.sh
+adam_vars.py
+adam_vars.txt
+adam_vars.sh
+
+## adam_notes
+adam_notes-example_checking_CRN_performance_MACS1226.sh
+adam_notes-coherent_shifts.log
+adam_notes-coadd_mode_conditions.log
+adam_notes-coherent_shifts-ldac_hist.log
+adam_notes-coadd_different_configs.sh
+adam_notes-reg_examples.log
+adam_notes-myseeing_or_getseeing.sh
+
+## others helpful
+adam_pipeline_notes.sh
+adam_pipeline_masking_notes.log
+adam_coadd_many.sh
+adam_reg2weights-maybe_coadd_catchup.sh
+adam_do_linking_filter_dirs.sh
+adam_do_update_headers.sh
+adam_make_autosuppression_ims.py
+adam_CTcorr_run_correction_para.py
+adam_CTcorr_make_images_para.sh
+adam_seeing_pretest.sh
+adam_do_masking_master.sh
+
+## others less helpful
+adam_use_fix_autosuppression.sh
+adam_fix_flags.py
+adam_fix_regionmasks.sh
+adam_make_backmask_ims.py
+adam_apply_RADIAL_MASK_para.sh

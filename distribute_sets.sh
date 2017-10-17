@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script collects some header keywords of a directory with raw fits
 # files into an LDAC catalog with a FILES table. These data are then
 # used to distinguish 'sets' of images
@@ -38,7 +39,7 @@ DECKEY="CRVAL2"
 ${P_FIND} $1/$2/ -name \*$3.fits -print > ${TEMPDIR}/images_$$
 
 if [ -f "${TEMPDIR}/images_tmp.dat_$$" ]; then
-  rm ${TEMPDIR}/images_tmp.dat_$$
+  rm -f ${TEMPDIR}/images_tmp.dat_$$
 fi
 
 cat ${TEMPDIR}/images_$$ |\
@@ -75,4 +76,4 @@ cat ${TEMPDIR}/tmp.asc_$$ |\
     mv /$1/$2/${FILE} /$1/set_${SET}
   done
 }
-log_status $?
+#adam-BL# log_status $?

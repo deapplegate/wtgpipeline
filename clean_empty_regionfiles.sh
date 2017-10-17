@@ -9,6 +9,6 @@ for file in $@; do
 
     if [ "$nregions" = "0" ]; then
 	echo "Removing $file"
-	rm $file
+	rm -f $file
     fi
 done

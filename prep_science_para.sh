@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 #SCRIPT that preps SCIENCE images for experimentation with flatfields
 
 #$Id: prep_science_para.sh,v 1.15 2009-02-10 19:34:42 anja Exp $
@@ -33,12 +34,14 @@ do
     fi
 
     if [ "$FILES" = "" ]; then
-	log_status 2 "No Files Found"
+	#adam-BL# log_status 2 "No Files Found"
+	echo "adam-look | error: No Files Found"
 	exit 2
     fi
 
     if [ ! -s $1/$2/BIAS_${CHIP}.fits ]; then
-	log_status 3 "No Bias Image"
+	#adam-BL# log_status 3 "No Bias Image"
+	echo "adam-look | error: No Bias Image"
 	exit 3
     fi
   
@@ -71,4 +74,5 @@ do
 
 
 done
-log_status $exit_code
+#adam-BL# log_status $exit_code
+exit $exit_code

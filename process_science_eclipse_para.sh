@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # the script processes a set of Science frames
 # the images are overscan corrected, debiased, flatfielded 
 # and stacked with
@@ -120,7 +121,7 @@ do
   	     LINK=`${P_READLINK} ${FILE}`
   	     BASE=`basename ${LINK} .fits`
   	     DIR=`dirname ${LINK}`
-  	     ln -s ${DIR}/${BASE}OFC.fits $1/$4/${BASE}OFC.fits
+  	     ln -s ${DIR}/${BASE}OCF.fits $1/$4/${BASE}OCF.fits
   	     RESULTDIR[${CHIP}]=`dirname ${LINK}`    
       fi
     done 
@@ -165,7 +166,7 @@ do
       -COMBINE N \
       -OUTPUT Y \
       -OUTPUT_DIR /$1/$4/ \
-      -OUTPUT_SUFFIX OFC.fits \
+      -OUTPUT_SUFFIX OCF.fits \
       -TRIM Y \
       -TRIM_REGION ${CUTX[${CHIP}]},${MAXX},${CUTY[${CHIP}]},${MAXY} ${FLATFLAG}
   
@@ -184,7 +185,7 @@ done
 for CHIP in $7
 do
   if [ ${NOTPROCESS[${CHIP}]:=0} -eq 0 ]; then
-    ls -1 /${RESULTDIR[${CHIP}]}/*_${CHIP}OFC.fits > ${TEMPDIR}/images-objects_$$
+    ls -1 /${RESULTDIR[${CHIP}]}/*_${CHIP}OCF.fits > ${TEMPDIR}/images-objects_$$
     
     cat ${TEMPDIR}/images-objects_$$ |\
     {
@@ -229,7 +230,7 @@ do
     # of the combination from all images, so that
     # the combination where images have been excluded
     # can be scaled accordingly.
-    ${P_IMSTATS} `ls /$1/$4/*_${CHIP}OFC_sub.fits`\
+    ${P_IMSTATS} `ls /$1/$4/*_${CHIP}OCF_sub.fits`\
                  -o science_images_$$
   
     RESULTMODE=`${P_GAWK} 'BEGIN {mean=0.0; n=0} ($1!="#") {
@@ -266,12 +267,12 @@ do
     if [ ! -d /$1/$4/SUB_IMAGES ]; then
        mkdir /$1/$4/SUB_IMAGES
     fi
-    mv /$1/$4/*_${CHIP}OFC_sub.fits /$1/$4/SUB_IMAGES/
+    mv /$1/$4/*_${CHIP}OCF_sub.fits /$1/$4/SUB_IMAGES/
 
   fi
 done
 
 
-log_status $?
+#adam-BL#log_status $?
 
-rm science_images_$$ science_coadd_images_$$ images-objects_$$
+rm -f science_images_$$ science_coadd_images_$$ images-objects_$$

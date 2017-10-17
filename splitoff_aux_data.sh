@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # script to split off auxiliary data, i.e. data used to get a better
 # superflat
 
@@ -25,12 +25,13 @@ DECKEY="CRVAL2"
 ${P_FIND} $1/$2/ -maxdepth 1 -name \*$3.fits -print > ${TEMPDIR}/images_$$
 
 if [ ! -s ${TEMPDIR}/images_$$ ]; then
-    log_status 2 "No images to review"
+    #adam-BL# log_status 2 "No images to review"
+    echo "adam-look | error: No images to review"
     exit 2
 fi
 
 if [ -f "${TEMPDIR}/images_tmp.dat_$$" ]; then
-  rm ${TEMPDIR}/images_tmp.dat_$$
+  rm -f ${TEMPDIR}/images_tmp.dat_$$
 fi
 
 cat ${TEMPDIR}/images_$$ |\
@@ -83,4 +84,4 @@ cat ${TEMPDIR}/images_tmp.dat_$$ |\
 
   done
 }
-log_status $?
+#adam-BL# log_status $?

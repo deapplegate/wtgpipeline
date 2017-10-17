@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # the script creates normaliced images.
 # It puts the result into new directories ..._norm.
 # The script assumes a threshhold. Pixels under
@@ -114,10 +115,10 @@ do
 
   ${P_WW} -c ${TEMPDIR}/${CHIP}.ww_$$
   
-  rm ${TEMPDIR}/${CHIP}.ww_$$
+  rm -f ${TEMPDIR}/${CHIP}.ww_$$
 done
 
 
 
 
-log_status $?
+#adam-BL# log_status $?

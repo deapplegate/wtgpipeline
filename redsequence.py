@@ -1,3 +1,7 @@
+#adam-use# I THINK: you run redsequence.py before plot_rederr.py. This code identifies red-sequence galaxies!
+# usage: python redsequence [options]
+# 	Identifies and fits the red sequence using apparent magnitude and one color.
+# 	Option of identifying star column and only using objects larger.
 import pylab
 
 params_pylab = {'backend' : 'ps',
@@ -336,7 +340,7 @@ def run():
     
     
     if options.z:
-        import astropy.io.fits as pyfits        
+        import astropy, astropy.io.fits as pyfits        
         cat = '/nfs/slac/g/ki/ki05/anja/SUBARU/' + cluster + '/PHOTOMETRY_' + options.detectband + '_aper/' + cluster + '.APER1.1.CWWSB_capak.list.all.bpz.tab'
         p = pyfits.open(cat)
         photoz = p['STDTAB'].data
@@ -352,7 +356,7 @@ def run():
         input_mags = '/nfs/slac/g/ki/ki05/anja/SUBARU/' + cluster + '/PHOTOMETRY_' + options.detectband + '_aper/' + cluster + '.slr.alter.cat'
     else: input_mags = options.cat
     
-    import astropy.io.fits as pyfits, os, sys, pylab, do_multiple_photoz, commands, re, math, scipy
+    import astropy, astropy.io.fits as pyfits, os, sys, pylab, do_multiple_photoz, commands, re, math, scipy
     from copy import copy
     print 'input magnitude catalog:', input_mags, options.cat, hasattr(options,'cat')
     

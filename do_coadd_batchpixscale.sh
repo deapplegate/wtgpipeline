@@ -87,13 +87,13 @@ export BONN_LOG=1
 export BONN_TARGET=${cluster}
 export BONN_FILTER=${filter}
 
-./BonnLogger.py clear
+#adam-BL#./BonnLogger.py clear
 
 ########################################
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki05/anja/SUBARU
+export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 ##########################################
 
@@ -109,7 +109,7 @@ export PIXSCALEOUT=0.15
 ASTROMMETHOD=SCAMP
 ASTROMETRYCAT=`cat ${SUBARUDIR}/Scamp_cat.list | grep "${cluster}" | awk '{if(cl==$1) print $2}' cl=${cluster}`
 if [ -z "$ASTROMETRYCAT" ]; then
-    ./BonnLogger.py comment "Can't find astrometry cat"
+    #adam-BL#./BonnLogger.py comment "Can't find astrometry cat"
     exit 1
 fi
 ASTROMADD="_scamp_photom_${ASTROMETRYCAT}"
@@ -131,16 +131,16 @@ if [[ ( -z ${INSTRUMENT} ) || ( "${INSTRUMENT}" = "UNKNOWN" ) ]]; then
     echo "setup_general failed. Probably due to BonnLogger"
     exit 5
 fi
-rm instrument_$$
+rm -f instrument_$$
 . ${INSTRUMENT:?}.ini
 
-./BonnLogger.py config \
-    cluster=${cluster} \
-    filter=${filter} \
-    config=${config} \
-    ending=${ending} \
-    astrommethod=${ASTROMMETHOD} \
-    astrometrycat=${ASTROMETRYCAT} \
+#adam-BL#./BonnLogger.py config \
+#adam-BL#    cluster=${cluster} \
+#adam-BL#    filter=${filter} \
+#adam-BL#    config=${config} \
+#adam-BL#    ending=${ending} \
+#adam-BL#    astrommethod=${ASTROMMETHOD} \
+#adam-BL#    astrometrycat=${ASTROMETRYCAT} \
 
 ######################
 #  #Find Ending
@@ -242,7 +242,7 @@ if [ ${coadd} == "all" ] && [ ${filter} != "K" ] && [ ${filter} != "I" ]; then
 #
 #fi
   ./setup_general.sh ${SUBARUDIR}/${cluster}/${filter}/SCIENCE instrument_$$ 
-  rm instrument_$$
+  rm -f instrument_$$
   #########################
   
 #  case ${INSTRUMENT} in
@@ -290,7 +290,7 @@ if [ ${coadd} == "all" ] && [ ${filter} != "K" ] && [ ${filter} != "I" ]; then
   ic -p 8 '16 1 %1 1e-6 < ?' ${SUBARUDIR}/${cluster}/${filter}/SCIENCE//coadd_${cluster}_${coadd}_${PIXSCALEOUT}/coadd.weight.fits > ${SUBARUDIR}/${cluster}/${filter}/SCIENCE//coadd_${cluster}_${coadd}_${PIXSCALEOUT}/coadd.flag.fits
 
   ./setup_general.sh ${SUBARUDIR}/${cluster}/${filter}/SCIENCE instrument_$$ 
-  rm instrument_$$
+  rm -f instrument_$$
 
   ./update_coadd_header.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE ${cluster}_${coadd}_${PIXSCALEOUT} STATS coadd ${MAGZP} AB ${CONDITION}
 
@@ -326,7 +326,7 @@ elif [ ${coadd} == "gabodsid" ]; then
   
     ./update_coadd_header.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE ${cluster}_gabodsid${GABODSID}_${PIXSCALEOUT} STATS coadd ${MAGZP} AB ${CONDITION} 
     
-    ./BonnLogger.py clear
+    #adam-BL#./BonnLogger.py clear
     coaddmodes="${coaddmodes} gabodsid${GABODSID}_${PIXSCALEOUT}"
 
   done
@@ -460,7 +460,7 @@ elif [ ${coadd} == "exposure" ] && [ ${filter} != "K" ] && [ ${filter} != "I" ];
       coaddmodes="${coaddmodes} ${IMAGENAME}_${PIXSCALEOUT}"
   
     done < exposures_$$.list
-    rm exposures_$$.list
+    rm -f exposures_$$.list
   fi
 
 

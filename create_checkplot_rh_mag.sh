@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # last update: 27.02.2004 
 # author     : Marco Hetterscheidt
 
@@ -43,4 +44,4 @@ ${P_LDACTOASC} -i /$1/$2/postcoadd/cats/$3_sex_ldac_stars.cat \
 } | ${P_SM}
 
 
-log_status $?
+#adam-BL# log_status $?

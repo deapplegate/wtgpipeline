@@ -1,14 +1,15 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 ###############
-. BonnLogger.sh
-. log_start
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # CVSId: $Id: fixbadccd_para.sh,v 1.4 2009-08-14 20:22:30 anja Exp $
 ##########################################################
 ##########################################################
 # Find images with 0 weight, make sure BADCCD is set to 1
 ###########################################################
-. progs.ini
-. bash_functions.include
+. progs.ini > /tmp/out.out 2>&1
+. bash_functions.include > /tmp/out.out 2>&1
 
 rundir=$1
 science=$2
@@ -27,7 +28,7 @@ badchips=""
 
 for chip in ${chips}; do
 
-    imstats `ls ${weightdir}/*${chip}${ext}.weight.fits` | awk '($1 !~ /^#/) {print $1,$2,$3,$4,$5,$6}' > fixbadccd_stats_$$
+    ${P_IMSTATS} `ls ${weightdir}/*${chip}${ext}.weight.fits` | awk '($1 !~ /^#/) {print $1,$2,$3,$4,$5,$6}' > fixbadccd_stats_$$
 
 
     {
@@ -55,7 +56,7 @@ for chip in ${chips}; do
 	done
     } < fixbadccd_stats_$$
 
-    rm fixbadccd_stats_$$
+    rm -f fixbadccd_stats_$$
 
 done
 
@@ -64,13 +65,13 @@ if [ ! -z "${badchips}" ]; then
     {
 	while read file badccd; do
 	    if [ "${badccd}" != 1 ]; then
-		log_status 2 "BADCCD not set: ${file}"
-		rm fixbadccd_stats_$$
+		#adam-BL#log_status 2 "BADCCD not set: ${file}"
+		rm -f fixbadccd_stats_$$
 		exit 2
 	    fi
 	done
     } < fixbadccd_check_$$
-    rm fixbadccd_check_$$
+    rm -f fixbadccd_check_$$
 fi
 
-log_status 0
+#adam-BL#log_status 0

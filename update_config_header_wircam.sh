@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 
 ### script to add the CONFIG keyword to Olli's CFHT image
 

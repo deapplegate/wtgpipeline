@@ -1,0 +1,10 @@
+./update_config_header.sh ./create_astromcats_scamp_para.sh ./create_astromcats_scampIC_para.sh ./create_scamp_astrom_photom.sh ./create_scamp_photom.sh
+
+./setup_general.sh ${SUBARUDIR}/${cluster}/${filter}/SCIENCE instrument_$$
+./setup_SUBARU.sh ${SUBARUDIR}/${cluster}/${filter}/SCIENCE
+./update_config_header.sh ${SUBARUDIR}/${cluster}/${filter}/SCIENCE ${INSTRUMENT}
+./update_config_header_megaprime.sh ${SUBARUDIR}/${cluster}/${filter}/SCIENCE ${INSTRUMENT}
+./create_astromcats_scamp_para.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS
+./create_astromcats_scampIC_para.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS
+./create_scamp_astrom_photom.sh ${LINE} ${ASTROMETRYCAT}
+./create_scamp_photom.sh ${LINE} ${THRESH} ${ASTROMETRYCAT}

@@ -82,7 +82,7 @@ function cleanTmpFiles
     if [ -z ${THELI_DEBUG} ]; then
         echo "Cleaning temporary files for script $0"
 
-        rm ${TEMPDIR}/image_list_$$
+        rm -f ${TEMPDIR}/image_list_$$
     else
         echo "Variable THELI_DEBUG set! No cleaning of temp. files in script $0"    
     fi
@@ -121,7 +121,7 @@ if [ ! -d BINNED ]; then
   mkdir BINNED
 fi
 
-test -f ${TEMPDIR}/image_list_$$ && rm ${TEMPDIR}/image_list_$$
+test -f ${TEMPDIR}/image_list_$$ && rm -f ${TEMPDIR}/image_list_$$
 
 # note that we assume that FITS images are always present for
 # ALL chips; also if they have the BADCCD flag set!

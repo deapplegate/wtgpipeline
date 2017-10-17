@@ -1,10 +1,11 @@
-#!/bin/bash -uxv
+#!/bin/bash
+set -uxv
 #########################
 
 cluster=$1
 filters=$2
 
-subarudir=/nfs/slac/g/ki/ki05/anja/SUBARU
+subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 IMAGE=coadd
 
@@ -81,14 +82,14 @@ for filter in ${filters}; do
 STEPSIZE=0.05
 
 ${P_PREANISOTROPY} -i $lensing_workdir/${IMAGE}_ell.cat -t OBJECTS \
-                   -k rh mag -s 0.05 -c rh 1.0 10.0 snratio 20.0 10000.0 >& tmp1.asc_$$
+                   -k rh mag -s 0.05 -c rh 1.0 10.0 snratio 20.0 10000.0 >& ${TEMPDIR}/tmp1.asc_$$
 
 ### make check plots
 
-MINRH=`awk '($2=="propose") { print $8-'${STEPSIZE}'}' tmp1.asc_$$`
-MAXRH=`awk '($2=="propose") { print $12+'${STEPSIZE}'}' tmp1.asc_$$`
-MAXMAG=`awk '($2=="propose") { print $14}' tmp1.asc_$$`
-MINMAG=`awk '($2=="propose") { print $18}' tmp1.asc_$$`
+MINRH=`awk '($2=="propose") { print $8-'${STEPSIZE}'}' ${TEMPDIR}/tmp1.asc_$$`
+MAXRH=`awk '($2=="propose") { print $12+'${STEPSIZE}'}' ${TEMPDIR}/tmp1.asc_$$`
+MAXMAG=`awk '($2=="propose") { print $14}' ${TEMPDIR}/tmp1.asc_$$`
+MINMAG=`awk '($2=="propose") { print $18}' ${TEMPDIR}/tmp1.asc_$$`
 LINE="rh $MINRH $MAXRH MAG_AUTO $MAXMAG $MINMAG"
 
 ${P_LDACTOASC} -i $lensing_workdir/${IMAGE}_ell.cat \
@@ -96,7 +97,7 @@ ${P_LDACTOASC} -i $lensing_workdir/${IMAGE}_ell.cat \
 	       -b -k rh mag \
 	       > $lensing_workdir/rh_mag_$$.dat
 
-ANISOLINE=`${P_GAWK} '($2=="propose") { print $10,'${MINRH}','${MAXRH}',$16,'${MAXMAG}','${MINMAG}'}' tmp1.asc_$$`
+ANISOLINE=`${P_GAWK} '($2=="propose") { print $10,'${MINRH}','${MAXRH}',$16,'${MAXMAG}','${MINMAG}'}' ${TEMPDIR}/tmp1.asc_$$`
 
 ${P_ANISOTROPY} -i $lensing_workdir/${IMAGE}_ell.cat -c ${ANISOLINE} \
                 -o $lensing_workdir/${IMAGE}_anisocorr.cat -j 5.0 -e 2.0
@@ -140,7 +141,7 @@ echo "limits 0.5 5 30 20"
 echo "box"
 echo "expand 1.3"
 echo "xlabel r_h"
-echo "ylabel MAG\_AUTO"
+echo "ylabel MAG_AUTO"
 echo "expand 0.4"
 echo "ptype 20 3"
 echo "lweight 3"
@@ -232,7 +233,7 @@ ${P_GAWK} '{print $3, $4}' ${TEMPDIR}/${IMAGE}_PSFplot.asc_$$ > \
 cat ${TEMPDIR}/${IMAGE}_PSFplot.sm_$$ | ${P_SM}
 
 
-rm tmp1.asc_$$ tmp_ras_$$.dat tmp_decs_$$.dat tmp_mag_$$.dat tmp_stars_$$.dat ${TEMPDIR}/${IMAGE}_PSFplot.asc_$$ ${TEMPDIR}/${IMAGE}_PSF_allellip.asc_$$ ${TEMPDIR}/${IMAGE}_PSFplot.sm_$$
+rm -f ${TEMPDIR}/tmp1.asc_$$ tmp_ras_$$.dat tmp_decs_$$.dat tmp_mag_$$.dat tmp_stars_$$.dat ${TEMPDIR}/${IMAGE}_PSFplot.asc_$$ ${TEMPDIR}/${IMAGE}_PSF_allellip.asc_$$ ${TEMPDIR}/${IMAGE}_PSFplot.sm_$$
 
 #####################################
 

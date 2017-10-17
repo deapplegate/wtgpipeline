@@ -1,6 +1,6 @@
 #!/bin/bash  -xv
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # perform astrometric calibration of photometric
 # standard star observations and merge these
 # calibrated catalogs with a photometric standard
@@ -198,8 +198,8 @@ do
 				-t STDTAB -c ${PHOTCONF}/make_ssc_std.conf
 				#-t STDTAB -c /afs/slac.stanford.edu/u/ki/pkelly/pipeline/make_ssc_std.conf
 	    fi
-	    rm ${TEMPDIR}/seeing_$$.cat
-	    rm ${TEMPDIR}/tmp_$$.cat
+	    rm -f ${TEMPDIR}/seeing_$$.cat
+	    rm -f ${TEMPDIR}/tmp_$$.cat
     done
   }
   ${P_LDACPASTE} -i /$1/$2/cat/*_${CHIP}$3_merg.cat \
@@ -207,9 +207,9 @@ do
 
 done
 
-rm ${TEMPDIR}/singleastromimages_$$
+rm -f ${TEMPDIR}/singleastromimages_$$
 
 
-log_status $?
+#adam-BL# log_status $?
 
 

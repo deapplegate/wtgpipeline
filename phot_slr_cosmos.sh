@@ -26,7 +26,7 @@ ${P_LDACDESC} -i ${MAINDIR}/${STARCAT} \
 outline="ALPHA_J2000 DELTA_J2000"
 outheader="# ID type tmixed RA Dec "
 
-rm ${MAINDIR}/slr.offsets.list
+rm -f ${MAINDIR}/slr.offsets.list
 nfilt=0
 nK=1000
 
@@ -142,7 +142,7 @@ do
 echo ${outline}
 
 done < filters.list_$$
-rm filters.list_$$ filters.wc.list_$$ filters.raw.list_$$
+rm -f filters.list_$$ filters.wc.list_$$ filters.raw.list_$$
 
 echo ${outheader} > ${MAINDIR}/stars_4slr.ctab
 

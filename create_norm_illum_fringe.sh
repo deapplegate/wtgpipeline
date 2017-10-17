@@ -1,9 +1,6 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
-
+#!/bin/bash
+set -xv
 # CVSId: $Id: create_norm_illum_fringe.sh,v 1.3 2008-09-03 18:49:40 dapple Exp $
-
 
 #02.09.2008 (DA): special modification to keep scaling between illum and fringe images constant
 
@@ -35,7 +32,7 @@
 # $2: directory from which normaliced images should be created 
 # $3: file suffix
 
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/out.log 2>&1
 
 # first calculate the modes:
 FILES=""
@@ -51,7 +48,7 @@ ${P_IMSTATS} ${FILES} -s \
 
 exit_code=$?
 if [ $exit_code -ne 0 ]; then
-    log_status $exit_code "IMSTATS failure"
+    echo "adam-look | error: IMSTATS failure"
     exit $exit_code
 fi
 
@@ -74,22 +71,21 @@ while [ ${i} -le ${NCHIPS} ]
 do
 
     RESULTDIR=/$1/$2_norm/
-    
+
+    if [ -f /$1/$2/$2_${i}_fringe${3}.fits ]; then
+	    ${P_IC} '%1 '${NORM}' / ' /$1/$2/$2_${i}_fringe${3}.fits > \
+		${RESULTDIR}/$2_norm_${i}_fringe${3}.fits
+    fi
     ${P_IC} '%1 '${NORM}' / ' /$1/$2/$2_${i}_illum${3}.fits > \
         ${RESULTDIR}/$2_norm_${i}_illum${3}.fits
-
-    ${P_IC} '%1 '${NORM}' / ' /$1/$2/$2_${i}_fringe${3}.fits > \
-        ${RESULTDIR}/$2_norm_${i}_fringe${3}.fits
-    
     
     exit_code=$?
     if [ $exit_code -ne 0 ]; then
-	log_status $exit_code 'IC Failure'
+        echo "adam-look | error: IC failure"
 	exit $exit_code
     fi
     
     i=$(( $i + 1 ))
 done
 
-rm ${TEMPDIR}/immode.dat_$$
-log_status $?
+rm -f ${TEMPDIR}/immode.dat_$$

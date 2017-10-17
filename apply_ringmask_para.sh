@@ -1,9 +1,12 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
+#adam-does# Apply ring mask to weight files for coaddition. Cuts out poorly calibrated outer area of chips.
+#adam-use# Use at the end of preprocess-masking stage (before by-hand masking)
+#adam-example# ./parallel_manager.sh ./adam_apply_RADIAL_MASK_para.sh ${SUBARUDIR} ${SUBARUDIR}/MACS0416-24/W-S-Z+_2010-11-04/SCIENCE/ ${SUBARUDIR}/MACS0416-24/W-S-Z+_2010-11-04/WEIGHTS/ OCF
 ########################
 #$Id: apply_ringmask_para.sh,v 1.5 2009-07-17 02:54:49 anja Exp $
 #######################
-# Apply ring mask to weight files for coaddition
-# Cuts out poorly calibrated outer area of chips.
+#
 ########################
 
 #$1 : subaru directory
@@ -13,10 +16,10 @@
 
 ########################
 
-. BonnLogger.sh
-. log_start
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1 
 
 subarudir=$1
 coadddir=$2
@@ -30,9 +33,9 @@ for chip in $CHIPS; do
 
     filebases=`find $coadddir/ -name \*_${chip}${ext}.fits -exec basename {} .fits \;`
 
-    if [ -z "${filebases}" ]; then
-	./BonnLogger.py comment "apply_ringmask_parap.sh - No Files Found: Chip ${chip}"
-    fi
+    #adam-BL#if [ -z "${filebases}" ]; then
+    #adam-BL#   ./BonnLogger.py comment "apply_ringmask_parap.sh - No Files Found: Chip ${chip}"
+    #adam-BL#fi
 
     for base in $filebases; do
 
@@ -57,14 +60,14 @@ for chip in $CHIPS; do
 		-OUTFLAG_NAME ""
 
 	    if [ $? -gt 0 ]; then
-		log_status 2 "Weight watcher failed on $base"
+		#adam-BL#log_status 2 "Weight watcher failed on $base"
 		exit 2
 	    fi
 	    
 	    mv ${newweight} $weight
 
 	    if [ $? -gt 0 ]; then
-		log_status 3 "Cannot move weight file $base"
+		#adam-BL#log_status 3 "Can't move weight file $base"
 		exit 3
 	    fi
 	fi
@@ -74,4 +77,4 @@ for chip in $CHIPS; do
 
 done
 
-log_status 0
+#adam-BL#log_status 0

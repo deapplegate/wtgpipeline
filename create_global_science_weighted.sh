@@ -1,6 +1,5 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
 ##########
 # Take Science Flats and weight them by the global weight files
 # Save the output for use in masking global regions
@@ -14,7 +13,7 @@
 
 #CVSID = "$Id: create_global_science_weighted.sh,v 1.5 2008-11-04 18:24:11 anja Exp $"
 
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini > /tmp/out.log 2>&1
 
 for ((CHIP=1;CHIP<=${NCHIPS};CHIP+=1));
 do
@@ -38,4 +37,3 @@ do
   ic '%1 1 0 %2 0 > ? mult' ${FILE} ${WEIGHT} > ${OUTPUT}
 
 done
-log_status $?

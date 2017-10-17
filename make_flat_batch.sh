@@ -1,7 +1,8 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 #######################
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 
 #$1: workdir 
 #$2: input prefix name
@@ -50,7 +51,7 @@ do
                     -o ${RESULTDIR}/${2}_${CHIP}.fits \
                     -s 1 -e $3
 
-    rm flat_images_$$ input_list_$$
+    rm -f flat_images_$$ input_list_$$
   fi
 done
 
@@ -83,6 +84,6 @@ done
 #done
 #
 #
-#rm immode.dat_$$
+#rm -f immode.dat_$$
 
-log_status $?
+#adam-BL# log_status $?

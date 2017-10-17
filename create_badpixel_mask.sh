@@ -7,8 +7,8 @@
 #
 # Assumes files are named workdir_chip.imask
 #####################
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 #CVSID="$Id: create_badpixel_mask.sh,v 1.9 2008-07-09 18:22:59 dapple Exp $"
 
 REDDIR=`pwd`
@@ -37,7 +37,7 @@ do
     fi
 
     if [ -e ${MAINDIR}/${2}_mask/${2}_mask_${CHIP}.fits ]; then
-	rm ${MAINDIR}/${2}_mask/${2}_mask_${CHIP}.fits
+	rm -f ${MAINDIR}/${2}_mask/${2}_mask_${CHIP}.fits
     fi
     
     {
@@ -53,8 +53,8 @@ do
     } | ${P_CL}
     
 
-    rm ${2}_${CHIP}_$$.pl
+    rm -f ${2}_${CHIP}_$$.pl
 done
 
 cd ${REDDIR}
-log_status $?
+#adam-BL# log_status $?

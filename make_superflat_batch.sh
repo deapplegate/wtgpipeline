@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 #$1 FLAT Directory
 #$2 FLAT prefix
 #$3 SCIENCE directory
@@ -129,10 +130,10 @@ do
 
     rm -rf $workdir
 
-    rm science_images_$$ science_coadd_images_$$ images-objects_$$
+    rm -f science_images_$$ science_coadd_images_$$ images-objects_$$
   fi
 done
 
 
 
-log_status $?
+#adam-BL# log_status $?

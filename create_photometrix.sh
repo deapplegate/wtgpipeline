@@ -1,6 +1,7 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # this script runs the PHOTOMETRIX tool
 # after astrometric calibration by ASTROMETRIX.
 # This part only deal with relative photometry,
@@ -87,8 +88,8 @@ do
   done
 done < files_$$
 
-rm files_$$
+rm -f files_$$
 
 cd ${DIR}
 
-log_status $?
+#adam-BL# log_status $?

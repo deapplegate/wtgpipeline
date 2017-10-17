@@ -13,9 +13,9 @@
 
 use ds9xpautils;
 use imagelistutils;
-use BonnLogger;
+#use BonnLogger;
 
-log_force_start;
+#log_force_start;
 
 $usage = "
 
@@ -101,7 +101,7 @@ saveList(@remainingImages);
 
 &closeDS9;
 
-log_status_and_exit(0);
+#log_status_and_exit(0);
 
 #############################################################################
 
@@ -211,6 +211,7 @@ sub doFile  {
     }
 
     system("xpaset -p ds9 regions strip no");
+    system("xpaset -p ds9 regions system image");
     print "Saving $regionFile\n";
     system("xpaset -p ds9 regions save $regionFile");
 

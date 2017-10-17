@@ -1,4 +1,5 @@
-#!/bin/bash -xv
+#!/bin/bash
+set -xv
 #adam-does# this script makes the SUPA*_diff.fits images that are used to correct for crosstalk
 #adam-use# use this to make ctcorr images. Has four possible modes. Must use all in succession:
 #1# O (overscan correct IM -> IM_O) # the script processes a set of Science frames to make images that are overscan corrected, debiased, BUT not flatfielded or cut
@@ -77,7 +78,7 @@ do
   fi
 done
 
-# perform preprocessing (overscan correction, BIAS subtraction, first flatfield pass)
+# perform preprocessing (overscan correction)
 if [ ${mode_O} -eq 1 ]; then
   for CHIP in ${chips}
   do
@@ -95,7 +96,7 @@ if [ ${mode_O} -eq 1 ]; then
         fi
       done 
     
-      # overscan correct and bias subtract 
+      # overscan correct
       # science images:
 
       CHANNEL=1
@@ -150,9 +151,14 @@ if [ ${mode_O} -eq 1 ]; then
   	./horizontal_paste.py -o ${1}/${4}/${basename}O_CHall.fits `ls ${1}/${4}/${basename}O_CH?_[0-2].fits`
       done
 
+      #adam# rename clobber/overwrite
+      mkdir /${main_dir}/${Science_dir}/tmp_O/
+      mv /${main_dir}/${Science_dir}/*_${CHIP}O.fits /${main_dir}/${Science_dir}/tmp_O/
       ${P_RENAME} 's/O_CHall/O/g' /${main_dir}/${Science_dir}/*_${CHIP}O_CHall.fits
+      mv -n /${main_dir}/${Science_dir}/tmp_O/*_${CHIP}O.fits /${main_dir}/${Science_dir}
 
-      rm /${main_dir}/${Science_dir}/*_${CHIP}O_CH?_[0-2].fits
+      #rm -rf /${main_dir}/${Science_dir}/tmp_O/
+      rm -f /${main_dir}/${Science_dir}/*_${CHIP}O_CH?_[0-2].fits
     
     fi
 
@@ -225,6 +231,10 @@ if [ ${mode_X} -eq 1 ]; then
 	    /u/ki/awright/InstallingSoftware/pythons/header_key_add.py ${file} DATE-OBS=`dfits -x 1 /${main_dir}/${Science_dir}/ORIGINALS/${unsplit_basename}.fits| fitsort DATE-OBS | tail -n 1 | awk '{print $2}'`
 	    OX_filename=/${main_dir}/${Science_dir}/IM_OX/${OX_basename}OX.fits
 	    ctcorr6b1 -notrim -noos ${file} ${OX_filename}
+            exit_stat=$? #use ${PIPESTATUS[0]} if it's <command> | tee -a OUT-command.log                                                                                                      
+	    if [ "${exit_stat}" -gt "0" ]; then
+	    	exit ${exit_stat};
+	    fi
 	  done
   done
 fi
@@ -240,8 +250,7 @@ if [ ${mode_C} -eq 1 ]; then
   do
     if [ ${NOTPROCESS[${CHIP}]:=0} -eq 0 ]; then
       FILES=`\ls ${main_dir}/${Science_dir}/IM_OX/*_${CHIP}OX.fits ${main_dir}/${Science_dir}/IM_O/*_${CHIP}O.fits`
-      # overscan correct, bias subtract and flatfield
-      # science images:
+      # now trim/Cut the science images and paste the 4 channels back together:
 
       CHANNEL=1
       while [ "${CHANNEL}" -le "${NCHANNELS}" ]
@@ -280,8 +289,8 @@ if [ ${mode_C} -eq 1 ]; then
   	./horizontal_paste.py -o /${main_dir}/${Science_dir}/IM_OC_and_OXC/${basename}C.fits `ls ${1}/${4}/${basename}C_CH?.fits`
       done
 
-      rm /${main_dir}/${Science_dir}/*_${CHIP}OXC_CH?.fits
-      rm /${main_dir}/${Science_dir}/*_${CHIP}OC_CH?.fits
+      rm -f /${main_dir}/${Science_dir}/*_${CHIP}OXC_CH?.fits
+      rm -f /${main_dir}/${Science_dir}/*_${CHIP}OC_CH?.fits
 
     fi
     #mv /${main_dir}/${Science_dir}/*_${CHIP}.fits /${main_dir}/${Science_dir}/IM_OC_and_OXC
@@ -318,10 +327,11 @@ if [ ${mode_F} -eq 1 ]; then
         i=$(( $i + 1 ))
       done
     
-      FLATFLAG=""
-      if [ "$5" = "RESCALE" ]; then   
-        FLATFLAG="-FLAT_SCALE Y -FLAT_SCALEIMAGE ${FLATSTR}" 
-      fi
+      #FLATFLAG=""
+      #if [ "$5" = "RESCALE" ]; then   
+      #  FLATFLAG="-FLAT_SCALE Y -FLAT_SCALEIMAGE ${FLATSTR}" 
+      #fi
+      FLATFLAG="-FLAT_SCALE Y -FLAT_SCALEIMAGE ${FLATSTR}" 
     
       # science images:
       # bias subtraction and flat-fielding

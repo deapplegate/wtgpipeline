@@ -1,6 +1,6 @@
 #!/bin/bash 
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # script to estimate absolute photometric
 # calibration on a night basis. It substitutes
 # the old create_photoinfo.sh script.
@@ -320,6 +320,6 @@ done
 # Restore old stdin, close fd=3
 #exec <&3 3<&- 
 
-#rm ${TEMPDIR}/nights_$$.asc ${TEMPDIR}/night_$5_*_$$.asc \
+#rm -f ${TEMPDIR}/nights_$$.asc ${TEMPDIR}/night_$5_*_$$.asc \
 #    ${TEMPDIR}/night_*_img_list_$$.asc ${TEMPDIR}/tmp_chips_$$.cat
-log_status $?
+#adam-BL# log_status $?

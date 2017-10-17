@@ -65,4 +65,4 @@ do
 
 done < allfiles_mef_$$.txt
 
-rm allfiles_mef_$$.txt
+rm -f allfiles_mef_$$.txt

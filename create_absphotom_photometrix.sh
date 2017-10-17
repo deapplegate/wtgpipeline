@@ -1,6 +1,8 @@
-#!/bin/bash -xv
-. BonnLogger.sh
-. log_start
+#!/bin/bash
+set -xv
+# SCRIPT: create_absphotom_photometrix.sh
+#adam-BL#. BonnLogger.sh
+#adam-BL#. log_start
 # The script estimates an absolute photometric zeropoint for the
 # coadded image of a set. It relies on presence of information on
 # relative photometry (PHOTOMETRIX) and photometric zeropoints.  If
@@ -29,7 +31,7 @@
 #   we should react on cases where relative zeropoints are not found
 #   in the input 'chips.cat5' catalogue.
 
-. ${INSTRUMENT:?}.ini
+. ${INSTRUMENT:?}.ini  > /tmp/SUBARU.out 2>&1
 
 # $1: main dir.
 # $2: science dir. (the cat dir is a subdirectory of this)
@@ -41,7 +43,7 @@
 if [ $# -gt 2 ] && [ $(( ($# - 2) % 2 )) -ne 0 ]; then
     comment="wrong command line syntax !!"
   echo $comment
-  log_status 1 $comment
+  #adam-BL#log_status 1 $comment
   exit 1
 fi
 
@@ -49,17 +51,17 @@ fi
 # Generate a catalog containing the photometric information
 # requested by the user.
 
-if [ -f /$1/$2/cat/absphot.asc ]; then
-  rm /$1/$2/cat/absphot.asc
-fi  
+if [ -f "/$1/$2/cat/absphot.asc" ]; then
+  rm -f /$1/$2/cat/absphot.asc
+fi
 
-if [ -f ${TEMPDIR}/nights_$$.asc ]; then
-  rm ${TEMPDIR}/nights_$$.asc
+if [ -f "${TEMPDIR}/nights_$$.asc" ]; then
+  rm -f ${TEMPDIR}/nights_$$.asc
 fi
 # if we have nights to calibrate on the command line take this info,
 # otherwise calibrate with all preselected photometric information
-if [ $# -gt 2 ]; then  
-  NAME=""  
+if [ $# -gt 2 ]; then
+  NAME=""
   NIGHT=3
   CHOICE=4
 
@@ -72,13 +74,13 @@ if [ $# -gt 2 ]; then
                    ${P_GAWK} '{if ($1!="#" && $2!="-1") print $1, $2, $3, $4, $5}' >\
                              ${TEMPDIR}/zp_$$.asc
 
-    if [ -s ${TEMPDIR}/zp_$$.asc ]; then
-	cat ${TEMPDIR}/zp_$$.asc >> /$1/$2/cat/absphot.asc  
+    if [ -s "${TEMPDIR}/zp_$$.asc" ]; then
+	cat ${TEMPDIR}/zp_$$.asc >> /$1/$2/cat/absphot.asc
         echo ${!NIGHT} ${!CHOICE} >> ${TEMPDIR}/nights_$$.asc
     else
 	comment="problem with night ${!NIGHT} and solution ${!CHOICE}; aborting !!"
 	echo ${comment}
-	log_status 1 ${comment}
+	#adam-BL#log_status 1 ${comment}
 	exit 1
     fi
     NAME="${NAME}_${!NIGHT}_${!CHOICE}"
@@ -88,14 +90,12 @@ if [ $# -gt 2 ]; then
 else
   ${P_LDACTOASC} -b -i /$1/$2/cat/chips.cat5 -s -t STATS -k IMAGENAME ZP COEFF AIRMASS RZP | \
       ${P_GAWK} '{if ($1!="#" && $2!="-1") print $1, $2, $3, $4, $5}' > /$1/$2/cat/absphot.asc
-
-  if [ ! -s /$1/$2/cat/absphot.asc ]; then
+  if [ ! -s "/$1/$2/cat/absphot.asc" ]; then
       comment="No default zeropoints and extinction coefficients available !! Exiting !!"
       echo ${comment}
-      log_status 1 ${comment}
+      #adam-BL#log_status 1 ${comment}
       exit 1
   fi
-
   ${P_LDACTOASC} -b -i /$1/$2/cat/chips.cat5 -t STATS -k GABODSID ZPCHOICE |\
                  ${P_SORT} -g | uniq | ${P_GAWK} '($2>0) {print $0}' > ${TEMPDIR}/nights_$$.asc
 fi
@@ -104,17 +104,17 @@ fi
 # 20 photometric images are available we perform a sigmaclipping
 # algorithm before estimating the zeropoint by a straight mean.
 ${P_GAWK} '{oldline[NR] = $0;
-            newline[NR] = $0; 
-            oldzp[NR]   = $2+$3*$4-$5; 
-            newzp[NR]   = $2+$3*$4-$5;} 
+            newline[NR] = $0;
+            oldzp[NR]   = $2+$3*$4-$5;
+            newzp[NR]   = $2+$3*$4-$5;}
            END {if(NR>20) {maxiter = 3} else {maxiter=0}
-                oldnelem = 0; 
-                newnelem = NR; 
+                oldnelem = 0;
+                newnelem = NR;
                 actuiter = 0;
                 while (actuiter <= maxiter && oldnelem != newnelem) {
                   zpmean = 0.0; zpsdev = 0.0;
                   for(i = 1; i <= newnelem; i++) {
-                    zpmean += newzp[i]; 
+                    zpmean += newzp[i];
                     zpsdev += newzp[i]*newzp[i];
                   } zpmean /= newnelem;
                   if(newnelem > 2) {
@@ -122,7 +122,7 @@ ${P_GAWK} '{oldline[NR] = $0;
                   } else {
                     zpsdev = 0.0
                   }
-                  
+
                   oldnelem = newnelem;
                   if(zpsdev > 0.0 && actuiter < maxiter)
                   {
@@ -149,7 +149,7 @@ ${P_GAWK} '{oldline[NR] = $0;
 #
 # create tables SOLPHOTOM and ABSPHOTOM containing info on the nights and
 # solutions that finally went into the photometric calibration.
-if [ -s ${TEMPDIR}/nights_$$.asc ] && [ -s ${TEMPDIR}/phottmp_$$.asc ]; then
+if [ -s "${TEMPDIR}/nights_$$.asc" ] && [ -s "${TEMPDIR}/phottmp_$$.asc" ]; then
   ${P_ASCTOLDAC} -a ${TEMPDIR}/nights_$$.asc -o ${TEMPDIR}/nights_$$.cat \
                  -t SOLPHOTOM -c ${DATACONF}/asctoldac_solphotom.conf
 
@@ -162,10 +162,10 @@ if [ -s ${TEMPDIR}/nights_$$.asc ] && [ -s ${TEMPDIR}/phottmp_$$.asc ]; then
   ${P_LDACADDTAB} -i /$1/$2/cat/chips_tmp.cat5 -o /$1/$2/cat/chips_phot.cat5 \
                   -p ${TEMPDIR}/phottmp_$$.cat -t ABSPHOTOM
 
-  rm /$1/$2/cat/chips_tmp.cat5
-  rm ${TEMPDIR}/nights_$$.asc
-  rm ${TEMPDIR}/phottmp_$$.asc
+  rm -f /$1/$2/cat/chips_tmp.cat5
+  rm -f ${TEMPDIR}/nights_$$.asc
+  rm -f ${TEMPDIR}/phottmp_$$.asc
 fi
 
-rm /$1/$2/cat/absphot.asc 
-log_status $?
+rm -f /$1/$2/cat/absphot.asc
+#adam-BL#log_status $?

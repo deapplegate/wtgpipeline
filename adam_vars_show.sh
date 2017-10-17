@@ -1,0 +1,16 @@
+#!/bin/bash -a
+echo "SUBARUDIR="$SUBARUDIR
+echo "INSTRUMENT="$INSTRUMENT
+echo "cluster="$cluster
+echo "filter="$filter
+echo "run="$run
+echo "ending="$ending
+echo "BONN_TARGET="$BONN_TARGET
+echo "BONN_FILTER="$BONN_FILTER
+echo "detect_filter="$detect_filter
+echo "lensing_filter="$lensing_filter
+echo "lensing="$lensing
+echo "bonn="$bonn
+echo "subdir="$subdir
+echo "BPZPATH="$BPZPATH
+echo "sne="$sne

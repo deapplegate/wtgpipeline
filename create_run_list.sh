@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#adam-BL# . BonnLogger.sh
+#adam-BL# . log_start
 # this script creates text files with frames
 # belonging to a certain 'run'. It is assumed
 # that the information about the run is stored
@@ -53,7 +53,7 @@ NSPLIT=30
 ls -1 /$1/$2/*_1$3.fits > ${TEMPDIR}/files_$$
 
 if [ -f ${TEMPDIR}/runs_$$ ]; then
-  rm ${TEMPDIR}/runs_$$
+  rm -f ${TEMPDIR}/runs_$$
 fi
 
 cat ${TEMPDIR}/files_$$ |\
@@ -71,7 +71,7 @@ cat  ${TEMPDIR}/$5 |\
   while read run
   do
     if [ -f ${run}.txt ]; then
-      rm ${run}.txt
+      rm -f ${run}.txt
     fi
   done
 }
@@ -94,7 +94,7 @@ if [ $# -gt 5 ]; then
   if [ "$6" = "SPLIT" ]; then
 
     if [ -f  ${TEMPDIR}/uniqruns_new_$$.txt ]; then
-      rm ${TEMPDIR}/uniqruns_new_$$.txt
+      rm -f ${TEMPDIR}/uniqruns_new_$$.txt
     fi
  
     cat  ${TEMPDIR}/$5 |\
@@ -125,10 +125,10 @@ if [ $# -gt 5 ]; then
 fi
 
 # clean up temporary files:
-rm ${TEMPDIR}/files_$$
-rm ${TEMPDIR}/runs_$$
+rm -f ${TEMPDIR}/files_$$
+rm -f ${TEMPDIR}/runs_$$
 
 if [ -f ${TEMPDIR}/uniqruns_new_$$.txt ]; then
-  rm ${TEMPDIR}/uniqruns_new_$$.txt
+  rm -f ${TEMPDIR}/uniqruns_new_$$.txt
 fi
-log_status $?
+#adam-BL# log_status $?

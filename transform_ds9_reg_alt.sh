@@ -1,6 +1,6 @@
 #!/bin/bash
-. BonnLogger.sh
-. log_start
+#. BonnLogger.sh
+#. log_start
 # 30.05.04:
 # temporary files go to a TEMPDIR directory 
 #
@@ -27,7 +27,7 @@ REDDIR=`pwd`
 cd $1/$2/reg
 
 if [ -f ${TEMPDIR}/filelist_$$ ]; then
-   rm ${TEMPDIR}/filelist_$$
+   rm -f ${TEMPDIR}/filelist_$$
 fi
 
 ls *.reg > ${TEMPDIR}/filelist_$$
@@ -50,7 +50,7 @@ cat ${TEMPDIR}/filelist_$$ |\
   done
 }
 
-rm *.reg2 *.reg3 ${TEMPDIR}/filelist_$$
+rm -f *.reg2 *.reg3 ${TEMPDIR}/filelist_$$
 
 cd $REDDIR
-log_status $?
+#log_status $?

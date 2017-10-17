@@ -63,7 +63,7 @@ fi
 # Sort catalogs by instrument and config
 
 if [ -e unstacked.exp.list_$$ ]; then
-    rm unstacked.exp.list_$$
+    rm -f unstacked.exp.list_$$
 fi
 
 
@@ -136,4 +136,4 @@ instrum=`awk '{if (NR==1) print $2}' unstacked.exp.list_$$ | awk -F'-' '{print $
 
     
 
-rm unstacked.exp.list_$$
+rm -f unstacked.exp.list_$$

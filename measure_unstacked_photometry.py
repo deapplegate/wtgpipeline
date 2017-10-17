@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 ######################
-
+#adam-changed# %:s/new_table/BinTableHDU.from_columns/g
 from __future__ import with_statement
 import unittest, sys, math, re, os, optparse
-import numpy, astropy.io.fits as pyfits
+import numpy, astropy, astropy.io.fits as pyfits
 from scipy import interpolate
-import ldac, utilities
+import utilities
+#adam-NOPE# import ldac_old as ldac
+import ldac
+ns=globals()
 
 ######################
 
@@ -135,78 +138,81 @@ def combineCats(images, instrum=None, mastercat=None, fluxscale = False):
        @param fluxscale Perform fluxscaling between images
        @returns ldac.LDACCat A catalog where all flux measurements have been statistically combined
        '''
+    try:
     
-    if len(images) == 0:
-        return
-    
-    if len(images) == 1:
-        return images[0].cat
-    
-    referencecat = images[0].cat
+	    if len(images) == 0:
+		return
+	    
+	    if len(images) == 1:
+		return images[0].cat
+	    
+	    referencecat = images[0].cat
 
-    fluxkeys, fluxerrkeys, magonlykeys, otherkeys = utilities.sortFluxKeys(referencecat.keys())
-    
-    if mastercat is None:
-        mastercat = referencecat
-    else:
-        ignoreFluxkeys, ignoreFluxerrkeys, magonlykeys, otherkeys = utilities.sortFluxKeys(mastercat.keys())
+	    fluxkeys, fluxerrkeys, magonlykeys, otherkeys = utilities.sortFluxKeys(referencecat.keys())
+	    
+	    if mastercat is None:
+		mastercat = referencecat
+	    else:
+		ignoreFluxkeys, ignoreFluxerrkeys, magonlykeys, otherkeys = utilities.sortFluxKeys(mastercat.keys())
 
-    cols = []
-    for key in otherkeys:
-        cols.append(mastercat.extractColumn(key))
-    
-    for fluxkey in fluxkeys:
-        
-        fluxType = utilities.extractFluxType(fluxkey)
-        
-        fluxs = measureUnstackedPhotometry(images, fluxkey = fluxkey, 
-                                           fluxscale = fluxscale)
+	    cols = []
+	    for key in otherkeys:
+		cols.append(mastercat.extractColumn(key))
+	    
+	    for fluxkey in fluxkeys:
+		
+		fluxType = utilities.extractFluxType(fluxkey)
+		
+		fluxs = measureUnstackedPhotometry(images, fluxkey = fluxkey, 
+						   fluxscale = fluxscale)
 
-        for chipid, (flux, err) in fluxs.iteritems():
+		for chipid, (flux, err) in fluxs.iteritems():
 
-            mag, magerr = calcMags(flux, err)
+		    mag, magerr = calcMags(flux, err)
 
-            if instrum is None:
-                id = '%d' % chipid
-            else:
-                id = '%s-%d' % (instrum, chipid)
+		    if instrum is None:
+			id = '%d' % chipid
+		    else:
+			id = '%s-%d' % (instrum, chipid)
 
-            fluxerr_key = 'FLUXERR_%s' % fluxType
-            mag_key = 'MAG_%s' % fluxType
-            magerr_key = 'MAGERR_%s' % fluxType
+		    fluxerr_key = 'FLUXERR_%s' % fluxType
+		    mag_key = 'MAG_%s' % fluxType
+		    magerr_key = 'MAGERR_%s' % fluxType
 
-            if len(flux.shape) == 1:
-                cols.append(pyfits.Column(name='%s-%s' % (fluxkey, id), 
-                                          format='E', 
-                                          array=flux))
-                cols.append(pyfits.Column(name='%s-%s' % (fluxerr_key, id),
-                                          format='E', 
-                                          array=err))
-                cols.append(pyfits.Column(name='%s-%s' % (mag_key, id), 
-                                          format='E', 
-                                          array=mag))
-                cols.append(pyfits.Column(name='%s-%s' % (magerr_key, id),
-                                          format='E', 
-                                          array=magerr))
+		    if len(flux.shape) == 1:
+			cols.append(pyfits.Column(name='%s-%s' % (fluxkey, id), 
+						  format='E', 
+						  array=flux))
+			cols.append(pyfits.Column(name='%s-%s' % (fluxerr_key, id),
+						  format='E', 
+						  array=err))
+			cols.append(pyfits.Column(name='%s-%s' % (mag_key, id), 
+						  format='E', 
+						  array=mag))
+			cols.append(pyfits.Column(name='%s-%s' % (magerr_key, id),
+						  format='E', 
+						  array=magerr))
 
-            else:
-                nelements = flux.shape[1]
-                cols.append(pyfits.Column(name='%s-%s' % (fluxkey, id), 
-                                          format='%dE' % nelements, 
-                                          array=flux))
-                cols.append(pyfits.Column(name='%s-%s' % (fluxerr_key, id), 
-                                          format='%dE' % nelements, 
-                                          array=err))
-                cols.append(pyfits.Column(name='%s-%s' % (mag_key, id), 
-                                          format='%dE' % nelements, 
-                                          array=mag))
-                cols.append(pyfits.Column(name='%s-%s' % (magerr_key, id), 
-                                          format='%dE' % nelements, 
-                                          array=magerr))
+		    else:
+			nelements = flux.shape[1]
+			cols.append(pyfits.Column(name='%s-%s' % (fluxkey, id), 
+						  format='%dE' % nelements, 
+						  array=flux))
+			cols.append(pyfits.Column(name='%s-%s' % (fluxerr_key, id), 
+						  format='%dE' % nelements, 
+						  array=err))
+			cols.append(pyfits.Column(name='%s-%s' % (mag_key, id), 
+						  format='%dE' % nelements, 
+						  array=mag))
+			cols.append(pyfits.Column(name='%s-%s' % (magerr_key, id), 
+						  format='%dE' % nelements, 
+						  array=magerr))
 
-    return ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols), 
-                                         header=mastercat.hdu.header))
-
+	    return ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols), 
+						 header=mastercat.hdu.header))
+    except:
+	ns.update(locals()) #adam-tmp
+	raise
 
 #################################################################
 # MAIN
@@ -228,47 +234,50 @@ def _transferOtherHDUs(catfile):
 
 def main(args = sys.argv):
 
-    parser = optparse.OptionParser(usage = usage)
-    parser.add_option('-o', '--outfile',
-                      help = 'output catalog name',
-                      dest = 'outfile')
-    parser.add_option('-i', '--instrum',
-                      help = 'Instrument tag',
-                      dest = 'instrum')
-    parser.add_option('-m', '--mastercat',
-                      help = 'Master catalog to pull non Flux columns from',
-                      dest = 'mastercat')
-    parser.add_option('-f', '--nofluxscale',
-                      help = 'Turn off fluxscaling between images',
-                      dest = 'fluxscale',
-                      action = 'store_false',
-                      default = __fluxscale_default__)
+    try:
+	    parser = optparse.OptionParser(usage = usage)
+	    parser.add_option('-o', '--outfile',
+			      help = 'output catalog name',
+			      dest = 'outfile')
+	    parser.add_option('-i', '--instrum',
+			      help = 'Instrument tag',
+			      dest = 'instrum')
+	    parser.add_option('-m', '--mastercat',
+			      help = 'Master catalog to pull non Flux columns from',
+			      dest = 'mastercat')
+	    parser.add_option('-f', '--nofluxscale',
+			      help = 'Turn off fluxscaling between images',
+			      dest = 'fluxscale',
+			      action = 'store_false',
+			      default = __fluxscale_default__)
 
-    options, catfiles = parser.parse_args()
+	    options, catfiles = parser.parse_args()
 
-    if options.outfile is None:
-        parser.error('Must specify outfile')
-    
+	    if options.outfile is None:
+		parser.error('Must specify outfile')
+	    
 
-    mastercat = None
-    if options.mastercat:
-        mastercat = ldac.openObjectFile(options.mastercat)
+	    mastercat = None
+	    if options.mastercat:
+		mastercat = ldac.openObjectFile(options.mastercat)
 
-    images = [ loadImage(catfile) for catfile in catfiles ]
+	    images = [ loadImage(catfile) for catfile in catfiles ]
 
+	    combinedcat = combineCats(images,
+				      instrum = options.instrum,
+				      mastercat = mastercat,
+				      fluxscale = options.fluxscale)
 
-    combinedcat = combineCats(images,
-                              instrum = options.instrum,
-                              mastercat = mastercat,
-                              fluxscale = options.fluxscale)
-
-    hdus = [pyfits.PrimaryHDU(), combinedcat.hdu]
-    if mastercat:
-        hdus.extend(_transferOtherHDUs(options.mastercat))
-    else:
-        hdus.extend(_transferOtherHDUs(catfiles[0]))
-    hdulist = pyfits.HDUList(hdus)
-    hdulist.writeto(options.outfile, overwrite=True)
+	    hdus = [pyfits.PrimaryHDU(), combinedcat.hdu]
+	    if mastercat:
+		hdus.extend(_transferOtherHDUs(options.mastercat))
+	    else:
+		hdus.extend(_transferOtherHDUs(catfiles[0]))
+	    hdulist = pyfits.HDUList(hdus)
+	    hdulist.writeto(options.outfile, overwrite=True)
+    except:
+	ns.update(locals()) #adam-tmp
+	raise
 
 
 
