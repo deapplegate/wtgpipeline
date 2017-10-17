@@ -89,7 +89,11 @@ photdir=${photrepo}/${cluster}/${photdirname}
 lensingdirname=LENSING_${detect_filter}_${lensing_filter}_${mode}
 lensingdir=${lensingrepo}/${cluster}/${lensingdirname}
 #adam-new# so, this determines which type of coadd is used for the lensing image and where to write the lensing cats to (i.e. writes to ${lensingdir}/${lensing_coadd_type})
-lensing_coadd_type="good" #adam: default is to use "good" coadd for lensing
+
+#adam-tmp#
+lensing_coadd_type="gabodsid1554" #adam: default is to use "good" coadd for lensing
+#adam-tmp# lensing_coadd_type="good" #adam: default is to use "good" coadd for lensing
+
 #default: lensing_image=${subarudir}/${cluster}/${lensing_filter}/SCIENCE/coadd_${cluster}_good/coadd.fits and cats go to LENSING_${detect_filter}_${lensing_filter}_${mode}/good/
 #but, for MACS1226+21 for example, used lensing_coadd_type="gab4060-rot1" 
 

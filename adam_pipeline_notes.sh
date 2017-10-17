@@ -80,6 +80,7 @@ ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}
 export cluster=MACS0416-24; export ending="OCFR" ; export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU ; export INSTRUMENT=SUBARU
 export cluster=MACS1226+21; export ending="OCFI" ;export INSTRUMENT=SUBARU ;export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/
 export detect_filter=W-C-RC;export lensing_filter=W-C-RC
+# first make sure this is right: cluster_cat_filters.dat
 ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY
 #or is it?: ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS SDSS BIGMACSCALIB BIGMACSAPPLY
 #todo# photoz's
