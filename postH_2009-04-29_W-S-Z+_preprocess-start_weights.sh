@@ -7,7 +7,7 @@ set -xv
 pprun=2009-04-29_W-S-Z+
 filter=${pprun#2*_}
 run=${pprun%_*}
-ending=`grep "$pprun" ~/bonnpipeline/fgas_pprun_endings.txt | awk '{print $2}'`
+ending=`grep "$pprun" ~/wtgpipeline/fgas_pprun_endings.txt | awk '{print $2}'`
 export BONN_TARGET=${run}
 export BONN_FILTER=${filter}
 

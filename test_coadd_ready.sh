@@ -13,7 +13,7 @@ filter=$2
 ext=$3
 #astrocat=
 #if [ $# -gt 3 ]; then
-    astrocat=$4
+astrocat=$4
 #
 astromadd=$5
 
@@ -21,15 +21,15 @@ astromadd=$5
 #first, compile list of input runs
 
 
-    find ${clusterdir}/${filter}/SCIENCE  -maxdepth 1 -name \*${ext}.fits -print >> file.list_$$
+find ${clusterdir}/${filter}/SCIENCE  -maxdepth 1 -name \*${ext}.fits -print >> file.list_$$
 
 
 
 ###
 
 if [ ! -s file.list_$$ ]; then
-    echo "Cannot find any files"
-    #adam##adam-BL#log_status 8 "Cannot find any files"
+    echo "Can not find any files"
+    #adam##adam-BL#log_status 8 "Can not find any files"
     exit 8
 fi
 
@@ -146,8 +146,3 @@ for file in `cat file.list_$$`; do
 done
 
 rm -f file.list_$$
-
-
-
-
-#adam##adam-BL#log_status 0

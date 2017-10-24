@@ -63,7 +63,7 @@ elif [ "${ORIGIN}" == "SDSS" ]; then
     export INSTRUMENT=SDSS
 else
     echo "Cannot determine instrument of ${IMAGE}." >&2
-    #adam-BL##adam-BL#log_status 2 "Cannot determine instrument of ${IMAGE}."
+    #adam-BL#log_status 2 "Can not determine instrument of ${IMAGE}."
 fi
 
 echo ${INSTRUMENT} > $2

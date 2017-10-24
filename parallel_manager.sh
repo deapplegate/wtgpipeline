@@ -1,6 +1,6 @@
 #!/bin/bash
 #for CHIPS=10: '1 5 9 '    ' 2 6 10'    ' 3 7 '     ' 4 8 '
-. /u/ki/awright/bonnpipeline/${INSTRUMENT:?}.ini > /tmp/INSTRUMENT.out 2>&1 
+. /u/ki/awright/wtgpipeline/${INSTRUMENT:?}.ini > /tmp/INSTRUMENT.out 2>&1 
 NPARA=4
 
 # do some initialisations

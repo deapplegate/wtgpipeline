@@ -77,7 +77,7 @@ if [ ! -d "${lensingrepo}/${cluster}" ]; then
     mkdir -p ${lensingrepo}/${cluster}
 fi
 
-queue=xlong
+queue="long -W 7000"
 
 #filters=`grep "${cluster}" cluster.status | awk -v ORS=' ' '($1 !~ /#/){print $2}'`
 filters=`grep "${cluster}" cluster_cat_filters.dat | awk -v ORS=' ' '{for(i=3;i<=NF;i++){if($i!~"CALIB" && $i!="K") print $i}}'`
@@ -203,7 +203,14 @@ if [ $measure_photometry -eq 1 ]; then
     for filter in $filters; do
 
 	jobid=${cluster}.${detect_filter}.${filter}.${mode}.cats
+	#adam-tmp#
+	#if [ "${filter}" == "W-C-IC" ]; then
+	#	continue
+	#elif [ "${filter}" == "W-C-RC" ]; then 
+	#	continue
+	#fi
 
+	rm $subarudir/photlogs/$jobid.log $subarudir/photlogs/$jobid.err
 	bsub -q ${queue} -o $subarudir/photlogs/$jobid.log -e $subarudir/photlogs/$jobid.err ./run_unstacked_photometry.sh ${subarudir}/${cluster} ${photdir} ${cluster} ${filter} ${detect_image} ${convolve}
 	#adam# How do I get the code to wait here until this job is done running on the batchq?
 

@@ -6,10 +6,10 @@
 P_SCAMP2=/afs/slac/g/ki/software/local/bin/scamp
 
 ## SUBARU ahead inputs:
-/u/ki/awright/bonnpipeline/SUBARU_c10_2_r0.ahead
-/u/ki/awright/bonnpipeline/SUBARU_c10_2_r1.ahead
-/u/ki/awright/bonnpipeline/MEGAPRIME.ahead
-/u/ki/awright/bonnpipeline/WHT.ahead
+/u/ki/awright/wtgpipeline/SUBARU_c10_2_r0.ahead
+/u/ki/awright/wtgpipeline/SUBARU_c10_2_r1.ahead
+/u/ki/awright/wtgpipeline/MEGAPRIME.ahead
+/u/ki/awright/wtgpipeline/WHT.ahead
 ## SUBARU cats:
 /nfs/slac/g/ki/ki05/anja/SUBARU/A2204$ ls -d */SCIENCE/cat_scampIC
 W-C-RC/SCIENCE/cat_scampIC  W-J-B/SCIENCE/cat_scampIC  W-J-V/SCIENCE/cat_scampIC  g/SCIENCE/cat_scampIC  r/SCIENCE/cat_scampIC

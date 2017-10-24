@@ -726,7 +726,7 @@ mv astr_refsysmap*  ../plots_photom
 mv phot_zpcorr*     ../plots_photom
 mv phot_errorvsmag* ../plots_photom
 mv ${cluster}_scamp.xml ../plots_photom
-cp ~/bonnpipeline/scamp.xsl ../plots_photom
+cp ~/wtgpipeline/scamp.xsl ../plots_photom
 sed -i.old 's/href=".*"?>/href="scamp.xsl"?>/g' ../plots_photom/${cluster}_scamp.xml
 
 # now get the relative magnitude offsets from the FLXSCALES

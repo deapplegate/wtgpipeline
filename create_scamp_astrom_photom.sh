@@ -406,7 +406,7 @@ do
 	                 name = name a[n-1]; 
 	                 print name;}' | sort | uniq`
 	image1=`\ls -1 ${curdir}/SUPA*_1OCF*.fits | head -n 1`
-	num_path_supa_chip_ending=(`~/bonnpipeline/adam_quicktools_get_num_path_supa_chip_ending.py ${image1}`)
+	num_path_supa_chip_ending=(`~/wtgpipeline/adam_quicktools_get_num_path_supa_chip_ending.py ${image1}`)
 	ending=${num_path_supa_chip_ending[4]}
 	# now the merging with a pyfits-based Python script:
 	for IMAGE in ${IMAGES}
@@ -519,7 +519,7 @@ done
 ##adam: changing to a different version of scampcat.py, because the one in ${S_SCAMPCAT} uses pyfits
 python ${S_SCAMPCAT} ${DIR}/catlist.txt_$$
 ##newer version of scampcat.py here: /u/ki/anja/THELI_DECam_pipeline/ldacpipeline/scripts/Linux_64/scampcat.py
-#adam-tmp# python /u/ki/awright/bonnpipeline/scampcat.py ${DIR}/catlist.txt_$$
+#adam-tmp# python /u/ki/awright/wtgpipeline/scampcat.py ${DIR}/catlist.txt_$$
 
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
@@ -697,7 +697,7 @@ mv astr_refsysmap*  ../plots
 mv phot_zpcorr*     ../plots
 mv phot_errorvsmag* ../plots
 mv ${cluster}_scamp.xml ../plots
-cp ~/bonnpipeline/scamp.xsl ../plots
+cp ~/wtgpipeline/scamp.xsl ../plots
 sed -i.old 's/href=".*"?>/href="scamp.xsl"?>/g' ../plots/${cluster}_scamp.xml
 
 # now get the relative magnitude offsets from the FLXSCALES

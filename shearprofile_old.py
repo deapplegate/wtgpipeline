@@ -1,4 +1,4 @@
-#adam: this is an older version of shearprofile.py from ~/bonnpipeline, which probably won't be needed anymore, but should be saved anyway
+#adam: this is an older version of shearprofile.py from ~/wtgpipeline, which probably won't be needed anymore, but should be saved anyway
 from numpy import *
 from scipy.optimize import brenth
 from scipy.optimize import fsolve

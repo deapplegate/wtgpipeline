@@ -1,6 +1,6 @@
 #!/bin/bash
 set -xv
-#adam-example# ./resample_coadd_swarp_para.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-B SCIENCE OCFI.sub MACS1115+01_all /u/ki/awright/bonnpipeline/
+#adam-example# ./resample_coadd_swarp_para.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-B SCIENCE OCFI.sub MACS1115+01_all /u/ki/awright/wtgpipeline/
 #adam-BL#. log_start
 # this script performs resampling of data with swarp
 # preparing the final coaddition. It can perform

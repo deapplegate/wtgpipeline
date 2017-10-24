@@ -11,7 +11,7 @@
 ##################################################################
 
 export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/ ; export INSTRUMENT=SUBARU
-export bonn=/u/ki/awright/bonnpipeline/
+export bonn=/u/ki/awright/wtgpipeline/
 export subdir=/nfs/slac/g/ki/ki18/anja/SUBARU/
 
 export INSTRUMENT=SUBARU

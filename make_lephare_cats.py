@@ -152,14 +152,14 @@ def doit(cluster,DETECT_FILTER,filterlist,inputcat,speccat,outspeccat,outfullcat
             [inputcat+str(1)])
 
         if os.environ['USER'] == 'dapple':            
-            os.chdir('/a/wain001/g.ki.ki02/dapple/pipeline/bonnpipeline/')
+            os.chdir('/a/wain001/g.ki.ki02/dapple/pipeline/wtgpipeline/')
             print os.environ['USER'], os.system('pwd')
             command = "./match_neighbor.sh " + matchedcat + " STDTAB " + specfile.file + " spec " + inputcat+str(1)  + " data "                                                                                                                       
         else: 
-            os.chdir('/u/ki/pkelly/pipeline/bonnpipeline/')
+            os.chdir('/u/ki/pkelly/pipeline/wtgpipeline/')
             print os.environ['USER'], os.system('pwd')
 
-            command = "/u/ki/pkelly/pipeline/bonnpipeline//match_neighbor.sh " + matchedcat + " STDTAB " + specfile.file + " spec " + inputcat+str(1)  + " data "                                                                                                                       
+            command = "/u/ki/pkelly/pipeline/wtgpipeline//match_neighbor.sh " + matchedcat + " STDTAB " + specfile.file + " spec " + inputcat+str(1)  + " data "                                                                                                                       
         print command
         os.system('pwd')
         run(command, [matchedcat])

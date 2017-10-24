@@ -51,7 +51,7 @@ ipython develop_simple_ic/simple_ic.py
 #example: ./adam_coadd_many.sh "MACS0416-24" "OCFR" "W-J-B W-C-RC W-S-Z+"
 ./do_coadd_batch.sh ${cluster} ${filter} "all exposure" 2>&1 | tee -a OUT-do_coadd_batch-all_exposure-${cluster}_${filter}.log
 filter=W-S-Z+
-#example: bsub -q long -W 7000 -R rhel60 -o /nfs/slac/kipac/fs1/u/awright/batch_files/bsubbable//OUT-2017-8-23-do_coadd_batch_${filter}.out  -e /nfs/slac/kipac/fs1/u/awright/batch_files/bsubbable//OUT-2017-8-23-do_coadd_batch_${filter}.err "./do_coadd_batch.sh MACS1115+01 W-S-Z+ 'all exposure good' /u/ki/awright/bonnpipeline/foo OCFSFI"
+#example: bsub -q long -W 7000 -R rhel60 -o /nfs/slac/kipac/fs1/u/awright/batch_files/bsubbable//OUT-2017-8-23-do_coadd_batch_${filter}.out  -e /nfs/slac/kipac/fs1/u/awright/batch_files/bsubbable//OUT-2017-8-23-do_coadd_batch_${filter}.err "./do_coadd_batch.sh MACS1115+01 W-S-Z+ 'all exposure good' /u/ki/awright/wtgpipeline/foo OCFSFI"
 #ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/W-S-Z+/SCIENCE/coadd_${cluster}_good/coadd.fits -green ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/coadd_${cluster}_all/coadd.fits -blue ${SUBARUDIR}/${cluster}/W-J-B/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg &
 
 #9.) backmasking and stellar rings (masking at chip-level in light of coadd-level information)
@@ -60,7 +60,7 @@ adam_make_backmask_ims.py
 # finish all of the backmasking run (below) to apply all of the regions to the final coadds and remake the coadds
 ./adam_reg2weights-maybe_coadd_catchup.sh ${cluster} "W-C-RC_2010-11-04" > OUT-backmask_catchup.log 2>&1
 #9b.) stellar rings (see Evernote)
-#make rings by fitting ~/bonnpipeline/rings.reg on top of individual stars at the chip-level in ds9 (see Evernote)
+#make rings by fitting ~/wtgpipeline/rings.reg on top of individual stars at the chip-level in ds9 (see Evernote)
 adam_make_autosuppression_ims.py #makes autosuppression directory with images that can be used to place stellar halos
 #might help: adam_use_fix_autosuppression.sh 
 #Currently $ending would be "OCF", once the IC works, it should be "OCFR". probably $queue should be "long"

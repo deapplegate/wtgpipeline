@@ -228,7 +228,7 @@ def convert_to_mags(base,mag_cat,outputfile):
         	for ax,k2 in zip(axes,keys2):
         		ax.set_title(k2)
         		ax.hist(mag_info[k1][k2],bins=100)
-        	f.savefig("/u/ki/awright/bonnpipeline/plots/plt_do_multiple_photoz-"+k1)
+        	f.savefig("/u/ki/awright/wtgpipeline/plots/plt_do_multiple_photoz-"+k1)
     for i in range(len(filters)):
         print '\nfilters[i]=',filters[i] , ' i=',i , ' ft[:,i]=',ft[:,i]
         added = False

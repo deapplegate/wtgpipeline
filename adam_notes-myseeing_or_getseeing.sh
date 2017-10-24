@@ -35,7 +35,7 @@ SUPA_BASE=${3##${cluster}_} #$3=${cluster}_SUPA0125912 (here MACS0416-24_SUPA012
 # these # SUPA_BASE=SUPA0125912_5OCF
 # works # SUPA_BASE=SUPA0125912_5OCF.fits
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-rms_fwhm_dt_ft=( `grep -h $SUPA_BASE /u/ki/awright/bonnpipeline/CRNitschke_final_${cluster}_*_${filter}.txt | head -n 1 | awk '{print $2, $3, $4, $5}'`)
+rms_fwhm_dt_ft=( `grep -h $SUPA_BASE /u/ki/awright/wtgpipeline/CRNitschke_final_${cluster}_*_${filter}.txt | head -n 1 | awk '{print $2, $3, $4, $5}'`)
 Nelements=${#rms_fwhm_dt_ft[@]}
 if [ ${Nelements} -eq 4 ]; then
 	fwhm=${rms_fwhm_dt_ft[1]}

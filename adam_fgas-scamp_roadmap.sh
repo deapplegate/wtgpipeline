@@ -1,6 +1,6 @@
 5 steps to doing this:
 1.) make catalogs from images
-	~/bonnpipeline/adam_DECam-create_astromcats_scamp_para.sh
+	~/wtgpipeline/adam_DECam-create_astromcats_scamp_para.sh
 	on batch with: adam_DECam-create_astromcats_scamp_para-make_parallelable.sh and make_scamp_cats.sh and make_runner_scampcats.sh
 2.) make PANSTARRS reference catalog (stars are best, since so many detections)
 	get catalogs from panstarrs_query: /nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/get_cats_and_combine/get_newcats.py
@@ -14,7 +14,7 @@
 		/nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/astrefcat.cat
 		/nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/astrefcat-ng_cat.cat
 3.) catalog filtering to make .ldac cats and combine them to make _scamp.cat catalogs
-	might be worth doing this to chose which parts you want to include: vimdiff ~/bonnpipeline/adam_DECam-create_scamp_astrom_photom.sh /nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/adam_DECam-create_scamp_astrom_photom.sh
+	might be worth doing this to chose which parts you want to include: vimdiff ~/wtgpipeline/adam_DECam-create_scamp_astrom_photom.sh /nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/adam_DECam-create_scamp_astrom_photom.sh
 	(needs: DECam.ini DECam.ahead )
 	/nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/adam_A2204_scamp_subaru_and_megaprime.sh
 	some fixes to consider here: /gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/astrom_photom_scamp_PANSTARRS/adam_DECam-create_scamp_cats_no_ccd62.sh
@@ -25,4 +25,4 @@
 	/gpfs/slac/kipac/fs1/u/anja/DECAM/CLUSTERSCOLLAB_V0.0.2/A2204/astrom_photom_scamp_PANSTARRS/adam_A2204-scamp_pass2_final.sh
 	necessary fixes here: /nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/adam_DECam-create_scamp_photom.sh
 
-other notes on this stuff: /u/ki/awright/bonnpipeline/adam_A2204_scamp.sh
+other notes on this stuff: /u/ki/awright/wtgpipeline/adam_A2204_scamp.sh

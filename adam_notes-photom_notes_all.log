@@ -2,7 +2,7 @@
 ##########  do_photometry-new_ending.sh  ##########
 ############################################################
 export cluster="MACS1226+21"
-export bonn=/u/ki/awright/bonnpipeline/
+export bonn=/u/ki/awright/wtgpipeline/
 export subdir=/nfs/slac/g/ki/ki18/anja/SUBARU/
 export sne=/nfs/slac/kipac/fs1/u/awright/SUBARU/
 export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU ; export INSTRUMENT=SUBARU
@@ -43,7 +43,7 @@ grep -v "^#\|^psfPogCorr" ${photdir}/${cluster}.stars.calibrated.cat.offsets.lis
 ipython -i -- adam_save_zp.py $photdir ${cluster} ${cluster}.stars.calibrated.cat ${cluster}.stars.calibrated.cat.bigmacs.offsets.list slr
 
 #this includes the following line, which isn't working:
-#~/bonnpipeline$ ipython -i -- photocalibrate_cat.py --in /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.unstacked.cat -c MACS1226+21 -o /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.slr.cat
+#~/wtgpipeline$ ipython -i -- photocalibrate_cat.py --in /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.unstacked.cat -c MACS1226+21 -o /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.slr.cat
 
 
 ############################################################
@@ -273,7 +273,7 @@ done
 ############################################################
 ##########  adam_notes-prob_with_keys.log  ##########
 ############################################################
-~/bonnpipeline$ ipython -i -- photocalibrate_cat.py --in /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.unstacked.cat -c MACS1226+21 -o /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.slr.cat
+~/wtgpipeline$ ipython -i -- photocalibrate_cat.py --in /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.unstacked.cat -c MACS1226+21 -o /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper//MACS1226+21.slr.cat
 
   mags = -2.5*numpy.log10(fluxs)
   magerrs = 1.0857 * errs / fluxs

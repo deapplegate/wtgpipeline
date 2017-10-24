@@ -9,7 +9,7 @@
 #NOTE: all files with *reg* or *mask* and many others are included
 #
 #NOTE: There are some non-files that I should note here as well
-# in ~awright/bonnpipeline/adam-badcol_10_3/ there are regions that should be added to the region files for all 10_3 exposures in ccd#9, because there is that one column that is offset from where it should be (the "dragged" column)
+# in ~awright/wtgpipeline/adam-badcol_10_3/ there are regions that should be added to the region files for all 10_3 exposures in ccd#9, because there is that one column that is offset from where it should be (the "dragged" column)
 #
 # also, to mask out asteroids use: ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits -green ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -blue ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg &
 

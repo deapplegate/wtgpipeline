@@ -136,24 +136,24 @@ adam_svnlogger.log:create_scamp_photom.sh
 adam_svnlogger.log:do_Subaru_coadd_template_scamp.sh
 adam_svnlogger.log:scamp.xsl
 adam_svnlogger.log:scampcat.py
-bonnpipeline_scripts-all.log:scamp.py
-bonnpipeline_scripts-all.log:scamp_code.py
-bonnpipeline_scripts-all.log:scampcat.py
-bonnpipeline_scripts-all.log:do_Subaru_coadd_template_scamp.sh
-bonnpipeline_scripts-all.log:create_astromcats_scamp_para.sh
-bonnpipeline_scripts-all.log:create_astromcats_scampIC_para.sh
-bonnpipeline_scripts-all.log:create_scamp_astrom_astrom_photom.sh
-bonnpipeline_scripts-all.log:create_scamp_astrom_photom.sh
-bonnpipeline_scripts-all.log:create_scamp_photom.sh
-bonnpipeline_scripts-non-adam.log:scamp.py
-bonnpipeline_scripts-non-adam.log:scamp_code.py
-bonnpipeline_scripts-non-adam.log:scampcat.py
-bonnpipeline_scripts-non-adam.log:do_Subaru_coadd_template_scamp.sh
-bonnpipeline_scripts-non-adam.log:create_astromcats_scamp_para.sh
-bonnpipeline_scripts-non-adam.log:create_astromcats_scampIC_para.sh
-bonnpipeline_scripts-non-adam.log:create_scamp_astrom_astrom_photom.sh
-bonnpipeline_scripts-non-adam.log:create_scamp_astrom_photom.sh
-bonnpipeline_scripts-non-adam.log:create_scamp_photom.sh
+wtgpipeline_scripts-all.log:scamp.py
+wtgpipeline_scripts-all.log:scamp_code.py
+wtgpipeline_scripts-all.log:scampcat.py
+wtgpipeline_scripts-all.log:do_Subaru_coadd_template_scamp.sh
+wtgpipeline_scripts-all.log:create_astromcats_scamp_para.sh
+wtgpipeline_scripts-all.log:create_astromcats_scampIC_para.sh
+wtgpipeline_scripts-all.log:create_scamp_astrom_astrom_photom.sh
+wtgpipeline_scripts-all.log:create_scamp_astrom_photom.sh
+wtgpipeline_scripts-all.log:create_scamp_photom.sh
+wtgpipeline_scripts-non-adam.log:scamp.py
+wtgpipeline_scripts-non-adam.log:scamp_code.py
+wtgpipeline_scripts-non-adam.log:scampcat.py
+wtgpipeline_scripts-non-adam.log:do_Subaru_coadd_template_scamp.sh
+wtgpipeline_scripts-non-adam.log:create_astromcats_scamp_para.sh
+wtgpipeline_scripts-non-adam.log:create_astromcats_scampIC_para.sh
+wtgpipeline_scripts-non-adam.log:create_scamp_astrom_astrom_photom.sh
+wtgpipeline_scripts-non-adam.log:create_scamp_astrom_photom.sh
+wtgpipeline_scripts-non-adam.log:create_scamp_photom.sh
 calc_resam.py:                    SDSS1 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_SDSS-R6/%(BASE)s.head" % params
 calc_resam.py:                    SDSS2 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_SDSS-R6/%(BASE)sO*.head" % params
 calc_test.old.py:                        SDSS1 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_SDSS-R6/%(BASE)s.head" % params

@@ -30,7 +30,7 @@ subset.py:#NFILT = p[1].data.field('NFILT_data')
 subset.py:    if z_spec[i] < 1.2: # and NFILT[i] >= 5:
 
 ## NFILT in .sh files: (NOT IMPORTANT AT ALL!)
-~/bonnpipeline$ grep "NFILT" *.sh
+~/wtgpipeline$ grep "NFILT" *.sh
 create_stellar_tracks.sh:NFILT=0
 create_stellar_tracks.sh:    NFILT=$(( ${NFILT} + 1 ))
 create_stellar_tracks.sh:    FILTER[${NFILT}]=${FILT}
@@ -38,5 +38,5 @@ create_stellar_tracks.sh:if [ ${NFILT} -ge 3 ]; then
 create_stellar_tracks.sh:    IMAX=$(( ${NFILT} - 2 ))
 create_stellar_tracks.sh:    JMAX=$(( ${NFILT} - 1 ))
 create_stellar_tracks.sh:            while [ ${k} -le ${NFILT} ]
-~/bonnpipeline$ grep "create_stellar_tracks.sh" *.sh
-~/bonnpipeline$ grep "create_stellar_tracks.sh" *.py
+~/wtgpipeline$ grep "create_stellar_tracks.sh" *.sh
+~/wtgpipeline$ grep "create_stellar_tracks.sh" *.py

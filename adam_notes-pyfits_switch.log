@@ -1,0 +1,10 @@
+## switching over from pyfits to astropy.io.fits involves a few steps:
+
+1.) change import package
+%s/import pyfits/import astropy, astropy.io.fits as pyfits/gc
+sed: sed -i.old 's/import pyfits/import astropy, astropy.io.fits as pyfits/g' *.py
+2.) change header update
+%s/header\.update(\([a-zA-Z]*\)=\([^)]*\))/header["\1"]=\2/gc
+%s/header\.update(\([^,]*\),\([^)]*\))/header[\1]=\2/gc
+3.) change new_table
+%s/new_table/BinTableHDU.from_columns/gc

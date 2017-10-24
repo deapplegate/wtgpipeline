@@ -1,8 +1,8 @@
 #!/bin/bash
 set -xv
 
-. ~/bonnpipeline/progs.ini > /tmp/progs.out 2>&1
-. ~/bonnpipeline/SUBARU.ini > /tmp/SUBARU.out 2>&1
+. ~/wtgpipeline/progs.ini > /tmp/progs.out 2>&1
+. ~/wtgpipeline/SUBARU.ini > /tmp/SUBARU.out 2>&1
 
 ################
 # Takes sub images, and creates superflats

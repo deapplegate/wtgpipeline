@@ -35,6 +35,6 @@ git help add
 cat git_commands.txt 
 git add -u .
 git status
-git commit -m "ready for bonnpipeline fork"
+git commit -m "ready for wtgpipeline fork"
 git push
 history | cut -c 8- | tail -n 10 | grep git >> git_commands.txt 

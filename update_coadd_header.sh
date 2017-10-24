@@ -2,6 +2,7 @@
 set -xv
 #adam-example# ./update_coadd_header.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-B SCIENCE MACS1115+01_all STATS coadd -1.0 AB '((((RA>(168.96708333-0.5))AND(RA<(168.96708333+0.5)))AND((DEC>(1.49805556-0.5))AND(DEC<(1.49805556+0.5))))AND(SEEING<1.9));' 2>&1 | tee -a OUT-uch.log4
 
+source deactivate astroconda
 #adam-BL#. BonnLogger.sh
 #adam-BL#. log_start
 # The script makes an update of headers from finally coadded
@@ -128,7 +129,7 @@ if [ "${fwhm}" == "KEY_N/A" ]; then
 	echo "adam update_coadd_header.sh: SEEING header keyword and MYSEEING header keyword isn't in " ${image}
 	#adam-SEEING# use myseeing from CRNitschke pipeline if it's possible!
 	BASE=${3##${cluster}_}
-	rms_fwhm_dt_ft=( `grep -h $BASE /u/ki/awright/bonnpipeline/CRNitschke_final_${cluster}_*.txt | head -n 1 | awk '{print $2, $3, $4, $5}'`)
+	rms_fwhm_dt_ft=( `grep -h $BASE /u/ki/awright/wtgpipeline/CRNitschke_final_${cluster}_*.txt | head -n 1 | awk '{print $2, $3, $4, $5}'`)
 	Nelements=${#rms_fwhm_dt_ft[@]}
 	if [ ${Nelements} -eq 4 ]; then
 		fwhm=${rms_fwhm_dt_ft[1]}
@@ -193,7 +194,7 @@ fi
     echo "IMAFLAGS_ISO"
 } > ${TEMPDIR}/seeing_sexparam.asc_$$
 
-${BIN}/sex_theli /$1/$2/coadd_$3/$5.fits -c ~/bonnpipeline/postcoadd.conf.sex \
+${BIN}/sex_theli /$1/$2/coadd_$3/$5.fits -c ~/wtgpipeline/postcoadd.conf.sex \
 	   -CATALOG_NAME ${TEMPDIR}/seeing_$$.cat \
 	   -FILTER_NAME ${DATACONF}/default.conv \
 	   -WEIGHT_IMAGE /$1/$2/coadd_$3/$5.weight.fits \
@@ -311,7 +312,7 @@ writekey /$1/$2/coadd_$3/$5.fits GAIN "${VALUE} / effective GAIN for SExtractor"
 value $6
 writekey /$1/$2/coadd_$3/$5.fits MAGZP "${VALUE} / $7 Magnitude Zeropoint" REPLACE
 
-echo  "adam-look update_coadd_header.sh: SEEING=" $SEEING
+echo  "update_coadd_header.sh: SEEING=" $SEEING
 value ${SEEING}
 writekey /$1/$2/coadd_$3/$5.fits SEEING "${VALUE} / measured image Seeing (arcsec)" REPLACE
 #adam# don't write these since they might not be the actual MYSEEING values gotten with BartStar.py
@@ -384,13 +385,3 @@ fi
 
 
 echo "ds9e /$1/$2/coadd_$3/$5.fits -catalog import tsv $1/$2/coadd_$3/$5.get_seeing.filtered.tsv -catalog import tsv $1/$2/coadd_$3/$5.get_seeing.unfiltered.tsv &"
-#adam-BL#log_status $?
-
-#adam-tmp#START
-echo  "MYSEEING=" $MYSEEING
-echo  "NLINES=" $NLINES
-cat ${TEMPDIR}/seeing_sexparam.asc_$$
-echo "${TEMPDIR}/seeing_$$.cat"
-echo "${TEMPDIR}/seeing_ldac.cat_$$"
-echo "${TEMPDIR}/seeing_ldac_filt.cat_$$"
-#adam-tmp#END

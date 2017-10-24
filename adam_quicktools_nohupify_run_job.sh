@@ -10,8 +10,8 @@ if [ -z "${command2run}" ] ;then
 	exit 1
 fi
 
-logfile=~/bonnpipeline/OUT-${commandname}_NOHUPIFY.log
-pidfile=~/bonnpipeline/PID-${commandname}_NOHUPIFY.log
+logfile=~/wtgpipeline/OUT-${commandname}_NOHUPIFY.log
+pidfile=~/wtgpipeline/PID-${commandname}_NOHUPIFY.log
 echo "pidfile=" ${pidfile} 
 echo "logfile=" ${logfile} 
 

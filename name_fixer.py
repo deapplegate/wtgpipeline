@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 import os,sys,glob
-import pyfits
+import astropy, astropy.io.fits as pyfits
 import adam_quicktools_ArgCleaner
 args=adam_quicktools_ArgCleaner.ArgCleaner(sys.argv)
 directory=args[0]

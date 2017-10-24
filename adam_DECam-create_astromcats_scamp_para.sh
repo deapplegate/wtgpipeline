@@ -15,7 +15,7 @@ CHIPS="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 2
 
 
 . ${INSTRUMENT:?}.ini > /tmp/INSTRUMENT.out 2>&1
-. ~/bonnpipeline/progs.ini > /tmp/progs.ini.out 2>&1
+. ~/wtgpipeline/progs.ini > /tmp/progs.ini.out 2>&1
 
 if [ ! -d "/${MAINDIR}/${SCIENCEDIR}/cat_scamp" ]; then
   mkdir /${MAINDIR}/${SCIENCEDIR}/cat_scamp
@@ -44,7 +44,7 @@ do
 	ldactoasc -i ${cat_fwhm} -t FIELDS -b -k SEXSFWHM > seeing_data_$$
 	#./adam_seeing_pretest.sh ${file} ${TEMPDIR}/seeing_pretest_$$.log
 	if [ "$?" -eq "0" ]; then
-		fwhm=`sort -n seeing_data_$$ | awk -f ~/bonnpipeline/median.awk`
+		fwhm=`sort -n seeing_data_$$ | awk -f ~/wtgpipeline/median.awk`
 		#fwhm=`cat ${TEMPDIR}/seeing_pretest_$$.log`
 	else
 		${P_SEX2} ${file} -c ${DATACONF}/singleastrom.conf.sex \

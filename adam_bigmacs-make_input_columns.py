@@ -2,7 +2,7 @@
 #adam-use# Use this to make the cluster.sdss.columns file and the ${cluster}.qc.columns file needed to run bigmacs/fit_locus.py (this itself doesn't run fit_locus.py or save_slr.py)
 #adam-example# python adam_bigmacs-make_input_columns.py $cluster detect=W-C-RC aptype=aper
 import sys
-sys.path.append('/u/ki/awright/bonnpipeline/')
+sys.path.append('/u/ki/awright/wtgpipeline/')
 import astropy, astropy.io.fits as pyfits, os, string, random, re,subprocess
 import MySQLdb
 import do_multiple_photoz

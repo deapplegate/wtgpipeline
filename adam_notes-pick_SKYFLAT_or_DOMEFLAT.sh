@@ -1,5 +1,5 @@
 export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/ ; export INSTRUMENT=SUBARU
-export bonn=/u/ki/awright/bonnpipeline/
+export bonn=/u/ki/awright/wtgpipeline/
 export subdir=/nfs/slac/g/ki/ki18/anja/SUBARU/
 #running# ./postH_2009-04-29_W-S-Z+_preprocess_step9.sh 2>&1 | tee -a OUT-postH_2009-04-29_W-S-Z+_preprocess_step9.log
 #DONE# ./postH_2009-03-28_W-J-V_preprocess_step9.sh 2>&1 | tee -a OUT-postH_2009-03-28_W-J-V_preprocess_step9.log

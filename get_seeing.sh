@@ -1,5 +1,5 @@
 #! /bin/bash
-. /u/ki/awright/bonnpipeline/SUBARU.ini
+. /u/ki/awright/wtgpipeline/SUBARU.ini
 file=$1
 echo $file
 BASE=`basename ${file} .fits`

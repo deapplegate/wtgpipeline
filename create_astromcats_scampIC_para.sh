@@ -57,7 +57,7 @@ do
         WBASE=`basename ${file%_${CHIP}[^0-9]*I.fits}`_${CHIP}
 
         # use myseeing!
-        rms_fwhm_dt_ft=( `grep -h ${WBASE}OCF /u/ki/awright/bonnpipeline/CRNitschke_final_${cluster}_*_${filter}.txt | awk '{print $2, $3, $4, $5}'`)
+        rms_fwhm_dt_ft=( `grep -h ${WBASE}OCF /u/ki/awright/wtgpipeline/CRNitschke_final_${cluster}_*_${filter}.txt | awk '{print $2, $3, $4, $5}'`)
         Nelements=${#rms_fwhm_dt_ft[@]}
         if [ ${Nelements} -eq 4 ]; then
                 fwhm=${rms_fwhm_dt_ft[1]}

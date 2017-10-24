@@ -36,7 +36,7 @@ CHIPS=$4
 
 
 . ${INSTRUMENT:?}.ini > /tmp/INSTRUMENT.out 2>&1
-. ~/bonnpipeline/progs.ini > /tmp/progs.ini.out 2>&1
+. ~/wtgpipeline/progs.ini > /tmp/progs.ini.out 2>&1
 
 if [ ! -d "/${MAINDIR}/${SCIENCEDIR}/cat_scamp" ]; then
   mkdir /${MAINDIR}/${SCIENCEDIR}/cat_scamp

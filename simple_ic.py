@@ -37,7 +37,7 @@ if username=="awright":
         ## set data_path and tmpdir
         data_path = data_root + cluster+'/'
         tmpdir=data_path+"tmp_simple_ic/"
-        os.environ['bonn']='/u/ki/awright/bonnpipeline/' #adam-Warning#
+        os.environ['bonn']='/u/ki/awright/wtgpipeline/' #adam-Warning#
 
 elif username=="pkelly":
         data_root = '/nfs/slac/g/ki/ki18/anja/SUBARU/pat/'
@@ -56,7 +56,7 @@ elif username=="pkelly":
 else:
         #adam-Warning# set the needed info here regarding target, paths to data, and SQL db stuff
         ## get/set env variables
-        if not 'bonn' in os.environ.keys(): raise Exception("Must have environment variable 'bonn' set to bonnpipeline path")
+        if not 'bonn' in os.environ.keys(): raise Exception("Must have environment variable 'bonn' set to wtgpipeline path")
 
         if 'SUBARUDIR' in os.environ.keys():
                 data_root=os.environ['SUBARUDIR']
@@ -899,8 +899,8 @@ def combine_cats(cats,outfile,search_params):
 	    hdulist = pyfits.HDUList([hdu])
 	    hdulist.append(hduIMHEAD)
 	    hdulist.append(hduOBJECTS)
-            hdulist[1].header.update(EXTNAME='FIELDS')
-            hdulist[2].header.update(EXTNAME='OBJECTS')
+            hdulist[1].header["EXTNAME"]='FIELDS'
+            hdulist[2].header["EXTNAME"]='OBJECTS'
 	    print 'combine_cats| file=',file
 	    res = re.split('/',outfile)
 	    ooo=os.system('mkdir -p ' + reduce(lambda x,y: x + '/' + y,res[:-1]))
@@ -965,13 +965,13 @@ def paste_cats(cats,outfile,index=2): #simple #step2_sextract
         hdulist = pyfits.HDUList([hdu])
         hdulist.append(hduIMHEAD)
         hdulist.append(hduOBJECTS)
-        hdulist[1].header.update(EXTNAME='FIELDS')
-        hdulist[2].header.update(EXTNAME='OBJECTS')
+        hdulist[1].header["EXTNAME"]='FIELDS'
+        hdulist[2].header["EXTNAME"]='OBJECTS'
     elif index == 1:
         hdu = pyfits.PrimaryHDU()
         hdulist = pyfits.HDUList([hdu])
         hdulist.append(hduOBJECTS)
-        hdulist[1].header.update(EXTNAME='OBJECTS')
+        hdulist[1].header["EXTNAME"]='OBJECTS'
 
     print 'paste_cats| file=',file
 
@@ -2987,7 +2987,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
             hdulist = pyfits.HDUList([hdu])
             tbhu = pyfits.BinTableHDU.from_columns(cols)
             hdulist.append(tbhu)
-            hdulist[1].header.update(EXTNAME='OBJECTS')
+            hdulist[1].header["EXTNAME"]='OBJECTS'
             hdulist.writeto( outcat ,overwrite=True)
             catalog_save_name=data_path + 'PHOTOMETRY/ILLUMINATION/'+'_'.join(['catalog',run_info,PPRUN]) + '.cat'
             os.system('cp %s %s' % ( outcat , catalog_save_name))
@@ -3530,7 +3530,7 @@ def get_cats_ready(SUPA,FLAT_TYPE,galaxycat,starcat): #step3_run_fit
         tbhu = pyfits.BinTableHDU.from_columns(cols)
         hdulist.append(tbhu)
         print 'get_cats_ready| headers'
-        hdulist[1].header.update(EXTNAME='OBJECTS')
+        hdulist[1].header["EXTNAME"]='OBJECTS'
         #this outcat is like: starsdssmatch__SUPA0121585_star.txt (not sdssmatch__SUPA0121585_star.txt)
         outcat = data_path + 'PHOTOMETRY/ILLUMINATION/' + type_stargal + 'sdssmatch__' + search_params['SUPA'] + '_' +  type_stargal + '.cat'
         hdulist.writeto( outcat ,overwrite=True)

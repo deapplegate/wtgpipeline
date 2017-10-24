@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-#adam: note that this is basically the same as ~/bonnpipeline/cosmos_sim.py.r15422 with the archaic catalog things (updating headers and using new_table) fixed
+#adam: note that this is basically the same as ~/wtgpipeline/cosmos_sim.py.r15422 with the archaic catalog things (updating headers and using new_table) fixed
 
 import re, cPickle
 import numpy as np

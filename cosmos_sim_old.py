@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-#adam: this is an older version of cosmos_sim.py from ~/bonnpipeline, which probably won't be needed anymore, but should be saved anyway (just in case)
+#adam: this is an older version of cosmos_sim.py from ~/wtgpipeline, which probably won't be needed anymore, but should be saved anyway (just in case)
 # I've incorporated two of the changes cause I basically knew they were right:
 #	(1) ID/id is an input for more functions now
 #	(2) we don't append redshifts to a list anymore (since it was leading to inconsistent lengths) 

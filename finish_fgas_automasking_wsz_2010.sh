@@ -48,7 +48,7 @@ export run=`echo ${filter_run} | awk -F'_' '{print $2}'`
 echo "run=" ${run}
 echo "filter=" ${filter}
 export pprun="${run}_${filter}"
-export ending=`grep "$pprun" ~/bonnpipeline/fgas_pprun_endings.txt | awk '{print $2}'`
+export ending=`grep "$pprun" ~/wtgpipeline/fgas_pprun_endings.txt | awk '{print $2}'`
 echo "ending=" ${ending}
 
 ###./BonnLogger.py clear

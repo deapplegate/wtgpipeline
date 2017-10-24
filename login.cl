@@ -4,7 +4,7 @@
 if (defpar ("logver"))
     logver = "IRAF V2.12.2a July 2004"
 
-set	home		= "/afs/slac.stanford.edu/u/ki/pkelly/pipeline/bonnpipeline/"
+set	home		= "/afs/slac.stanford.edu/u/ki/pkelly/pipeline/wtgpipeline/"
 set	imdir		= "/tmp/pkelly/"
 set	uparm		= "home$uparm/"
 set	userid		= "pkelly"

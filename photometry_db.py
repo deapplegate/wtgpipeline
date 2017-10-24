@@ -24,7 +24,7 @@ __default_connection__ = sqlobject.connectionForURI('mysql://weaklensing:darkmat
 
 if useTestMode():
     testMode = True
-    dbfile = '/u/ki/dapple/nfs/pipeline2/bonnpipeline/phototest.db'
+    dbfile = '/u/ki/dapple/nfs/pipeline2/wtgpipeline/phototest.db'
     __default_connection__ = sqlobject.connectionForURI('sqlite://%s' % dbfile)
 
 

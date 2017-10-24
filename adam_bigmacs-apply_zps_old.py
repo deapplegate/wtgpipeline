@@ -67,7 +67,7 @@ def main(flinput,flzps,flnew):
 			## calibrate the catalog and conform to bpz input cat setup
 			#adam# now that I've determined how to distinguish sextractor non-detections and non-observations, apply that here
 			#adam# main  thing I'd like to do is make MAGERR/FLUXERR, where MAG_APER1-*==-99 acceptable to bpz
-			#adam# My Hypthesis Confirmed by: ds9e ~/data/MACS1226+21/W-J-V/SCIENCE/coadd_MACS1226+21_all/coadd.fits & #load in ~/bonnpipeline/influx_m99_W-J-V.tsv
+			#adam# My Hypthesis Confirmed by: ds9e ~/data/MACS1226+21/W-J-V/SCIENCE/coadd_MACS1226+21_all/coadd.fits & #load in ~/wtgpipeline/influx_m99_W-J-V.tsv
 
 			## calibrate and fix MAG_APER1- and FLUX_APER1-
 			inmag=catinput[mag_key]

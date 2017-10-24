@@ -57,4 +57,4 @@ ds9 -frame lock image -geometry 2000x2000 -cmap bb -scale limits .98 1.01 2009-0
 ds9 -frame lock image -geometry 2000x2000 -cmap bb -scale limits .98 1.01 2009-03-28_W-S-I+/SCIENCE_norm/BINNED/RXCJ1504.1-0248/SUPA*mosOCFN.fits -zoom to fit -saveimage png 2009-03-28_W-S-I+/SCIENCE_norm/BINNED/RXCJ1504_scale98.png -quit
 ds9 -frame lock image -geometry 2000x2000 -cmap bb -scale limits .98 1.01 2009-03-28_W-S-I+/SCIENCE_norm/BINNED/ZwCl0857.9+2107/SUPA*mosOCFN.fits -zoom to fit -saveimage png 2009-03-28_W-S-I+/SCIENCE_norm/BINNED/ZwCl0857_scale98.png -quit
 ds9 -frame lock image -geometry 2000x2000 -cmap bb -scale limits .98 1.01 2009-03-28_W-S-I+/SCIENCE_norm/BINNED/ZwCl1021.0+0426/SUPA*mosOCFN.fits -zoom to fit -saveimage png 2009-03-28_W-S-I+/SCIENCE_norm/BINNED/ZwCl1021_scale98.png -quit
-cd ~/bonnpipeline
+cd ~/wtgpipeline

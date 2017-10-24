@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 #adam-does# matches the redshifts from our pipeline/bpz to external reference redshifts
-#adam-example# ipython -i -- ./match_specz_and_bpz_cats.py nedcat bpzcat =astropy.io.ascii.read("/u/ki/awright/bonnpipeline/adam_ned_MACS1226+21_galaxies.tsv")
-#adam-example# ipython -i -- ./match_specz_and_bpz_cats.py /u/ki/awright/bonnpipeline/adam_ned_MACS1226+21_galaxies.tsv /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.bpztab.cat
+#adam-example# ipython -i -- ./match_specz_and_bpz_cats.py nedcat bpzcat =astropy.io.ascii.read("/u/ki/awright/wtgpipeline/adam_ned_MACS1226+21_galaxies.tsv")
+#adam-example# ipython -i -- ./match_specz_and_bpz_cats.py /u/ki/awright/wtgpipeline/adam_ned_MACS1226+21_galaxies.tsv /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.bpztab.cat
 
 import sys,os,inspect ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
 from import_tools import *

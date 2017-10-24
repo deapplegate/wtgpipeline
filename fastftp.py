@@ -136,8 +136,8 @@ def run_download(host,directory, download_dir, path_to_cvs, db):
 import os, sys
 if len(sys.argv) < 3 or sys.argv[1] == '-h':
 	print "INSTRUCTIONS:\n    python fastftp.py file_with_directories_to_download download_to_this_directory path_to_your_cvs_directory  \n"
-	print "EXAMPLE:\n    python fastftp.py directory_file $xoc/TEST/ ~/pipeline/bonnpipeline \n"
-	print "     python fastftp.py todownload ~/nfs03/tmpdownload/ ~dapple/nfs/pipeline/bonnpipeline\n"
+	print "EXAMPLE:\n    python fastftp.py directory_file $xoc/TEST/ ~/pipeline/wtgpipeline \n"
+	print "     python fastftp.py todownload ~/nfs03/tmpdownload/ ~dapple/nfs/pipeline/wtgpipeline\n"
 	print " YOU NEED TO PUT IN A FULL PATH THAT CAN BE ACCESSED ON OTHER MACHINES \n"
 	print "EXAMPLE file_with_directories_to_download:\nkhata0801153717\nkhata0801150346\nmihara0801124538\n"
 else:

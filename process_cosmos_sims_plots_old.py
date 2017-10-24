@@ -1,4 +1,4 @@
-#adam: this is an older version of the script from ~/bonnpipeline, which probably won't be needed anymore, but should be saved anyway (just in case)
+#adam: this is an older version of the script from ~/wtgpipeline, which probably won't be needed anymore, but should be saved anyway (just in case)
 import pylab, numpy as np, pymc
 
 #######################

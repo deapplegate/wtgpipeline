@@ -19,7 +19,7 @@ export ending="OCF"
 
 
 #3# setup SUBARU to 10_3 config and do the 10_3 coadds
-cd ~/bonnpipeline
+cd ~/wtgpipeline
 export run=2010-02-12 ;export filter="W-C-RC";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
 ./setup_SUBARU.sh ${SUBARUDIR}/${run}_${filter}/SCIENCE/ORIGINALS
 ./do_coadd_batch.sh ${cluster} ${filter} "all exposure good gabodsid rotation" 2>&1 | tee -a OUT-do_coadd_batch_${filter}_${cluster}-10_3.log
@@ -35,7 +35,7 @@ ln -s /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/10_2_W-C-RC/WEIGHTS/*.fits /nf
 ln -s /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/10_2_W-C-RC/SCIENCE/*.fits /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/
 
 #5# setup SUBARU to 10_2 config and do the 10_2 coadds
-cd ~/bonnpipeline
+cd ~/wtgpipeline
 export run=2006-03-04 ;export filter="W-C-RC" ; export BONN_TARGET=${cluster}; export BONN_FILTER=${filter}_${run}
 ./setup_SUBARU.sh ${SUBARUDIR}/${run}_${filter}/SCIENCE/ORIGINALS
 ./do_coadd_batch.sh ${cluster} ${filter} "all exposure good gabodsid rotation" 2>&1 | tee -a OUT-do_coadd_batch_${filter}_${cluster}-10_2.log

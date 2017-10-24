@@ -498,11 +498,11 @@ def run():
 
                                                                                                                                    
         if os.environ['USER'] == 'dapple':            
-            os.chdir('/a/wain001/g.ki.ki02/dapple/pipeline/bonnpipeline/')
+            os.chdir('/a/wain001/g.ki.ki02/dapple/pipeline/wtgpipeline/')
             print os.environ['USER'], os.system('pwd')
             command = "./match_neighbor.sh " + matchedcat + " STDTAB " + specfile.file + " spec " + cat  + " data "                                                                                                                       
         else: 
-            os.chdir('/u/ki/pkelly/pipeline/bonnpipeline/')
+            os.chdir('/u/ki/pkelly/pipeline/wtgpipeline/')
             print os.environ['USER'], os.system('pwd')
 
 
@@ -510,7 +510,7 @@ def run():
 
             os.system('rm ' + matchedcat)
                                                                                                                                                                                                                                                                                          
-            command = "/u/ki/pkelly/pipeline/bonnpipeline//match_neighbor.sh " + matchedcat + " STDTAB " + specfile.file + " spec " + cat +  " data "                                                                                                                       
+            command = "/u/ki/pkelly/pipeline/wtgpipeline//match_neighbor.sh " + matchedcat + " STDTAB " + specfile.file + " spec " + cat +  " data "                                                                                                                       
         print command
         os.system('pwd')
         utilities.run(command, [matchedcat])

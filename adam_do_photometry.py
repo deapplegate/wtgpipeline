@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #adam-does# This code is an adaptation of do_photometry.py, which doesn't use lephare at all, but uses the properly calibrated photometry to get photoz's using the "bpz.py" package
-#adam-prelims# export cluster=MACS1226+21 ; export BPZPATH='/nfs/slac/kipac/fs1/u/awright/InstallingSoftware_extension/bpz-1.99.3/' ; export sne=/nfs/slac/g/ki/ki04/pkelly ; export INSTRUMENT=SUBARU ; export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU ; export subdir=${SUBARUDIR};export subarudir=${SUBARUDIR} ; export bonn=/u/ki/awright/bonnpipeline/ ; export "PYTHONPATH=${PYTHONPATH}:${BPZPATH}"; export NUMERIX="numpy"
+#adam-prelims# export cluster=MACS1226+21 ; export BPZPATH='/nfs/slac/kipac/fs1/u/awright/InstallingSoftware_extension/bpz-1.99.3/' ; export sne=/nfs/slac/g/ki/ki04/pkelly ; export INSTRUMENT=SUBARU ; export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU ; export subdir=${SUBARUDIR};export subarudir=${SUBARUDIR} ; export bonn=/u/ki/awright/wtgpipeline/ ; export "PYTHONPATH=${PYTHONPATH}:${BPZPATH}"; export NUMERIX="numpy"
 #adam-example# ipython -i -- adam_do_photometry.py $cluster detect=W-C-RC aptype=aper APER1
 ## python /nfs/slac/kipac/fs1/u/awright/InstallingSoftware_extension/bpz-1.99.3//bpz.py /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/all_bpzAPER1CWWSB_capak.list1_0.cat -COLUMNS /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/spec.APER1._aper.CWWSB_capak.list.cat.columns -MAG no -SPECTRA CWWSB_capak.list -PRIOR hdfn_SB -CHECK yes -PLOTS yes -VERBOSE no -ZMAX 4.0 -PLOTS yes -INTERP 8 -PROBS_LITE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/all_bpzAPER1CWWSB_capak.list1_0.probs -OUTPUT /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/all_bpzAPER1CWWSB_capak.list1_0.bpz
 
@@ -11,7 +11,7 @@
 #	export "PYTHONPATH=${PYTHONPATH}:${BPZPATH}"; export NUMERIX="numpy"
 #	export sne=/nfs/slac/g/ki/ki04/pkelly
 #	export INSTRUMENT=SUBARU ; export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU ; export subdir=${SUBARUDIR};export subarudir=${SUBARUDIR}
-#	export bonn=/u/ki/awright/bonnpipeline/
+#	export bonn=/u/ki/awright/wtgpipeline/
 
 ########import make_lephare_cats
 import adam_do_multiple_photoz

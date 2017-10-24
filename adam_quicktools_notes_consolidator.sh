@@ -18,7 +18,7 @@ do
 	fi
 done
 
-rm_fls_str="${rm_fls_str} /u/ki/awright/bonnpipeline/scratch/"
+rm_fls_str="${rm_fls_str} /u/ki/awright/wtgpipeline/scratch/"
 echo "ALL NOTES CONSOLIDATED IN: ${flout}, check the results and remove the old notes"
 echo "vim ${flout}"
 echo ${rm_fls_str}

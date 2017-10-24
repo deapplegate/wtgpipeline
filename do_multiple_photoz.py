@@ -86,7 +86,7 @@ def fit_zps(dictionary):
 
 def convert_to_mags(run_name,mag_cat,outputfile):
 
-    import pyfits
+    import astropy, astropy.io.fits as pyfits
 
     mag = pyfits.open(mag_cat)[1]
 
@@ -148,7 +148,7 @@ def convert_to_mags(run_name,mag_cat,outputfile):
 
     print -2.5*scipy.log10(ft)
 
-    import pyfits, numpy
+    import astropy, astropy.io.fits as pyfits, numpy
     tables = {}
     i = 0
     cols = []
@@ -201,7 +201,7 @@ def convert_to_mags(run_name,mag_cat,outputfile):
 
 def add_dummy_ifilter(catalog, outputfile):
 
-    import pyfits, numpy
+    import astropy, astropy.io.fits as pyfits, numpy
     i = 0
     cols = []
     tables = pyfits.open(catalog)['OBJECTS']
@@ -251,7 +251,7 @@ def add_dummy_filters(catalog, outputfile):
 
     use_filters = ['MEGAPRIME-0-1-u','SUBARU-10_2-1-W-J-B','SUBARU-10_2-1-W-J-V','SUBARU-10_2-1-W-S-R+','SUBARU-10_2-1-W-S-I+','SUBARU-10_2-1-W-S-Z+']
 
-    import pyfits, numpy
+    import astropy, astropy.io.fits as pyfits, numpy
     i = 0
     cols = []
     tables = pyfits.open(catalog)['OBJECTS']
@@ -424,7 +424,7 @@ def get_cluster_z(file):
     return Z
 
 def join_cats(cs,outputfile):
-    import pyfits
+    import astropy, astropy.io.fits as pyfits
     tables = {}
     i = 0
     cols = []
@@ -674,7 +674,7 @@ def parselph(catalog):
     #run('ldacjoinkey -t OBJECTS -i /tmp/' + cluster + 'output.cat -p ' + tempcat + ' -o /tmp/' + cluster + 'final.cat -t STDTAB  -k ' + input)
 
 def get_filters(cat,tab='STDTAB',SPECTRA=None):
-    import pyfits, string
+    import astropy, astropy.io.fits as pyfits, string
     dict = {}
     p = pyfits.open(cat)
     #print p[tab].columns
@@ -762,7 +762,7 @@ def figure_out_slr_chip(filters,catalog,tab='STDTAB',magtype='APER1'):
     #magtype='APER1'
 
     print magtype, 'magtype'
-    import pyfits, string
+    import astropy, astropy.io.fits as pyfits, string
     print catalog
     table = pyfits.open(catalog)[tab].data
 

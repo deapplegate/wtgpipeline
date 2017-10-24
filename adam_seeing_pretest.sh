@@ -38,7 +38,7 @@ if [ "${fwhm}" == "KEY_N/A" ]; then
 	#old#SUPA_BASE=${3##${cluster}_} #$3=${cluster}_SUPA0125912 (here MACS0416-24_SUPA0125912)
 	SUPA_BASE=`sed 's/_[0-9]/\ /' /tmp/tmp.log | awk '{print $1}'`
 	echo "SUPA_BASE=" $SUPA_BASE
-	rms_fwhm_dt_ft=( `grep -h $SUPA_BASE /u/ki/awright/bonnpipeline/CRNitschke_final_${cluster}_*_${filter}.txt | head -n 1 | awk '{print $2, $3, $4, $5}'`)
+	rms_fwhm_dt_ft=( `grep -h $SUPA_BASE /u/ki/awright/wtgpipeline/CRNitschke_final_${cluster}_*_${filter}.txt | head -n 1 | awk '{print $2, $3, $4, $5}'`)
 	Nelements=${#rms_fwhm_dt_ft[@]}
 	if [ ${Nelements} -eq 4 ]; then
 		fwhm=${rms_fwhm_dt_ft[1]}

@@ -1,1 +1,5 @@
-adam-fgas_planning/MACS1115_ppruns.txt
+2009-04-29_W-S-Z+
+2009-04-29_W-J-B
+2010-03-12_W-J-B
+2010-03-12_W-S-Z+
+2010-03-12_W-C-RC

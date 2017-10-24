@@ -27,12 +27,12 @@ for obj in `cat objects.list`
 do
 	supas=`grep "${obj}" sort_${pprun}_OCFNs.sh | awk '{print $2}' | sed 's/_mosOCFN.fits//g' | paste -s -d_ `
 	titlestr="${obj}:${supas}"
-	echo "${pprun}-${obj}: ${supas}" >> ~/bonnpipeline/adam_check_postH_SCIENCE_norm_folders_pngs.list
+	echo "${pprun}-${obj}: ${supas}" >> ~/wtgpipeline/adam_check_postH_SCIENCE_norm_folders_pngs.list
 	ls ${obj}/SUPA*mosOCFN.fits
 	ds9 -title $titlestr -view info no -view magnifier no -view panner no -view buttons no -frame lock image -geometry 2000x2000 -cmap bb -scale limits .96 1.01 ${obj}/SUPA*mosOCFN.fits -zoom to fit -saveimage png ${obj}_scale96.png -quit
 	ds9 -title $titlestr -view info no -view magnifier no -view panner no -view buttons no -frame lock image -geometry 2000x2000 -cmap bb -scale limits .98 1.01 ${obj}/SUPA*mosOCFN.fits -zoom to fit -saveimage png ${obj}_scale98.png -quit
-	echo "echo \"ds9 -title $titlestr -frame lock image -geometry 2000x2000 -cmap bb -scale limits .96 1.01 ~/data/${pprun}/SCIENCE_norm/BINNED/${obj}/SUPA*mosOCFN.fits -zoom to fit \"" >> ~/bonnpipeline/adam_check_postH_SCIENCE_norm_folders_pngs.sh
-	echo "xv ${pprun}/SCIENCE_norm/BINNED/${obj}_scale96.png ${pprun}/SCIENCE_norm/BINNED/${obj}_scale98.png" >> ~/bonnpipeline/adam_check_postH_SCIENCE_norm_folders_pngs.sh
+	echo "echo \"ds9 -title $titlestr -frame lock image -geometry 2000x2000 -cmap bb -scale limits .96 1.01 ~/data/${pprun}/SCIENCE_norm/BINNED/${obj}/SUPA*mosOCFN.fits -zoom to fit \"" >> ~/wtgpipeline/adam_check_postH_SCIENCE_norm_folders_pngs.sh
+	echo "xv ${pprun}/SCIENCE_norm/BINNED/${obj}_scale96.png ${pprun}/SCIENCE_norm/BINNED/${obj}_scale98.png" >> ~/wtgpipeline/adam_check_postH_SCIENCE_norm_folders_pngs.sh
 done
 
-cd ~/bonnpipeline
+cd ~/wtgpipeline

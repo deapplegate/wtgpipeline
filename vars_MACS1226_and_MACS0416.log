@@ -73,7 +73,7 @@ export run=2011-01-06 ;export filter="W-C-IC";export BONN_TARGET=${cluster} ;exp
 export run=2011-01-06 ;export filter="W-S-Z+";export BONN_TARGET=${cluster} ;export BONN_FILTER=${filter}_${run}
 
 export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/ ; export INSTRUMENT=SUBARU
-export bonn=/u/ki/awright/bonnpipeline/
+export bonn=/u/ki/awright/wtgpipeline/
 export subdir=/nfs/slac/g/ki/ki18/anja/SUBARU/
 cat adam_vars.sh
 cat adam_vars.txt

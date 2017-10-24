@@ -10,6 +10,10 @@ set -xv
 ###
 ### $Id: do_coadd_batch.sh,v 1.26 2011-03-29 22:50:58 anja Exp $
 
+#adam: you have to deactivate the astroconda environment for some reason
+source deactivate astroconda
+
+
 . progs.ini > /tmp/prog.out 2>&1
 . bash_functions.include > /tmp/bash_functions.include.out 2>&1
 
@@ -20,11 +24,11 @@ export filter=$2
 # possible coaddition modes:
 # - "all" : all images, needs to be run first!
 # - "good" : only chips with not too elliptical PSF
-# - "rotation" : split by rotation
 # - "exposure" : one coadd per exposure
 # - "3s" : coadds the SDSS 3s exposure
+# - "gabodsid" : split by gabodsid
+# - "rotation" : split by rotation and gabodsid
 # - "pretty" : coadds the deep and 3s cluster exposure
-# - "gabodsid"
 requested_coadds=$3
 
 
@@ -272,6 +276,8 @@ do
                                    -l ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat/chips.cat6 STATS \
                                       ${CONDITION} \
                                       ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/${cluster}_${coadd}.cat
+	  #adam-look# don't worry about errors saying '(standard_in) 1: syntax error' as long as there is only one (maybe a problem if you see this for every exposure coadd)
+	  #adam-look# don't worry about errors saying 'cp: cannot create regular file `./coadd.head': File exists' and 'cp: cannot create regular file `coadd.flag.head': File exists'
 	  if [ "$?" -gt "0" ]; then exit $? ; fi
           ./parallel_manager.sh ./apply_ringmask_para.sh ${SUBARUDIR} ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_${coadd} ${ending}.sub
 	  if [ "$?" -gt "0" ]; then exit $? ; fi

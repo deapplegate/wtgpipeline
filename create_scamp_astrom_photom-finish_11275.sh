@@ -90,7 +90,7 @@ cd ../headers
 find ../cat/ -name \*.head -exec mv {} . \;
 
 #cd ../plots
-#cp ~/bonnpipeline/scamp.xsl .
+#cp ~/wtgpipeline/scamp.xsl .
 #sed -i.old 's/href=".*"?>/href="scamp.xsl"?>/g' MACS1115+01_scamp.xml
 
 #cd ../headers

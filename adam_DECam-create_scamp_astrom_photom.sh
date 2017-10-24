@@ -313,7 +313,7 @@ MOSAICTYPE="-MOSAIC_TYPE FIX_FOCALPLANE"
 echo "MOSAICTYPE=" $MOSAICTYPE
 
 #adam-SHNT# START put scamp call here
-## SEE adam_A2204_scamp_DECam.sh in ~/bonnpipeline/adam-run_scamp
+## SEE adam_A2204_scamp_DECam.sh in ~/wtgpipeline/adam-run_scamp
 cp /nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/astrefcat.cat .                                                                                                                   
 scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT \
         -ASTREF_CATALOG FILE \
@@ -353,7 +353,7 @@ then
 fi
 
 mkdir /nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/${SCAMP_NAMETAG}
-cp ~/bonnpipeline/scamp.xls /nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/${SCAMP_NAMETAG}
+cp ~/wtgpipeline/scamp.xls /nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/${SCAMP_NAMETAG}
 sed -i.old 's/http:\/\/www.slac.stanford.edu\/\~anja\/scamp.xsl/scamp.xsl/g' ${SCAMP_NAMETAG}.xml
 cp *.png /nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/${SCAMP_NAMETAG}
 cp ${SCAMP_NAMETAG}.xml /nfs/slac/kipac/fs1/u/awright/A2204_panstarrs_cats/run_scamp/${SCAMP_NAMETAG}

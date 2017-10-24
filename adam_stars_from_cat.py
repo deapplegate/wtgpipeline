@@ -198,8 +198,8 @@ def get_seeing_backrms(fl):
 		else:
 			raise Exception("fl=",fl," isn't a fits image file")
 
-os.system('. /u/ki/awright/bonnpipeline/SUBARU.ini')
-os.system('. /u/ki/awright/bonnpipeline/progs.ini')
+os.system('. /u/ki/awright/wtgpipeline/SUBARU.ini')
+os.system('. /u/ki/awright/wtgpipeline/progs.ini')
 from astropy.io import ascii
 import imagetools
 import sextract

@@ -7,6 +7,7 @@ set -uxv
 
 cluster=$1
 
+
 subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 
 special_filters="I K"
@@ -20,6 +21,7 @@ fi
 
 files="$subarudir/$cluster/W-?-??/SCIENCE/coadd_${cluster}_SUP*/coadd.fits
            $subarudir/$cluster/W-?-?/SCIENCE/coadd_${cluster}_SUP*/coadd.fits
+           $subarudir/$cluster/W-?-??/SCIENCE/coadd_${cluster}_all/coadd.fits
            $subarudir/$cluster/W-?-?/SCIENCE/coadd_${cluster}_all/coadd.fits
            $subarudir/$cluster/?/SCIENCE/coadd_${cluster}_*[op]/coadd.fits
            $subarudir/$cluster/?/SCIENCE/coadd_${cluster}_all/coadd.fits

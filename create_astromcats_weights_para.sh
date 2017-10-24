@@ -63,7 +63,7 @@ do
         BASE=`basename ${file} .fits`
         WBASE=`basename ${file} $3.fits`
         # use myseeing!
-	rms_fwhm_dt_ft=( `grep -h ${WBASE}OCF /u/ki/awright/bonnpipeline/CRNitschke_final_${cluster}_*_${filter}.txt | awk '{print $2, $3, $4, $5}'`)
+	rms_fwhm_dt_ft=( `grep -h ${WBASE}OCF /u/ki/awright/wtgpipeline/CRNitschke_final_${cluster}_*_${filter}.txt | awk '{print $2, $3, $4, $5}'`)
 	Nelements=${#rms_fwhm_dt_ft[@]}
 	if [ ${Nelements} -eq 4 ]; then
 		fwhm=${rms_fwhm_dt_ft[1]}
@@ -149,11 +149,11 @@ do
 	## choose which fwhm to use
 	if [ "${getfwhm_test}" == "1" ]; then
 		usefwhm=${getfwhm}
-		echo "adam-look: using get_seeing in create_astromcats_weights_para.sh: ${usefwhm} (MYSEEING=${fwhm} and GETSEEING=${getfwhm})"
+		echo "adam: using get_seeing in create_astromcats_weights_para.sh: ${usefwhm} (MYSEEING=${fwhm} and GETSEEING=${getfwhm})"
 
 	elif [ "${fwhm_test}" == "1" ]; then
 		usefwhm=${fwhm}
-		echo "adam-look: using MYSEEING in create_astromcats_weights_para.sh: ${usefwhm} (MYSEEING=${fwhm} and GETSEEING=${getfwhm})"
+		echo "adam: using MYSEEING in create_astromcats_weights_para.sh: ${usefwhm} (MYSEEING=${fwhm} and GETSEEING=${getfwhm})"
 	else
 		echo "adam-Error: neither get_seeing or MYSEEING in create_astromcats_weights_para.sh runs properly"
 		exit 2;

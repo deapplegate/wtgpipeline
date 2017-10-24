@@ -23,7 +23,7 @@ set -xv
 #     to obtain the observation date (We use the
 #     MJD keyword)
 #
-. /u/ki/awright/bonnpipeline/progs.ini > /tmp/progs.out 2>&1
+. /u/ki/awright/wtgpipeline/progs.ini > /tmp/progs.out 2>&1
 
 #IMAGE=`ls -1 /$1/*.fits | ${P_GAWK} '(NR==1) {print $0}'`
 IMAGE=`find $1/ -maxdepth 1 -name \*.fits | sort -r | ${P_GAWK} '(NR==1) {print $0}'`

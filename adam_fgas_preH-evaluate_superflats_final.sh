@@ -7,7 +7,7 @@ cd /nfs/slac/g/ki/ki18/anja/SUBARU/
 #for pprun in 2010-03-12_W-J-V 2010-03-12_W-S-I+ 2007-02-13_W-S-I+ 2009-03-28_W-S-I+
 for pprun in 2009-03-28_W-S-I+
 do
-	echo ${pprun} >> ~/bonnpipeline/adam_preH_superflat_progress-${pprun}.txt
+	echo ${pprun} >> ~/wtgpipeline/adam_preH_superflat_progress-${pprun}.txt
 	#dfits -x 1 ${pprun}/SCIENCE/ORIGINALS/SUP*.fits | fitsort OBJECT DOTHIS TOTHIS > ${pprun}/superflat_stats.txt
 	#dfits -x 1 ${pprun}/SCIENCE/ORIGINALS/SUP*.fits | fitsort OBJECT DOTHIS TOTHIS >> superflat_stats_preH.txt
 	awk '{print $1}' ${pprun}/superflat_stats.txt | cut -c -11 > ${pprun}/proto_superflat_exclusion 
@@ -16,9 +16,9 @@ do
 	echo "${pprun}: KEY  #=keep   x=remove   S=shadow   *=would keep some"
 	objnum=`awk '{print $2}' ${pprun}/superflat_stats.txt | sort | uniq | sed '/OBJECT/d' | wc -l`
 	objnames=`awk '{print $2}' ${pprun}/superflat_stats.txt | uniq | sed '/OBJECT/d' `
-	echo "${objnum} objects : ${objnames}" >>  ~/bonnpipeline/adam_preH_superflat_progress-${pprun}.txt
-	echo "Superflat status (everything fine, need S excluder, need * excluder, need more data):" >>  ~/bonnpipeline/adam_preH_superflat_progress-${pprun}.txt
-	echo "" >>  ~/bonnpipeline/adam_preH_superflat_progress-${pprun}.txt
+	echo "${objnum} objects : ${objnames}" >>  ~/wtgpipeline/adam_preH_superflat_progress-${pprun}.txt
+	echo "Superflat status (everything fine, need S excluder, need * excluder, need more data):" >>  ~/wtgpipeline/adam_preH_superflat_progress-${pprun}.txt
+	echo "" >>  ~/wtgpipeline/adam_preH_superflat_progress-${pprun}.txt
 	for objname in $objnames
 	do
 		objnameplus=${objname%.[0-9]+[0-9][0-9][0-9][0-9]}

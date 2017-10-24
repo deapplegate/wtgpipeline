@@ -69,7 +69,7 @@ def seeing_clearly_withplot(image,checkplots=1,saveas=None,**kwargs):
 		#	PIXSCALE=float(os.environ['PIXSCALE'])	
 		#	SATURATION=os.environ['SATURATION']
 		#else:
-		#	raise Exception("YOU MUST RUN THIS COMMAND FIRST: . /u/ki/awright/bonnpipeline/SUBARU.ini")
+		#	raise Exception("YOU MUST RUN THIS COMMAND FIRST: . /u/ki/awright/wtgpipeline/SUBARU.ini")
 		if 'PIXSCALE' in os.environ:
 			PIXSCALE=float(os.environ['PIXSCALE'])	
 		else:
@@ -366,7 +366,7 @@ def seeing_clearly(image,**kwargs):
 	#	PIXSCALE=float(os.environ['PIXSCALE'])	
 	#	SATURATION=os.environ['SATURATION']
 	#else:
-	#	raise Exception("YOU MUST RUN THIS COMMAND FIRST: . /u/ki/awright/bonnpipeline/SUBARU.ini")
+	#	raise Exception("YOU MUST RUN THIS COMMAND FIRST: . /u/ki/awright/wtgpipeline/SUBARU.ini")
 	if 'PIXSCALE' in os.environ:
 		PIXSCALE=float(os.environ['PIXSCALE'])	
 	else:

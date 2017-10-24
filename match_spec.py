@@ -50,13 +50,13 @@ run("ldacrentab -i " + inputcat + " -t OBJECTS STDTAB  -o " + inputcat+str(1),\
 raw_input()
 
 if os.environ['USER'] == 'dapple':            
-    os.chdir('/a/wain001/g.ki.ki02/dapple/pipeline/bonnpipeline/')
+    os.chdir('/a/wain001/g.ki.ki02/dapple/pipeline/wtgpipeline/')
     print os.environ['USER'], os.system('pwd')
     command = "./match_neighbor.sh " + matchedcat + " STDTAB " + specfile.file + " spec " + inputcat+str(1)  + " data "                                                                                                                       
 else: 
-    os.chdir('/u/ki/pkelly/pipeline/bonnpipeline/')
+    os.chdir('/u/ki/pkelly/pipeline/wtgpipeline/')
     print os.environ['USER'], os.system('pwd')
-    command = "/u/ki/pkelly/pipeline/bonnpipeline//match_neighbor.sh " + matchedcat + " STDTAB " + specfile.file + " spec " + inputcat+str(1)  + " data "                                                                                                                       
+    command = "/u/ki/pkelly/pipeline/wtgpipeline//match_neighbor.sh " + matchedcat + " STDTAB " + specfile.file + " spec " + inputcat+str(1)  + " data "                                                                                                                       
 print command
 os.system('pwd')
 run(command, [matchedcat])

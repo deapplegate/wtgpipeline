@@ -3,7 +3,7 @@ Not verified yet, but this is what I think we need to do.
 
 Once you have BPZ format photo-z files for cosmos-30 and for the subset of filters:
 
-[All files in bonnpipeline directory]
+[All files in wtgpipeline directory]
 
 1.) prep_cosmos_run.py:prepSourceFiles 
  - Consolidates bpz files and applies photo-z quality cuts (has some directory structure assumed to find files)

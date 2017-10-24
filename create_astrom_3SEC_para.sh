@@ -199,11 +199,11 @@ do
                                -o ${TEMPDIR}/tmp5_$$.cat ${TEMPDIR}/tmp6_$$.cat\
 				-t STDTAB\
 				#-c ${PHOTCONF}/fullphotom.conf.associate.name
-				#-c ~pkelly/pipeline/bonnpipeline/fullphotom.conf.associate.name
+				#-c ~pkelly/pipeline/wtgpipeline/fullphotom.conf.associate.name
 
 		${P_MAKESSC} -i ${TEMPDIR}/tmp5_$$.cat ${TEMPDIR}/tmp6_$$.cat \
 				-o /$1/$2/cat/${BASE}_merg.cat\
-				-t STDTAB -c /afs/slac.stanford.edu/u/ki/pkelly/pipeline/bonnpipeline/make_ssc_std.conf
+				-t STDTAB -c /afs/slac.stanford.edu/u/ki/pkelly/pipeline/wtgpipeline/make_ssc_std.conf
 				#-t STDTAB -c ${PHOTCONF}/make_ssc_3SEC.conf
 
 	    fi

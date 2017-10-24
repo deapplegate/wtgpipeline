@@ -71,7 +71,7 @@ def readCounts(file = '/u/ki/anja/ldaclensing/masses_1p5Mpc.list.lin'):
 
 
 
-def readDougMasses(dir = '/u/ki/dapple/nfs/pipeline/bonnpipeline/mlmasses', ext='mass15mpc.mass.summary.pkl', pick=1):
+def readDougMasses(dir = '/u/ki/dapple/nfs/pipeline/wtgpipeline/mlmasses', ext='mass15mpc.mass.summary.pkl', pick=1):
 
     masses = {}
 
