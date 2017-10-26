@@ -33,6 +33,10 @@ class LDACCat(object):
     def __getitem__(self, key):
 
         if type(key) == type(5) or \
+                type(key) == numpy.int32 or \
+                type(key) == numpy.int16 or \
+                type(key) == numpy.int8  or \
+                type(key) == numpy.int64 or \
                 type(key) == type(slice(5)):
             return self.hdu.data[key]
 
