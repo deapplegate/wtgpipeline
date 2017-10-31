@@ -77,7 +77,7 @@ if [ ! -d "${lensingrepo}/${cluster}" ]; then
     mkdir -p ${lensingrepo}/${cluster}
 fi
 
-queue="long -W 7000"
+queue="long -W 7000 -R rhel60 "
 
 #filters=`grep "${cluster}" cluster.status | awk -v ORS=' ' '($1 !~ /#/){print $2}'`
 filters=`grep "${cluster}" cluster_cat_filters.dat | awk -v ORS=' ' '{for(i=3;i<=NF;i++){if($i!~"CALIB" && $i!="K") print $i}}'`

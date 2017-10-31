@@ -1,15 +1,22 @@
 #! /usr/bin/env python
 import re, string, numpy,scipy
 from glob import glob
+import astropy
 import astropy.io.fits as pyfits
 import ldac
 from astropy.io import ascii
 import os,sys
 
+##COMMENT SYNTAX
+# if referencing a variable          : `variable`
+# if starting a new part             : ###
+# if continuing comment on next line : ...
+
 ### certain environment variables have to be set, so I included all of these in bpz.ini for convenience.
 #	you have to run `. bpz.ini` before running this script.
-if not os.environ['BPZPATH']: 
-	raise Exception("BPZPATH isn't defined! You have to run `. bpz.ini` first!"
+if not os.environ['BPZPATH']:
+	raise Exception("BPZPATH isn't defined! You have to run `. bpz.ini` first!")
+
 runbpzdir="/u/ki/awright/COSMOS_2017/run_bpz_on_COSMOS/"
 photdir="/u/ki/awright/COSMOS_2017/run_bpz_on_COSMOS/input_cats_and_columns/"
 
@@ -55,7 +62,6 @@ BVRIZ_filterlists += [['B','V','r_s','i_c','zpp'], ['B','V','rp','i_c','zpp'], [
 # this will reveal issues that were not discovered in the initial error checking.  If you are using the catalog and find issues, 
 # please contact me (muzzin@strw.leidenuniv.nl) so that I can address these in future catalogs.
 
-
 ### which catalog/M0/target are you running on?
 oldcat = '/u/ki/dapple/nfs12/cosmos/cosmos.cat'
 newcatfl="/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.cat"
@@ -79,6 +85,7 @@ for filterlist in BVRIZ_filterlists:
 	columns_num=2
 	ascii_cat_keys=["ID"]
 	for filt in filterlist:
+		## COSMOS zp uncertainties are probably smaller than ours, and that might need to be reflected here. (i.e. .02 should be smaller)
 		filt_col=[filt,'%i,%i' % (columns_num,1+columns_num),'AB','0.02','0.0\n']
 		columns_fo.write('\t'.join(filt_col))
 		ascii_cat_keys.append(filt)
@@ -101,8 +108,8 @@ for filterlist in BVRIZ_filterlists:
 	formats={'ID':'%i'}
 	## add each filter
 	for k in filterlist:
-	    mag=clip(newcatobj[k],-99.0,99.0)
-	    dmag=clip(newcatobj['d'+k],-99.0,99.0)
+	    mag=numpy.clip(newcatobj[k],-99.0,99.0)
+	    dmag=numpy.clip(newcatobj['d'+k],-99.0,99.0)
 	    datas.append(mag)
 	    datas.append(dmag)
 	    names.append(k)
@@ -110,89 +117,94 @@ for filterlist in BVRIZ_filterlists:
 	    formats[k]='%.2f'
 	    formats['d'+k]='%.2f'
 	## add M_0
-	datas.append(clip(newcatobj[M_0_filt],-99.0,99.0))
+	datas.append(numpy.clip(newcatobj[M_0_filt],-99.0,99.0))
 	names.append('M_0')
 	formats={'M_0':'%.2f'}
 	ascii.write(table=datas, output=cat_fl, formats=formats,names=names,Writer=astropy.io.ascii.NoHeader)
 	print "wrote catalog: %s with columns: %s " % (cat_fl,columns_fl)
 
-### `bpz_dict` contains all of the input parameters for bpz.
-###... Most of them are different run settings (e.g. ONLY_TYPE, MAG, INTERP)
-###... some of them point to files that bpz uses which aren't necessarily target-specific (e.g. SPECTRA, and PRIOR)
-###... others tell bpz what to name the various output files.
-bpz_dict = { 'runbpzdir':runbpzdir,
-    'PHOTOMETRYDIR': signature+'_output',
-    'ONLY_TYPE': 'no',
-    'M_0_filt':M_0_filt,
-    'target':target,
-    'BPZPATH':os.environ['BPZPATH'],
-    'signature':signature,
-    'SPECTRA':'CWWSB_capak.list' }
-#if 'ONLY_TYPE'='yes': #Use only the redshift information, no priors
+	### `bpz_dict` contains all of the input parameters for bpz.
+	###... Most of them are different run settings (e.g. ONLY_TYPE, MAG, INTERP)
+	###... some of them point to files that bpz uses which aren't necessarily target-specific (e.g. SPECTRA, and PRIOR)
+	###... others tell bpz what to name the various output files.
+	bpz_dict = { 'runbpzdir':runbpzdir,
+	    'PHOTOMETRYDIR': signature+'_output',
+	    'ONLY_TYPE': 'no',
+	    'M_0_filt':M_0_filt,
+	    'target':target,
+	    'BPZPATH':os.environ['BPZPATH'],
+	    'signature':signature,
+	    'SPECTRA':'CWWSB_capak.list' }
+	#if 'ONLY_TYPE'='yes': #Use only the redshift information, no priors
 
-### I made the bpz columns and input cat in one directory (`photdir`), now I'll copy them over to their specific directory (`PHOTOMETRYDIR`) based on `signature`
-###...where they're given a special naming convention. That's where the output will be written.
-basedir = '%(runbpzdir)s/%(PHOTOMETRYDIR)s/' % bpz_dict
-if not os.path.exists(basedir):
-    os.mkdir(basedir)
+	### I made the bpz columns and input cat in one directory (`photdir`), now I'll copy them over to their specific directory (`PHOTOMETRYDIR`) based on `signature`
+	###...where they're given a special naming convention. That's where the output will be written.
+	basedir = '%(runbpzdir)s/%(PHOTOMETRYDIR)s/' % bpz_dict
+	if not os.path.exists(basedir):
+	    os.mkdir(basedir)
 
-base = '%(runbpzdir)s/%(PHOTOMETRYDIR)s/%(target)s.%(signature)s.%(SPECTRA)s.%(M_0_filt)s' % bpz_dict
-bpz_dict['columns'] = base + '.columns'
-bpz_dict['flux'] = base + '.flux_comparison'
-bpz_dict['catalog'] = base + '.bpz'
-bpz_dict['incat'] = base + '.cat'
-bpz_dict['prob'] = base + '.probs'
-bpz_dict['INTERP'] = '8'
-bpz_dict['MAG'] = 'yes' #used MAGs not FLUXes
+	basefl = '%(target)s.%(signature)s.%(SPECTRA)s.%(M_0_filt)s' % bpz_dict
+	base = '%(runbpzdir)s/%(PHOTOMETRYDIR)s/%(target)s.%(signature)s.%(SPECTRA)s.%(M_0_filt)s' % bpz_dict
+	bpz_dict['columns'] = basedir + basefl + '.columns'
+	bpz_dict['flux'] = basedir + basefl + '.flux_comparison'
+	bpz_dict['catalog'] = basedir + basefl + '.bpz'
+	bpz_dict['incat'] = basedir + basefl + '.cat'
+	bpz_dict['prob'] = basedir + basefl + '.probs'
+	bpz_dict['INTERP'] = '8'
+	bpz_dict['MAG'] = 'yes' #used MAGs not FLUXes
 
-### if I'm using a filter for which there is no filter curve, then exit with error
-for filt4curve in filterlist:
-    f = '' + filt4curve + '.res'
-    existing_curves=glob(os.environ["BPZPATH"]+"/FILTER/"+f)
-    if len(existing_curves) == 0:
-        raise Exception("NO CURVE FOR THIS FILTER!")
+	### if I'm using a filter for which there is no filter curve, then exit with error
+	for filt4curve in filterlist:
+	    f = '' + filt4curve + '.res'
+	    existing_curves=glob(os.environ["BPZPATH"]+"/FILTER/"+f)
+	    if len(existing_curves) == 0:
+		raise Exception("NO CURVE FOR THIS FILTER!")
 
-### copying the bpz columns and input cat from `photdir` to their specific directory (`PHOTOMETRYDIR`) based on `signature`
-incat = base + '.cat'
-command_cp_cat=' '.join(["cp",cat_fl,incat])
-print "command_cp_cat=",command_cp_cat
-ooo=os.system(command_cp_cat)
-if ooo!=0: raise Exception("os.system failed!!!")
-command_cp_columns=' '.join(["cp",columns_fl,bpz_dict['columns']])
-print "command_cp_columns=",command_cp_columns
-ooo=os.system(command_cp_columns)
-if ooo!=0: raise Exception("os.system failed!!!")
+	### copying the bpz columns and input cat from `photdir` to their specific directory (`PHOTOMETRYDIR`) based on `signature`
+	command_cp_cat=' '.join(["cp",cat_fl,bpz_dict['incat']])
+	print "command_cp_cat=",command_cp_cat
+	ooo=os.system(command_cp_cat)
+	if ooo!=0: raise Exception("os.system failed!!!")
+	command_cp_columns=' '.join(["cp",columns_fl,bpz_dict['columns']])
+	print "command_cp_columns=",command_cp_columns
+	ooo=os.system(command_cp_columns)
+	if ooo!=0: raise Exception("os.system failed!!!")
 
-### after doing all of the above stuff in python, it runs bpz in a shell command. haha
-###... I know that's dumb, that's the way it was structured when I inherited the pipeline,
-###... and since running this with many different options might require submitting this to the slac batch queue,
-###... it seems like a good idea to keep it like this since it's easy to just add a "bsub -q long -W 7000" in front of the `command` string
-command = 'python %(BPZPATH)s/bpz.py %(incat)s \
--COLUMNS %(columns)s \
--MAG %(MAG)s \
--SPECTRA %(SPECTRA)s \
--ONLY_TYPE %(ONLY_TYPE)s \
--PRIOR hdfn_SB \
--CHECK yes \
--PLOTS no  \
--VERBOSE yes \
--ZMAX 4.0 \
--INTERP %(INTERP)s \
--INTERACTIVE no \
--PROBS_LITE %(prob)s \
--OUTPUT %(catalog)s' % bpz_dict
+	### after doing all of the above stuff in python, it runs bpz in a shell command. haha
+	###... I know that's dumb, that's the way it was structured when I inherited the pipeline,
+	###... and since running this with many different options might require submitting this to the slac batch queue,
+	###... it seems like a good idea to keep it like this since it's easy to just add a "bsub -q long -W 7000" in front of the `command` string
+	command = 'python %(BPZPATH)s/bpz.py %(incat)s \
+	-COLUMNS %(columns)s \
+	-MAG %(MAG)s \
+	-SPECTRA %(SPECTRA)s \
+	-ONLY_TYPE %(ONLY_TYPE)s \
+	-PRIOR hdfn_SB \
+	-CHECK yes \
+	-PLOTS no  \
+	-VERBOSE yes \
+	-ZMAX 4.0 \
+	-INTERP %(INTERP)s \
+	-INTERACTIVE no \
+	-PROBS_LITE %(prob)s \
+	-OUTPUT %(catalog)s' % bpz_dict
 
-print ' command=',command
-ooo=os.system(command)
-if ooo!=0: 
-    raise Exception("os.system failed!!!")
+	runlocal=0
+	if runlocal:
+		print ' command=',command
+		ooo=os.system(command)
+		if ooo!=0: 
+		    raise Exception("os.system failed!!!")
+	else:
+		bsub_line="bsub -q long -W 4000 -R rhel60 -o /u/ki/awright/data/bpzlogs/%s.log -e /u/ki/awright/data/bpzlogs/%s.err '%s' " % (basefl,basefl,command)
+		ooo=os.system(bsub_line)
 
-### ignore this for now. This is the stuff that we run on the bpz output for clusters
-###... it puts stuff into a nice format for our pipeline, which I'm not sure is needed for the cosmos field
-#print "adam-look: running parsebpz(catalog=",catalog,")"
-#parsebpz(catalog) #outputs ldac cat named catalog+".tab"
-#adam-comment# parsebpz takes catalog and makes catalog+".tab", which is in ldac format
-#''' join the tables '''
-#output = base + '.input_and_bpz.tab'
-#join_cats([catalog+'.tab',(inputcat_alter_ldac,"OBJECTS")],output)
-#convert_to_mags(base,output,base+'.EVERY.cat')
+	### ignore this for now. This is the stuff that we run on the bpz output for clusters
+	###... it puts stuff into a nice format for our pipeline, which I'm not sure is needed for the cosmos field
+	#print "adam-look: running parsebpz(catalog=",catalog,")"
+	#parsebpz(catalog) #outputs ldac cat named catalog+".tab"
+	#adam-comment# parsebpz takes catalog and makes catalog+".tab", which is in ldac format
+	#''' join the tables '''
+	#output = basedir + basefl + '.input_and_bpz.tab'
+	#join_cats([catalog+'.tab',(inputcat_alter_ldac,"OBJECTS")],output)
+	#convert_to_mags(basedir + basefl,output,basedir + basefl+'.EVERY.cat')
