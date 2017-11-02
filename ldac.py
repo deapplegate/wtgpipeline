@@ -176,6 +176,46 @@ def matchCommonSubsets(cat1, cat2, cat1id='SeqNr', cat2id = 'SeqNr'):
     cat2matched = cat2.filter(cat2keep)
     return cat1matched, cat2matched
 
+def orderedmatchById(cat1, cat2, cat1id='SeqNr', cat2id = 'SeqNr'):
+
+    cat1order = {}
+    for i, x in enumerate(cat1[cat1id]):
+        cat1order[x] = i
+        
+    cat2order = {}
+    for i, x in enumerate(cat2[cat2id]):
+        cat2order[x] = i
+    
+    cat1KeepOrder = []
+    cat2KeepOrder = []
+    cat1not2= []
+    cat2not1= []
+    for x in cat2[cat2id]:
+        if x in cat1order:
+            cat1KeepOrder.append(cat1order[x])
+            cat2KeepOrder.append(cat2order[x])
+        else:
+            cat2not1.append(cat2order[x])
+
+    for x in cat1[cat1id]:
+        if not x in cat2order:
+            cat1not2.append(cat1order[x])
+    cat1keep = numpy.array(cat1KeepOrder)
+    cat2keep = numpy.array(cat2KeepOrder)
+    cat1matched = cat1.filter(cat1keep)
+    cat2matched = cat2.filter(cat2keep)
+    cat2not1 = numpy.array(cat2not1)
+    cat1not2 = numpy.array(cat1not2)
+    cat2unmatched = cat2.filter(cat2not1)
+    cat1unmatched = cat1.filter(cat1not2)
+    print ' len(cat1)=',len(cat1) , ' len(cat1matched)=',len(cat1matched) , ' len(cat1unmatched)=',len(cat1unmatched)
+    print ' len(cat2)=',len(cat2) , ' len(cat2matched)=',len(cat2matched) , ' len(cat2unmatched)=',len(cat2unmatched)
+    if len(cat1) != len(cat1matched) +len(cat1unmatched):
+	    raise Exception('adam messed this function up! Lengths dont match')
+    elif len(cat2) != len(cat2matched) +len(cat2unmatched):
+	    raise Exception('adam messed this function up! Lengths dont match')
+    return cat1matched, cat2matched, cat1unmatched, cat2unmatched
+
 
 def joincats(cat1, cat2, cat1id='SeqNr', cat2id = 'SeqNr'):
 
