@@ -49,8 +49,9 @@ import astropy.io.fits as pyfits
 
 ## inputs you might want to change
 DETECT_FILTER="W-C-RC"
-M_0_filt="W-C-RC" #this is the filter to use for "M_0", the mag most comparable to SDSS/2MASS/etc. deepest filter
-M_0_filt2="W-C-IC" #this is the backup filter to use for "M_0" if M_0_filt isn't available
+M_0_filt="SUBARU-10_2-1-W-C-RC" #this is the filter to use for "M_0", the mag most comparable to SDSS/2MASS/etc. deepest filter
+M_0_filt2="SUBARU-10_3-1-W-C-RC" #this is the backup filter to use for "M_0" if M_0_filt isn't available
+##for MACS1115 we want: 'SUBARU-10_3-1-W-C-RC', 'SUBARU-10_2-1-W-C-RC'
 iaper = '1' #this is now just a tag I use where "1" just means nothing out of the ordinary. Probably used to mean something more significant. Other example: #adam-old# iaper = '1_M_0_Iband'
 ONLY_TYPE="no" #if this is "yes", then you're essentially using bpz to evaluate how good your magnitude ZPs are (make sure spec=True)
 spec = False
@@ -139,7 +140,7 @@ def convert_to_mags(base,mag_cat,outputfile):
     sys.path=addpath
     from useful import ejecuta,get_header,put_header,get_str,put_str,get_data,get_2Darray,put_2Darray,params_file,params_commandline,view_keys,match_resol,overlap,match_objects,match_min,match_min2
     from coeio import loaddata, loadfile, params_cl, str2num, loaddict, findmatch1, pause  #, prange, plotconfig
-    sys.path=purepath
+    sys.path=purepath+['/u/ki/awright/InstallingSoftware/pythons/']
 
     bpzstr = loadfile(cat)
     bpzparams = {}
@@ -564,7 +565,7 @@ def do_bpz(CLUSTER,DETECT_FILTER,AP_TYPE,filters,inputcat_alter_ascii,inputcat_a
 	    -PRIOR hdfn_SB \
 	    -CHECK yes \
 	    -PLOTS yes \
-	    -VERBOSE no \
+	    -VERBOSE yes \
 	    -ZMAX 4.0 \
 	    -INTERP %(INTERP)s \
 	    -INTERACTIVE no \

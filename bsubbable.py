@@ -19,4 +19,4 @@ errfile="OUT-%s-%s.err" % (datestr,base)
 outdir="/nfs/slac/kipac/fs1/u/awright/batch_files/bsubbable/"
 
 print "IF IT WILL TAKE A WHILE, THEN RUN THIS:"
-print "bsub -q long -W 7000 -R rhel60 -o %s/%s -e %s/%s ./%s" % (outdir,outfile,outdir,errfile,script)
+print "bsub -q long -W 7000 -R rhel60 -o %s/%s -e %s/%s './%s' " % (outdir,outfile,outdir,errfile,script)

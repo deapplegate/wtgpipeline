@@ -21,9 +21,6 @@ fl=open('/nfs/slac/kipac/fs1/u/awright/COSMOS_2017/id2pz_cdf.pkl','rb')
 id2pz_cdf=pickle.load(fl)
 fl.close()
 
-
-
-
 ############################################
 
 pixscale = 0.2
@@ -401,31 +398,41 @@ def createCatalog(bpz,
         chosenSizes = bpz_sizes[indices]
         chosenSNratios = bpz_snratios[indices]
 
-
     print "adam-look: running createCatalog in cosmos_sim.py"
     z_id=chosenZs[idcol]
-    zbins=numpy.arange(0,6.01,.01)
     z_drawn=-1*np.ones(len(chosenZs))
     print '!!!', len(z_drawn)
-    for id_indx, id in enumerate(z_id):
-	    try:
-	    	    cdf=id2pz_cdf[id]
-	    except:
-		    if id in gone_ids:
-			    print "adam-look: gone id ",id
-			    continue
-		    else:
-			    raise
-	    x=numpy.random.rand()
-	    try:
-	    	zval=(zbins[cdf<=x])[-1]
-	    except:
-		    if id in bad_ids:
-			    print "adam-look: bad id ",id
-		    	    continue
-		    else:
-			    raise
-            z_drawn[id_indx] = zval
+
+    #adam: toggle from using single point zp_best to drawing a random sample from the p(z) dist'n
+    #adam-tmp# zchoice='dist'
+    zchoice='point'
+    if zchoice=='point':
+	    #adam# change from `true_z = chosenZs[zkey]` to z_drawn from p(z)
+	    zkey = 'zp_best'
+	    if zkey not in chosenZs:
+		zkey = 'BPZ_Z_S'
+	    z_drawn= chosenZs[zkey]
+    elif zchoice=='dist':
+	    zbins=numpy.arange(0,6.01,.01)
+	    for id_indx, id in enumerate(z_id):
+		    try:
+			    cdf=id2pz_cdf[id]
+		    except:
+			    if id in gone_ids:
+				    print "adam-look: gone id ",id
+				    continue
+			    else:
+				    raise
+		    x=numpy.random.rand()
+		    try:
+			zval=(zbins[cdf<=x])[-1]
+		    except:
+			    if id in bad_ids:
+				    print "adam-look: bad id ",id
+				    continue
+			    else:
+				    raise
+		    z_drawn[id_indx] = zval
     
     good_draws = z_drawn > -1
     z_drawn = z_drawn[good_draws]

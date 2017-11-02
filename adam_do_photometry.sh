@@ -357,7 +357,7 @@ if [ $fit_calibration -eq 1 ]; then
 	# makes the MACS1226+21.stars.split_apers.cat file
 	export BIGMACS=/nfs/slac/kipac/fs1/u/awright/InstallingSoftware_extension/big-macs-calibrate
 	PYTHONPATH_old=$PYTHONPATH
-	PYTHONPATH=$BIGMACS:PYTHONPATH
+	PYTHONPATH=${BIGMACS}:${PYTHONPATH_old}
 	export PYTHONPATH
 	cd $BIGMACS
 	mkdir ${photdir}/BIGMACS_output/

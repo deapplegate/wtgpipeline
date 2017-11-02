@@ -91,7 +91,7 @@ for exposure in $exposures; do
 	catfiles="$catfiles ${unstacked_dir}/${tag}.filtered.cat"
 	
     else
-	echo "Missing Exposure: $exposure"
+	echo "Missing Exposure: ${exposure}"
 	exit 1
     fi
 
@@ -109,9 +109,9 @@ fi
 
 ############################
 #special filters
-inSpecialFilters=`echo $special_filters | grep $filter`
+inSpecialFilters=`echo ${special_filters} | grep ${filter}`
 if [ -n "$inSpecialFilters" ]; then
-    ./convertSpecialFilters.py $catfiles $unstacked_dir/$cluster.$filter.unstacked.cat
+    ./convertSpecialFilters.py ${catfiles} ${unstacked_dir}/${cluster}.${filter}.unstacked.cat
     exit 0   
 fi
 #############################

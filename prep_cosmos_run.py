@@ -2,9 +2,15 @@
 #######################
 # script to automate making sims from COSMOS photoz
 ########################
+import ldac, numpy as np
+cat_switch='oldcat'
+if cat_switch=='oldcat':
+	cosmos = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos.cat')
+	cosmos30 = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos30.cat')
+if cat_switch=='newcat_matched':
+	cosmos=ldac.openObjectFile("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.cat")
 
 import os, sys, cPickle, glob
-import ldac, numpy as np
 import pdzfile_utils as pdzfile
 import cosmos_sim as cs, shearprofile as sp
 import nfwutils
@@ -12,8 +18,6 @@ import nfwutils
 
 #######################
 
-cosmos = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos.cat')
-cosmos30 = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos30.cat')
 
 
 def prepSourceFiles(photfilters, outdirbase = '/u/ki/dapple/nfs12/cosmos/simulations/publication', 
@@ -120,9 +124,13 @@ def createCatalogs(workdir, zs = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7], massrange = [3e
     snratios = np.ones(len(bpz))
 
     
-    fields = [ldac.openObjectFile(x) for x in glob.glob('%s/field_*.cat' % workdir)]
+    #adam: I think this is right, but I'm not certain, it might be that "master" is right for both old and new cats
+    if cat_switch=='oldcat':
+        fields = [ldac.openObjectFile(x) for x in glob.glob('%s/field_*.cat' % workdir)]
+    if cat_switch=='newcat_matched':
+        fields = [ldac.openObjectFile(x) for x in glob.glob('%s/*master_*.cat' % workdir)]
 
-    
+
     cs.createCutoutSuite(zs = zs, massrange = massrange, 
                          goodbpz = bpz, 
                          sizes = sizes, 
