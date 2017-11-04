@@ -3,6 +3,7 @@
 # script to automate making sims from COSMOS photoz
 ########################
 import ldac, numpy as np
+## toggle between the old catalog and the new one by changing `cat_switch` in prep_cosmos_run.py
 cat_switch='oldcat'
 if cat_switch=='oldcat':
 	cosmos = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos.cat')
