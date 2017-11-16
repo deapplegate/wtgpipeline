@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 #######################
 
-import os, glob, re, astropy, astropy.io.fits as pyfits, pywcs, wcsregionfile as wrf, sys
+import os, glob, re, astropy, astropy.io.fits as pyfits, wcsregionfile as wrf, sys
+import astropy.wcs as pywcs
 
 #######################
 

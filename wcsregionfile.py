@@ -2,7 +2,8 @@
 #######################
 
 import sys, unittest, inspect, tempfile, os
-import astropy, astropy.io.fits as pyfits, pywcs
+import astropy, astropy.io.fits as pyfits
+import astropy.wcs as pywcs
 import numpy as np
 import regionfile as rf
 
