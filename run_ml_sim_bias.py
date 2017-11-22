@@ -5,7 +5,7 @@ import sys
 import numpy as np
 import compare_masses as cm, intrinsicscatter as isc
 import scatter_sims as ss, nfwutils
-from dappleutils import readtxtfile
+from readtxtfile import readtxtfile
 
 workdir = sys.argv[1]
 subdir = sys.argv[2]

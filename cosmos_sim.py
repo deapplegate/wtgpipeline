@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 #adam: note that this is basically the same as ~/wtgpipeline/cosmos_sim.py.r15422 with the archaic catalog things (updating headers and using new_table) fixed
 
+#from adam_cosmos_options import zchoice_switch, cat_switch, cosmos_idcol
 import re, cPickle
 import numpy as np
 import numpy
@@ -14,8 +15,11 @@ import pickle
 fl=open('/u/ki/awright/COSMOS_2017/bad_ids.pkl','rb')
 bad_ids=pickle.load(fl)
 fl.close()
-fl=open('/u/ki/awright/COSMOS_2017/gone_ids.pkl','rb')
+fl=open('/u/ki/awright/COSMOS_2017/gone_ids_105.pkl','rb')
 gone_ids=pickle.load(fl)
+fl.close()
+fl=open('/nfs/slac/kipac/fs1/u/awright/COSMOS_2017/id2z_best.pkl','rb')
+id2z=pickle.load(fl)
 fl.close()
 fl=open('/nfs/slac/kipac/fs1/u/awright/COSMOS_2017/id2pz_cdf.pkl','rb')
 id2pz_cdf=pickle.load(fl)
@@ -403,16 +407,32 @@ def createCatalog(bpz,
     z_drawn=-1*np.ones(len(chosenZs))
     print '!!!', len(z_drawn)
 
-    #adam: toggle from using single point zp_best to drawing a random sample from the p(z) dist'n
-    #adam-tmp# zchoice='dist'
-    zchoice='point'
-    if zchoice=='point':
+    #adam Replaced this with stuff in adam_cosmos_options 
+    #### toggle from using single point zp_best to drawing a random sample from the p(z) dist'n by changing `zchoice_switch` to `dist ` or `point` in cosmos_sim.py
+    #####adam-tmp# zchoice_switch='dist'
+    from adam_cosmos_options import zchoice_switch, cat_switch
+    if zchoice_switch=='point':
 	    #adam# change from `true_z = chosenZs[zkey]` to z_drawn from p(z)
-	    zkey = 'zp_best'
-	    if zkey not in chosenZs:
-		zkey = 'BPZ_Z_S'
-	    z_drawn= chosenZs[zkey]
-    elif zchoice=='dist':
+            if cat_switch=='oldcat' or cat_switch=='4cccat':
+	        zkey = 'zp_best'
+	        if zkey not in chosenZs:
+		    zkey = 'BPZ_Z_S'
+                z_drawn= chosenZs[zkey]
+            elif cat_switch=='newcat_matched':
+                zbins=numpy.arange(0,6.01,.01)
+                for id_indx, id in enumerate(z_id):
+                    try:
+                	zval=id2z[id]
+                    except:
+                	if id in bad_ids+gone_ids:
+                	    print "adam-look: bad + gone id ",id
+                	    continue
+                	else:
+                	    raise
+                    z_drawn[id_indx] = zval
+	    else:
+                raise Exception ('one or both of `zchoice_switch` and `cat_switch` arent set right in adam_cosmos_options.py')
+    elif zchoice_switch=='dist' and cat_switch=='newcat_matched':
 	    zbins=numpy.arange(0,6.01,.01)
 	    for id_indx, id in enumerate(z_id):
 		    try:
@@ -425,7 +445,7 @@ def createCatalog(bpz,
 				    raise
 		    x=numpy.random.rand()
 		    try:
-			zval=(zbins[cdf<=x])[-1]
+			    zval=(zbins[cdf<=x])[-1]
 		    except:
 			    if id in bad_ids:
 				    print "adam-look: bad id ",id
@@ -433,6 +453,8 @@ def createCatalog(bpz,
 			    else:
 				    raise
 		    z_drawn[id_indx] = zval
+    else:
+            raise Exception ('one or both of `zchoice_switch` and `cat_switch` arent set right in adam_cosmos_options.py')
     
     good_draws = z_drawn > -1
     z_drawn = z_drawn[good_draws]

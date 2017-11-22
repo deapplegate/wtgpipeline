@@ -4,7 +4,7 @@
 
 import publication_plots as pp
 import cPickle
-from dappleutils import readtxtfile
+from readtxtfile import readtxtfile
 import pylab, numpy as np
 import nfwutils, compare_masses as cm
 import maxlike_secure_bentstep3_voigt_driver as driver

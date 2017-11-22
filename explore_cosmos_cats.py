@@ -9,18 +9,34 @@ import pickle
 import glob
 from matplotlib.pylab import *
 
+catold = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos.cat')
+hdulist_4cc = pyfits.open('/u/ki/dapple/nfs12/cosmos/cosmos_4cc.cat')
+cat4cc = ldac.LDACCat(hdulist_4cc[1])                                                                                                                                             
+print ' cat4cc.keys()=',cat4cc.keys()
+print ' catold.keys()=',catold.keys()
+match_old,match_4cc,unmatch_old,unmatch_4cc = ldac.orderedmatchById(catold, cat4cc, 'id', 'SeqNr')
+sys.exit()
+
+
+##
+catnewzp=ldac.openObjectFile("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.zp.cat")
+catnew=ldac.openObjectFile("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.cat")
+#yes: len(newcat)==len(newzpcat)
+#no: newcat == newzpcat
+pdznewfo=pyfits.open("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/pdz_v2.0_010312.fits")
+pdznew=ldac.LDACCat(pdznewfo[1])
+
+#print "cat4cc.keys()==['SeqNr', 'NFILT', 'MAG_APER1-SUBARU-COADD-1-W-S-I+', 'MAG_APER1-MEGAPRIME-COADD-1-z', 'MAG_APER1-SUBARU-COADD-1-W-J-B', 'MAG_APER1-SUBARU-COADD-1-W-S-Z+', 'MAG_APER1-SUBARU-COADD-1-W-S-G+', 'MAG_APER1-SUBARU-COADD-1-W-C-RC', 'MAG_APER1-MEGAPRIME-COADD-1-r', 'MAG_APER1-MEGAPRIME-COADD-1-i', 'MAG_APER1-SUBARU-COADD-1-W-S-R+', 'MAG_APER1-SUBARU-COADD-1-W-C-IC', 'MAG_APER1-SUBARU-COADD-1-W-J-V', 'MAG_APER1-MEGAPRIME-COADD-1-g', 'DATA_SeqNr', 'DATA_MAG_APER-SUBARU-COADD-1-W-S-I+', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-S-I+', 'DATA_MAG_APER-MEGAPRIME-COADD-1-z', 'DATA_MAGERR_APER-MEGAPRIME-0-1-z', 'DATA_MAG_APER-SUBARU-COADD-1-W-J-B', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-J-B', 'DATA_MAG_APER-SUBARU-COADD-1-W-S-Z+', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-S-Z+', 'DATA_MAG_APER-SUBARU-COADD-1-W-S-G+', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-S-G+', 'DATA_MAG_APER-SUBARU-COADD-1-W-C-RC', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-C-RC', 'DATA_MAG_APER-MEGAPRIME-COADD-1-r', 'DATA_MAGERR_APER-MEGAPRIME-0-1-r', 'DATA_MAG_APER-MEGAPRIME-COADD-1-i', 'DATA_MAGERR_APER-MEGAPRIME-0-1-i', 'DATA_MAG_APER-SUBARU-COADD-1-W-S-R+', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-S-R+', 'DATA_MAG_APER-SUBARU-COADD-1-W-C-IC', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-C-IC', 'DATA_MAG_APER-SUBARU-COADD-1-W-J-V', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-J-V', 'DATA_MAG_APER-MEGAPRIME-COADD-1-g', 'DATA_MAGERR_APER-MEGAPRIME-0-1-g', 'DATA_PatID', 'DATA_zspec', 'DATA_priormag', 'DATA_NFILT', 'Ra', 'Dec', 'rg', 'zp_best', 'A_IMAGE', 'B_IMAGE', 'FWHM_IMAGE', 'CLASS_STAR', 'auto_flag', 'det_iso', 'ddet_iso', 'det_auto', 'ddet_auto', 'J', 'K', 'type', 'acs_fwhm', 'acs_star', 'zphot', 'V_mask', 'i_mask', 'z_mask', 'deep_mask', 'HYBRID_MAG_APER-SUBARU-10_2-1-W-S-I+']"
 #tmp# pdz2015fo=pyfits.open("/u/ki/awright/COSMOS_2017/COSMOS_2015/pdz_cosmos2015_v1.3.fits")
 #tmp# pdz2015=ldac.LDACCat(pdz2015fo[1])
 
+print ' cat4cc.keys()=',cat4cc.keys()
+print ' catnew.keys()=',catnew.keys()
+print ' catnewzp.keys()=',catnewzp.keys()
+print ' pdznew.keys()=',pdznew.keys()
+sys.exit()
 hdulist = pyfits.open('/u/ki/awright/COSMOS_2017/COSMOS_2015/COSMOS2015_Laigle+_v1.1.fits')
 cat2015 = ldac.LDACCat(hdulist[1])                                                                                                                                             
-
-#tmp#pdznewfo=pyfits.open("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/pdz_v2.0_010312.fits")
-#tmp#pdznew=ldac.LDACCat(pdznewfo[1])
-
-hdulist_4cc = pyfits.open('/u/ki/dapple/nfs12/cosmos/cosmos_4cc.cat')
-cat4cc = ldac.LDACCat(hdulist_4cc[1])                                                                                                                                             
-print "cat4cc.keys()==['SeqNr', 'NFILT', 'MAG_APER1-SUBARU-COADD-1-W-S-I+', 'MAG_APER1-MEGAPRIME-COADD-1-z', 'MAG_APER1-SUBARU-COADD-1-W-J-B', 'MAG_APER1-SUBARU-COADD-1-W-S-Z+', 'MAG_APER1-SUBARU-COADD-1-W-S-G+', 'MAG_APER1-SUBARU-COADD-1-W-C-RC', 'MAG_APER1-MEGAPRIME-COADD-1-r', 'MAG_APER1-MEGAPRIME-COADD-1-i', 'MAG_APER1-SUBARU-COADD-1-W-S-R+', 'MAG_APER1-SUBARU-COADD-1-W-C-IC', 'MAG_APER1-SUBARU-COADD-1-W-J-V', 'MAG_APER1-MEGAPRIME-COADD-1-g', 'DATA_SeqNr', 'DATA_MAG_APER-SUBARU-COADD-1-W-S-I+', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-S-I+', 'DATA_MAG_APER-MEGAPRIME-COADD-1-z', 'DATA_MAGERR_APER-MEGAPRIME-0-1-z', 'DATA_MAG_APER-SUBARU-COADD-1-W-J-B', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-J-B', 'DATA_MAG_APER-SUBARU-COADD-1-W-S-Z+', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-S-Z+', 'DATA_MAG_APER-SUBARU-COADD-1-W-S-G+', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-S-G+', 'DATA_MAG_APER-SUBARU-COADD-1-W-C-RC', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-C-RC', 'DATA_MAG_APER-MEGAPRIME-COADD-1-r', 'DATA_MAGERR_APER-MEGAPRIME-0-1-r', 'DATA_MAG_APER-MEGAPRIME-COADD-1-i', 'DATA_MAGERR_APER-MEGAPRIME-0-1-i', 'DATA_MAG_APER-SUBARU-COADD-1-W-S-R+', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-S-R+', 'DATA_MAG_APER-SUBARU-COADD-1-W-C-IC', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-C-IC', 'DATA_MAG_APER-SUBARU-COADD-1-W-J-V', 'DATA_MAGERR_APER-SUBARU-10_2-1-W-J-V', 'DATA_MAG_APER-MEGAPRIME-COADD-1-g', 'DATA_MAGERR_APER-MEGAPRIME-0-1-g', 'DATA_PatID', 'DATA_zspec', 'DATA_priormag', 'DATA_NFILT', 'Ra', 'Dec', 'rg', 'zp_best', 'A_IMAGE', 'B_IMAGE', 'FWHM_IMAGE', 'CLASS_STAR', 'auto_flag', 'det_iso', 'ddet_iso', 'det_auto', 'ddet_auto', 'J', 'K', 'type', 'acs_fwhm', 'acs_star', 'zphot', 'V_mask', 'i_mask', 'z_mask', 'deep_mask', 'HYBRID_MAG_APER-SUBARU-10_2-1-W-S-I+']"
 catold = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos.cat')
 
 def matchById(thiscat, othercat, otherid='SeqNr', thisid='SeqNr'):
@@ -88,16 +104,7 @@ show()
 posoff.max()
 print posoff.max()
 
-sys.exit()
 ## difference in keys, but not objects between these two:
-#tmp# catnewzp=ldac.openObjectFile("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.zp.cat")
-#tmp# catnew=ldac.openObjectFile("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.cat")
-#yes: len(newcat)==len(newzpcat)
-#no: newcat == newzpcat
-print ' catold.keys()=',catold.keys()
-#tmp# print ' catnew.keys()=',catnew.keys()
-#tmp# print ' catnewzp.keys()=',catnewzp.keys()
-#tmp# print ' pdznew.keys()=',pdznew.keys()
 print ' cat2015.keys()=',cat2015.keys()
 print ' pdz2015.keys()=',pdz2015.keys()
 # catold.keys()= ['id', 'tile', 'ra', 'dec', 'clon', 'clat', 'zp_best', 'type', 'zp_gal', 'zl68_gal', 'zu68_gal', 'zl99_gal', 'zu99_gal', 'chi_gal', 'ebv', 'zp_sec', 'chi_sec', 'ebv_sec', 'mod_star', 'chi_star', 'umag', 'bmag', 'vmag', 'gmag', 'rmag', 'imag', 'zmag', 'icmag', 'jmag', 'kmag', 'eu', 'eb', 'ev', 'eg', 'er', 'ei', 'ez', 'eic', 'ej', 'ek', 'flagb', 'flagv', 'flagi', 'flagz', 'flagd', 'nbfilt', 'i_auto', 'auto_offset', 'auto_flag', 'mv']

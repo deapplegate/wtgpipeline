@@ -4,7 +4,7 @@
 #######################
 
 import numpy as np, astropy, astropy.io.fits as pyfits
-from dappleutils import readtxtfile
+from readtxtfile import readtxtfile
 import ldac, shearprofile as sp
 
 

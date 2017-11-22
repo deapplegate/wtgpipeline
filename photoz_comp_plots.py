@@ -3,7 +3,7 @@
 ########################
 
 import numpy as np, pylab, ldac, os
-from dappleutils import readtxtfile
+from readtxtfile import readtxtfile
 
 ########################
 

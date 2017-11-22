@@ -4,7 +4,7 @@
 import sys
 import numpy as np
 import compare_masses as cm, intrinsicscatter2 as isc2
-from dappleutils import readtxtfile
+from readtxtfile import readtxtfile
 import pymc
 
 outfile = sys.argv[1]

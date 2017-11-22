@@ -90,3 +90,7 @@ export detect_filter=W-C-RC;export lensing_filter=W-C-RC
 #adam-note#  outputfile= /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all.EVERY.cat
 . bpz.ini
 ./adam_bpz_wrapper.py
+
+#Ok, now you can move on to the lensing scripts!
+cd ~/ldaclensing
+vim adam_outline.sh

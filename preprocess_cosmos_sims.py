@@ -9,9 +9,9 @@ import process_cosmos_sims as pcs, ldac
 def preprocessFile(resultfile):
 
     #for processing the results of the MaxLike files once
-    print "start"
+
     massdist, masses = pcs.processFile(resultfile)
-    print massdist, masses
+    print "resultfile=",resultfile
 
     dir, filename = os.path.split(resultfile)
 

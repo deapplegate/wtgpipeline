@@ -399,20 +399,23 @@ def createCatalog(bpz,
         chosenSizes = bpz_sizes[indices]
         chosenSNratios = bpz_snratios[indices]
 
-
-    zkey = 'zp_best'
-    if zkey not in chosenZs:
-        zkey = 'BPZ_Z_S'
-    
-    #adam-new# Change from using single point zp_best to drawing a random sample from the p(z) dist'n
-    #adam-old# change from `true_z = chosenZs[zkey]` to z_drawn from p(z)
     print "adam-look: running createCatalog in cosmos_sim.py"
-    #adam-?# z_id=chosenZs[idcol] #adam, maybe it should be this instead: z_id=chosenZs['SeqNr']
     z_id=chosenZs['SeqNr']
+    z_drawn=-1*np.ones(len(chosenZs))
+
+    #adam: toggle from using single point zp_best to drawing a random sample from the p(z) dist'n
+    zchoice='dist'
+    zchoice='point'
+    if zchoice=='point':
+	    zkey = 'zp_best'
+	    if zkey not in chosenZs:
+		zkey = 'BPZ_Z_S'
+    
+    #adam-old# change from `true_z = chosenZs[zkey]` to z_drawn from p(z)
     fl=open('/nfs/slac/kipac/fs1/u/awright/COSMOS_2017/id2pz_cdf.pkl','rb')
     id2pz_cdf=pickle.load(fl)
+    fl.close()
     zbins=numpy.arange(0,6.01,.01)
-    z_drawn=-1*np.ones(len(chosenZs))
     print '!!!', len(z_drawn)
     for id_indx, id in enumerate(z_id):
 	    try:

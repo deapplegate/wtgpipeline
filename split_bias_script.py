@@ -4,7 +4,7 @@
 
 import numpy as np, pylab
 import pymc
-from dappleutils import readtxtfile
+from readtxtfile import readtxtfile
 import intrinsicscatter_grid as isg, intrinsicscatter_grid_plots as isgp
 import compare_masses as cm
 

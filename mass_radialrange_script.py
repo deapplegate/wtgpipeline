@@ -6,7 +6,7 @@
 import numpy as np
 import intrinsicscatter_grid as isg
 import intrinsicscatter_grid_plots as isgp
-from dappleutils import readtxtfile
+from readtxtfile import readtxtfile
 import compare_masses as cm
 
 ########################

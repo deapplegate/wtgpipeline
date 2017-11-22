@@ -617,4 +617,4 @@ do_bpz(cluster,DETECT_FILTER, AP_TYPE, filterlist,inputcat_alter_ascii,inputcat_
 print 'TO SAVE OUTPUT ZP fits: grep -A 12 "PHOTOMETRIC CALIBRATION TESTS" OUT-bpz_lasttime.log > adam_bpz_fit_ZPs-without_specz.log'
 print "for more info, run this: python $BPZPATH/bpzfinalize.py %s" % (base)
 #Includes calculation of modified chisq (chisq2) plus different formatting #Important: Check your results including SED fits and P(z)
-print "for more info, run this: python $BPZPATH/plots/webpage.py %s i0-63 -DIR /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/bpz_html_sex2mag" % (base)
+print "for more info, run this: python $BPZPATH/plots/webpage.py %s i2000-2063 -DIR /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/bpz_html_sex2mag" % (base)

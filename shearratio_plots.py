@@ -7,7 +7,7 @@ import sys, cPickle, subprocess, os
 import pylab, numpy as np
 import shearratio as sr, nfwutils
 import maxlike_secure_bentstep3_voigt_driver as driver
-from dappleutils import readtxtfile
+from readtxtfile import readtxtfile
 
 #######################
 

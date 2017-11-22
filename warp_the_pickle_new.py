@@ -4,7 +4,7 @@ import sys, glob,astropy, astropy.io.fits as pyfits, os.path
 #from numpy import *
 import scipy
 import scipy.interpolate.interpolate as interp
-#from dappleutils import readtxtfile
+#from readtxtfile import readtxtfile
 #from optparse import OptionParser
 
 c = 299792458e10 #Angstroms/s

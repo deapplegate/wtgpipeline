@@ -82,7 +82,6 @@ while true; do
 	mv $curJobFile $queueDir/error.$jobFileBase
        
     else
-	
 	curdate=`date`
 	echo "$curdate : Submitted $curJobFile" >> $logfile
 
@@ -92,8 +91,3 @@ while true; do
     fi
   
 done
-
-
-
-
-

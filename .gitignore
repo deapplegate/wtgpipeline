@@ -8,6 +8,7 @@ scratch/
 *.o
 *.so
 OUT-*.log
+publication/
 simqueue/
 setup.py
 build/

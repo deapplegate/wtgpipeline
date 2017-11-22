@@ -3,7 +3,7 @@ import numpy as np
 import pylab, pymc
 import scatter_sims as ss, compare_masses as cm
 import nfwutils
-from dappleutils import readtxtfile
+from readtxtfile import readtxtfile
 import intrinsicscatter_grid as isg
 import intrinsicscatter_grid_plots as isgp
 import intrinsicscatter as isc
@@ -15,15 +15,15 @@ def publicationContamComparePlot(contam0fracbias, contam1fracbias, contam2fracbi
     fig = pylab.figure()
     ax = fig.add_axes([0.15, 0.12, 0.95 - 0.15, 0.95 - 0.12])
     
-#    c0mean, c0err = ss.bootstrapMean(contam0fracbias)
+    #c0mean, c0err = ss.bootstrapMean(contam0fracbias)
     c1mean, c1err = ss.bootstrapMean(contam1fracbias)
-#    c2mean, c2err = ss.bootstrapMean(contam2fracbias)
+    #c2mean, c2err = ss.bootstrapMean(contam2fracbias)
 
-#    ax.errorbar(redshifts - 0.005, c1mean, c1err, fmt='bo', label='0\% Contamination')
-#    ax.errorbar(redshifts, c1mean, c1err, fmt='rs', label='10\% Contamination')
+    #ax.errorbar(redshifts - 0.005, c1mean, c1err, fmt='bo', label='0\% Contamination')
+    #ax.errorbar(redshifts, c1mean, c1err, fmt='rs', label='10\% Contamination')
     ax.errorbar(redshifts, c1mean, c1err, fmt='bs', label='10\% Contamination')
 
-#    ax.errorbar(redshifts + 0.005, c2mean, c2err, fmt='g^', label='20\% Contamination')
+    #ax.errorbar(redshifts + 0.005, c2mean, c2err, fmt='g^', label='20\% Contamination')
     
     ax.axhline(0.0, c='k')
 
@@ -33,7 +33,7 @@ def publicationContamComparePlot(contam0fracbias, contam1fracbias, contam2fracbi
     ax.set_xlabel('Cluster Redshift')
     ax.set_ylabel(r'Fractional Mass Bias')
 
-#    ax.legend(loc='lower left', numpoints = 1, ncol=2)
+    #ax.legend(loc='lower left', numpoints = 1, ncol=2)
 
     return fig
 
@@ -273,23 +273,21 @@ def MLPointEstScript(data = None):
 
         subdirs = ['contam0p10/BVRIZ']
 
-#        MLfracbias = ss.processFracBiasData('/u/ki/dapple/nfs12/cosmos/simulations/publication/highsn/cluster3', 
-#                                            subdirs, clusters, redshifts)[0]
-#
-#        
-#        Apointmass, Apointgrid, scale_radii = ss.readPointMasses('/u/ki/dapple/nfs12/cosmos/simulations/publication/highsn/cluster3', 'contam0p10/newman/APER', clusters)
+        #MLfracbias = ss.processFracBiasData('/u/ki/dapple/nfs12/cosmos/simulations/publication/highsn/cluster3', 
+        #                                    subdirs, clusters, redshifts)[0]
+        #Apointmass, Apointgrid, scale_radii = ss.readPointMasses('/u/ki/dapple/nfs12/cosmos/simulations/publication/highsn/cluster3', 'contam0p10/newman/APER', clusters)
         Bpointmass, Bpointgrid, scale_radii = ss.readPointMasses('/u/ki/dapple/nfs12/cosmos/simulations/clusters_2012-05-17', 'contam0p10/newman/BVRIZ', clusters)
 
         truemasses = [nfwutils.massInsideR(scale_radii[x], 4., redshifts[x], 1.5) for x in clusters]
 
-#        Apointfracbias = ss.calcFracBias(Apointgrid, truemasses)
+        #Apointfracbias = ss.calcFracBias(Apointgrid, truemasses)
         Bpointfracbias = ss.calcFracBias(Bpointgrid, truemasses)
 
         data = [None, Bpointfracbias, properredshifts]
 
     else:
 
-#        Apointfracbias = data[0]
+        #Apointfracbias = data[0]
         Bpointfracbias = data[1]
         properredshifts = data[2]
 
@@ -305,11 +303,11 @@ def MLPointEstScript(data = None):
 
 
         
-#        Apointmean, Apointerr = ss.bootstrapMean(Apointfracbias)
+        #Apointmean, Apointerr = ss.bootstrapMean(Apointfracbias)
         Bpointmean, Bpointerr = ss.bootstrapMean(Bpointfracbias)
 
         ax.errorbar(properredshifts, Bpointmean, Bpointerr, fmt='bo', label=r'$BVr^+i^+z^+$')
-#        ax.errorbar(properredshifts+0.0025, Apointmean, Apointerr, fmt='rs', label=r'$uBVr^+i^+z^+$')
+        #ax.errorbar(properredshifts+0.0025, Apointmean, Apointerr, fmt='rs', label=r'$uBVr^+i^+z^+$')
 
         ax.text(0.166, 0.135, r'$BVr^+i^+z^+$ Photo-Z Point Est', fontsize=16)
 
@@ -320,7 +318,7 @@ def MLPointEstScript(data = None):
         ax.set_xlabel('Cluster Redshift', fontsize=16)
         ax.set_ylabel(r'Fractional Mass Bias within 1.5 Mpc')
 
-#        ax.legend(loc='lower right', numpoints = 1, ncol=2)
+        #ax.legend(loc='lower right', numpoints = 1, ncol=2)
 
         fig.savefig('publication/clustersims_pointest_compare.eps')
 
@@ -330,6 +328,7 @@ def MLPointEstScript(data = None):
 
 ###################################        
 
+#adam-SHNT# this is the plot in Weighing the Giants - III figure 8
 def PointEstPzScript(data = None):
 
 
@@ -389,7 +388,7 @@ def PointEstPzScript(data = None):
         ax.set_xlabel('Cluster Redshift')
         ax.set_ylabel(r'Fractional Mass Bias within 1.5 Mpc')
 
-#        ax.text(0.2, 0.12, r'$BVr^{+}i^{+}z^{+}$ Photo-$z$ Point Est', fontsize=16)
+        #ax.text(0.2, 0.12, r'$BVr^{+}i^{+}z^{+}$ Photo-$z$ Point Est', fontsize=16)
 
         ax.legend(loc='upper left', numpoints = 1, ncol=1)
 

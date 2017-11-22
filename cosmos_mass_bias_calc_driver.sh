@@ -15,17 +15,47 @@ set -xv
 
 ## RUNNING COSMOS MASS BIAS
 ## step 1 of 4
-datadir='/nfs/slac/g/ki/ki18/anja/SUBARU/cosmossims2017/'
-filterset='UGRIZ'
+#adam-done# datadir='/nfs/slac/g/ki/ki18/anja/SUBARU/cosmossims2017_COSMOS2008-zp_best/'
+#adam-done# 	both UGRIZ and BVRIZ are done
+#adam-done# datadir='/nfs/slac/g/ki/ki18/anja/SUBARU/cosmossims2017_COSMOSnewmatch-zp_dist/'
+#adam-done# 	both UGRIZ and BVRIZ are done
+
+## datadir/filterset now set by this:
+./adam_cosmos_options.py
+. cosmos_mass_bias.ini
+
+#older example: datadir='/u/ki/dapple/nfs22/cosmossims2017/'
+#older example: filterset='BVRIZ'
+## toggle between the old catalog and the new one by changing `cat_switch` in prep_cosmos_run.py
+## toggle from using single point zp_best to drawing a random sample from the p(z) dist'n by changing `zchoice` to `dist ` or `point` in cosmos_sim.py
 ./prep_cosmos_run_driver.py ${datadir} ${filterset}
+exit_stat=$?
+if [ "${exit_stat}" -gt "0" ]; then
+        exit ${exit_stat};
+fi
+
 
 ## step 2
 ./submit_mlsims.sh  ${datadir} ${filterset} 5
+exit_stat=$?
+if [ "${exit_stat}" -gt "0" ]; then
+        exit ${exit_stat};
+fi
 ./photorunner.sh ./simqueue/ ./simqueue/log short 256
+exit 0;
 #NOTE: this has to be repeated a few times, but the scripts are set-up that way, so it's fairly painless
+#./submit_mlsims.sh  ${datadir} ${filterset} 5 && ./photorunner.sh ./simqueue/ ./simqueue/log short 256
 
 ## step 3
 python preprocess_cosmos_sims.py ${datadir}/${filterset}/nocontam/maxlike/
+exit_stat=$?
+if [ "${exit_stat}" -gt "0" ]; then
+        exit ${exit_stat};
+fi
 
 ## step 4
 ./adam_make_cosmos_sims_finalplots.py ${datadir} ${filterset}
+exit_stat=$?
+if [ "${exit_stat}" -gt "0" ]; then
+        exit ${exit_stat};
+fi

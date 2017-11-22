@@ -5,7 +5,7 @@
 import os, glob
 import numpy as np
 import ldac, cosmos_sim as cs
-from dappleutils import readtxtfile
+from readtxtfile import readtxtfile
 import process_cosmos_sims as pcs
 import nfwutils, shearprofile as sp
 import compare_masses as cm

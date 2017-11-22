@@ -6,7 +6,7 @@ from __future__ import with_statement
 import glob, cPickle, os, re
 import numpy as np, pymc, nfwutils
 import pylab, ldac, shearprofile as sp
-from dappleutils import readtxtfile
+from readtxtfile import readtxtfile
 import intrinsicscatter_grid as isg
 import intrinsicscatter_grid_plots as isgp
 #import fitmodel as fm

@@ -2,19 +2,27 @@
 #######################
 # script to automate making sims from COSMOS photoz
 ########################
-import ldac, numpy as np
-## toggle between the old catalog and the new one by changing `cat_switch` in prep_cosmos_run.py
-cat_switch='oldcat'
-if cat_switch=='oldcat':
+import ldac, numpy as np, astropy.io.fits as pyfits
+from adam_cosmos_options import zchoice_switch, cat_switch, cosmos_idcol
+
+#adam Replaced this with stuff in adam_cosmos_options
+######### toggle between the old catalog and the new one by changing `cat_switch` in prep_cosmos_run.py
+########cat_switch='newcat_matched' #adam-done# cat_switch='oldcat'
+if cat_switch=='oldcat' or cat_switch=='newcat_matched':
 	cosmos = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos.cat')
 	cosmos30 = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos30.cat')
-if cat_switch=='newcat_matched':
-	cosmos=ldac.openObjectFile("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.cat")
+elif cat_switch=='4cccat':
+	cosmos30 = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos30.cat')
+	hdulist_4cc = pyfits.open('/u/ki/dapple/nfs12/cosmos/cosmos_4cc.cat')                                                                                                              
+	cosmos = ldac.LDACCat(hdulist_4cc[1])
+########if cat_switch=='newcat_matched':
+########	cosmos=ldac.openObjectFile("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.cat")
+#cosmos = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos.cat')
+#cosmos30 = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos30.cat')
 
 import os, sys, cPickle, glob
-import pdzfile_utils as pdzfile
-import cosmos_sim as cs, shearprofile as sp
-import nfwutils
+import cosmos_sim as cs
+#adam-tmp# import shearprofile as sp
 
 
 #######################
@@ -31,13 +39,22 @@ def prepSourceFiles(photfilters, outdirbase = '/u/ki/dapple/nfs12/cosmos/simulat
     sourcedir = '%s/PHOTOMETRY_W-C-IC_%s' % (basedir, photfilters)
     outputdir = '%s/%s' % (outdirbase, photfilters)
 
+    if not os.path.exists(outdirbase):
+        os.mkdir(outdirbase)
     if not os.path.exists(outputdir):
         os.mkdir(outputdir)
 
+    #adam-SHNT# In order to have new BPZ results included here, I'd have to have this sourcedir point to my new cats
     sourceBPZFile = '%s/COSMOS_PHOTOZ.APER.1.CWWSB_capak.list.all.bpz.tab' % sourcedir
 
     bpz = ldac.openObjectFile(sourceBPZFile, 'STDTAB')
-
+    if len(bpz) > len(cosmos):
+	    bpz_shortened=bpz.matchById(cosmos, otherid='SeqNr', selfid='SeqNr')
+	    bpz=bpz_shortened
+    elif len(bpz) == len(cosmos):
+	    pass
+    else:
+	    raise Exception('len(bpz) < len(cosmos), this is not supposed to happen')
     mcosmos30 = cosmos30.matchById(bpz, selfid='ID')
 
     bpz['BPZ_Z_S'][:] = cosmos['zp_best']
@@ -49,26 +66,25 @@ def prepSourceFiles(photfilters, outdirbase = '/u/ki/dapple/nfs12/cosmos/simulat
 
     magcut = mcosmos30['i_auto'] < 24.5
 
-    bpz = bpz.filter(np.logical_and(np.logical_and(photozcut, sizecut),
-                                    magcut))
+    if cat_switch!='4cccat':
+	    bpz = bpz.filter(np.logical_and(np.logical_and(photozcut, sizecut), magcut))
+    else:
+	    bpz = bpz.filter(photozcut)
 
     bpz.saveas('%s/bpz.cat' % outputdir, overwrite=True)
-    
 
     pdzfilename = '%s/COSMOS_PHOTOZ.APER.1.CWWSB_capak.list.all.probs' % sourcedir
-
+    import pdzfile_utils as pdzfile
     pdzmanager = pdzfile.PDZManager.parsePDZ(pdzfilename)
-
     pdzmanager.save('%s/pdz.pkl' % outputdir)
-    
-    
+
 ########################################
 
 def createMasterFields(workdir, nfields = 100, fieldcenters = None):
 
     bpz = ldac.openObjectFile('%s/bpz.cat' % workdir, 'STDTAB')
 
-    mcosmos = cosmos.matchById(bpz, selfid = 'id')
+    mcosmos = cosmos.matchById(bpz, selfid = cosmos_idcol)
 
     size = np.ones(len(bpz))
     snratio = np.ones(len(bpz))
@@ -76,7 +92,7 @@ def createMasterFields(workdir, nfields = 100, fieldcenters = None):
     if fieldcenters is not None:
         for i, center in enumerate(fieldcenters):
 
-            fieldcat = cs.extractField(mcosmos, size, snratio, center = center)
+            fieldcat = cs.extractField(mcosmos, size, snratio, center = center, id=cosmos_idcol)
         
             fieldcat.saveas('%s/field_%d.cat' % (workdir, i), overwrite=True)
             
@@ -86,7 +102,7 @@ def createMasterFields(workdir, nfields = 100, fieldcenters = None):
     
         for i in range(nfields):
             
-            fieldcat = cs.extractField(mcosmos, size, snratio)
+            fieldcat = cs.extractField(mcosmos, size, snratio,  id=cosmos_idcol)
             
             fieldcenters.append((fieldcat.hdu.header['CENTERX'], fieldcat.hdu.header['CENTERY']))
             
@@ -100,14 +116,14 @@ def createBootstrapFields(workdir, nfields = 100):
 
     bpz = ldac.openObjectFile('%s/bpz.cat' % workdir, 'STDTAB')
 
-    mcosmos = cosmos.matchById(bpz, selfid = 'id')
+    mcosmos = cosmos.matchById(bpz, selfid = cosmos_idcol)
 
     size = np.ones(len(bpz))
     snratio = np.ones(len(bpz))
 
     for i in range(nfields):
             
-        fieldcat = cs.bootstrapField(mcosmos, size, snratio)
+        fieldcat = cs.bootstrapField(mcosmos, size, snratio,id = cosmos_idcol)
             
         fieldcat.saveas('%s/field_%d.cat' % (workdir, i), overwrite=True)
             
@@ -126,10 +142,12 @@ def createCatalogs(workdir, zs = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7], massrange = [3e
 
     
     #adam: I think this is right, but I'm not certain, it might be that "master" is right for both old and new cats
-    if cat_switch=='oldcat':
-        fields = [ldac.openObjectFile(x) for x in glob.glob('%s/field_*.cat' % workdir)]
-    if cat_switch=='newcat_matched':
-        fields = [ldac.openObjectFile(x) for x in glob.glob('%s/*master_*.cat' % workdir)]
+    #adam: previously this next line was: fields = [ldac.openObjectFile(x) for x in glob.glob('%s/*master_*.cat' % workdir)]
+    fields = [ldac.openObjectFile(x) for x in glob.glob('%s/field_*.cat' % workdir)]
+    #if cat_switch=='oldcat':
+    #    fields = [ldac.openObjectFile(x) for x in glob.glob('%s/field_*.cat' % workdir)]
+    #if cat_switch=='newcat_matched':
+    #    fields = [ldac.openObjectFile(x) for x in glob.glob('%s/*master_*.cat' % workdir)]
 
 
     cs.createCutoutSuite(zs = zs, massrange = massrange, 
@@ -165,6 +183,7 @@ def createContamCatalogs(bpzfile, workdir, outdir, f500):
 
         concentration = simcat.hdu.header['concen']
 
+	import nfwutils
         r500 = nfwutils.rdelta(r_s, concentration, 500)
 
         contamcat = cs.addContamination(sourcebpz = bpz,
@@ -201,7 +220,8 @@ def createVoigtCatalogs(workdir, zs = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7], massrange 
                          outputdir = workdir,
                          simcats = fields,
                          shape_distro = cs.voigtdistro,
-                         shape_distro_kw_sets = 100*[{'sigma' : 0.18, 'gamma' : 0.016}])
+                         shape_distro_kw_sets = 100*[{'sigma' : 0.18, 'gamma' : 0.016}],
+                         idcol = 'SeqNr')
 
 
 #########################################
@@ -227,10 +247,9 @@ def createDoubleVoigtCatalogs(workdir, zs = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7], mass
                          shape_distro_kw_sets = 100*[{'alpha' : 0.2, 
                                                       'sigma2' : 0.23, 
                                                       'gamma2' : 0.025, 
-                                                      'sigma1' : 0.18, 'gamma1' : 0.016}])
+                                                      'sigma1' : 0.18, 'gamma1' : 0.016}],
+                         idcol = 'SeqNr')
 
-                         
-    
 
 ##########################################
 

@@ -204,10 +204,16 @@ def orderedmatchById(cat1, cat2, cat1id='SeqNr', cat2id = 'SeqNr'):
     cat2keep = numpy.array(cat2KeepOrder)
     cat1matched = cat1.filter(cat1keep)
     cat2matched = cat2.filter(cat2keep)
-    cat2not1 = numpy.array(cat2not1)
-    cat1not2 = numpy.array(cat1not2)
-    cat2unmatched = cat2.filter(cat2not1)
-    cat1unmatched = cat1.filter(cat1not2)
+    if cat2not1:
+	    cat2not1 = numpy.array(cat2not1)
+	    cat2unmatched = cat2.filter(cat2not1)
+    else:
+	    cat2unmatched = []
+    if cat1not2:
+	    cat1not2 = numpy.array(cat1not2)
+	    cat1unmatched = cat1.filter(cat1not2)
+    else:
+	    cat1unmatched = []
     print ' len(cat1)=',len(cat1) , ' len(cat1matched)=',len(cat1matched) , ' len(cat1unmatched)=',len(cat1unmatched)
     print ' len(cat2)=',len(cat2) , ' len(cat2matched)=',len(cat2matched) , ' len(cat2unmatched)=',len(cat2unmatched)
     if len(cat1) != len(cat1matched) +len(cat1unmatched):
