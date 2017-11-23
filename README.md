@@ -2,9 +2,9 @@
 Scripts used to process cluster lensing data for the Weighing the Giants Project
 
 ## What is wtgpipeline?
-The wtgpipeline is a gravitational lensing data analysis pipeline which seeks to take raw images of galaxy cluster fields and turn them into accurate measurments of galaxy cluster mass using the methods described in the [Weighing the Giants Papers](#paperheader). See those papers for how these methods were used on real data, and see the [wtgpipeline wiki](https://github.com/deapplegate/wtgpipeline/wiki) for details on the code that's available in this repository.
+The wtgpipeline is a gravitational lensing data analysis pipeline which seeks to take raw images of galaxy cluster fields and turn them into accurate measurments of galaxy cluster mass using the methods described in the *Weighing the Giants Papers* section below. See those papers for how these methods were used on real data, and see the [wtgpipeline wiki](https://github.com/deapplegate/wtgpipeline/wiki) for details on the code that's available in this repository.
 
-This software was a spinoff of the gabods/theli/bonnpipeline. It was developed by Anja von der Linden, Mark Allen, Pat Kelley (@patk), and Doug Applegate (@deapplegate) as part of the Weighing the Giants (WtG) project. Currently Adam Wright is doing the majority of the development (email awright3@stanford.edu for assistance) on the code, documentation, and is managing the github page (so email awright3@stanford.edu for assistance).
+This software was a spinoff of the gabods/theli/bonnpipeline. It was developed by Anja von der Linden (@anjavdl), Mark Allen, Pat Kelley (@patkel), and Doug Applegate (@deapplegate) as part of the Weighing the Giants (WtG) project. Currently Adam Wright is doing the majority of the development (email awright3@stanford.edu for assistance) on the code, documentation, and is managing the github page (so email awright3@stanford.edu for assistance).
 
 ## How does wtgpipeline work?
 
@@ -30,7 +30,7 @@ That depends. If you are part of, or connected to, the X-ray Astronomy and Obser
 
 The primary goal of this github repo is to get all of our code organized and documented, this is mainly the concern of our XOC cluster lensing group. The secondary goal (which, as of Nov 2017 is still far off), is to make the code available for others to use in the astronomy community's push to develop the tools and techniques needed to do cluster cosmology with LSST.
 
-## Weighing the Giants Papers {#paperheader}
+## Weighing the Giants Papers
 Please cite the Weighing the Giants core papers if you use any material from this repository. The abstracts and bibtex entries are provided below.
 
 
