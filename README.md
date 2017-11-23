@@ -1,8 +1,37 @@
 # wtgpipeline
-Scripts and data used to process data for the Weighing the Giants Project
+Scripts used to process cluster lensing data for the Weighing the Giants Project
 
+## What is wtgpipeline?
+The wtgpipeline is a gravitational lensing data analysis pipeline which seeks to take raw images of galaxy cluster fields and turn them into accurate measurments of galaxy cluster mass using the methods described in the [Weighing the Giants Papers](#paperheader). See those papers for how these methods were used on real data, and see the [wtgpipeline wiki](https://github.com/deapplegate/wtgpipeline/wiki) for details on the code that's available in this repository.
+
+This software was a spinoff of the gabods/theli/bonnpipeline. It was developed by Anja von der Linden, Mark Allen, Pat Kelley (@patk), and Doug Applegate (@deapplegate) as part of the Weighing the Giants (WtG) project. Currently Adam Wright is doing the majority of the development (email awright3@stanford.edu for assistance) on the code, documentation, and is managing the github page (so email awright3@stanford.edu for assistance).
+
+## How does wtgpipeline work?
+
+The goal of wtgpipeline is to deliver accurate weak-lensing mass measurements. This requires a careful measurement of systematic uncertainties leading to robust weak-lensing shape measurements and precision photometry. Cluster masses are measured by two different methods: traditional color-cuts measurements are carried out on every cluster and for clusters with 5-filter photometry another technique is used: a Bayesian weak-lensing approach using the full photometric redshift probability distribution for each background galaxy.
+
+Beginning with raw images, this pipeline carries out the instrument signature removal (ISR), performs astrometric and photometric calibration, performs an illumination correction, coadds images, masks defects, and measures photometric redshifts. Currently there is a 10-step structure to the pipeline:
+
+1. Preprocessing/ISR/Brighter-Fatter Correction
+2. Distribute Sets and Mask
+3. Directories and Headers changed. Cross-talk Correction applied.
+4. Initial Astrometry
+5. Illumination Correction
+6. Final astrometry
+7. Coadding
+8. Coadd Masking
+9. Photometric Measurement and Calibration
+10. Photometric Redshifts
+
+Steps 11 (measure CC masses) and 12 (measure p(z) masses) are yet to come.
+
+## Should I clone or fork the wtgpipeline repo and use it for my personal lensing project?
+That depends. If you are part of, or connected to, the X-ray Astronomy and Observational Cosmology (XOC) group at Stanford, then yes! If not, then it might be useful to do so, but it's important to point out that this pipeline is a work in progress. Certain parts of the pipeline are ready to go and could be useful for your, other parts are a bit clunky and might require some work to get them up and running, and lastly some parts likely have been surpassed by better methods which you should use instead. If there is a specific part of the WtG methodology which you would like to impliment, feel free to clone/fork the repo and try it out (see the [wtgpipeline wiki](https://github.com/deapplegate/wtgpipeline/wiki) to find out which scripts correspond to which data processing steps)
+
+The primary goal of this github repo is to get all of our code organized and documented, this is mainly the concern of our XOC cluster lensing group. The secondary goal (which, as of Nov 2017 is still far off), is to make the code available for others to use in the astronomy community's push to develop the tools and techniques needed to do cluster cosmology with LSST.
+
+## Weighing the Giants Papers {#paperheader}
 Please cite the Weighing the Giants core papers if you use any material from this repository. The abstracts and bibtex entries are provided below.
-
 
 
 Title:              Weighing the Giants - I. Weak-lensing masses for 51 
@@ -36,7 +65,7 @@ experiments. The primary aim is to improve the absolute mass calibration
 of cluster observables, currently the dominant systematic uncertainty 
 for cluster count experiments. Key elements of this work are the 
 rigorous quantification of systematic uncertainties, high-quality data 
-reduction and photometric calibration, and the `blind' nature of the 
+reduction and photometric calibration, and the 'blind' nature of the 
 analysis to avoid confirmation bias. Our target clusters are drawn from 
 X-ray catalogues based on the ROSAT All-Sky Survey, and provide a 
 versatile calibration sample for many aspects of cluster cosmology. We 
@@ -149,7 +178,7 @@ Abstract: We report weak-lensing masses for 51 of the most X-ray luminous galaxy
 clusters known. This cluster sample, introduced earlier in this series 
 of papers, spans redshifts 0.15 ≲ z<SUB>cl</SUB> ≲ 0.7, and is 
 well suited to calibrate mass proxies for current cluster cosmology 
-experiments. Cluster masses are measured with a standard `colour-cut' 
+experiments. Cluster masses are measured with a standard 'colour-cut' 
 lensing method from three-filter photometry of each field. Additionally, 
 for 27 cluster fields with at least five-filter photometry, we measure 
 high-accuracy masses using a new method that exploits all information 
@@ -162,7 +191,7 @@ contrast, we show that the use of single-point estimators in place of
 the full photometric redshift posterior distributions can lead to 
 significant redshift-dependent biases on cluster masses. The performance 
 of our new photometric redshift-based method allows us to calibrate 
-`colour-cut' masses for all 51 clusters in the present sample to a total 
+'colour-cut' masses for all 51 clusters in the present sample to a total 
 systematic uncertainty of ≈7 per cent on the mean mass, a level 
 sufficient to significantly improve current cosmology constraints from 
 galaxy clusters. Our results bode well for future cosmological studies 
@@ -170,10 +199,6 @@ of clusters, potentially reducing the need for exhaustive spectroscopic
 calibration surveys as compared to other techniques, when deep, 
 multifilter optical and near-IR imaging surveys are coupled with robust 
 photometric redshift methods. 
-
-
-
-
 
 
 
