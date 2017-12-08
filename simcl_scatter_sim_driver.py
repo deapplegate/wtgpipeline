@@ -36,6 +36,7 @@ anjamasses = cm.readAnjaMasses(dir='/u/ki/dapple/subaru/doug/publication/ccmass_
 for cluster, filter, image, z in zip(clusters, filters, images, properredshifts):
 	try:
 		clusterdir = '/u/ki/dapple/subaru/%s/LENSING_%s_%s_aper/%s' % (cluster, filter, filter, image)
+		#adam-note: a catalog without the completness cut in the detection band would be the ideal 
 		reconfile='%s/cosmos_rscut.cat' % (clusterdir)
 		mass=anjamasses[(cluster, filter, image)][0]
 		print ' cluster=',cluster , ' filter=',filter , ' image=',image , ' mass=',mass , ' z=',z
@@ -48,6 +49,7 @@ for cluster, filter, image, z in zip(clusters, filters, images, properredshifts)
 		#adam-old# #bpzfile   :'/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.zp.cat'
 		#adam-old# #reconfile :'/u/ki/dapple/nfs12/cosmos/simulations/clusters_2012-05-17/%s/bpz.cat' % (cluster)
 	except KeyError:
+		#adam-note: why is this one missing?
 		print 'KeyError for cluster=',cluster , ' filter=',filter , ' image=',image , ' z=',z
 		continue
 	cutoutfiles = ss.createPrecutSimFiles(cluster, filter, image, mass, z, \
