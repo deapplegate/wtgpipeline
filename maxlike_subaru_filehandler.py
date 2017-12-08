@@ -24,7 +24,8 @@ class NoRedshiftException(Exception): pass
 
 def parseZCluster(cluster, basedir=subarudir):
 
-    redshiftfile = '%s/clusters.redshifts' % basedir
+    #adam-tmp# redshiftfile = '%s/clusters.redshifts' % basedir
+    redshiftfile = 'clusters.redshifts'
 
     with open(redshiftfile) as f:
 

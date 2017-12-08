@@ -385,7 +385,8 @@ def bootstrapSampleBias(mlmasses, mlmasks, ccmasses, ccmasks, clusters = None, n
 
 ################################
 
-def readClusterRedshifts(file = '/u/ki/dapple/subaru/clusters.redshifts'):
+#adam-tmp# def readClusterRedshifts(file = '/u/ki/dapple/subaru/clusters.redshifts'):
+def readClusterRedshifts(file = 'clusters.redshifts'):
 
     redshifts = {}
     with open(file) as input:
