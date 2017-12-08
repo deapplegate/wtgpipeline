@@ -11,7 +11,6 @@ def preprocessFile(resultfile):
     #for processing the results of the MaxLike files once
 
     massdist, masses = pcs.processFile(resultfile)
-    print "resultfile=",resultfile
 
     dir, filename = os.path.split(resultfile)
 
@@ -36,10 +35,12 @@ def preprocessFile(resultfile):
 ###############
 
 if __name__ == '__main__':
+    import adam_quicktools_ArgCleaner                                                                                                                                                                                                       
+    argv=adam_quicktools_ArgCleaner.ArgCleaner(sys.argv)
+    resultdir1 = argv[0]
+    resultdir2 = argv[1]
 
-    resultdir = sys.argv[1]
-
-    resultfiles = glob.glob('%s/*.out' % resultdir)
+    resultfiles = glob.glob('%s/*/%s/*.out' % (resultdir1,resultdir2,))
 
     for resultfile in resultfiles:
 

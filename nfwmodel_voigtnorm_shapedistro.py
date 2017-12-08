@@ -17,8 +17,8 @@ class VoigtnormShapedistro(object):
         self.samplefile = samplefile
 
         self.likelihood_func = nfwmodeltools.voigt_like
-
-        self.makeShapePrior = maxlike.makeNormPrior
+	##adam: note that makeNormPrior is a method of a class within maxlike_masses.py, so this doesn't work, but it's not used, so it should be ok
+	#self.makeShapePrior = maxlike.makeNormPrior
 
         self.loadDistroFile()
 

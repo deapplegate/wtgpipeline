@@ -12,18 +12,22 @@ import scipy.stats as stats
 import nfwutils
 #adam-old# import voigt_tools
 import pickle
-fl=open('/u/ki/awright/COSMOS_2017/bad_ids.pkl','rb')
-bad_ids=pickle.load(fl)
-fl.close()
-fl=open('/u/ki/awright/COSMOS_2017/gone_ids_105.pkl','rb')
-gone_ids=pickle.load(fl)
-fl.close()
-fl=open('/nfs/slac/kipac/fs1/u/awright/COSMOS_2017/id2z_best.pkl','rb')
-id2z=pickle.load(fl)
-fl.close()
-fl=open('/nfs/slac/kipac/fs1/u/awright/COSMOS_2017/id2pz_cdf.pkl','rb')
-id2pz_cdf=pickle.load(fl)
-fl.close()
+from adam_cosmos_options import zchoice_switch, cat_switch
+if cat_switch=='newcat_matched':
+	fl=open('/u/ki/awright/COSMOS_2017/bad_ids.pkl','rb')
+	bad_ids=pickle.load(fl)
+	fl.close()
+	fl=open('/u/ki/awright/COSMOS_2017/gone_ids_105.pkl','rb')
+	gone_ids=pickle.load(fl)
+	fl.close()
+	if zchoice_switch=='point':
+		fl=open('/nfs/slac/kipac/fs1/u/awright/COSMOS_2017/id2z_best.pkl','rb')
+		id2z=pickle.load(fl)
+		fl.close()
+	elif zchoice_switch=='dist':
+		fl=open('/nfs/slac/kipac/fs1/u/awright/COSMOS_2017/id2pz_cdf.pkl','rb')
+		id2pz_cdf=pickle.load(fl)
+		fl.close()
 
 ############################################
 
@@ -264,7 +268,7 @@ def createCutoutSuite(zs,
             simsource = extractField(sourcecat, sizes, snratios)
             simcats.append(simsource)
 
-
+    returns=[]
     for curz in zs:
         print 'z = %2.2f' % curz
         for cur_mass in massrange:
@@ -280,9 +284,7 @@ def createCutoutSuite(zs,
                 #cur_rs = nfwutils.rscaleConstM(cur_mass, 4.0, curz, 500)
                 cur_rs = nfwutils.RsMassInsideR(cur_mass, 4.0, curz, 1.5)
 
-
 		simsource, simbpz = commonSubset(simsource, goodbpz,id2=idcol)
-
 
                 simcat, momento = createCatalog(simbpz,
                                                 simsource['size'],
@@ -296,12 +298,14 @@ def createCutoutSuite(zs,
                                                 radii_pix = simsource['r_pix'],
                                                 idcol = idcol)
 
-    
-
+		#print 'cosmos_sim.py: %s.cat' % base,'%s.momento' % base
                 simcat.saveas('%s.cat' % base, overwrite=True)
                 output = open('%s.momento' % base, 'wb')
                 cPickle.dump(momento, output, -1)
                 output.close()
+		returns.append('%s.cat' % base)
+    return returns
+
 
 
 #########################

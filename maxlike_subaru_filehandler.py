@@ -88,10 +88,10 @@ def calcNearestNeighborCut(options, cat, psfsize, ldaclensing):
 
     finally:
     
-#        if os.path.exists(temp_inputcatfile):
-#            os.remove(temp_inputcatfile)
-#        if os.path.exists(temp_outputcatfile):
-#            os.remove(temp_outputcatfile)
+        #if os.path.exists(temp_inputcatfile):
+        #    os.remove(temp_inputcatfile)
+        #if os.path.exists(temp_outputcatfile):
+        #    os.remove(temp_outputcatfile)
         os.chdir(curdir)
 
     return nearest_neighbor_cut
@@ -223,10 +223,6 @@ class SubaruFilehandler(object):
         parser.add_option('--rhcut', dest='rhcut',
                           help = 'Rh Cut, relative to size of PSF',
                           default = 1.15, type= 'float')
-                          
-
-
-
 
     #############################
 
@@ -355,9 +351,6 @@ class SubaruFilehandler(object):
             nncat = ldac.openObjectFile(newoptions.neighborcat)
             manager.nearestneighbors = nncat.matchById(manager.lensingcat)
 
-            
-
-
         newoptions.psfsize = readPSFSize(options.workdir, options.cluster, options.filter, options.image)
 
         newoptions.zcluster = parseZCluster(options.cluster)
@@ -384,7 +377,6 @@ class SubaruFilehandler(object):
         newoptions.zbcol = 'BPZ_Z_B'
 
         manager.replace('options', newoptions)
-
 
         maxlike_general_filehandler.readData(manager)
 

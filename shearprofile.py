@@ -151,7 +151,7 @@ def shearprofile(x,y,e1,e2,sigma2,range,bins=30,center=(6000,6000),
 
            
 
-# Now work out averages and errors and finish!
+    # Now work out averages and errors and finish!
 
     if errors:
         Ebin = Ebin / Ebinerr

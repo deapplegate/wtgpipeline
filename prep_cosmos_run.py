@@ -8,17 +8,20 @@ from adam_cosmos_options import zchoice_switch, cat_switch, cosmos_idcol
 #adam Replaced this with stuff in adam_cosmos_options
 ######### toggle between the old catalog and the new one by changing `cat_switch` in prep_cosmos_run.py
 ########cat_switch='newcat_matched' #adam-done# cat_switch='oldcat'
-if cat_switch=='oldcat' or cat_switch=='newcat_matched':
+if cat_switch=='oldcat':
 	cosmos = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos.cat')
 	cosmos30 = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos30.cat')
 elif cat_switch=='4cccat':
 	cosmos30 = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos30.cat')
-	hdulist_4cc = pyfits.open('/u/ki/dapple/nfs12/cosmos/cosmos_4cc.cat')                                                                                                              
+	hdulist_4cc = pyfits.open('/u/ki/dapple/nfs12/cosmos/cosmos_4cc.cat')
 	cosmos = ldac.LDACCat(hdulist_4cc[1])
-########if cat_switch=='newcat_matched':
-########	cosmos=ldac.openObjectFile("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.cat")
-#cosmos = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos.cat')
-#cosmos30 = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos30.cat')
+elif cat_switch=='newcat_matched':
+	cosmos = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos.cat')
+	cosmos30 = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos30.cat')
+	#adam-SHNT# I'll have to adjust some of the keys used in prepSourceFiles!!!!
+	###########cosmos=ldac.openObjectFile("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.zp.cat")
+	###########cosmos30=ldac.openObjectFile("/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.cat")
+	#adam-SHNT# This might actually have to stay as: cosmos30 = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos30.cat')
 
 import os, sys, cPickle, glob
 import cosmos_sim as cs
@@ -49,7 +52,7 @@ def prepSourceFiles(photfilters, outdirbase = '/u/ki/dapple/nfs12/cosmos/simulat
 
     bpz = ldac.openObjectFile(sourceBPZFile, 'STDTAB')
     if len(bpz) > len(cosmos):
-	    bpz_shortened=bpz.matchById(cosmos, otherid='SeqNr', selfid='SeqNr')
+	    bpz_shortened=bpz.matchById(cosmos, otherid=cosmos_idcol, selfid='SeqNr')
 	    bpz=bpz_shortened
     elif len(bpz) == len(cosmos):
 	    pass
@@ -57,8 +60,11 @@ def prepSourceFiles(photfilters, outdirbase = '/u/ki/dapple/nfs12/cosmos/simulat
 	    raise Exception('len(bpz) < len(cosmos), this is not supposed to happen')
     mcosmos30 = cosmos30.matchById(bpz, selfid='ID')
 
+    
     bpz['BPZ_Z_S'][:] = cosmos['zp_best']
     bpz['zspec'][:] = cosmos['zp_best']
+    #adam-SHNT# When I switch over to the newcat, this is going to have to change from selecting 'zp_best' from cosmos = '/u/ki/dapple/nfs12/cosmos/cosmos_4cc.cat' or cosmos = ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/cosmos.cat')
+    #		to using 'zchi' or 'zpdf' or 'zphot' from cosmos=ldac.openObjectFile('/u/ki/dapple/nfs12/cosmos/ultravista_cosmos/newphotcat/cosmos.matched.zp.cat')
 
     photozcut = np.logical_and(bpz['BPZ_Z_S'] >= 0, bpz['BPZ_Z_S'] < 9)
 

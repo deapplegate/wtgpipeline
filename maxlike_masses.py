@@ -179,8 +179,8 @@ class LensingModel(object):
         options = manager.options
         inputcat = manager.inputcat
 
-#        if 'r500' in manager:
- #           manager.comment('Using r500')
+        #if 'r500' in manager:
+        #    manager.comment('Using r500')
         minMPC = options.radlow   #*manager.r500
         maxMPC = options.radhigh  #*manager.r500
 
@@ -295,21 +295,21 @@ class LensingModel(object):
 
 
 
-#            parts.m200 = pymc.Uniform('m200', options.masslow, options.masshigh)
-#
-#        @pymc.deterministic
-#        def r_scale(mass = parts.m200, 
-#                    concentration = parts.concentration, 
-#                    zcluster = parts.zcluster):
-#            
-#            try:
-#                rs = nfwutils.rscaleConstM(mass, concentration, zcluster, 200.)
-#            except ValueError:
-#                raise pymc.ZeroProbability
-#
-#            return rs
-#
-#
+        #    parts.m200 = pymc.Uniform('m200', options.masslow, options.masshigh)
+        #
+        #@pymc.deterministic
+        #def r_scale(mass = parts.m200, 
+        #            concentration = parts.concentration, 
+        #            zcluster = parts.zcluster):
+        #    
+        #    try:
+        #        rs = nfwutils.rscaleConstM(mass, concentration, zcluster, 200.)
+        #    except ValueError:
+        #        raise pymc.ZeroProbability
+        #
+        #    return rs
+        #
+        #
 
 
 
@@ -510,8 +510,8 @@ class SampleModelToFile(object):
         sanitycheck['betas'] = model.betas
         sanitycheck['SeqNr'] = manager.inputcat['SeqNr']
         sanitycheck['phi'] = manager.inputcat['phi']
-#        sanitycheck['rho_c'] = model.rho_c
-#        sanitycheck['rho_c_over_sigma_c'] = model.rho_c_over_sigma_c
+        #sanitycheck['rho_c'] = model.rho_c
+        #sanitycheck['rho_c_over_sigma_c'] = model.rho_c_over_sigma_c
 
         with open('sanitycheck.pkl', 'w') as output:
             cPickle.dump(sanitycheck, output)
@@ -567,10 +567,10 @@ class SampleModelToFile(object):
 
         outputFile = manager.options.outputFile
 
-#        dumpMasses(masses, '%s.mx500' % outputFile)
+        #dumpMasses(masses, '%s.mx500' % outputFile)
 
-#        dumpMasses(manager.mcmc.trace('mass_15mpc')[manager.options.burn:],
-#                   '%s.mass15mpc' % outputFile)
+        #dumpMasses(manager.mcmc.trace('mass_15mpc')[manager.options.burn:],
+        #           '%s.mass15mpc' % outputFile)
 
 
         dumpMasses(manager.mcmc.trace('m200')[manager.options.burn:],

@@ -33,7 +33,8 @@ def createBootstrapCats(cluster, filter, image, outdir, nbootstraps = 100, start
 
     zcluster = msf.parseZCluster(cluster)
     center = msf.readClusterCenters(cluster)
-    r_arc, E, B = sp.calcTangentialShear(cat = cat, 
+    #adam-old# r_arc, E, B= sp.calcTangentialShear(cat = cat, 
+    r_arc, E, B, phi = sp.calcTangentialShear(cat = cat, 
                                          center = center,
                                          pixscale = 0.2)
 
@@ -84,23 +85,11 @@ def createBootstrapCats(cluster, filter, image, outdir, nbootstraps = 100, start
             for filterfile in glob.glob('%s/filter*' % tmpspace):
                 os.remove(filterfile)
 
-
-
-
-
-
-
     finally:
 
         shutil.rmtree(tmpspace)
 
-
-
-    
-
-    
 #####################################
-
 
 def readBootstrapMasses(workdir):
 
@@ -121,19 +110,14 @@ def readBootstrapMasses(workdir):
 
     return masslists
 
-
-
-
-
 ###########################################
 
-
 if __name__ == '__main__':
-
-    
-    cluster  = sys.argv[1]
-    filter   = sys.argv[2]
-    image    = sys.argv[3]
-    outdir   = sys.argv[4]
+    import adam_quicktools_ArgCleaner
+    argv=adam_quicktools_ArgCleaner.ArgCleaner(sys.argv)
+    cluster  = argv[0]
+    filter   = argv[1]
+    image    = argv[2]
+    outdir   = argv[3]
 
     createBootstrapCats(cluster, filter, image, outdir)

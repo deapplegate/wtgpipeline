@@ -47,25 +47,31 @@ def createSimFiles(cluster, filter, image, mass, redshift, bpzfile, outdir, nfie
 #####################################
 
 def createPrecutSimFiles(cluster, filter, image, mass, redshift, bpzfile, reconfile, outdir, nfields = 50):
+    ''' reconfile and bpz file are id-matched. reconfile is used for zp_best cut, that cut is then done on bpzfile, which is then used for all subsequent steps.
+	reconfile: the cluster-specific selection from cosmos catalog
+	bpzfile:   `bpz.cat` file made in step#1 with prep_cosmos_run.py:prepSourceFiles'''
 
     if not os.path.exists(outdir):
-        os.mkdir(outdir)
+        os.makedirs(outdir)
 
     clusterdir = '/u/ki/dapple/subaru/%s/LENSING_%s_%s_aper/%s' % (cluster, filter, filter, image)
 
     lensing = ldac.openObjectFile('%s/cut_lensing.cat' % clusterdir)
 
-    bpz = ldac.openObjectFile(bpzfile)
+    bpz = ldac.openObjectFile(bpzfile,'STDTAB')
+    if not bpz:
+        bpz = ldac.openObjectFile(bpzfile)
     recon = ldac.openObjectFile(reconfile, 'COS30PHOTZ')
-    bpz = bpz.matchById(recon, selfid='ID')
-    recon = recon.matchById(bpz, otherid='ID')
+    print 'Before Match: len(bpz)=',len(bpz) , ' len(recon)=',len(recon)
+    from adam_cosmos_options import zchoice_switch, cat_switch, cosmos_idcol
+    bpz = bpz.matchById(recon, selfid='SeqNr')
+    recon = recon.matchById(bpz, otherid='SeqNr')
 
     assert(len(bpz) == len(recon))
+    print 'After  Match: len(bpz)=',len(bpz) , ' len(recon)=',len(recon)
 
-
+    #adam-SHNT# this cut is introduced here, which means I should be switching over to the newcat soon, remember right now I'm in 4cccat mode, but I'll have to change things around once we get to cat_switch=='newcat_matched' mode. Then I'll have to change the way I choose zp_best
     bpz = bpz.filter(np.logical_and(recon['zp_best'] > redshift + 0.1, recon['zp_best'] < 1.25))
-
-
 
     maxradii = np.max(np.sqrt((lensing['Xpos'] - 5000)**2 + (lensing['Ypos'] - 5000)**2))
 
@@ -74,14 +80,24 @@ def createPrecutSimFiles(cluster, filter, image, mass, redshift, bpzfile, reconf
     for i in range(nfields):
 
         field = cs.bootstrapField(bpz, np.ones(len(bpz)), np.ones(len(bpz)), galdensity = None,
-                                  maxradii = maxradii, id = 'ID', ngals = 10000)
-
+                                  maxradii = maxradii, id = 'SeqNr', ngals = 10000)
         field.saveas('%s/%s.%s.%s.master_%d.cat' % (outdir, cluster, filter, image, i), overwrite=True)
-
         fields.append(field)
 
+    sizes = np.ones(len(bpz))
+    snratios = np.ones(len(bpz))
 
-    cs.createCutoutSuite([redshift], [mass], bpz, None, None, outdir, simcats = fields, shape_distro_kw_sets = nfields*[{'sigma' : 0.25}])
+    #adam-old# cs.createCutoutSuite([redshift], [mass], bpz, None, None, outdir, simcats = fields, 
+
+    cutoutfiles=cs.createCutoutSuite(zs = [redshift], massrange = [mass], 
+                         goodbpz = bpz, 
+                         sizes = sizes, 
+                         snratios = snratios, 
+                         outputdir = outdir,
+                         simcats = fields,
+			 shape_distro_kw_sets = nfields*[{'sigma' : 0.25}],
+                         idcol = 'SeqNr')
+    return cutoutfiles
 
 ##################
 

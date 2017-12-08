@@ -60,14 +60,14 @@ while true; do
 	if [ $noJobWarning -eq 0 ]; then
 	    curdate=`date`
 	    echo "$curdate : *** Job Queue is Empty ***" >> $logfile
-	    noJobsWarning=1
+	    noJobWarning=1
+        elif [ $noJobWarning -eq 1 ]; then
+	    echo "Job Queue was empty two times around. It must be complete"
+	    exit 1
 	fi
-	sleep 5m
+	sleep 3m
 	curJobFile=`ls -1 $queueDir/p* | awk '(NR==1){print}'`
     done
-    if [ $noJobWarning -eq 1 ]; then
-	continue
-    fi
 
     
     curdate=`date`

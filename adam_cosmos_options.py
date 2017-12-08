@@ -1,14 +1,24 @@
 #! /usr/bin/env python
-#adam-old# cat_switch='oldcat'
-#adam-old# cat_switch='newcat_matched'
-cat_switch='4cccat'
+#adam-options# cat_switch='oldcat'
+#adam-options# cat_switch='newcat_matched'
+#adam-options# cat_switch='4cccat'
 
-#adam: toggle from using single point zp_best to drawing a random sample from the p(z) dist'n by changing `zchoice_switch` to `dist ` or `point` in cosmos_sim.py
-#adam-old# zchoice_switch='dist'
-zchoice_switch='point'
+#adam-options# filterset='UGRIZ'
+#adam-options# filterset='BVRIZ'
+
+# toggle from using single point zp_best to drawing a random sample from the p(z) dist'n by changing `zchoice_switch` to `dist ` or `point`
+#adam-options# zchoice_switch='dist'
+#adam-options# zchoice_switch='point'
+
+#done: cat_switch='4cccat';filterset='UGRIZ';zchoice_switch='point'
+#done: cat_switch='newcat_matched';filterset='UGRIZ';zchoice_switch='point'
+#done: cat_switch='newcat_matched';filterset='UGRIZ';zchoice_switch='dist'
+cat_switch='4cccat';filterset='BVRIZ';zchoice_switch='point'
+#togo: cat_switch='newcat_matched';filterset='BVRIZ';zchoice_switch='point'
+#togo: cat_switch='newcat_matched';filterset='BVRIZ';zchoice_switch='dist'
+
 
 ## place this line in other scripts:
-#from adam_cosmos_options import zchoice_switch, cat_switch
 #from adam_cosmos_options import zchoice_switch, cat_switch, cosmos_idcol
 if cat_switch=='oldcat':
 	cosmos_idcol='id'
@@ -18,9 +28,8 @@ elif cat_switch=='4cccat':
 	cosmos_idcol='SeqNr'
 
 ## make this useful for .sh files too:
-filterset='BVRIZ'
-dirtag='CAT%s-Z%s' % (cat_switch, zchoice_switch)
-datadir='/nfs/slac/g/ki/ki18/anja/SUBARU/cosmossims2017_'+dirtag
+dirtag='simcl_CAT%s-Z%s' % (cat_switch, zchoice_switch)
+datadir='/nfs/slac/g/ki/ki18/anja/SUBARU/simcl/'+dirtag
 if __name__=='__main__':
 	flini=open('cosmos_mass_bias.ini','w')
 	flini.write('export dirtag='+dirtag+'\n')

@@ -71,7 +71,7 @@ def readCounts(file = '/u/ki/anja/ldaclensing/masses_1p5Mpc.list.lin'):
 
 
 
-def readDougMasses(dir = '/u/ki/dapple/nfs/pipeline/wtgpipeline/mlmasses', ext='mass15mpc.mass.summary.pkl', pick=1):
+def readDougMasses(dir = '/u/ki/dapple/nfs/pipeline/bonnpipeline/mlmasses', ext='mass15mpc.mass.summary.pkl', pick=1):
 
     masses = {}
 
@@ -91,10 +91,10 @@ def readDougMasses(dir = '/u/ki/dapple/nfs/pipeline/wtgpipeline/mlmasses', ext='
             if pick == 0:
                 masses[(cluster, filter, image)] = stats['maxlike']
             elif pick == 1:
-#                mass, (low, high) = stats['log10maxlike']
-#                low = 10**mass - 10**(mass - low)
-#                high = 10**(mass + high) - 10**mass
-#                mass = 10**mass
+                #mass, (low, high) = stats['log10maxlike']
+                #low = 10**mass - 10**(mass - low)
+                #high = 10**(mass + high) - 10**mass
+                #mass = 10**mass
                 mass = stats['quantiles'][50]
                 low =  mass - stats['quantiles'][15.8]
                 high = stats['quantiles'][84.1] - mass

@@ -2,9 +2,9 @@
 Scripts used to process cluster lensing data for the Weighing the Giants Project
 
 ## What is wtgpipeline?
-The wtgpipeline is a gravitational lensing data analysis pipeline which seeks to take raw images of galaxy cluster fields and turn them into accurate measurments of galaxy cluster mass using the methods described in the *Weighing the Giants Papers* section below. See those papers for how these methods were used on real data, and see the [wtgpipeline wiki](https://github.com/deapplegate/wtgpipeline/wiki) for details on the code that's available in this repository.
+The wtgpipeline is a gravitational lensing data analysis pipeline which seeks to take raw images of galaxy cluster fields and turn them into accurate measurments of galaxy cluster mass using the methods described in the *Weighing the Giants Papers* section below. See those papers for a description of how these methods were used on real data, and see the [wtgpipeline wiki](https://github.com/deapplegate/wtgpipeline/wiki) for details on the code that's available in this repository.
 
-This software was a spinoff of the gabods/theli/bonnpipeline. It was developed by Anja von der Linden (@anjavdl), Mark Allen, Pat Kelley (@patkel), and Doug Applegate (@deapplegate) as part of the Weighing the Giants (WtG) project. Currently Adam Wright is doing the majority of the development (email awright3@stanford.edu for assistance) on the code, documentation, and is managing the github page (so email awright3@stanford.edu for assistance).
+This software was a spinoff of the bonnpipeline, aka the THELI pipeline, aka the GaBoDs pipeline, which is described [here](https://arxiv.org/abs/0705.0438). It was developed by Anja von der Linden (@anjavdl), Mark Allen, Pat Kelley (@patkel), and Doug Applegate (@deapplegate) as part of the Weighing the Giants (WtG) project. Currently Adam Wright is doing the majority of the development on the code/documentation, and is managing the github page (so email awright3@stanford.edu for assistance).
 
 ## How does wtgpipeline work?
 
@@ -25,8 +25,8 @@ Beginning with raw images, this pipeline carries out the instrument signature re
 
 Steps 11 (measure CC masses) and 12 (measure p(z) masses) are yet to come.
 
-## Should I clone or fork the wtgpipeline repo and use it for my personal lensing project?
-That depends. If you are part of, or connected to, the X-ray Astronomy and Observational Cosmology (XOC) group at Stanford, then yes! If not, then it might be useful to do so, but it's important to point out that this pipeline is a work in progress. Certain parts of the pipeline are ready to go and could be useful for your, other parts are a bit clunky and might require some work to get them up and running, and lastly some parts likely have been surpassed by better methods which you should use instead. If there is a specific part of the WtG methodology which you would like to impliment, feel free to clone/fork the repo and try it out (see the [wtgpipeline wiki](https://github.com/deapplegate/wtgpipeline/wiki) to find out which scripts correspond to which data processing steps)
+## Should I fork the wtgpipeline repo and use it for my lensing project?
+That depends. If you are part of, or connected to, the X-ray Astronomy and Observational Cosmology (XOC) group at Stanford, then yes! If not, then it might be useful to do so, but it's important to point out that this pipeline is a work in progress. Certain parts of the pipeline are ready to go and could be useful for your, other parts are a bit clunky and might require some work to get them up and running, and lastly some parts likely have been surpassed by better methods which you should use instead. If there is a specific part of the WtG methodology which you would like to impliment, feel free to clone/fork the repo and try it out (see the [wtgpipeline wiki](https://github.com/deapplegate/wtgpipeline/wiki) to find out which scripts correspond to which data processing steps).
 
 The primary goal of this github repo is to get all of our code organized and documented, this is mainly the concern of our XOC cluster lensing group. The secondary goal (which, as of Nov 2017 is still far off), is to make the code available for others to use in the astronomy community's push to develop the tools and techniques needed to do cluster cosmology with LSST.
 

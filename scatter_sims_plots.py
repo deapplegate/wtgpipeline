@@ -331,7 +331,6 @@ def MLPointEstScript(data = None):
 #adam-SHNT# this is the plot in Weighing the Giants - III figure 8
 def PointEstPzScript(data = None):
 
-
     if data is None:
 
         worklist = readtxtfile('simclusterlist')
