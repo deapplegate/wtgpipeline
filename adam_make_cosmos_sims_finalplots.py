@@ -26,9 +26,13 @@ pylab.savefig('plt_publicationBias-%s-%s' % ( dirtag , filterset ) )
 #adam-old# zcompact_plt=pcsp.plotZCompact(results)
 #adam-old# pylab.savefig('plt_plotZCompact-%s-%s' % ( dirtag , filterset ) )
 
-#adam-SHNT# this is the plot in Weighing the Giants - III figure 8
+#note that scatter_sims_plots.PointEstPzScript is the plot in Weighing the Giants - III figure 8
 import scatter_sims_plots
+#pointest=scatter_sims_plots.PointEstPzScript()
 
+#adam-SHNT# GOTTA GET PointEstPzScript working!
+# I tried to get this to work by using copying it over to pcsp and hacking away at it, but no luck so far.
+# you could start fixing it by working on either pcsp.PointEstPzScript or the original scatter_sims_plots.PointEstPzScript
 pointest=pcsp.PointEstPzScript()
 pointest.savefig('plt_pointEstPzScript-%s-%s' % ( dirtag , filterset ) )
 pylab.show()

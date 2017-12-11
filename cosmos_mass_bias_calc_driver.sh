@@ -1,8 +1,9 @@
 #!/bin/bash
 set -xv
-## this is a driver script which carries out the four steps needed to run the cosmos mass bias calculation
+## this is a driver script which carries out the steps needed to run the cosmos mass bias calculation
 
-### step 0 (i.e. the preliminary stuff) is to open up `adam_cosmos_options.py` and set which options you're going to use. There are four things to consider:
+### step 1 of 5 (i.e. the preliminary stuff)
+# this step simply involves openning up `adam_cosmos_options.py` and setting which options you're going to use. There are four things to consider:
 #	1.) cat_switch: which catalog you're going to pull from for the true redshifts.
 #	2.) filterset: which filter combination (`UGRIZ` or `BVRIZ`) you're going to run on.
 #	3.) datadir: where you want to send the output you're going to generate
@@ -18,8 +19,7 @@ set -xv
 ./adam_cosmos_options.py
 . cosmos_mass_bias.ini
 
-### RUNNING COSMOS MASS BIAS
-### step 1 of 4
+### step 2 of 5
 ## simcl (i.e. real-observed-cluster-specific) cosmos sims, as opposed to ideal ones well spaced out in M and z
 ## simcl_scatter_sim_driver.py runs prep_cosmos_run_driver.prepSourceFiles, then runs scatter_sims.createPrecutSimFiles to make cosmos bootstrap fields and assign shears to them
 ./simcl_scatter_sim_driver.py ${datadir} ${filterset}
@@ -32,7 +32,8 @@ if [ "${exit_stat}" -gt "0" ]; then
 fi
 
 
-### step 2
+### step 3 of 5
+## run maxlike_simdriver.py to do p(z) quality cuts, and run nfwfit on all generated sim files
 ./submit_mlsims.sh  ${datadir} ${filterset} 5
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
@@ -41,14 +42,14 @@ fi
 ./photorunner.sh ./simqueue/ ./simqueue/log short 256
 #NOTE: this may have to be repeated a few times, but the scripts are set-up that way, so it's fairly painless
 
-### step 3
+### step 4 of 5
 python preprocess_cosmos_sims.py ${datadir}/${filterset}/ /nocontam/maxlike/
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
         exit ${exit_stat};
 fi
 
-## step 4
+## step 5 of 5
 ./adam_make_cosmos_sims_finalplots.py ${datadir} ${filterset}
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
