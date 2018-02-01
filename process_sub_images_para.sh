@@ -29,6 +29,7 @@ echo "chip_nums=" $chip_nums
 
 # preliminary work:
 . ${INSTRUMENT:?}.ini > /tmp/subaru.out 2>&1
+. progs.ini > /tmp/subaru.out 2>&1
 
 for CHIP in $chip_nums
 do
@@ -63,6 +64,10 @@ do
 			-DETECT_THRESH 0.7 -DETECT_MINAREA 5 -BACK_SIZE 1024 \
 			  -CHECKIMAGE_NAME ${run_dir}/${science_dir}/${BASE}"_sub.fits"
   		fi
+		exit_stat=$?
+		if [ "${exit_stat}" -gt "0" ]; then
+			exit ${exit_stat};
+		fi
 
 		#adam-SHNT# could set shadow to -70000 here (easier, see the shadow mask stuff in diffmask/)
 		# OR
@@ -71,17 +76,26 @@ do
 		fixfile=${run_dir}/${science_dir}/${BASE}_sub_sf.fits
   		#adam-SET8#		#fixfile_4modecalc=${run_dir}/${science_dir}/${BASE}_sub_sf_4modecalc.fits
   		${P_IC} '%1 %2 *' ${run_dir}/SCIENCE/diffmask/${BASE}.sf.fits ${run_dir}/${science_dir}/${BASE}"_sub.fits"  > ${fixfile}
+		exit_stat=$?
+		if [ "${exit_stat}" -gt "0" ]; then
+			exit ${exit_stat};
+		fi
   		#adam-SET8# ${P_IC} '%1 %2 *' ${fixfile} ~/data/RADIAL_MASKS/SUBARU_10_3/RadialMask_10_3_${CHIP}.fits > ${fixfile_4modecalc}
 
 		#adam# if {|%2|>1.0e-06} then{%1} else{-70000}
 		#basically it's the object subtracted image with pixels on objects set to -70000
   		${P_IC} '%1 -70000 %2 fabs 1.0e-06 > ?' ${file} ${fixfile} \
   		    > ${run_dir}/${science_dir}/${BASE}"_sub1.fits"
+		exit_stat=$?
+		if [ "${exit_stat}" -gt "0" ]; then
+			exit ${exit_stat};
+		fi
 		mv ${run_dir}/${science_dir}/${BASE}"_sub1.fits" ${run_dir}/${science_dir}/${BASE}"_sub.fits"
 
   		#adam-SET8#  		#${P_IC} '%1 -70000 %2 fabs 1.0e-06 > ?' ${file} ${fixfile_4modecalc} \
   		#adam-SET8#  		#    > ${run_dir}/${science_dir}/${BASE}"_sub_4modecalc.fits"
   		#adam-SET8#  		#rm -f ${fixfile_4modecalc} ${fixfile}
+  		rm -f ${fixfile}
 	    done
 	}
 

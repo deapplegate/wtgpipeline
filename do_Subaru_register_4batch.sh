@@ -1,6 +1,6 @@
 #! /bin/bash
 set -xv
-#adam-example# ./do_Subaru_register_4batch.sh ${cluster} "SDSS-R6" "photom" "W-J-B" "W-C-RC" "W-S-Z+" 2>&1 | tee -a OUT-do_Subaru_register_4batch-${cluster}-photom.log
+#adam-example# ./do_Subaru_register_4batch.sh ${cluster} "SDSS-R6" "astrom" "W-J-B" "W-C-RC" "W-S-Z+" 2>&1 | tee -a OUT-do_Subaru_register_4batch-${cluster}-astrom.log
 ### script to register image sets
 ###
 ### the astro-/photometry is via SCAMP 
@@ -12,7 +12,7 @@ set -xv
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 export cluster=$1  # cluster nickname as in /nfs/slac/g/ki/ki02/xoc/anja/SUBARU/SUBARU.list
 export catalog=$2  # catalog to be used for SCAMP
@@ -116,6 +116,7 @@ do
   fi
 
   echo "filter="${filter}
+  echo "config="${config}
   echo "NCHIPS="${NCHIPS}
   echo "INSTRUMENT="${INSTRUMENT}
 

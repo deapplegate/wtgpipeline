@@ -11,7 +11,7 @@ set -xv
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 export cluster=$1  # cluster nickname as in /nfs/slac/g/ki/ki02/xoc/anja/SUBARU/SUBARU.list
 export catalog=$2  # catalog to be used for SCAMP

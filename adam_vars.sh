@@ -1,6 +1,6 @@
 #!/bin/bash
 set -xv
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU ; export INSTRUMENT=SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU ; export INSTRUMENT=SUBARU
 export run="2010-11-04"; export filter="W-C-RC"; export ending="OCFR"; export cluster="MACS0416-24"; export FLAT="DOMEFLAT"; export config="10_3"; export catalog="2MASS"
 export run="2010-11-04"; export filter="W-S-Z+"; export ending="OCF" ; export cluster="MACS0416-24"; export FLAT="DOMEFLAT"; export config="10_3"; export catalog="2MASS"
 export run="2010-11-04"; export filter="W-J-B" ; export ending="OCF" ; export cluster="MACS0416-24"; export FLAT="DOMEFLAT"; export config="10_3"; export catalog="2MASS"

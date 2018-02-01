@@ -40,6 +40,10 @@ do
 	WEIGHT="$1/$3/${BASE}.weight.fits"
 
 	OUTPUT="${RESULTDIR}/${BASE}.weighted.fits"
+
+	if [ -f ${OUTPUT} ] ; then
+		continue
+	fi
 	
 	ic '%1 1 0 %2 0 > ? mult' ${file} ${WEIGHT} > ${OUTPUT}
 

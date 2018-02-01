@@ -10,7 +10,7 @@ cluster=$1
 filter=$2
 lensext=$3
 
-SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 LENSDIR=${SUBARUDIR}/${cluster}/LENSING_${filter}_${filter}_aper/${lensext}
 PHOTDIR=${SUBARUDIR}/${cluster}/PHOTOMETRY_${filter}_aper
 

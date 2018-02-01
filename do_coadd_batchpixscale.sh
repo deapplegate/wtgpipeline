@@ -93,7 +93,7 @@ export BONN_FILTER=${filter}
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 ##########################################
 

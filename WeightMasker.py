@@ -29,19 +29,35 @@ t1=time.time()
 tm_year,tm_mon,tm_mday,tm_hour,tm_min,tm_sec,tm_wday, tm_yday,tm_isdst=time.localtime()
 DateString=str(tm_mon)+'/'+str(tm_mday)+'/'+str(tm_year)
 FileString=ShortFileString(sys.argv[0])
+import re
 #Preliminaries: import and backup files first
-files,path_to_data = imagetools.FileFinder(sys.argv,flname='globalweight')
+from adam_quicktools_ArgCleaner import ArgCleaner
+args=ArgCleaner(sys.argv)
+splitargs=[]
+for arg in args:
+    splitargs+=arg.split()
+print ' [splitargs[0],splitargs[1:]] =', [splitargs[0],splitargs[1:]]
+files,path_to_data = imagetools.FileFinder([splitargs[0],splitargs[1:]],flname='globalweight')
 
 print "running on "+str(len(files))+" files"
 imagetools.FileBackup(files,datapath=path_to_data,backupdir='ORIGINAL_globalweights',backup_current=0)
 
+cut_mode='early'
+for chunk in path_to_data.split('/'):
+    if chunk.startswith('20'):
+	pprun=chunk
+        pathmatch=re.match('201[3-9]',chunk)
+        if pathmatch:
+            cut_mode='late'
 
 ###################PLOTTING#####################################
 #plotting OFF (next 3 lines):
-pltdir='Plots_WeightMasker'
+pltdir=path_to_data+'Plots_WeightMasker'
 PlotSave_On_Off={'fig_corner':False,'fig_streaks':False,'fig_patches':False}
 PlotShow_On_Off={'fig_zoom_corner':0,'fig_corner':0,'fig_streaks':0,'fig_patches':0,'fig_cutgrid':0,'fig_grid':0,'fig_CCD':0,'fig_hist':0}
-#plotting ON (next 3 lines):
+#plotting ON (next 5 lines):
+#if not os.path.isdir(pltdir):
+#	os.mkdir(pltdir)
 #2014#pltdir=imagetools.PlotDirAndBackup(datapath=path_to_data,pltdir='Plots_WeightMasker')
 #2014#PlotSave_On_Off={'fig_corner':True,'fig_streaks':False,'fig_patches':True}#fig_corner does fig_corner and fig_zoom_corner
 #2014#PlotShow_On_Off={'fig_zoom_corner':1,'fig_corner':1,'fig_streaks':1,'fig_patches':3,'fig_cutgrid':1,'fig_grid':1,'fig_CCD':1,'fig_hist':1}
@@ -54,7 +70,7 @@ Ngsp_max=30
 #STUFF I WANT OUT OF LOOP
 uplims,lowlims=zeros((10,4)),zeros((10,4))
 in_func=lambda p: (lambda x: p in x)
-#CUT:cut params set here
+#search-size params set here
 block_level=50 #<100
 patch_level=3 #=3 or 2?
 GSpatch_level=7
@@ -65,21 +81,23 @@ gspNsigs=6
 
 ## Define Cut Parameters!!!
 im_shape=imagetools.GetImage(files[0]).shape
-if im_shape==(4080, 2000): #config==10_2
+if im_shape==(4080, 2000) or (im_shape==(4152, 2016) and cut_mode=='late'):
+	#config==10_2
 	#2014# this gets divided by the number of readouts looped over, so if it's 10_3, there are 4 readouts and hist_cut_num=40, if it's 10_2 there is only one readout and it's 160
 	hist_cut_num=160 #the cutoff point where you say anything bin with this number or less in the histogram is considered a flyer
 	#SHNT
 	#define the cut parameters
-	block_cut=4.0 #3.5
+	raise_cut=5.0 #3.0 for 10_2
+	block_cut=4.0+raise_cut
 	block_highbias=0.3 #0.3 #give it a high bias so that it's easier to find points above average
-	grid_cut=7.0 #6.0
-	gsp_cut=8.4 #7.4
+	grid_cut=8.0+raise_cut
+	gsp_cut=9.5+raise_cut
 	#ZOOM OUT CUT:cut with higher grid and lower gsp
-	grid_cut_Zout=9.5 #8.5
-	gsp_cut_Zout=8.0 #7.0
+	grid_cut_Zout=11.5+raise_cut
+	gsp_cut_Zout=9.5+raise_cut
 	#ZOOM IN CUT: cut with higher gsp and lower grid
-	gsp_cut_Zin=13.5 #12.5
-elif im_shape==(4152, 2016):
+	gsp_cut_Zin=16.5+raise_cut
+elif im_shape==(4152, 2016) and cut_mode=='early':
 	#2014# this gets divided by the number of readouts looped over, so if it's 10_3, there are 4 readouts and hist_cut_num=40, if it's 10_2 there is only one readout and it's 160
 	hist_cut_num=40
 	#define the cut parameters
@@ -93,8 +111,7 @@ elif im_shape==(4152, 2016):
 	#ZOOM IN CUT: cut with higher gsp and lower grid
 	gsp_cut_Zin=12.5
 else:
-	raise Exception('THIS IMAGE IS SOME STRANGE SHAPE (10_3 shape: (4152, 2016), 10_2 shape: (4080, 2000))\n this shape: '+str(im_shape))
-
+	raise Exception('THIS IMAGE IS SOME STRANGE SHAPE (10_3 shape: (4152, 2016), 10_2 shape: (4080, 2000))\n this shape: '+str(im_shape)+' or something wrong with cut_mode='+cut_mode)
 
 
 def WideCutter(image,header=None,tolerance=(-.01,.03)):
@@ -117,16 +134,18 @@ def WideCutter(image,header=None,tolerance=(-.01,.03)):
 	if (cutfrac-frac0)>.003:
 		print 10*"too much cut!\nmore than .3% is cutoff, and this was:" +str(round(100*cutfrac,6))
 		raise BaseException('too much cut!')
-	print comment1+'\n'+comment2
+	print comment1.replace("WeightMasker","adam-look")+'\n'+comment2.replace("WeightMasker","adam-look")
 	if header:
 		header.add_comment(comment1)
 		header.add_comment(comment2)
 	image[cutit]=0
 	return image
 
+print "adam-look: running on "+str(len(files))+" files: " + ' '.join(files)
+print 'adam-look: hist_cut_num=40 block_cut=',block_cut,' block_highbias=',block_highbias,' grid_cut=',grid_cut,' gsp_cut=',gsp_cut,' grid_cut_Zout=',grid_cut_Zout,' gsp_cut_Zout=',gsp_cut_Zout,' gsp_cut_Zin=',gsp_cut_Zin
 for fl in files:
 	CCDnum=GetCCD(fl)
-	figlist={'fig_corner':range(4),'fig_zoom_corner':range(4),'fig_cutgrid':range(20),'fig_uncutgrid':range(20),'fig_grid':range(4)}
+	figlist={'fig_corner':range(4),'fig_zoom_corner':range(4),'fig_cutgrid':range(10),'fig_uncutgrid':range(10),'fig_grid':range(4)}
 	Ntimes_uncutgrid,Ntimes_cutgrid=1,1
 	print '\n##################'+fl+'#######################\n'
 	fitfl=pyfits.open(fl,mode='update')
@@ -209,7 +228,7 @@ for fl in files:
 		CutFrac=Ncutr1/float(r1.size)
 		if PlotShow_On_Off['fig_hist']:
 			ax=fig_hist.add_subplot(2,2,rnum+1)
-			x,bins,patch=ax.hist(dummy_r1.flatten(),bins=linspace(0,2,201),log=True)
+			x,bins,patch=ax.hist(dummy_r1.flatten(),bins=linspace(0,2,201),log=True ,range=(nanmin(dummy_r1),nanmax(dummy_r1)))
 			ax.plot([lowlim,lowlim],[1,max(x)],'r')
 			ax.plot([uplim,uplim],[1,max(x)],'r')
 			ax.set_xlim(CCDextrema[0]-.01,CCDextrema[1]+.01)
@@ -317,12 +336,12 @@ for fl in files:
 				fitinst=Gauss(GetMiddle(bins),Nums,threshold=.001)
 			except TypeError:
 				if isnan(grid).all(): continue #this actually happens for 10_2 config
-				elif isnan(grid).sum()>grid.size/2: continue #this actually happens for 10_2 config
-				else:raise
+				elif isnan(grid).sum()>grid.size/3: continue #this actually happens for 10_2 config
+				else:raise Exception('hit TypeError or IndexError with "Gauss" function and "isnan(grid).sum()>grid.size/3" is not true!')
 			except IndexError:
 				if isnan(grid).all(): continue #this actually happens for 10_2 config
-				elif isnan(grid).sum()>grid.size/2: continue #this actually happens for 10_2 config
-				else:raise
+				elif isnan(grid).sum()>grid.size/3: continue #this actually happens for 10_2 config
+				else:raise Exception('hit TypeError or IndexError with "Gauss" function and "isnan(grid).sum()>grid.size/3" is not true!')
 			GSsigma=fitinst.sigma
 			GSmean=fitinst.mean
 			#later: I treat it equal for points above average and below, might want to have a high bias for selection as well as cut
@@ -355,12 +374,12 @@ for fl in files:
 					fitinst=Gauss(GetMiddle(bins),Nums,threshold=.001)
 				except TypeError:
 					if isnan(GSpatch).all(): continue #this actually happens for 10_2 config
-					elif isnan(GSpatch).sum()>GSpatch.size/2: continue #this actually happens for 10_2 config
-					else:raise
+					elif isnan(GSpatch).sum()>GSpatch.size/3: continue #this actually happens for 10_2 config
+					else:continue
 				except IndexError:
 					if isnan(GSpatch).all(): continue #this actually happens for 10_2 config
-					elif isnan(GSpatch).sum()>GSpatch.size/2: continue #this actually happens for 10_2 config
-					else:raise
+					elif isnan(GSpatch).sum()>GSpatch.size/3: continue #this actually happens for 10_2 config
+					else:raise Exception('hit TypeError or IndexError with "Gauss" function and "isnan(grid).sum()>grid.size/3" is not true!')
 				gspsigma=fitinst.sigma
 				gspmean=fitinst.mean
 				significance_grid=abs(r2[pairpair]-GSmean)/GSsigma
@@ -383,14 +402,17 @@ for fl in files:
 						#PLOTgsp2/4
 						if (Ncounter_cutgrid==Nmax):
 							Ncounter_cutgrid=1
-							figlist['fig_cutgrid'][Ntimes_cutgrid]=(fig_cutgrid,pltdir+'/plt_cutgrid'+str(CCDnum)+'_gridcut'+num2str(grid_cut)+'_gspcut'+num2str(gsp_cut)+'_num'+str(Ntimes_cutgrid))
-							fig_cutgrid=figure(figsize=(20,15))
-							#fig_cutgrid.set_facecolor('k')
-							fig_cutgrid.suptitle('fig_cutgrid: cut for grid_cut='+str(grid_cut)+' gsp_cut='+str(gsp_cut),size=15)
-							#$fig_cutgrid.subplots_adjust(right=.9,top=.95,left=.01,bottom=.05,wspace=.01,hspace=.01)
-							fig_cutgrid.subplots_adjust(right=.99,top=.95,left=.01,bottom=.05,wspace=.01,hspace=.01)
-							fig_cutgrid.text(.03,.02,"File:"+os.getcwd()+'/'+fl,size=10)
-							Ntimes_cutgrid+=1
+							try:
+								figlist['fig_cutgrid'][Ntimes_cutgrid]=(fig_cutgrid,pltdir+'/plt_cutgrid'+str(CCDnum)+'_gridcut'+num2str(grid_cut)+'_gspcut'+num2str(gsp_cut)+'_num'+str(Ntimes_cutgrid))
+								fig_cutgrid=figure(figsize=(20,15))
+								#fig_cutgrid.set_facecolor('k')
+								fig_cutgrid.suptitle('fig_cutgrid: cut for grid_cut='+str(grid_cut)+' gsp_cut='+str(gsp_cut),size=15)
+								#$fig_cutgrid.subplots_adjust(right=.9,top=.95,left=.01,bottom=.05,wspace=.01,hspace=.01)
+								fig_cutgrid.subplots_adjust(right=.99,top=.95,left=.01,bottom=.05,wspace=.01,hspace=.01)
+								fig_cutgrid.text(.03,.02,"File:"+os.getcwd()+'/'+fl,size=10)
+								Ntimes_cutgrid+=1
+							except IndexError:
+								pass
 						#put area around here in the cut plot
 						#$cutpairspots+=points_around(r2.shape,pairpair,GSpatch_level)
 						cutAX=fig_cutgrid.add_subplot(8,10,Ncounter_cutgrid)
@@ -429,13 +451,16 @@ for fl in files:
 					#PLOTgsp3/4
 					if (Ncounter_uncutgrid==Nmax):
 						Ncounter_uncutgrid=1
-						figlist['fig_uncutgrid'][Ntimes_uncutgrid]=(fig_uncutgrid,pltdir+'/plt_uncutgrid'+str(CCDnum)+'_gridcut'+num2str(grid_cut)+'_gspcut'+num2str(gsp_cut)+'_num'+str(Ntimes_cutgrid))
-						fig_uncutgrid=figure(figsize=(10,15))
-						#fig_uncutgrid.set_facecolor('k')
-						fig_uncutgrid.suptitle('fig_uncutgrid: UNCUT for grid_cut='+num2str(grid_cut)+' gsp_cut='+num2str(gsp_cut),size=15)
-						fig_uncutgrid.subplots_adjust(right=.99,top=.95,left=.01,bottom=.05,wspace=.01,hspace=.01)
-						fig_uncutgrid.text(.03,.02,"File:"+os.getcwd()+'/'+fl,size=10)
-						Ntimes_uncutgrid+=1
+						try:
+							figlist['fig_uncutgrid'][Ntimes_uncutgrid]=(fig_uncutgrid,pltdir+'/plt_uncutgrid'+str(CCDnum)+'_gridcut'+num2str(grid_cut)+'_gspcut'+num2str(gsp_cut)+'_num'+str(Ntimes_cutgrid))
+							fig_uncutgrid=figure(figsize=(10,15))
+							#fig_uncutgrid.set_facecolor('k')
+							fig_uncutgrid.suptitle('fig_uncutgrid: UNCUT for grid_cut='+num2str(grid_cut)+' gsp_cut='+num2str(gsp_cut),size=15)
+							fig_uncutgrid.subplots_adjust(right=.99,top=.95,left=.01,bottom=.05,wspace=.01,hspace=.01)
+							fig_uncutgrid.text(.03,.02,"File:"+os.getcwd()+'/'+fl,size=10)
+							Ntimes_uncutgrid+=1
+						except IndexError:
+							pass
 					#if it's not cut by grid or gsp and it satisfies the loose cut and Plot is on
 					#then put in uncut plot
 					#$and this spot hasen't been plotted b4
@@ -486,12 +511,12 @@ for fl in files:
 				fitinst=Gauss(GetMiddle(bins),Nums,threshold=.0002)
 			except TypeError:
 				if isnan(block).all(): continue #this actually happens for 10_2 config
-				elif isnan(block).sum()>block.size/2: continue #this actually happens for 10_2 config
-				else:raise
+				elif isnan(block).sum()>block.size/3: continue #this actually happens for 10_2 config
+				else:raise Exception('hit TypeError or IndexError with "Gauss" function and "isnan(block).sum()>block.size/3" is not true!')
 			except IndexError:
 				if isnan(block).all(): continue #this actually happens for 10_2 config
-				elif isnan(block).sum()>block.size/2: continue #this actually happens for 10_2 config
-				else:raise
+				elif isnan(block).sum()>block.size/3: continue #this actually happens for 10_2 config
+				else:raise Exception('hit TypeError or IndexError with "Gauss" function and "isnan(block).sum()>block.size/3" is not true!')
 			light_sigma=fitinst.sigma
 			light_mean=fitinst.mean
 			blocklow=light_mean-(light_sigma*block_cut)
@@ -545,10 +570,13 @@ for fl in files:
 		#bad loop end
 		if PlotShow_On_Off['fig_cutgrid']:
 			#PLOTgsp4/4
-			figlist['fig_cutgrid'][Ntimes_cutgrid]=(fig_cutgrid,pltdir+'/plt_cutgrid'+str(CCDnum)+'_gridcut'+num2str(grid_cut)+'_gspcut'+num2str(gsp_cut)+'_num'+str(Ntimes_cutgrid))
-			figlist['fig_uncutgrid'][Ntimes_uncutgrid]=(fig_uncutgrid,pltdir+'/plt_uncutgrid'+str(CCDnum)+'_gridcut'+num2str(grid_cut)+'_gspcut'+num2str(gsp_cut)+'_num'+str(Ntimes_cutgrid))
-			Ntimes_uncutgrid+=1
-			Ntimes_cutgrid+=1
+			try:
+				figlist['fig_cutgrid'][Ntimes_cutgrid]=(fig_cutgrid,pltdir+'/plt_cutgrid'+str(CCDnum)+'_gridcut'+num2str(grid_cut)+'_gspcut'+num2str(gsp_cut)+'_num'+str(Ntimes_cutgrid))
+				figlist['fig_uncutgrid'][Ntimes_uncutgrid]=(fig_uncutgrid,pltdir+'/plt_uncutgrid'+str(CCDnum)+'_gridcut'+num2str(grid_cut)+'_gspcut'+num2str(gsp_cut)+'_num'+str(Ntimes_cutgrid))
+				Ntimes_uncutgrid+=1
+				Ntimes_cutgrid+=1
+			except IndexError:
+				pass
 		if PlotShow_On_Off['fig_zoom_corner']:
 			Nreplaced,HCornCutr1_area,CCornCutr1_area,Hr1_area,Cr1_area,HXs,HYs,CXs,CYs,HchangeX,HchangeY,CchangeX,CchangeY=endneeds['fig_zoom_corner'][rnum]
 			fig_zoom_corner=figure(figsize=(20,10))
@@ -614,10 +642,11 @@ for fl in files:
 	Head.add_comment( 'WeightMasker: after Grid Search Cut with streaks omitted (# pixels,%) equal to zero = ( '+str(Ncut4) +' , '+str(round(100*Ncut4/float(start_image.size),6))+' )')
 	Head.add_comment( 'WeightMasker: after all cuts are made, the total (# pixels,%) cut BY WeightMasker ONLY = ( '+str(Ncut4-Nzero_start)+' , '+str(round(percut,6))+' )')
 	if percut>.6:
-		raise BaseException('Too much was cut out for this to be ok')
+		print "adam-look: raise BaseException('Too much was cut out for this to be ok')"
 	elif percut>.2:
-		print "wayyyy too much cut!!!\n"*100
-	print "total percent cut (not including the stuff that started off as 0) = ",percut
+		print "wayyyy too much cut!!!\n"*2
+	print 'adam-look: after Grid Search Cut with streaks omitted % equal to zero = '+str(round(100*Ncut4/float(start_image.size),6))
+	print "adam-look: "+pprun+" CCD#="+str(CCDnum)+" total % cut by WeightMasker ONLY = ",percut
 	saved_image=final_image.copy()
 	saved_image[isnan(saved_image)]=0
 	fitfl[0].data=saved_image

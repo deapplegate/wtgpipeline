@@ -32,11 +32,11 @@ done
 exit 0;
 
 #adam-tmp# examples
-rename 's/SUPA/oldSUPA/g' SUPA0110211_9OCF.sf.fits
-rename 's/SUPA/oldSUPA/g' SUPA0110212_9OCF.sf.fits
-rename 's/SUPA/oldSUPA/g' SUPA0111270_9OCF.sf.fits
-rename 's/SUPA/oldSUPA/g' SUPA0111271_9OCF.sf.fits
-ic '%1 %2 *' SUPA0110169_9OCF.sh.fits oldSUPA0110211_9OCF.sf.fits > SUPA0110211_9OCF.sf.fits                                                                                           
-ic '%1 %2 *' SUPA0110169_9OCF.sh.fits oldSUPA0110212_9OCF.sf.fits > SUPA0110212_9OCF.sf.fits
-ic '%1 %2 *' SUPA0110169_9OCF.sh.fits oldSUPA0111270_9OCF.sf.fits > SUPA0111270_9OCF.sf.fits                                                                                           
-ic '%1 %2 *' SUPA0110169_9OCF.sh.fits oldSUPA0111271_9OCF.sf.fits > SUPA0111271_9OCF.sf.fits
+#rename 's/SUPA/oldSUPA/g' SUPA0110211_9OCF.sf.fits
+#rename 's/SUPA/oldSUPA/g' SUPA0110212_9OCF.sf.fits
+#rename 's/SUPA/oldSUPA/g' SUPA0111270_9OCF.sf.fits
+#rename 's/SUPA/oldSUPA/g' SUPA0111271_9OCF.sf.fits
+#ic '%1 %2 *' SUPA0110169_9OCF.sh.fits oldSUPA0110211_9OCF.sf.fits > SUPA0110211_9OCF.sf.fits                                                                                           
+#ic '%1 %2 *' SUPA0110169_9OCF.sh.fits oldSUPA0110212_9OCF.sf.fits > SUPA0110212_9OCF.sf.fits
+#ic '%1 %2 *' SUPA0110169_9OCF.sh.fits oldSUPA0111270_9OCF.sf.fits > SUPA0111270_9OCF.sf.fits                                                                                           
+#ic '%1 %2 *' SUPA0110169_9OCF.sh.fits oldSUPA0111271_9OCF.sf.fits > SUPA0111271_9OCF.sf.fits

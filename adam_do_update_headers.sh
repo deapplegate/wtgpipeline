@@ -9,10 +9,10 @@
 export cluster=$1  # cluster nickname as in /nfs/slac/g/ki/ki05/anja/SUBARU/SUBARU.list
 filter_run_pairs=$2
 REDDIR=`pwd`
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU/
 export INSTRUMENT=SUBARU
 
-for filter_run in ${filter_run_pairs[@]}
+for filter_run in ${!#}
 do
     ### FINAL LOOP | 1.) make regions compatible 2.) put them in flags/weights 3.) consolidate directories ###
 

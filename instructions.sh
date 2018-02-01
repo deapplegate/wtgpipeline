@@ -6,7 +6,7 @@
 
 #################### distribute_sets_subaru.sh ########################
 #adam# set needed environment variables
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export ending="OCF"
 export INSTRUMENT="SUBARU"
 export run="2010-11-04"
@@ -43,7 +43,7 @@ export filters=(W-C-RC_${run} W-J-B_${run} W-S-Z+_${run})
 export cluster=MACS1226+21
 
 #both
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export ending="OCF"
 export INSTRUMENT="SUBARU"
 export BONN_TARGET=${cluster}

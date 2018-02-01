@@ -441,7 +441,8 @@ do
 			fi
 			# not R.fits either?
 			#adam-old# oimage=`${P_FIND} ${curdir} -maxdepth 1 -name ${IMAGE}_${i}[!0-9]*.fits | awk '{if($1!~"sub.fits" && $1!~"I.fits" && $1!~"R.fits" ) print $0}'`
-			oimage=`${P_FIND} ${curdir} -maxdepth 1 -name ${IMAGE}_${i}[!0-9]*.fits | awk '{if($1!~"sub.fits" && $1!~"I.fits" ) print $0}'`
+			#adam-old# oimage=`${P_FIND} ${curdir} -maxdepth 1 -name ${IMAGE}_${i}[!0-9]*.fits | awk '{if($1!~"sub.fits" && $1!~"I.fits" ) print $0}'`
+			oimage=`${P_FIND} ${curdir} -maxdepth 1 -name ${IMAGE}_${i}[!0-9]*.fits | awk '{if($1!~"sub.fits") print $0}'`
 			if [ -n "${oimage}" ]; then
 			    #ROTATION=`dfits "${oimage}" | fitsort ROTATION | awk '($1!="FILE") {print $2}'`
 			    #CONFIG=`dfits "${oimage}" | fitsort CONFIG | awk '($1!="FILE") {print $2}'`
@@ -543,10 +544,23 @@ echo "MOSAICTYPE=" $MOSAICTYPE
 ## scamp mode settings
 scamp_mode_instrum_star="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG ${STARCAT} " #default
 scamp_mode_exp_star="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG ${STARCAT} "
-scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
-scamp_mode_exp_ref="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
-# really very little difference when changing "-ASTREF_WEIGHT 1" to "-ASTREF_WEIGHT 10", so ignore this
-scamp_mode_use=${scamp_mode_instrum_star} #default
+if [ "${STARCAT}"=="PANSTARRS" ]; then
+	cp /nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/astrefcat.cat .
+	scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT \
+	        -ASTREF_CATALOG FILE \
+	        -ASTREFCAT_NAME astrefcat.cat \
+	        -ASTREFCENT_KEYS raMean,decMean \
+	        -ASTREFERR_KEYS raMeanErr,decMeanErr \
+	        -ASTREFMAG_LIMITS 10,30 \
+	        -ASTREFMAG_KEY iMeanApMag \
+	        -ASTREFMAGERR_KEY iMeanApMagErr "
+	scamp_mode_use=${scamp_mode_instrum_ref}
+else
+	scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
+	scamp_mode_exp_ref="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
+	# really very little difference when changing "-ASTREF_WEIGHT 1" to "-ASTREF_WEIGHT 10", so ignore this
+	scamp_mode_use=${scamp_mode_instrum_star} #default
+fi
 #adam-IMPORTANT# If BACKMASK images look like crap, then I should first try out scamp_mode_use=${scamp_mode_exp_star}
 #adam-IMPORTANT# If still bad, then make a coadd.fits with only the good looking exposures, make a refcat from this, and use scamp_mode_use=${scamp_mode_exp_ref}
 
@@ -560,6 +574,10 @@ scamp_mode_use=${scamp_mode_instrum_star} #default
 echo "scamp_mode_use=" $scamp_mode_use
 
 ## RUN SCAMP
+posangle=1.0                                                                                                                                                                          
+position=1.0
+pixscale=1.003
+
 ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
            -c ${CONF}/scamp_astrom_photom.scamp \
            -ASTRINSTRU_KEY FILTER,INSTRUM,CONFIG,ROTATION,MISSCHIP,PPRUN \
@@ -568,13 +586,13 @@ ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
            -XML_NAME ${cluster}_scamp.xml \
            -MAGZERO_INTERR 0.1 \
            -MAGZERO_REFERR 0.03 \
-           -POSITION_MAXERR 5.0 \
-           -POSANGLE_MAXERR 0.07 \
+           -POSITION_MAXERR ${position} \
+           -POSANGLE_MAXERR ${posangle} \
+           -PIXSCALE_MAXERR ${pixscale} \
            -SN_THRESHOLDS 3,100 \
            -FLAGS_MASK 0x00e0 \
            -MATCH_NMAX 10000 \
            -CROSSID_RADIUS 0.3 \
-           -PIXSCALE_MAXERR 1.03 \
            -DISTORT_DEGREES 3 \
            -ASTREF_WEIGHT 1 ${scamp_mode_use} -CHECKPLOT_RES 4000,3000
 

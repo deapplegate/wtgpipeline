@@ -18,7 +18,7 @@ SKYBACK=256          # in case of SKYFLAT: size of background mesh for superflat
 SCIENCEDIR=SCIENCE_${FLAT}_${SET}
 
 export INSTRUMENT=SUBARU
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 ##################################################################
 
 ### superscript template to do the preprocessing

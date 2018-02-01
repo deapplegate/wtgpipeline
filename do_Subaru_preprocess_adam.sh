@@ -8,7 +8,7 @@ REDDIR=`pwd`
 ### the following need to be specified for each run
 ####################################################
 
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 #10_3# MACS1226
 #run=10_3 #use this for processing DARK

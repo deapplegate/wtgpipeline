@@ -1,4 +1,4 @@
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/ ; export INSTRUMENT=SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU/ ; export INSTRUMENT=SUBARU
 export bonn=/u/ki/awright/wtgpipeline/
 export subdir=/nfs/slac/g/ki/ki18/anja/SUBARU/
 #running# ./postH_2009-04-29_W-S-Z+_preprocess_step9.sh 2>&1 | tee -a OUT-postH_2009-04-29_W-S-Z+_preprocess_step9.log

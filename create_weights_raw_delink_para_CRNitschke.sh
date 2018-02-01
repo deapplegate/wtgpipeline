@@ -23,7 +23,7 @@ set -xv
 # $5: Filter to use for cosmic ray detection (OPTIONAL)
 # ${!#}: chips to be processed
 
-
+INSTRUMENT=SUBARU
 . ${INSTRUMENT:?}.ini > /tmp/subaru_ini_output.log 2>&1
 REDDIR=`pwd`
 export WEIGHTSDIR=${1}/${4}
@@ -50,12 +50,21 @@ do
   {
     while read file
     do
+      ## if it's a 3 sec or 30 sec exposure, then skip it!
+      exptime=`dfits ${file} | fitsort EXPTIME | grep "SUPA" | awk '{print $2}' `
+      shortexp=$(echo "${exptime}<31.0" | bc -l )
+      if [ ${shortexp} -eq "1" ]; then
+	      echo "exptime=${exptime}, so we're skipping file=${file}"
+	      continue
+      fi
+
       BASE=`basename ${file} $3.fits`
       if [ -f "${WEIGHTSDIR}/${BASE}$3.weight.fits" ] ;then
-              echo "#adam-look# SKIPPING ${WEIGHTSDIR}/${BASE}$3.weight.fits"
-              ls -lrth ${WEIGHTSDIR}/${BASE}$3.weight.fits
-              echo "#adam-look# because it's already there!"
-	      continue
+              #adam-tmp#echo "#adam-look# SKIPPING ${WEIGHTSDIR}/${BASE}$3.weight.fits"
+              #adam-tmp#ls -lrth ${WEIGHTSDIR}/${BASE}$3.weight.fits
+              #adam-tmp#echo "#adam-look# because it's already there!"
+	      #adam-tmp#continue
+	      rm ${WEIGHTSDIR}/${BASE}$3.weight.fits
       fi
       #adam# START MY STUFF!
       #adam# determine the seeing and get the optimal sextractor thresholds
@@ -70,7 +79,8 @@ do
       #       2.) data_SCIENCE_cosmics/FILTERED_CRN-cosmics_${cluster}_${filter}.${BASE}.fits \
       #       3.) data_SCIENCE_cosmics/CATALOG_CRN-cosmics_${cluster}_${filter}.${BASE}.cat
       #       check with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/ > CRN-cosmics_latest_run.log
-      ${P_SEX} ${file}   -c /u/ki/awright/thiswork/eyes/CRNitschke/config-sex.10_3_cr \
+      if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
+        ${P_SEX} ${file}   -c /u/ki/awright/thiswork/eyes/CRNitschke/config-sex.10_3_cr \
 			-SEEING_FWHM ${fwhm} \
 			-FILTER_NAME /u/ki/awright/thiswork/eyes/CRNitschke/retina-eye.10_3_cr.ret \
 			-FILTER_THRESH ${ft} \
@@ -80,9 +90,13 @@ do
 			-CHECKIMAGE_TYPE SEGMENTATION,FILTERED \
 			-CHECKIMAGE_NAME /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_${cluster}_${filter}.${BASE}.fits,/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_CRN-cosmics_${cluster}_${filter}.${BASE}.fits \
 			-CATALOG_NAME /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/CATALOG_CRN-cosmics_${cluster}_${filter}.${BASE}.cat
+      else
+	echo "SKIPPING sextractor for ${file}"
+      fi
       exit_stat=$? 
       if [ "${exit_stat}" -gt "0" ]; then
-          exit ${exit_stat};
+          echo "adam-look: create_weights_raw_delink_para_CRNitschke.sh failed for file=${file}"
+	  continue
       fi 
       #adam# now put in the FT400 stuff in order to pick up extra cosmics
       ft400=$(echo "400.0 / $rms" |bc -l)
@@ -91,7 +105,8 @@ do
       #       4.) data_SCIENCE_cosmics/FILTERED_FT400_CRN-cosmics_${cluster}_${filter}.${BASE}.fits \
       #       5.) data_SCIENCE_cosmics/CATALOG_FT400_CRN-cosmics_${cluster}_${filter}.${BASE}.cat
       #       check (1-6) with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/ > CRN-cosmics_latest_run.log
-      ${P_SEX} ${file}   -c /u/ki/awright/thiswork/eyes/CRNitschke/config-sex.10_3_cr \
+      if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_FT400_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
+        ${P_SEX} ${file}   -c /u/ki/awright/thiswork/eyes/CRNitschke/config-sex.10_3_cr \
                         -SEEING_FWHM ${fwhm} \
                         -FILTER_NAME /u/ki/awright/thiswork/eyes/CRNitschke/retina-eye.10_3_cr.ret \
                         -FILTER_THRESH ${ft400} \
@@ -101,9 +116,13 @@ do
                         -CHECKIMAGE_TYPE FILTERED \
                         -CHECKIMAGE_NAME /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_FT400_CRN-cosmics_${cluster}_${filter}.${BASE}.fits \
                         -CATALOG_NAME /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/CATALOG_FT400_CRN-cosmics_${cluster}_${filter}.${BASE}.cat
+      else
+	echo "SKIPPING sextractor FT400 for ${file}"
+      fi
       exit_stat=$? 
       if [ "${exit_stat}" -gt "0" ]; then
-          exit ${exit_stat};
+          echo "adam-look: create_weights_raw_delink_para_CRNitschke.sh failed for file=${file}"
+	  continue
       fi 
       #adam# put keywords in the headers of these files:
       /u/ki/awright/InstallingSoftware/pythons/header_key_add.py /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_FT400_CRN-cosmics_${cluster}_${filter}.${BASE}.fits CRN_FT=${ft400} CRN_DT=${dt} CRN_DMA=1 MYSEEING=${fwhm} MYRMS=${rms} MYOBJ=${cluster}
@@ -115,10 +134,16 @@ do
       #       6.) data_SCIENCE_stars/SEGMENTATION_stars_${BASE}OCF.fits 
       #       7.) data_SCIENCE_stars/CATALOG_stars_${BASE}OCF.cat
       #       check with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_stars/ > CRN-stars_latest_run.log
-      /u/ki/awright/thiswork/eyes/CRNitschke/stars2block.py ${file}
+      #       check with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_stars/ > CRN-stars_latest_run.log
+      if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_stars/SEGMENTATION_CRN-stars_${cluster}_${filter}.${BASE}.fits" ]; then
+        /u/ki/awright/thiswork/eyes/CRNitschke/stars2block.py ${file}
+      else
+	echo "SKIPPING stars2block.py for ${file}"
+      fi
       exit_stat=$? 
       if [ "${exit_stat}" -gt "0" ]; then
-          exit ${exit_stat};
+          echo "adam-look: create_weights_raw_delink_para_CRNitschke.sh failed for file=${file}"
+	  continue
       fi 
       #adam# now run the blocked_blender!
       #CRN-files#
@@ -130,10 +155,15 @@ do
       #       LOTS OF PLOTS IN: /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/plot_SCIENCE_compare/
       #       check with:ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/ > CRN-compare_last_run.log
       #                  ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BB_CRN*.fits >> CRN-compare_last_run.log
-      /u/ki/awright/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ${file}
+      if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BB_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
+        /u/ki/awright/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ${file}
+      else
+	echo "SKIPPING blocked_blender.2.2.py for ${file}"
+      fi
       exit_stat=$? 
       if [ "${exit_stat}" -gt "0" ]; then
-          exit ${exit_stat};
+          echo "adam-look: create_weights_raw_delink_para_CRNitschke.sh failed for file=${file}"
+	  continue
       fi 
       #SS# next line runs StarStripper.py
       #CRN-files#
@@ -144,10 +174,15 @@ do
       #       check with:ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_KeepOrRM-starlike_cosmics*.fits > CRN-SS_last_run.log
       #                  ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BBSS_CRN*.fits >> CRN-SS_last_run.log
       #                  ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/StarRMout_KeepOrRM-purified_cosmics*.fits >> CRN-SS_last_run.log
-      /u/ki/awright/thiswork/eyes/CRNitschke/StarStripper.py ${file}
+      if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BBSS_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
+        /u/ki/awright/thiswork/eyes/CRNitschke/StarStripper.py ${file}
+      else
+	echo "SKIPPING StarStripper.py for ${file}"
+      fi
       exit_stat=$? 
       if [ "${exit_stat}" -gt "0" ]; then
-          exit ${exit_stat};
+          echo "adam-look: create_weights_raw_delink_para_CRNitschke.sh failed for file=${file}"
+	  continue
       fi 
       #adam# END MY STUFF!
       # Expand the cosmic ray masking:
@@ -179,7 +214,7 @@ do
 		  else
                       flmid="BB"
 		  fi
-	      elif [ ${filter} == "W-S-Z+" ]; then                                                                                                                                                                          
+	      elif [ ${filter} == "W-S-Z+" ]; then
 		  seeing_ok=$(echo "${fwhm}<1.20" |bc -l)
 		  if [ ${seeing_ok} -eq 1 ]; then
 		      flmid="BBSS"
@@ -207,7 +242,8 @@ do
       sfdir/expand_cosmics_mask ${TEMPDIR}/cosmic_${CHIP}_$$.fits  ${TEMPDIR}/cosmic_${CHIP}_$$.2.fits
       exit_stat=$? 
       if [ "${exit_stat}" -gt "0" ]; then
-          exit ${exit_stat};
+          echo "adam-look: create_weights_raw_delink_para_CRNitschke.sh failed for file=${file}"
+	  continue
       fi 
       mv ${TEMPDIR}/cosmic_${CHIP}_$$.2.fits  ${TEMPDIR}/cosmic_${CHIP}_$$.fits 
       # create ww config file on the fly
@@ -221,6 +257,8 @@ do
 	  echo "WEIGHT_MAX 1e9,0.1,${SATLEVEL},1"       >> ${TEMPDIR}/${BASE}.ww_$$
 	  echo "WEIGHT_OUTFLAGS 0,1,2,4"       >> ${TEMPDIR}/${BASE}.ww_$$
       else
+	  echo "adam-look: no sf.fits file: $1/$2/diffmask/${BASE}$3.sf.fits"
+	  continue
 	  echo "WEIGHT_NAMES ${WEIGHTSDIR}/globalweight_${CHIP}.fits,${TEMPDIR}/cosmic_${CHIP}_$$.fits,${file}" > ${TEMPDIR}/${BASE}.ww_$$
 	  echo "WEIGHT_MIN -1e9,-1e9,-${SATLEVEL}"           >> ${TEMPDIR}/${BASE}.ww_$$
 	  echo "WEIGHT_MAX 1e9,0.1,${SATLEVEL}"         >> ${TEMPDIR}/${BASE}.ww_$$
@@ -247,7 +285,8 @@ do
       ${P_WW} -c ${TEMPDIR}/${BASE}.ww_$$
       exit_stat=$? 
       if [ "${exit_stat}" -gt "0" ]; then
-          exit ${exit_stat};
+          echo "adam-look: create_weights_raw_delink_para_CRNitschke.sh failed for file=${file}"
+	  continue
       fi 
       rm -f ${TEMPDIR}/${BASE}.ww_$$
 

@@ -12,7 +12,7 @@
 
 REDDIR=`pwd`
 
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 cluster="MACS2228+20"  # cluster nickname as in /nfs/slac/g/ki/ki05/anja/SUBARU/SUBARU.list
 filters="W-C-RC_2003-07-27"

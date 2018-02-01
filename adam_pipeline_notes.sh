@@ -11,8 +11,10 @@ adam_do_masking_master.sh
 #old# distribute_sets_subaru.sh and do_masking.sh OR instructions.sh
 
 #4.) directories changed from $filter_$run to $filter AND setup header files (for each ${filter}) AND do the cross-talk correction
-./adam_do_linking_filter_dirs.sh ${cluster} ${filter_run_pairs}
-./adam_do_update_headers.sh ${cluster} ${filter_run_pairs}
+cluster='MACS0429-02'
+filter_run_pairs='W-J-B_2015-12-15 W-S-Z+_2015-12-15'
+./adam_do_linking_filter_dirs.sh ${cluster} W-J-B_2015-12-15 W-S-Z+_2015-12-15 2>&1 | tee -a OUT-adam_do_linking_filter_dirs.log
+./adam_do_update_headers.sh ${cluster} W-J-B_2015-12-15 W-S-Z+_2015-12-15 2>&1 | tee -a OUT-adam_do_update_headers_dirs.log
 
 #CTcorr uses: adam_CTcorr_make_images_para.sh adam_CTcorr_run_correction_para.py
 Made batch wrapper for them using the combo of these:
@@ -77,8 +79,8 @@ ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}
 
 
 #11.) do_photometry.sh
-export cluster=MACS0416-24; export ending="OCFR" ; export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU ; export INSTRUMENT=SUBARU
-export cluster=MACS1226+21; export ending="OCFI" ;export INSTRUMENT=SUBARU ;export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/
+export cluster=MACS0416-24; export ending="OCFR" ; export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU ; export INSTRUMENT=SUBARU
+export cluster=MACS1226+21; export ending="OCFI" ;export INSTRUMENT=SUBARU ;export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU/
 export detect_filter=W-C-RC;export lensing_filter=W-C-RC
 # first make sure this is right: cluster_cat_filters.dat
 ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY

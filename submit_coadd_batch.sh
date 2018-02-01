@@ -8,7 +8,7 @@
 
 
 
-SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 logdir=${SUBARUDIR}/coaddlogs
 
 queue=$1

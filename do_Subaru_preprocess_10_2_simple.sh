@@ -8,7 +8,7 @@ REDDIR=`pwd`
 ### the following need to be specified for each run
 ####################################################
 
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 run=2006-03-04 ; filter="W-C-RC" ; FLAT=DOMEFLAT #10_2 config
 
 export BONN_TARGET=${run}
