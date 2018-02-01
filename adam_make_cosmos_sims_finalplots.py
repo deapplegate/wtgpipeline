@@ -29,6 +29,6 @@ pylab.savefig('plt_publicationBias-%s-%s' % ( dirtag , filterset ) )
 #adam-SHNT# this is the plot in Weighing the Giants - III figure 8
 import scatter_sims_plots
 
-pointest=pcsp.PointEstPzScript()
+pointest=pcsp.PointEstPzScript(filtersetdir)
 pointest.savefig('plt_pointEstPzScript-%s-%s' % ( dirtag , filterset ) )
 pylab.show()
