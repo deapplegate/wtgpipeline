@@ -61,7 +61,6 @@ def sextractor(image, detect = None, config = None,
     if detect:
         imageFlag = '%s,%s' % (detect,image)
     
-    #adam-tmp# command = '%s %s %s' % (PROGS['p_sex'], configFlag, imageFlag)
     command = '%s %s %s' % (PROGS['p_sex'], configFlag, imageFlag)
 
 

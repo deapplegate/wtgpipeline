@@ -25,7 +25,7 @@ elif cat_switch=='newcat_matched':
 
 import os, sys, cPickle, glob
 import cosmos_sim as cs
-#adam-tmp# import shearprofile as sp
+#adam-old# import shearprofile as sp
 
 
 #######################
