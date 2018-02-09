@@ -1,4 +1,7 @@
 import pylab, numpy as np, pymc
+from readtxtfile import readtxtfile
+import scatter_sims as ss, compare_masses as cm
+import nfwutils
 
 #######################
 
@@ -193,8 +196,12 @@ def plotZCompact(consols, plotkey=(1,2,1), plotfunc = plotCompactSummary, label=
 
 #adam-SHNT# this is the plot in Weighing the Giants - III figure 8
 #copied and modified from scatter_sims_plots.py
+<<<<<<< HEAD
 import readtxtfile
 def PointEstPzScript():
+=======
+def PointEstPzScript(filterdatadir='/u/ki/awright/simcl/simcl_CATnewcat_matched-Zpoint/UGRIZ/'):
+>>>>>>> 97f82e7027cfc3f61e2e71e6455d3db5f89d4e9d
 
     worklist = readtxtfile('simclusterlist')
     clusters = [x[0] for x in worklist]
@@ -203,10 +210,15 @@ def PointEstPzScript():
 
     subdirs = ['nocontam/maxlike']
 
-    MLfracbias = ss.processFracBiasData('/u/ki/awright/simcl/simcl_CATnewcat_matched-Zpoint/UGRIZ/',
+    # Reads data of simulated clusters and computes fractional mass bias wrt true mass
+    # loops over all subdirs
+    MLfracbias = ss.processFracBiasData(filterdatadir,
                                         subdirs, clusters, redshifts)[0]
+    print 'ml', MLfracbias
 
-    Bpointmass, Bpointgrid, scale_radii = ss.readPointMasses( '/u/ki/awright/simcl/simcl_CATnewcat_matched-Zpoint/UGRIZ/',subdirs[0], clusters)
+    Bpointmass, Bpointgrid, scale_radii = ss.readPointMasses( filterdatadir,subdirs[0], clusters)
+    print 'bpg', Bpointgrid
+    print 'bpm', Bpointmass
 
     truemasses = [nfwutils.massInsideR(scale_radii[x], 4., redshifts[x], 1.5) for x in clusters]
 
@@ -219,6 +231,9 @@ def PointEstPzScript():
     ax.axhline(0.0, c='k', linewidth=1.25)
     Apointmean, Apointerr = ss.bootstrapMean(MLfracbias)
     Bpointmean, Bpointerr = ss.bootstrapMean(Bpointfracbias)
+    print 'bpe', Bpointmean, Bpointerr
+    print 'ape', Apointmean, Apointerr
+
     ax.errorbar(properredshifts-0.0025, Bpointmean, Bpointerr, fmt='cs', label=r'Point Estimators', color='#BFBFD4')
     ax.errorbar(properredshifts+0.0025, Apointmean, Apointerr, fmt='ro', label=r'P(z) Method')
     ax.set_xlim(0.16, 0.72)

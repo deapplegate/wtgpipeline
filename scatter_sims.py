@@ -336,7 +336,8 @@ def processFracBiasData(workdir, subdirs, clusters, redshifts, concentration = 4
     for subdir in subdirs:
 
         masses, errs, massgrid, scale_radii = readMLMasses(workdir, subdir, clusters)
-
+        # massgrid is (# simulations per cluster (50), # clusters (27)) array
+        # filled with the MassDist.mu class value
         truemasses = [nfwutils.massInsideR(scale_radii[x], concentration, redshifts[x], mradius) for x in clusters]
 
         fracbias = calcFracBias(massgrid, truemasses)

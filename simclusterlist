@@ -1,4 +1,4 @@
-A521 W-C-RC good
+A521 W-C-RC good  
 MACS2228+20 W-C-RC Rot0
 MACS2140-23 W-C-RC good
 MACS2243-09 W-J-V gab1728-rot1
@@ -22,6 +22,7 @@ A2390 W-C-RC good
 A370 W-C-RC good
 MACS0850+36 W-J-V good
 MACS1720+35 W-J-V good
-MACS1731+22 W-C-RC good
+#MACS1731+22 W-C-RC good    # Old as Adam had it
+MACS1731+22 W-C-RC gab908-rot0
 A383 W-S-I+ good
 MACS0949+17 W-J-V good
