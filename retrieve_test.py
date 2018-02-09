@@ -23,7 +23,7 @@ def convert_to_pogson(magnitude,filter):
 
 ''' make sure we have a clean sample of SDSS stars '''
 def inspect_flags(flags1,flags2):
-#
+
 	flcodes = {'PEAKCENTER':[1,5],'NOTCHECKED':[1,19],'DEBLEND_NOPEAK':[2,14],'PSF_FLUX_INTERP':[2,15],'BAD_COUNTS_ERROR':[2,8],'INTERP_CENTER':[2,12],'CR':[1,12],'BINNED1':[1,28],'BRIGHT':[1,1],'SATURATED':[1,18],'EDGE':[1,2],'BLENDED':[1,3],'NODEBLEND':[1,6],'NOPROFILE':[1,7]}
 
 	good = 1
@@ -65,7 +65,7 @@ def run(img,outcat,type,limits=None):
             decmin = limits['decmin']
             decmax = limits['decmax']
         else:
-            import commands, string                                                                                 
+            import commands, string
             command = 'dfits ' + img + ' | fitsort -d CD2_1'
             print command
             print commands.getoutput(command)
@@ -191,6 +191,8 @@ AND (((flags & 0x100000000000) = 0) or (flags & 0x1000) = 0) \n'
         keys = ['SeqNr',['dec','Dec'],['ra','Ra'],'raErr','decErr','umag','gmag','rmag','imag','Bmag','Vmag','Rmag','Imag','zmag','uerr','gerr','rerr','ierr','Berr','Verr','Rerr','Ierr','zerr','umg','gmr','rmi','imz','BmV','VmR','RmI','Imz','umgerr','gmrerr','rmierr','imzerr','BmVerr','VmRerr','RmIerr','Imzerr','A_WCS','B_WCS','THETAWCS','Flag','Clean',['ra','ALPHA_J2000'],['dec','DELTA_J2000']]
 
         #keys = ['SeqNr',['dec','Dec'],['ra','Ra'],'raErr','decErr','umag','gmag','rmag','imag','Bmag','Vmag','Rmag','Imag','zmag','uerr','gerr','rerr','ierr','Berr','Verr','Rerr','Ierr','zerr','umg','gmr','rmi','imz','BmV','VmR','RmI','Imz','umgerr','gmrerr','rmierr','imzerr','BmVerr','VmRerr','RmIerr','Imzerr','flags_u','flags_g','flags_r','flags_i','flags_z','A_WCS','B_WCS','THETAWCS','Flag','Clean',['ra','ALPHA_J2000'],['dec','DELTA_J2000']]
+	#adam-SHNT# this is the point where I'll have to get the panstarrs catalog to start from!
+	#adam-SHNT# on this cat: /nfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/PHOTOMETRY/astrefcat-stars_only.txt
         seqnr = 1
         for els in range(len(data)): 
         	clean = data[els]['clean']

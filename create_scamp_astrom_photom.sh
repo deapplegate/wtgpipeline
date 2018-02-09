@@ -1,7 +1,7 @@
 #!/bin/bash
 set -xv
-#. BonnLogger.sh
-#. log_start
+#adam-example# ./create_scamp_astrom_photom.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-J-B SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-J-V SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-C-RC SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-C-IC SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-S-Z+ SCIENCE PANSTARRS 2>&1 | tee -a OUT-create_scamp_astrom_photom-MACS0429-02.log
+#adam-example# ./create_scamp_astrom_photom.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-J-B SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-Z+ SCIENCE SDSS-R6 2>&1 | tee -a OUT-create_scamp_astrom_photom-RXJ2129.log
 
 # CVSID: $Id: create_scamp_astrom_photom.sh,v 1.36 2010-10-05 02:29:02 anja Exp $
 
@@ -110,7 +110,9 @@ fi
 #adam: if there are multiple endings, you can set your preferred one here
 
 # NCHIPSMAX needs to be set before
-NCHIPS=${NCHIPSMAX}
+if [ ! -z ${NCHIPSMAX} ] ;then
+	NCHIPS=${NCHIPSMAX}
+fi
 
 # define THELI_DEBUG and some other variables because of the '-u'
 # script flag (the use of undefined variables will be treated as
@@ -518,6 +520,9 @@ done
 #merges individual chip cats BASE_${i}${ending}.ldac to BASE_scamp.cat
 
 ##adam: changing to a different version of scampcat.py, because the one in ${S_SCAMPCAT} uses pyfits
+cd ~/wtgpipeline
+./ldac_cat_aper_splitter.py
+cd /$1/$2/astrom_photom_scamp_${STARCAT}/cat
 python ${S_SCAMPCAT} ${DIR}/catlist.txt_$$
 ##newer version of scampcat.py here: /u/ki/anja/THELI_DECam_pipeline/ldacpipeline/scripts/Linux_64/scampcat.py
 #adam-tmp# python /u/ki/awright/wtgpipeline/scampcat.py ${DIR}/catlist.txt_$$
@@ -544,14 +549,14 @@ echo "MOSAICTYPE=" $MOSAICTYPE
 ## scamp mode settings
 scamp_mode_instrum_star="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG ${STARCAT} " #default
 scamp_mode_exp_star="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG ${STARCAT} "
-if [ "${STARCAT}"=="PANSTARRS" ]; then
+if [ "${STARCAT}" == "PANSTARRS" ]; then
 	cp /nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/astrefcat.cat .
 	scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT \
 	        -ASTREF_CATALOG FILE \
 	        -ASTREFCAT_NAME astrefcat.cat \
 	        -ASTREFCENT_KEYS raMean,decMean \
 	        -ASTREFERR_KEYS raMeanErr,decMeanErr \
-	        -ASTREFMAG_LIMITS 10,30 \
+	        -ASTREFMAG_LIMITS 13,30 \
 	        -ASTREFMAG_KEY iMeanApMag \
 	        -ASTREFMAGERR_KEY iMeanApMagErr "
 	scamp_mode_use=${scamp_mode_instrum_ref}
@@ -578,8 +583,13 @@ posangle=1.0
 position=1.0
 pixscale=1.003
 
+#adam-look# these keys (FLUX_APER1 FLUXERR_APER1 MAG_APER1 MAGERR_APER1) were added (among others) using ./ldac_cat_aper_splitter.py 
+#adam-look# I've changed these keys to ensure we're using APERATURE MAGS in create_scamp_astrom_photom.sh: "-PHOTFLUX_KEY FLUX_APER1 -PHOTFLUXERR_KEY FLUXERR_APER1 "
+
 ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
            -c ${CONF}/scamp_astrom_photom.scamp \
+	   -PHOTFLUX_KEY FLUX_APER1 \
+	   -PHOTFLUXERR_KEY FLUXERR_APER1 \
            -ASTRINSTRU_KEY FILTER,INSTRUM,CONFIG,ROTATION,MISSCHIP,PPRUN \
            -CDSCLIENT_EXEC ${P_ACLIENT} \
            -NTHREADS ${NPARA} ${MOSAICTYPE} \

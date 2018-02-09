@@ -50,7 +50,10 @@ def joincats(cat1, cat2, cat1id='objID', cat2id = 'objID'):
     cat2new = cat2.filter(cat2keep)                                                                                                                                                                   
     return cat1.append(cat2new)
 
-MACS0429_ra=67.40041667 ; MACS0429_dec=-2.88555556
+ra_cluster={}
+dec_cluster={}
+ra_cluster['MACS0429-02']=67.40041667 ; dec_cluster['MACS0429-02']=-2.88555556
+ra_cluster['RXJ2129']=322.41625000 ; dec_cluster['RXJ2129']=0.08888889
 #A2204_ra=248.19666667; A2204_dec=5.57555556
 #bigA2204_2=panstarrs_query(ra+,dec+.2,.4)
 
@@ -58,14 +61,14 @@ from math import *
 import numpy
 import itertools
 import sys
-sys.path.append('/u/ki/awright/bonnpipeline/')
 import ldac
+import os
 search_radius=.425
 
 grid_steps=numpy.array([-2,-1,0,1,2])
 moves=[]
 for x,y in itertools.permutations(grid_steps,2):
-    if abs(x)+abs(y)<6: moves.append((x,y))
+    if abs(x)+abs(y)<4: moves.append((x,y))
 allmoves=moves+[(-1,-1),(0,0),(1,1)]
 #startMACS0429=panstarrs_query(MACS0429_ra,MACS0429_dec,.425,maxsources=50001)
 #startMACS0429.write('MACS0429_startcat_%s.txt' % (ii),format="ascii.fixed_width")
@@ -80,42 +83,44 @@ for key,v in zip(goodkeys,goodkeys_types):
     if v==float: goodtypes[key]['ldac']='D'
     if v==int: goodtypes[key]['ldac']='K'
 
+cluster='RXJ2129'
+if not os.path.isdir('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/' % (cluster)):
+	os.mkdir('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/' % (cluster))
 
 ## do the tiling
 ii=0
 for dx,dy in allmoves:
 	ii+=1
-	ra,dec=MACS0429_ra+dx*.6, MACS0429_dec+dy*.6
-	bigMACS0429=panstarrs_query(ra,dec,search_radius,mindet=4,maxsources=50001)
-	print len(bigMACS0429), " ii=",ii
-	if len(bigMACS0429)>48000: print "adam-look Error: len too long, ii=",ii
-	filter_i=bigMACS0429['ni'].data.data>0
+	ra,dec=ra_cluster[cluster]+dx*.6, dec_cluster[cluster]+dy*.6
+	big_tile_cat=panstarrs_query(ra,dec,search_radius,mindet=4,maxsources=50001)
+	print len(big_tile_cat), " ii=",ii
+	if len(big_tile_cat)>48000: print "adam-look Error: len too long, ii=",ii
+	filter_i=big_tile_cat['ni'].data.data>0
 
 	## now filter the stars out
-	#filterit*=bigMACS0429["gQfPerfect"].data.data>=.85
-	#filterit*=bigMACS0429["rQfPerfect"].data.data>=.85
-	#filterit*=bigMACS0429["iQfPerfect"].data.data>=.85
-	#filterit*=bigMACS0429["zQfPerfect"].data.data>=.85
-	#diff_psf_kron=bigMACS0429["iMeanPSFMag"].data.data-bigMACS0429["iMeanKronMag"].data.data< 0.05
+	#filterit*=big_tile_cat["gQfPerfect"].data.data>=.85
+	#filterit*=big_tile_cat["rQfPerfect"].data.data>=.85
+	#filterit*=big_tile_cat["iQfPerfect"].data.data>=.85
+	#filterit*=big_tile_cat["zQfPerfect"].data.data>=.85
+	#diff_psf_kron=big_tile_cat["iMeanPSFMag"].data.data-big_tile_cat["iMeanKronMag"].data.data< 0.05
 	#filterit*=diff_psf_kron
 
 	## save in ldac format
-	cols=[pyfits.Column(name='objID', format='18A' ,array = bigMACS0429['objID'].data.data[filter_i])]
+	cols=[pyfits.Column(name='objID', format='18A' ,array = big_tile_cat['objID'].data.data[filter_i])]
 	for key in goodkeys:
 		if key=='objID': continue
-		cols.append(pyfits.Column(name=key,format=goodtypes[key]['ldac'], array = numpy.array(bigMACS0429[key].data,dtype=goodtypes[key]['python'])[filter_i])) #bigMACS0429
+		cols.append(pyfits.Column(name=key,format=goodtypes[key]['ldac'], array = numpy.array(big_tile_cat[key].data,dtype=goodtypes[key]['python'])[filter_i])) #big_tile_cat
 
 	hduSTDTAB = pyfits.BinTableHDU.from_columns(cols)
 	hdu = pyfits.PrimaryHDU()
 	hdulist = pyfits.HDUList([hdu,hduSTDTAB])
 	hdulist[1].header['EXTNAME']='OBJECTS'
-	hdulist.writeto('/nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/new_startcat_%s_%s.ldac' % (dx,dy),clobber=True)
-	#bigMACS0429.write('/nfs/slac/kipac/fs1/u/awright/MACS0429_panstarrs_cats/MACS0429_startcat_%s_%s.txt' % (dx,dy),format="ascii.tab")
+	hdulist.writeto('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/new_startcat_%s_%s.ldac' % (cluster,dx,dy),overwrite=True)
 	if ii==1:
 		mastercat=ldac.LDACCat(hduSTDTAB)
 	else:
 		mastercat=joincats(mastercat,ldac.LDACCat(hduSTDTAB))
-	print ii,': dx,dy=',dx,dy,': len(bigMACS0429)=',len(bigMACS0429),': len(mastercat)=',len(mastercat)
+	print ii,': dx,dy=',dx,dy,': len(big_tile_cat)=',len(big_tile_cat),': len(mastercat)=',len(mastercat)
 
-mastercat.saveas('/nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/new_startcat_combined.ldac')
+mastercat.saveas('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/new_startcat_combined.ldac' % (cluster),overwrite=True)
 print "len(mastercat)=",len(mastercat)

@@ -13,7 +13,7 @@ adam_do_masking_master.sh
 #4.) directories changed from $filter_$run to $filter AND setup header files (for each ${filter}) AND do the cross-talk correction
 cluster='MACS0429-02'
 filter_run_pairs='W-J-B_2015-12-15 W-S-Z+_2015-12-15'
-./adam_do_linking_filter_dirs.sh ${cluster} W-J-B_2015-12-15 W-S-Z+_2015-12-15 2>&1 | tee -a OUT-adam_do_linking_filter_dirs.log
+./adam_do_linking_filter_dirs.sh ${cluster} W-C-RC_2012-07-23 W-J-B_2010-11-04 W-S-Z+_2010-11-04 W-S-Z+_2013-06-10 2>&1 | tee -a OUT-adam_do_linking_filter_dirs.log
 ./adam_do_update_headers.sh ${cluster} W-J-B_2015-12-15 W-S-Z+_2015-12-15 2>&1 | tee -a OUT-adam_do_update_headers_dirs.log
 
 #CTcorr uses: adam_CTcorr_make_images_para.sh adam_CTcorr_run_correction_para.py

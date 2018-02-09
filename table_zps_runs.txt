@@ -1,294 +1,58 @@
 
-### best-fit ZP values ### PPRUN: W-S-Z+_2009-04-29
+### best-fit ZP values ### PPRUN: W-J-B_2010-11-04
 
 columns correspond to the following runs:
-__sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True
+__sample_size-is-all__calc_illum-is-True__sample-is-panstarrs__try_linear-is-True
 __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
- SDSS_color  zp_SDSS zp_image_SUPA0109600 zp_image_SUPA0109601 zp_image_SUPA0109602 zp_image_SUPA0109603 zp_image_SUPA0109604 zp_image_SUPA0109605 zp_image_SUPA0109606 zp_image_SUPA0109607 zp_image_SUPA0109608 zp_image_SUPA0109609 zp_image_SUPA0109610 zp_image_SUPA0109613 zp_image_SUPA0109614 zp_image_SUPA0109615     zp_1    zp_10     zp_2     zp_3     zp_4     zp_5     zp_6     zp_7     zp_8     zp_9   1$0x1y   1$0x2y   1$1x0y   1$1x1y   1$1x2y   1$2x0y   1$2x1y   1$2x2y
-   -0.04107  5.86396             -0.00000              0.00762              0.00224             -0.00327             -0.00841             -0.01329             -0.01365              0.00215             -0.00790              0.02825              0.07270              0.13729              0.13354             -0.00596 -0.01166 -0.00000 -0.00127 -0.00395 -0.00346 -0.00902 -0.00547  0.00090 -0.00043 -0.00086 -0.01236 -0.01150  0.01134 -0.02161 -0.00728 -0.02895 -0.00146  0.01559
-   -0.00000 -0.00000             -0.00000              0.00784              0.00205             -0.00424             -0.01011             -0.01522             -0.01519              0.00143             -0.00793              0.02843              0.07251              0.13531              0.13195             -0.00679 -0.01188 -0.00000 -0.00136 -0.00398 -0.00338 -0.00893 -0.00580  0.00079 -0.00055 -0.00095      NaN -0.01123      NaN -0.02298 -0.00703 -0.02849 -0.00131  0.01601
-   -0.03849  5.86114             -0.00000              0.00805              0.00227             -0.00420             -0.00991             -0.01500             -0.01489              0.00169             -0.00767              0.02864              0.07273              0.13553              0.13218             -0.00655      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-   -0.05233  5.85269             -0.00000              0.00796              0.00213             -0.00371             -0.00935             -0.01505             -0.01519              0.00137             -0.00783              0.02864              0.07293              0.13551              0.13211             -0.00660      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
+__sample_size-is-allpanstarrscorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False
+__sample_size-is-allpanstarrsuncorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False
+ panstarrs_color zp_panstarrs zp_image_SUPA0125993 zp_image_SUPA0125994 zp_image_SUPA0125995 zp_image_SUPA0125996 zp_image_SUPA0125997     zp_1    zp_10     zp_2     zp_3     zp_4     zp_5     zp_6     zp_7     zp_8     zp_9   1$0x1y   1$0x2y   1$1x0y   1$1x1y   1$1x2y   1$2x0y   1$2x1y   1$2x2y
+        -0.06158      2.43466             -0.00000              0.13803              0.14130              0.00543             -0.08361  0.03299 -0.00000  0.01948  0.01662  0.01465  0.00068  0.02477  0.01669  0.01708  0.01533  1.40805 -0.02014  1.24513 -0.00157  0.00404 -0.04346 -0.01544  0.00703
+        -0.00000     -0.00000             -0.00000             -0.00090             -0.00266             -0.00430             -0.00552  0.00297 -0.00000  0.00253  0.00356  0.00191 -0.00128  0.00224  0.00410  0.00493  0.00629      NaN -0.02039      NaN -0.00150  0.00716 -0.04360 -0.00885  0.00669
+        -0.07861      2.43553             -0.00000             -0.00087             -0.00265             -0.00427             -0.00554      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
+        -0.08129      2.40814             -0.00000              0.00018             -0.00170             -0.00289             -0.00437      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
 
-### How good are the stars and the matching with SDSS/rotations? ### PPRUN: W-S-Z+_2009-04-29
-
-
-# stars detected: total=3445 , found match in SDSS =737 found in both rotations=0 
-# mag^exp_star values totalstars=45641
-# mag^exp_star values with SDSS match for rot=1: 7475
-
-### How good did the fits perform? How was the chi-squared for each run? ### PPRUN: W-S-Z+_2009-04-29
+### How good are the stars and the matching with panstarrs/rotations? ### PPRUN: W-J-B_2010-11-04
 
 
+# stars detected: total=8666 , found match in panstarrs =1608 found in both rotations=0 
+# mag^exp_star values totalstars=38702
+# mag^exp_star values with panstarrs match for rot=1: 6739
 
- 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : len(position_columns)=8 len(zp_columns)=25 len(color_columns)=1 len(mag_columns)=3445 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : attempt=rejected: redchisq=0.003 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: (resids==0).sum()=32379 len(resids)=65462 num_rejected=385.0 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: resids.mean()=0.614 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: reducedchi=1.27022567538  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: parameters=61983  (= len(B) - len(x_soln) ) 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : ROT=1: redchisq=0.014 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : ROT=1: variance=0.11 weight_variance=0.01 redchi=1.440 
+### How good did the fits perform? How was the chi-squared for each run? ### PPRUN: W-J-B_2010-11-04
+
+
 
  
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : len(position_columns)=6 len(zp_columns)=25 len(color_columns)=1 len(mag_columns)=3445 
+     __sample_size-is-all__calc_illum-is-True__sample-is-panstarrs__try_linear-is-True : len(position_columns)=8 len(zp_columns)=16 len(color_columns)=1 len(mag_columns)=8666 
+     __sample_size-is-all__calc_illum-is-True__sample-is-panstarrs__try_linear-is-True : attempt=rejected: redchisq=0.002 
+     __sample_size-is-all__calc_illum-is-True__sample-is-panstarrs__try_linear-is-True : rejected FIT INFO: (resids==0).sum()=33773 len(resids)=68808 num_rejected=977.0 
+     __sample_size-is-all__calc_illum-is-True__sample-is-panstarrs__try_linear-is-True : rejected FIT INFO: resids.mean()=0.492 
+     __sample_size-is-all__calc_illum-is-True__sample-is-panstarrs__try_linear-is-True : rejected FIT INFO: reducedchi=0.9462546875889338  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
+     __sample_size-is-all__calc_illum-is-True__sample-is-panstarrs__try_linear-is-True : rejected FIT INFO: parameters=60117  (= len(B) - len(x_soln) ) 
+     __sample_size-is-all__calc_illum-is-True__sample-is-panstarrs__try_linear-is-True : ROT=1: redchisq=0.001 
+     __sample_size-is-all__calc_illum-is-True__sample-is-panstarrs__try_linear-is-True : ROT=1: variance=1.17 weight_variance=1.17 redchi=0.003 
+
+ 
+     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : len(position_columns)=6 len(zp_columns)=16 len(color_columns)=1 len(mag_columns)=8666 
      __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : attempt=rejected: redchisq=0.003 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=33117 len(resids)=65462 num_rejected=386.0 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: resids.mean()=0.603 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: reducedchi=1.25202503985  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: parameters=61985  (= len(B) - len(x_soln) ) 
+     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=35378 len(resids)=68808 num_rejected=974.0 
+     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: resids.mean()=0.492 
+     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: reducedchi=0.9489734785879708  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
+     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: parameters=60119  (= len(B) - len(x_soln) ) 
 
  
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : len(position_columns)=0 len(zp_columns)=15 len(color_columns)=1 len(mag_columns)=3445 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : attempt=rejected: redchisq=0.006 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=32376 len(resids)=65462 num_rejected=382.0 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: resids.mean()=0.614 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: reducedchi=1.27145446977  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: parameters=62001  (= len(B) - len(x_soln) ) 
+__sample_size-is-allpanstarrscorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : len(position_columns)=0 len(zp_columns)=6 len(color_columns)=1 len(mag_columns)=8666 
+__sample_size-is-allpanstarrscorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : attempt=rejected: redchisq=0.005 
+__sample_size-is-allpanstarrscorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=33765 len(resids)=68808 num_rejected=969.0 
+__sample_size-is-allpanstarrscorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : rejected FIT INFO: resids.mean()=0.493 
+__sample_size-is-allpanstarrscorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : rejected FIT INFO: reducedchi=0.9506550593576842  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
+__sample_size-is-allpanstarrscorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : rejected FIT INFO: parameters=60135  (= len(B) - len(x_soln) ) 
 
  
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : len(position_columns)=0 len(zp_columns)=15 len(color_columns)=1 len(mag_columns)=3445 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : attempt=rejected: redchisq=0.006 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=32395 len(resids)=65462 num_rejected=401.0 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: resids.mean()=0.620 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: reducedchi=1.29374054267  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: parameters=62001  (= len(B) - len(x_soln) ) 
-##### NEW PPRUN ##### PPRUN=%s ##### NEW PPRUN #####
-
-### best-fit ZP values ### PPRUN: W-J-B_2009-04-29
-
-columns correspond to the following runs:
-__sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True
-__sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
- SDSS_color  zp_SDSS zp_image_SUPA0109617 zp_image_SUPA0109619 zp_image_SUPA0109620     zp_1    zp_10     zp_2     zp_3     zp_4     zp_5     zp_6     zp_7     zp_8     zp_9   1$0x2y   1$1x1y   1$1x2y   1$2x0y   1$2x1y   1$2x2y
-    0.12892  6.60575             -0.00000             -0.04851             -0.04196 -0.00037 -0.00000 -0.00447 -0.00300 -0.00024 -0.00322 -0.00423  0.00351  0.00565  0.00704 -0.00972 -0.01668  0.01769 -0.02500 -0.00751  0.01500
-   -0.00000 -0.00000             -0.00000             -0.04878             -0.04201  0.00349 -0.00000 -0.00133 -0.00063  0.00161 -0.00126 -0.00060  0.00589  0.00711  0.00773 -0.00933 -0.01581  0.02127 -0.02577 -0.00548  0.01436
-    0.13089  6.60631             -0.00000             -0.04867             -0.04192      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-    0.12788  6.58720             -0.00000             -0.04653             -0.04132      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-
-### How good are the stars and the matching with SDSS/rotations? ### PPRUN: W-J-B_2009-04-29
-
-
-# stars detected: total=2802 , found match in SDSS =552 found in both rotations=0 
-# mag^exp_star values totalstars=7227
-# mag^exp_star values with SDSS match for rot=1: 1451
-
-### How good did the fits perform? How was the chi-squared for each run? ### PPRUN: W-J-B_2009-04-29
-
-
-
- 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : len(position_columns)=6 len(zp_columns)=14 len(color_columns)=1 len(mag_columns)=2802 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : attempt=rejected: redchisq=0.006 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: (resids==0).sum()=6932 len(resids)=14454 num_rejected=257.0 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: resids.mean()=0.533 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: reducedchi=1.14519721773  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: parameters=11631  (= len(B) - len(x_soln) ) 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : ROT=1: redchisq=0.053 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : ROT=1: variance=0.04 weight_variance=0.01 redchi=5.165 
-
- 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : len(position_columns)=6 len(zp_columns)=14 len(color_columns)=1 len(mag_columns)=2802 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : attempt=rejected: redchisq=0.006 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=7471 len(resids)=14454 num_rejected=244.0 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: resids.mean()=0.487 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: reducedchi=1.02613942628  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: parameters=11631  (= len(B) - len(x_soln) ) 
-
- 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : len(position_columns)=0 len(zp_columns)=4 len(color_columns)=1 len(mag_columns)=2802 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : attempt=rejected: redchisq=0.012 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=6929 len(resids)=14454 num_rejected=254.0 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: resids.mean()=0.535 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: reducedchi=1.14904301956  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: parameters=11647  (= len(B) - len(x_soln) ) 
-
- 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : len(position_columns)=0 len(zp_columns)=4 len(color_columns)=1 len(mag_columns)=2802 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : attempt=rejected: redchisq=0.013 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=6965 len(resids)=14454 num_rejected=290.0 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: resids.mean()=0.548 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: reducedchi=1.21138530979  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: parameters=11647  (= len(B) - len(x_soln) ) 
-##### NEW PPRUN ##### PPRUN=%s ##### NEW PPRUN #####
-
-### best-fit ZP values ### PPRUN: W-J-B_2010-03-12
-
-columns correspond to the following runs:
-__sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True
-__sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
- SDSS_color  zp_SDSS zp_image_SUPA0120015 zp_image_SUPA0120016 zp_image_SUPA0120017 zp_image_SUPA0120018 zp_image_SUPA0120019     zp_1    zp_10     zp_2     zp_3     zp_4     zp_5     zp_6     zp_7     zp_8     zp_9   1$0x1y   1$0x2y   1$1x0y   1$1x1y   1$1x2y   1$2x0y   1$2x1y   1$2x2y
-    0.09607  6.70382             -0.00000              0.00164              0.00302              0.00255              0.00374  0.00624 -0.00000 -0.00454 -0.00553 -0.00511 -0.00335  0.00137 -0.00299 -0.00464 -0.00179  0.00503 -0.01670  0.00690  0.00971  0.00062 -0.03904  0.00571  0.01122
-   -0.00000 -0.00000             -0.00000              0.00101              0.00223              0.00230              0.00396  0.00606 -0.00000 -0.00467 -0.00568 -0.00521 -0.00340  0.00123 -0.00309 -0.00472 -0.00186      NaN -0.01673      NaN  0.00964  0.00073 -0.03896  0.00600  0.01122
-    0.09429  6.70509             -0.00000              0.00101              0.00223              0.00225              0.00397      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-    0.09388  6.68052             -0.00000              0.00186              0.00327              0.00323              0.00384      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-
-### How good are the stars and the matching with SDSS/rotations? ### PPRUN: W-J-B_2010-03-12
-
-
-# stars detected: total=5370 , found match in SDSS =682 found in both rotations=0 
-# mag^exp_star values totalstars=21287
-# mag^exp_star values with SDSS match for rot=1: 2820
-
-### How good did the fits perform? How was the chi-squared for each run? ### PPRUN: W-J-B_2010-03-12
-
-
-
- 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : len(position_columns)=8 len(zp_columns)=16 len(color_columns)=1 len(mag_columns)=5370 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : attempt=rejected: redchisq=0.003 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: (resids==0).sum()=21190 len(resids)=42574 num_rejected=585.0 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: resids.mean()=0.505 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: reducedchi=0.947116450874  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: parameters=37179  (= len(B) - len(x_soln) ) 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : ROT=1: redchisq=0.040 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : ROT=1: variance=0.07 weight_variance=0.02 redchi=5.195 
-
- 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : len(position_columns)=6 len(zp_columns)=16 len(color_columns)=1 len(mag_columns)=5370 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : attempt=rejected: redchisq=0.003 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=21855 len(resids)=42574 num_rejected=568.0 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: resids.mean()=0.486 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: reducedchi=0.901154283533  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: parameters=37181  (= len(B) - len(x_soln) ) 
-
- 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : len(position_columns)=0 len(zp_columns)=6 len(color_columns)=1 len(mag_columns)=5370 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : attempt=rejected: redchisq=0.007 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=21192 len(resids)=42574 num_rejected=587.0 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: resids.mean()=0.505 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: reducedchi=0.945800493076  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: parameters=37197  (= len(B) - len(x_soln) ) 
-
- 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : len(position_columns)=0 len(zp_columns)=6 len(color_columns)=1 len(mag_columns)=5370 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : attempt=rejected: redchisq=0.007 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=21243 len(resids)=42574 num_rejected=638.0 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: resids.mean()=0.525 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: reducedchi=1.04024271502  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: parameters=37197  (= len(B) - len(x_soln) ) 
-##### NEW PPRUN ##### PPRUN=%s ##### NEW PPRUN #####
-
-### best-fit ZP values ### PPRUN: W-S-Z+_2010-03-12
-
-columns correspond to the following runs:
-__sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True
-__sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
- SDSS_color  zp_SDSS zp_image_SUPA0120021 zp_image_SUPA0120022 zp_image_SUPA0120023 zp_image_SUPA0120024 zp_image_SUPA0120025 zp_image_SUPA0120026 zp_image_SUPA0120027 zp_image_SUPA0120028 zp_image_SUPA0120029 zp_image_SUPA0120030 zp_image_SUPA0120031 zp_image_SUPA0120032 zp_image_SUPA0120033 zp_image_SUPA0120034 zp_image_SUPA0120035 zp_image_SUPA0120036 zp_image_SUPA0120037 zp_image_SUPA0120038     zp_1    zp_10     zp_2     zp_3     zp_4     zp_5     zp_6     zp_7     zp_8     zp_9   1$0x2y   1$1x1y   1$1x2y   1$2x0y   1$2x1y   1$2x2y
-   -0.36496  6.08822             -0.00000             -0.00201             -0.00084             -0.00321              0.00015              0.00200              0.00357              0.00302              0.00268              0.00296              0.00485              0.00311              0.00224             -0.00089              0.00208             -0.00298             -0.00426             -0.00713  0.00289 -0.00000  0.00094  0.00070  0.00893  0.00496  0.00728  0.00704  0.01035  0.00573 -0.03083  0.01333  0.00831 -0.03177  0.01587  0.00399
-   -0.00000 -0.00000             -0.00000             -0.00200             -0.00085             -0.00325              0.00009              0.00193              0.00351              0.00298              0.00266              0.00297              0.00486              0.00310              0.00222             -0.00094              0.00202             -0.00303             -0.00429             -0.00715  0.00319 -0.00000  0.00114  0.00081  0.00889  0.00475  0.00762  0.00729  0.01055  0.00586 -0.03091  0.01340  0.00869 -0.03172  0.01529  0.00409
-   -0.36489  6.08834             -0.00000             -0.00200             -0.00085             -0.00324              0.00010              0.00194              0.00350              0.00298              0.00263              0.00296              0.00486              0.00310              0.00221             -0.00094              0.00205             -0.00304             -0.00429             -0.00715      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-   -0.36826  6.05935             -0.00000             -0.00206             -0.00062             -0.00322             -0.00009              0.00096              0.00220              0.00165              0.00184              0.00321              0.00539              0.00372              0.00230             -0.00129              0.00106             -0.00450             -0.00582             -0.00788      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-
-### How good are the stars and the matching with SDSS/rotations? ### PPRUN: W-S-Z+_2010-03-12
-
-
-# stars detected: total=2752 , found match in SDSS =555 found in both rotations=0 
-# mag^exp_star values totalstars=80172
-# mag^exp_star values with SDSS match for rot=1: 7761
-
-### How good did the fits perform? How was the chi-squared for each run? ### PPRUN: W-S-Z+_2010-03-12
-
-
-
- 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : len(position_columns)=6 len(zp_columns)=29 len(color_columns)=1 len(mag_columns)=2752 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : attempt=rejected: redchisq=0.003 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: (resids==0).sum()=31132 len(resids)=62958 num_rejected=208.0 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: resids.mean()=0.528 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: reducedchi=0.922426067261  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: parameters=60170  (= len(B) - len(x_soln) ) 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : ROT=1: redchisq=0.012 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : ROT=1: variance=0.12 weight_variance=0.05 redchi=1.152 
-
- 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : len(position_columns)=6 len(zp_columns)=29 len(color_columns)=1 len(mag_columns)=2752 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : attempt=rejected: redchisq=0.003 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=31687 len(resids)=62958 num_rejected=208.0 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: resids.mean()=0.521 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: reducedchi=0.910897185799  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: parameters=60170  (= len(B) - len(x_soln) ) 
-
- 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : len(position_columns)=0 len(zp_columns)=19 len(color_columns)=1 len(mag_columns)=2752 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : attempt=rejected: redchisq=0.005 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=31132 len(resids)=62958 num_rejected=208.0 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: resids.mean()=0.528 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: reducedchi=0.922170558969  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: parameters=60186  (= len(B) - len(x_soln) ) 
-
- 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : len(position_columns)=0 len(zp_columns)=19 len(color_columns)=1 len(mag_columns)=2752 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : attempt=rejected: redchisq=0.005 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=31140 len(resids)=62958 num_rejected=216.0 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: resids.mean()=0.536 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: reducedchi=0.948402573953  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: parameters=60186  (= len(B) - len(x_soln) ) 
-##### NEW PPRUN ##### PPRUN=%s ##### NEW PPRUN #####
-
-### best-fit ZP values ### PPRUN: W-C-RC_2010-03-12
-
-columns correspond to the following runs:
-__sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True
-__sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
- SDSS_color  zp_SDSS zp_image_SUPA0120144 zp_image_SUPA0120145 zp_image_SUPA0120146 zp_image_SUPA0120147 zp_image_SUPA0120148 zp_image_SUPA0120149 zp_image_SUPA0120150 zp_image_SUPA0120151 zp_image_SUPA0120152 zp_image_SUPA0120153     zp_1    zp_10     zp_2     zp_3     zp_4     zp_5     zp_6     zp_7     zp_8     zp_9   1$0x1y   1$0x2y   1$1x0y   1$1x1y   1$1x2y   1$2x0y   1$2x1y   1$2x2y
-    0.18477  6.19114             -0.00000              0.07399             -0.12151             -0.11150             -0.03473              0.04240             -0.06640             -0.11605             -0.12516             -0.09997 -0.00406 -0.00000 -0.00245 -0.00235 -0.00220 -0.00190 -0.00204 -0.00113 -0.00002 -0.00275 -0.01224 -0.00278  0.00777  0.00049  0.00066 -0.03271 -0.00016  0.00389
-   -0.00000 -0.00000             -0.00000              0.07305             -0.12276             -0.11211             -0.03441              0.04301             -0.06643             -0.11701             -0.12641             -0.10058 -0.00406 -0.00000 -0.00240 -0.00228 -0.00229 -0.00202 -0.00226 -0.00122 -0.00005 -0.00289      NaN -0.00258      NaN  0.00093  0.00046 -0.03277  0.00030  0.00417
-    0.18560  6.18967             -0.00000              0.07305             -0.12275             -0.11209             -0.03439              0.04304             -0.06633             -0.11700             -0.12639             -0.10055      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-    0.18481  6.17777             -0.00000              0.07319             -0.12308             -0.11225             -0.03443              0.04289             -0.06631             -0.11682             -0.12681             -0.10076      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-
-### How good are the stars and the matching with SDSS/rotations? ### PPRUN: W-C-RC_2010-03-12
-
-
-# stars detected: total=4731 , found match in SDSS =699 found in both rotations=0 
-# mag^exp_star values totalstars=56436
-# mag^exp_star values with SDSS match for rot=1: 5335
-
-### How good did the fits perform? How was the chi-squared for each run? ### PPRUN: W-C-RC_2010-03-12
-
-
-
- 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : len(position_columns)=8 len(zp_columns)=21 len(color_columns)=1 len(mag_columns)=4731 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : attempt=rejected: redchisq=0.002 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: (resids==0).sum()=32355 len(resids)=65368 num_rejected=370.0 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: resids.mean()=0.513 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: reducedchi=0.905785863309  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : rejected FIT INFO: parameters=60607  (= len(B) - len(x_soln) ) 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : ROT=1: redchisq=0.020 
-          __sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True : ROT=1: variance=0.02 weight_variance=0.00 redchi=2.608 
-
- 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : len(position_columns)=6 len(zp_columns)=21 len(color_columns)=1 len(mag_columns)=4731 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : attempt=rejected: redchisq=0.002 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=33045 len(resids)=65368 num_rejected=361.0 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: resids.mean()=0.504 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: reducedchi=0.891134133714  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-     __sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False : rejected FIT INFO: parameters=60609  (= len(B) - len(x_soln) ) 
-
- 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : len(position_columns)=0 len(zp_columns)=11 len(color_columns)=1 len(mag_columns)=4731 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : attempt=rejected: redchisq=0.005 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=32356 len(resids)=65368 num_rejected=371.0 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: resids.mean()=0.513 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: reducedchi=0.905558683305  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-__sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: parameters=60625  (= len(B) - len(x_soln) ) 
-
- 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : len(position_columns)=0 len(zp_columns)=11 len(color_columns)=1 len(mag_columns)=4731 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : attempt=rejected: redchisq=0.005 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=32366 len(resids)=65368 num_rejected=381.0 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: resids.mean()=0.521 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: reducedchi=0.936158242993  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
-__sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : rejected FIT INFO: parameters=60625  (= len(B) - len(x_soln) ) 
+__sample_size-is-allpanstarrsuncorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : len(position_columns)=0 len(zp_columns)=6 len(color_columns)=1 len(mag_columns)=8666 
+__sample_size-is-allpanstarrsuncorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : attempt=rejected: redchisq=0.005 
+__sample_size-is-allpanstarrsuncorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : rejected FIT INFO: (resids==0).sum()=33872 len(resids)=68808 num_rejected=1076.0 
+__sample_size-is-allpanstarrsuncorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : rejected FIT INFO: resids.mean()=0.519 
+__sample_size-is-allpanstarrsuncorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : rejected FIT INFO: reducedchi=1.0632152577644387  (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared) 
+__sample_size-is-allpanstarrsuncorr__calc_illum-is-False__sample-is-panstarrs__try_linear-is-False : rejected FIT INFO: parameters=60135  (= len(B) - len(x_soln) ) 

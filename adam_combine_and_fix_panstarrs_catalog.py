@@ -51,23 +51,24 @@ def joincats(cat1, cat2, cat1id='objID', cat2id = 'objID'):
     cat2new = cat2.filter(cat2keep)                                                                                                                                                                   
     return cat1.append(cat2new)
 
-MACS0429_ra=67.40041667 ; MACS0429_dec=-2.88555556
+ra_cluster={}
+dec_cluster={}
+ra_cluster['MACS0429-02']=67.40041667 ; dec_cluster['MACS0429-02']=-2.88555556
+ra_cluster['RXJ2129']=322.41625000 ; dec_cluster['RXJ2129']=0.08888889
 #A2204_ra=248.19666667; A2204_dec=5.57555556
 #bigA2204_2=panstarrs_query(ra+,dec+.2,.4)
 
 from math import *
-import random
 import numpy
 import itertools
 import sys
-sys.path.append('/u/ki/awright/bonnpipeline/')
 import ldac
 search_radius=.425
 
 grid_steps=numpy.array([-2,-1,0,1,2])
 moves=[]
 for x,y in itertools.permutations(grid_steps,2):
-    if abs(x)+abs(y)<6: moves.append((x,y))
+    if abs(x)+abs(y)<4: moves.append((x,y))
 allmoves=moves+[(-1,-1),(0,0),(1,1)]
 #startMACS0429=panstarrs_query(MACS0429_ra,MACS0429_dec,.425,maxsources=50001)
 #startMACS0429.write('MACS0429_startcat_%s.txt' % (ii),format="ascii.fixed_width")
@@ -83,7 +84,8 @@ for key,v in zip(goodkeys,goodkeys_types):
     if v==int: goodtypes[key]['ldac']='K'
 
 
-fl='/nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/new_startcat_combined.ldac'
+cluster='RXJ2129'
+fl='/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/new_startcat_combined.ldac' % (cluster)
 fo=pyfits.open(fl)
 mastercat=ldac.LDACCat(fo[1])
 print "len(mastercat)=",len(mastercat)
@@ -125,17 +127,18 @@ mastercat_use=mastercat.filter(filter_poserr_3filt)
 mastercatng=mastercat.filter(filter_poserr_4filt)
 mastercat3filt=mastercat.filter(filter_3filt)
 mastercat_stars=mastercat.filter(filter_stars)
-mastercat_use.saveas('/nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/astrefcat.cat',overwrite=True)
+sys.exit()
+mastercat_use.saveas('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/astrefcat.cat' % (cluster),overwrite=True)
 #
-mastercat3filt.saveas('/nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/astrefcat-3filt_only.cat',overwrite=True)
+mastercat3filt.saveas('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/astrefcat-3filt_only.cat' % (cluster),overwrite=True)
 # main cut + cut ng
-mastercatng.saveas('/nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/astrefcat-also_ng.cat',overwrite=True)
+mastercatng.saveas('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/astrefcat-also_ng.cat' % (cluster),overwrite=True)
 # now filter the stars out
-mastercat_stars.saveas('/nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/astrefcat-stars_only.cat',overwrite=True)
+mastercat_stars.saveas('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/astrefcat-stars_only.cat' % (cluster),overwrite=True)
 
 print ' len(mastercat),len(mastercat_use),len(mastercatng),len(mastercat_stars)=',len(mastercat),len(mastercat_use),len(mastercatng),len(mastercat_stars)
 
-fnames=[ "/nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/astrefcat-3filt_only.cat", "/nfs/slac/kipac/fs1/u/awright/MACS0429-02/panstarrs_cats/astrefcat.cat", "/nfs/slac/kipac/fs1/u/awright/MACS0429-02/panstarrs_cats/astrefcat-ng_cat.cat", "/nfs/slac/kipac/fs1/u/awright/MACS0429-02/panstarrs_cats/astrefcat-stars_only.cat"]
+fnames=[ "/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/astrefcat-3filt_only.cat" % (cluster), "/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/astrefcat.cat" % (cluster), "/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/astrefcat-ng_cat.cat" % (cluster), "/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/astrefcat-stars_only.cat" % (cluster)]
 cats=[mastercat,mastercat_use,mastercatng,mastercat_stars]
 savekeys=["objID","raMean","decMean","raMeanErr","decMeanErr","iMeanPSFMag","iMeanPSFMagErr","iMeanKronMag","iMeanKronMagErr","iMeanApMag","iMeanApMagErr"]
 #for fname,cat in zip(fnames,cats):
@@ -150,15 +153,15 @@ savekeys=["objID","raMean","decMean","raMeanErr","decMeanErr","iMeanPSFMag","iMe
 #	#hdulist[1].header['EXTNAME']='LDAC_OBJECTS'
 #	#hdulist.writeto(fname,clobber=True)
 
+from astropy.table import Table
 for incat in ["astrefcat-3filt_only","astrefcat","astrefcat-stars_only","astrefcat-also_ng"]:
 
-	mastercat=pyfits.open('/nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/%s.cat' % (incat))
-	from astropy.table import Table
+	mastercat=pyfits.open('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/%s.cat' % (cluster,incat))
 	master=mastercat[1].data
 	master["raMeanErr"]*=1/3600.0
 	master["decMeanErr"]*=1/3600.0
 	outcols=[master.columns[k].array for k in savekeys]
-	incat='/nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/%s' % (incat)
+	incat='/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/%s' % (cluster,incat)
 	t = Table(data=outcols,names=savekeys,dtype=[str,float,float,float,float,float,float,float,float,float,float])
 	t.write("%s.tsv" % (incat) , format='ascii.tab',overwrite=True)
 	os.system("column -t %s.tsv > %s.txt" % (incat,incat))
@@ -171,4 +174,7 @@ for incat in ["astrefcat-3filt_only","astrefcat","astrefcat-stars_only","astrefc
 #    f.add_subplot(3,3,i+1)
 #    title(k)
 #    hist(mastercat[k],bins=20)
+
+if not os.path.isdir('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/PHOTOMETRY/' % (cluster)):
+	os.mkdir('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/PHOTOMETRY/' % (cluster))
 

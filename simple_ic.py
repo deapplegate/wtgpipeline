@@ -22,7 +22,8 @@ if username=="awright":
         if 'cluster' in os.environ.keys():
                 cluster=os.environ['cluster']
         else:
-                cluster="MACS0429-02"
+		#cluster="MACS0429-02"
+                cluster="RXJ2129"
 
         ## mess with SQL databases
         #sql databases used by pat: illumination_db, test_try_db, test_fit_db, sdss_db
@@ -2322,6 +2323,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
     f=open(tmpdir + '/selectGoodStars','r')
     m=pickle.Unpickler(f)
     d=m.load()
+    f.close()
 
     ''' if early chip configuration, use chip color terms '''
     if (CONFIG=='8' or CONFIG=='9'): relative_colors = True
@@ -3489,8 +3491,8 @@ def get_cats_ready(SUPA,FLAT_TYPE,galaxycat,starcat): #step3_run_fit
         #print 'get_cats_ready| ',hdulist1["STDTAB"].columns
         table = hdulist1["STDTAB"].data
         #adam-ask# Is there a good place to get this info for W-S-G+? Or should I just use the fit from another filter, since W-S-G+ doesn't have rotations anyway
-        other_info = config_bonn.info[dict_cats['FILTER']] #adam-Warning: add W-S-G+ info
-        filters_info = utilities.make_filters_info([dict_cats['FILTER']]) #adam-Warning: add W-S-G+ info
+        other_info = config_bonn.info[dict_cats['FILTER']] #add W-S-G+ info if I ever use that filter again
+        filters_info = utilities.make_filters_info([dict_cats['FILTER']]) #add W-S-G+ info if I ever use that filter again
         compband = filters_info[0][1] ## use the SDSS/other comparison band
         color1which = other_info['color1']
         print 'get_cats_ready|  filters_info=',filters_info , ' compband=',compband
@@ -3868,7 +3870,7 @@ def sort_results(results2,db_keys): #step4_test_fit #intermediate
                 for i in range(len(db_keys_t)):
                     dtop[db_keys_t[i]] = str(line[i])
 
-            print 'sort_results| results=',results
+            #print 'sort_results| results=',results
             print 'sort_results| dtop=',dtop
 
             #if (rotation_runs[y]['sdss$good'] == 'y' or rotation_runs[y]['None$good'] =='y') and rotation_runs[y]['CONFIG_IM'] != '8' and  rotation_runs[y]['CONFIG_IM'] != '9' and  rotation_runs[y]['CONFIG_IM'] != '10_3' and len(rotation_runs[y]['ROTATION'].keys()) > 1:
@@ -4156,7 +4158,7 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                         epsilon, diff_bool = test_correction(dtop['OBJNAME'],dtop['FILTER'],dtop['PPRUN'],drand['sample'],drand['sample_size'])
                         epsilons.append(epsilon)
 
-                print 'calc_good| epsilons=',epsilons
+                #print 'calc_good| epsilons=',epsilons
                 if len(epsilons) > 0:
                     #surfs = numpy.array(epsilons)
                     stds = numpy.std(epsilons,axis=0)
@@ -4322,7 +4324,7 @@ def test_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,paper_stat=False): #
     coord_conv_x = lambda x:(2.*x-0-LENGTH1)/(LENGTH1-0)
     coord_conv_y = lambda x:(2.*x-0-LENGTH2)/(LENGTH2-0)
 
-    print 'test_correction| cheby_terms_use=',cheby_terms_use , ' fitvars=',fitvars
+    #print 'test_correction| cheby_terms_use=',cheby_terms_use , ' fitvars=',fitvars
     print 'test_correction| dt["CHIPS"]=',dt["CHIPS"]
     print 'test_correction| CHIPS=',CHIPS
 
@@ -4427,7 +4429,6 @@ def run_correction(OBJNAME=None,FILTER=None,PPRUN=None,r_ext=True): #step5_corre
         print ' sample=',sample
         if sample == 'notselected':
             OBJNAME_use, FILTER_use, PPRUN_use, sample = find_nearby(dtop2['OBJNAME'],dtop2['FILTER'],dtop2['PPRUN'])
-            print 'find'
 
         print ' parameters: sample=',sample , ' dtop2["sdssstatus"]=',dtop2["sdssstatus"] , ' dtop2["Nonestatus"]=',dtop2["Nonestatus"] , ' dtop2["bootstrapstatus"]=',dtop2["bootstrapstatus"] , ' dtop2["todo"]=',dtop2["todo"] , ' sample=',sample , ' OBJNAME_use=',OBJNAME_use , ' FILTER_use=',FILTER_use , ' PPRUN_use=',PPRUN_use , ' dtop2["OBJNAME"]=',dtop2["OBJNAME"] , ' dtop2["FILTER"]=',dtop2["FILTER"] , ' dtop2["PPRUN"]=',dtop2["PPRUN"]
         if sample!='notselected' and sample!=None:
@@ -4989,33 +4990,37 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
 #r29:adam_tmp_plots(*args):
 
 if __name__=="__main__" and username=="awright":
-	#FILTERs=["W-J-B","W-J-V","W-C-RC","W-C-IC","W-S-Z+"] #adam-Warning#
-	#PPRUNs=["W-C-IC_2010-02-12", "W-C-IC_2011-01-06","W-C-RC_2010-02-12", "W-J-B_2010-02-12", "W-J-V_2010-02-12", "W-S-Z+_2011-01-06"] #adam-Warning#
-	#FILTERs_matching_PPRUNs=["W-C-IC", "W-C-IC","W-C-RC", "W-J-B", "W-J-V", "W-S-Z+"] #adam-Warning#
-	#FILTERs=["W-J-B","W-C-RC","W-S-Z+"] #adam-Warning#
+	#FILTERs=["W-J-B","W-J-V","W-C-RC","W-C-IC","W-S-Z+"]
+	#PPRUNs=["W-C-IC_2010-02-12", "W-C-IC_2011-01-06","W-C-RC_2010-02-12", "W-J-B_2010-02-12", "W-J-V_2010-02-12", "W-S-Z+_2011-01-06"]
+	#FILTERs_matching_PPRUNs=["W-C-IC", "W-C-IC","W-C-RC", "W-J-B", "W-J-V", "W-S-Z+"] 
+	#FILTERs=["W-J-B","W-C-RC","W-S-Z+"] 
 	#PPRUNs=["W-S-Z+_2009-04-29","W-J-B_2009-04-29","W-J-B_2010-03-12","W-S-Z+_2010-03-12","W-C-RC_2010-03-12"]
 	#FILTERs_matching_PPRUNs=["W-S-Z+","W-J-B","W-J-B","W-S-Z+","W-C-RC"]
-	FILTERs=["W-J-B","W-S-Z+"] #adam-Warning#
-	FILTERs_matching_PPRUNs=["W-S-Z+","W-J-B"]
-	PPRUNs=["W-S-Z+_2015-12-15","W-J-B_2015-12-15"]
+	FILTERs=["W-J-B","W-C-RC","W-S-Z+"] #adam-Warning#
+	FILTERs_matching_PPRUNs=["W-J-B","W-C-RC","W-S-Z+"]
+	PPRUNs=["W-J-B_2010-11-04","W-C-RC_2012-07-23","W-S-Z+_2010-11-04"]
 	OBJNAME=cluster #adam-Warning#
 
 	#adam-Warning# either handle SQL tables here or at the beginning!
         #This will drop tables and re-run everything. just comment out anything above here and run :%s///g
-	#db2,c = connect_except()
-	#c.execute(" DROP TABLE adam_illumination_db ; ")
-	#c.execute(" DROP TABLE adam_try_db ; ")
-	#c.execute(" DROP TABLE adam_fit_db ; ")
-	#c.execute(" CREATE TABLE adam_illumination_db LIKE illumination_db; ")
-	#c.execute(" CREATE TABLE adam_try_db LIKE test_try_db; ")
-	#c.execute(" CREATE TABLE adam_fit_db LIKE test_fit_db; ")
+	db2,c = connect_except()
+	good_tracker={}
+	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
+		good_tracker[FILTER]=testgood(OBJNAME,FILTER,PPRUN)
+	sys.exit() #adam-tmp#
+	c.execute(" DROP TABLE adam_illumination_db ; ")
+	c.execute(" DROP TABLE adam_try_db ; ")
+	c.execute(" DROP TABLE adam_fit_db ; ")
+	c.execute(" CREATE TABLE adam_illumination_db LIKE illumination_db; ")
+	c.execute(" CREATE TABLE adam_try_db LIKE test_try_db; ")
+	c.execute(" CREATE TABLE adam_fit_db LIKE test_fit_db; ")
 
-	#print "adam-look: gather_exposures(cluster,filters=FILTERs)"
-	#gather_exposures(cluster,filters=FILTERs)
+	print "adam-look: gather_exposures(cluster,filters=FILTERs)"
+	gather_exposures(cluster,filters=FILTERs)
 	print "adam-look: get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)"
 	get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)
 	print "adam-look: get_sdss_cats(OBJNAME)"
-	sys.exit() #adam-SHNT# I'll have to come up with a PANSTARRS replacement for `get_sdss_cats`
+	#adam-SHNT# I'll have to come up with a PANSTARRS replacement for `get_sdss_cats`
 	get_sdss_cats(OBJNAME)
 
 	extra_nametag=""
