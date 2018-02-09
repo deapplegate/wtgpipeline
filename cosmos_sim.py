@@ -413,7 +413,6 @@ def createCatalog(bpz,
 
     #adam Replaced this with stuff in adam_cosmos_options 
     #### toggle from using single point zp_best to drawing a random sample from the p(z) dist'n by changing `zchoice_switch` to `dist ` or `point` in cosmos_sim.py
-    #####adam-tmp# zchoice_switch='dist'
     from adam_cosmos_options import zchoice_switch, cat_switch
     if zchoice_switch=='point':
 	    #adam# change from `true_z = chosenZs[zkey]` to z_drawn from p(z)

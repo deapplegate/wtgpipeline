@@ -17,18 +17,23 @@ filtersetdir=datadir+'/'+filterset+'/'
 from adam_cosmos_options import zchoice_switch, cat_switch, dirtag
 
 ## gather the results
-results = pcs.consolidate(pcs.processPklDir(filtersetdir+"/*/nocontam/maxlike", "out2"))
+#RH: jest tust second plots; results = pcs.consolidate(pcs.processPklDir(filtersetdir+"/*/nocontam/maxlike", "out2"))
 
 ## now do the plotting
-bias_plt=pcsp.publicationBias(results,None)
-pylab.savefig('plt_publicationBias-%s-%s' % ( dirtag , filterset ) )
+#RH: just test second plots; bias_plt=pcsp.publicationBias(results,None)
+#RH: test just second plots; pylab.savefig('plt_publicationBias-%s-%s' % ( dirtag , filterset ) )
 ## these plots only make sense if you're using idealized fake-sim-clusters well spaced out in z and M
 #adam-old# zcompact_plt=pcsp.plotZCompact(results)
 #adam-old# pylab.savefig('plt_plotZCompact-%s-%s' % ( dirtag , filterset ) )
 
-#adam-SHNT# this is the plot in Weighing the Giants - III figure 8
-import scatter_sims_plots
+#note that scatter_sims_plots.PointEstPzScript is the plot in Weighing the Giants - III figure 8
+#import scatter_sims_plots
+#pointest=scatter_sims_plots.PointEstPzScript()
 
+
+#adam-SHNT# GOTTA GET PointEstPzScript working!
+# I tried to get this to work by using copying it over to pcsp and hacking away at it, but no luck so far.
+# you could start fixing it by working on either pcsp.PointEstPzScript or the original scatter_sims_plots.PointEstPzScript
 pointest=pcsp.PointEstPzScript(filtersetdir)
 pointest.savefig('plt_pointEstPzScript-%s-%s' % ( dirtag , filterset ) )
 pylab.show()

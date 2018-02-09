@@ -187,8 +187,10 @@ def processPklDir(dir, ext='out'):
 
 	resultfile = pyfits.open(out)
 	objtab=resultfile['OBJECTS']
-	masses = objtab.data['masses']
+	try: masses = objtab.data['masses']
+	except: masses = objtab.data['mass'] # In *.out the column is called 'mass'
 	resultfile.close()
+        # masses is array that goes from 5e13 to 1e16 in steps of 5e12
 
         key = (round(massdist.zcluster, 1), round(massdist.m500 / 1e14, 2))
         if key not in massdists:
