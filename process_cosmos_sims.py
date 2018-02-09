@@ -178,6 +178,7 @@ def processPklDir(dir, ext='out'):
 
         base, ext = os.path.splitext(out)
 
+        print 'processPklDir file='+'%s.pkl' % base
         input = open('%s.pkl' % base, 'rb')
         massdist = cPickle.load(input)
         input.close()
