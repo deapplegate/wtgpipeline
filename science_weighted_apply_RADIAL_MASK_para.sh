@@ -1,5 +1,6 @@
 #!/bin/bash
 set -xv
+#applies radial masks to the SCIENCE_weighted/ images
 #adam-example# ./science_weighted_apply_RADIAL_MASK_para.sh ${SUBARUDIR} /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC_2010-03-12/SCIENCE_weighted/ OCFS ' 1' 
 ########################
 #$Id: apply_ringmask_para.sh,v 1.5 2009-07-17 02:54:49 anja Exp $

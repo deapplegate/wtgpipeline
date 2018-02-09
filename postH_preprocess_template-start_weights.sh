@@ -17,7 +17,7 @@ export BONN_FILTER=${filter}
 . progs.ini > /tmp/progs.out 2>&1
 REDDIR=`pwd`
 export INSTRUMENT=SUBARU
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 #run="2010-03-12" ; filter="W-S-I+";FLAT=SKYFLAT  #Z2701   10_3 2010-03-12_W-S-I+
 SET=SET1            # sets time period of flat to use
 SKYBACK=256         # in case of SKYFLAT: size of background mesh for superflat illumination construction
@@ -56,21 +56,6 @@ config="10_3"
 . ${INSTRUMENT:?}.ini > /tmp/instrum.out 2>&1
 
 ####################################################
-### a quick example
-####################################################
-#if [ "$config" == "10_3" ] ; then
-#	./parallel_manager.sh ./process_science_4channels_eclipse_para.sh ${SUBARUDIR}/${run}_${filter} BIAS ${FLAT} SCIENCE RESCALE ${FRINGE} #8
-#elif [ "$config" == "10_2" ] ; then
-#	./parallel_manager.sh ./process_science_eclipse_para.sh ${SUBARUDIR}/${run}_${filter} BIAS ${FLAT} SCIENCE RESCALE ${FRINGE} #8
-#else
-#	echo "problem with config";exit 1
-#fi
-#exit_stat=$?
-#if [ "${exit_stat}" -gt "0" ]; then
-#	exit ${exit_stat};
-#fi
-
-####################################################
 ### START pasting in new stuff below here!
 ####################################################
 
@@ -81,31 +66,35 @@ config="10_3"
 if [ -d ${SUBARUDIR}/${run}_${filter}/BASE_WEIGHT ]; then
 	rm -r ${SUBARUDIR}/${run}_${filter}/BASE_WEIGHT
 fi
-#adam-SUPERFLAT BLOCK#
-#### create normalized weight images
-./create_norm.sh ${SUBARUDIR}/${run}_${filter} SCIENCE
 ./create_norm.sh ${SUBARUDIR}/${run}_${filter} ${FLAT}
-#new:stacks all of the images from that run (with objects removed)
+
 #BLOCK7-PER RF# per Run and per Filter (flat chosen already)
 if [[ ${ending} == *"S"* ]];then
 	echo "adam-look: Make superflat stuff directly. S in this ending=${ending}"
-	ln -s ${SUBARUDIR}/${run}_${filter}/$SCIENCEDIR/SUPA*${ending}.fits ${SUBARUDIR}/${run}_${filter}/SCIENCE/
-
+	#adam-new# IMPORTANT: I changed this because I was doing it wrong previously (and I think I did it wrong for MACS1115 too)
+        mkdir ${SUBARUDIR}/${run}_${filter}/SCIENCE/OCF_IMAGES
+	mv ${SUBARUDIR}/${run}_${filter}/SCIENCE/SUPA*OCF.fits ${SUBARUDIR}/${run}_${filter}/SCIENCE/OCF_IMAGES
+	ln -s ${SUBARUDIR}/${run}_${filter}/${SCIENCEDIR}/SUPA*${ending}.fits ${SUBARUDIR}/${run}_${filter}/SCIENCE/
 	for ((CHIP=1;CHIP<=${NCHIPS};CHIP++));
 	do
-
-	    rm ${SUBARUDIR}/${run}_${filter}/SCIENCE/SCIENCE_${CHIP}.fits
-	    rm ${SUBARUDIR}/${run}_${filter}/SCIENCE/SCIENCE_${CHIP}_illum.fits
-	    rm ${SUBARUDIR}/${run}_${filter}/SCIENCE/SCIENCE_${CHIP}_fringe.fits
-
+            mkdir ${SUBARUDIR}/${run}_${filter}/SCIENCE/old_illum_fringe
+	    mv ${SUBARUDIR}/${run}_${filter}/SCIENCE/SCIENCE_${CHIP}.fits ${SUBARUDIR}/${run}_${filter}/SCIENCE/old_illum_fringe
+	    mv ${SUBARUDIR}/${run}_${filter}/SCIENCE/SCIENCE_${CHIP}_illum.fits ${SUBARUDIR}/${run}_${filter}/SCIENCE/old_illum_fringe
+	    if [ -f ${SUBARUDIR}/${run}_${filter}/SCIENCE/SCIENCE_${CHIP}_fringe.fits ]; then
+	        mv ${SUBARUDIR}/${run}_${filter}/SCIENCE/SCIENCE_${CHIP}_fringe.fits ${SUBARUDIR}/${run}_${filter}/SCIENCE/old_illum_fringe
+	    fi
+	
 	    ln -s ${SUBARUDIR}/${run}_${filter}/$SCIENCEDIR/${SCIENCEDIR}_${CHIP}.fits ${SUBARUDIR}/${run}_${filter}/SCIENCE/SCIENCE_${CHIP}.fits
 	    ln -s ${SUBARUDIR}/${run}_${filter}/$SCIENCEDIR/${SCIENCEDIR}_${CHIP}_illum${SKYBACK}.fits ${SUBARUDIR}/${run}_${filter}/SCIENCE/SCIENCE_${CHIP}_illum.fits
 	    if [ ${FRINGE} == "FRINGE" ]; then
-		ln -s ${SUBARUDIR}/${run}_${filter}/$SCIENCEDIR/${SCIENCEDIR}_${CHIP}_fringe${SKYBACK}.fits ${SUBARUDIR}/${run}_${filter}/SCIENCE/SCIENCE_${CHIP}_fringe.fits
+	        ln -s ${SUBARUDIR}/${run}_${filter}/$SCIENCEDIR/${SCIENCEDIR}_${CHIP}_fringe${SKYBACK}.fits ${SUBARUDIR}/${run}_${filter}/SCIENCE/SCIENCE_${CHIP}_fringe.fits
 	    fi
 	    #ln -s ${SUBARUDIR}/${run}_${filter}/${FLAT}_${SET}/${FLAT}_${SET}_${CHIP}.fits ${SUBARUDIR}/${run}_${filter}/${FLAT}/${FLAT}_${CHIP}.fits
-
+	
 	done
+	#### create normalized weight images
+	./create_norm.sh ${SUBARUDIR}/${run}_${filter} SCIENCE
+	#new:stacks all of the images from that run (with objects removed)
 	./create_norm_illum_fringe.sh ${SUBARUDIR}/${run}_${filter} SCIENCE
 	./create_globalweight_base.sh ${SUBARUDIR}/${run}_${filter} ${FLAT}_norm SCIENCE_norm
 else

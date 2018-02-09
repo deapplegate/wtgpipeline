@@ -10,7 +10,7 @@
 ### right configuration (10_3)
 ##################################################################
 
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/ ; export INSTRUMENT=SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU/ ; export INSTRUMENT=SUBARU
 export bonn=/u/ki/awright/wtgpipeline/
 export subdir=/nfs/slac/g/ki/ki18/anja/SUBARU/
 

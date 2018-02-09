@@ -43,17 +43,4 @@ do
       exit 3
   fi
 
-  ###
-
-  #adam-old# ${P_SEX} /$1/$2/$2_${CHIP}.fits -c ${CONF}/illumfringe_fringe.sex -CHECKIMAGE_NAME $1/$2/$2_${CHIP}_fringe${3}.fits -BACK_SIZE $3
-
-  if [ ! -s $1/$2/$2_${CHIP}_fringe${3}.fits ]; then
-      #adam-BL# log_status 4 "Fringe image not produced: ${chip}"
-      echo "adam-look | error: Fringe image not produced: ${chip}"
-      exit 4
-  fi
-
-  ###
 done
-
-#adam-BL# log_status $?

@@ -46,7 +46,9 @@ if __name__ == "__main__":
 	#keys=keys_vals[0:NN:2]
 	#vals=keys_vals[1:NN:2]
 	args=array(args)
+	fls_vals_spots=array([s.endswith(".fits") for s in args])
 	keys_vals_spots=array(['=' in s for s in args])
+	fls_vals=args[fls_vals_spots]
 	keys_vals=args[keys_vals_spots]
 	if keys_vals_spots[0]==False:
 		fl=args[0]
@@ -64,7 +66,8 @@ if __name__ == "__main__":
 			v=float(v)
 		keys.append(k)
 		vals.append(v)
-	print "fl=",fl
-	print "keys=",keys
-	print "vals=",vals
-	add_key_val(fl,keys,vals)
+	for fl in fls_vals:
+		print "fl=",fl
+		print "keys=",keys
+		print "vals=",vals
+		add_key_val(fl,keys,vals)

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -xv
 export INSTRUMENT=SUBARU
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export run="2010-11-04"
 export cluster=MACS0416-24
 

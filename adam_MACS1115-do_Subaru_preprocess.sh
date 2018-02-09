@@ -9,7 +9,7 @@ REDDIR=`pwd`
 ### the following need to be specified for each run
 ####################################################
 
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 ## adam notes: fgas_Zclusters_doubled_datasets.log
 #1# all Z2089 biases are Z2701 biases!

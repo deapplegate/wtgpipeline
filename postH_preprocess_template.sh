@@ -17,7 +17,7 @@ export BONN_FILTER=${filter}
 . progs.ini > /tmp/progs.out 2>&1
 REDDIR=`pwd`
 export INSTRUMENT=SUBARU
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 #run="2010-03-12" ; filter="W-S-I+";FLAT=SKYFLAT  #Z2701   10_3 2010-03-12_W-S-I+
 SET=SET1            # sets time period of flat to use
 SKYBACK=256         # in case of SKYFLAT: size of background mesh for superflat illumination construction

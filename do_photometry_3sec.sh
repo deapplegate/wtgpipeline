@@ -48,7 +48,7 @@ done
 
 subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
 export subarudir
-SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export SUBARUDIR
 
 #adam#photrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/photometry

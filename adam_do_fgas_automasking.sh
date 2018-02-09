@@ -27,7 +27,7 @@ filter_run_pairs=$2
 REDDIR=`pwd`
 lookupfile=/nfs/slac/g/ki/ki05/anja/SUBARU/SUBARU.list
 #adam# lookupfile (SUBARU.list) has list of clusters and positions
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export INSTRUMENT=SUBARU
 
 #adam# pick the ending, filter, and run

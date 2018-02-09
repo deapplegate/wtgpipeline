@@ -62,7 +62,7 @@ for ((i=5;i<=$#;i=i+1)); do
 done
 
 ########################
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export subarudir=${SUBARUDIR}
 export subdir=${SUBARUDIR}
 

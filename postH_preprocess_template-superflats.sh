@@ -9,7 +9,7 @@ REDDIR=`pwd`
 ### the following need to be specified for each run
 ####################################################
 
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export BONN_TARGET=${run}
 export BONN_FILTER=${filter}
 export INSTRUMENT=SUBARU
@@ -34,8 +34,7 @@ else
 	continue
 fi
 
-SCIENCEDIR=SCIENCE_${FLAT}_${SET}
-./setup_SUBARU.sh ${SUBARUDIR}/${run}_${filter}/SCIENCE/ORIGINALS
+#./setup_SUBARU.sh ${SUBARUDIR}/${run}_${filter}/SCIENCE/ORIGINALS
 . ${INSTRUMENT:?}.ini > /tmp/instrum.out 2>&1
 # this sets: config="10_3"
 
@@ -47,13 +46,26 @@ fi
 
 SCIENCEDIR=SCIENCE_${FLAT}_${SET}
 echo "SCIENCEDIR=" ${SCIENCEDIR}
-ls ${SUBARUDIR}/${run}_${filter}/${SCIENCEDIR}/SUPA*OCF.fits | wc -l
-ls ${SUBARUDIR}/${run}_${filter}/SCIENCE/SUPA*OCF.fits | wc -l
 
 #adam# have to copy SCIENCE/SUPA*OCF.fits files over to ${SUBARUDIR}/${run}_${filter}/$SCIENCEDIR
 if [ ! -d ${SUBARUDIR}/${run}_${filter}/${SCIENCEDIR} ]; then
     mkdir ${SUBARUDIR}/${run}_${filter}/${SCIENCEDIR}
-    cp ${SUBARUDIR}/${run}_${filter}/SCIENCE/SUPA*OCF.fits ${SUBARUDIR}/${run}_${filter}/$SCIENCEDIR
+fi
+
+N1=`ls ${SUBARUDIR}/${run}_${filter}/${SCIENCEDIR}/SUPA*OCF.fits | wc -l`
+N2=`ls ${SUBARUDIR}/${run}_${filter}/SCIENCE/SUPA*OCF.fits | wc -l`
+N3=`ls ${SUBARUDIR}/${run}_${filter}/${SCIENCEDIR}/OCF_IMAGES/SUPA*OCF.fits | wc -l`
+if [ "${N3}" -gt "${N1}" ]; then
+	mv ${SUBARUDIR}/${run}_${filter}/SCIENCE/OCF_IMAGES/SUPA*OCF.fits ${SUBARUDIR}/${run}_${filter}/SCIENCE/SUPA*OCF.fits
+	N1="${N3}"
+fi
+if [ "${N2}" -gt "${N1}" ]; then
+	cp ${SUBARUDIR}/${run}_${filter}/SCIENCE/SUPA*OCF.fits ${SUBARUDIR}/${run}_${filter}/$SCIENCEDIR
+fi
+
+exit_stat=$?
+if [ "${exit_stat}" -gt "0" ]; then
+	exit ${exit_stat};
 fi
 
 if [ ${FRINGE} == "FRINGE" ]; then
@@ -80,6 +92,7 @@ if [ "${exit_stat}" -gt "0" ]; then
 fi
 
 ### A: PROCESS SUPERFLAT ###
+# makes ${SCIENCEDIR}/${SCIENCEDIR}_8.fits
 ./parallel_manager.sh ./process_superflat_para.sh ${SUBARUDIR}/${run}_${filter} ${SCIENCEDIR}
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
@@ -87,6 +100,8 @@ if [ "${exit_stat}" -gt "0" ]; then
 fi
 
 ### Create Illum/Fringe Corrections (both of them, then you can choose not to use the fringe stuff if you don't want to)
+#makes ${SCIENCEDIR}/${SCIENCEDIR}_8_illum.fits from running sextractor on ${SCIENCEDIR}_8.fits and using the "BACKGROUND" check image
+#makes ${SCIENCEDIR}/${SCIENCEDIR}_8_fringe.fits from running sextractor on ${SCIENCEDIR}_8.fits and using the "-BACKGROUND" check image
 ./parallel_manager.sh ./create_illumfringe_stars_para.sh ${SUBARUDIR}/${run}_${filter} $SCIENCEDIR ${SKYBACK}
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
@@ -94,6 +109,10 @@ if [ "${exit_stat}" -gt "0" ]; then
 fi
 
 ./create_binnedmosaics.sh ${SUBARUDIR}/${run}_${filter} $SCIENCEDIR $SCIENCEDIR "" 8 -32
+exit_stat=$?
+if [ "${exit_stat}" -gt "0" ]; then
+	exit ${exit_stat};
+fi
 ./create_binnedmosaics.sh ${SUBARUDIR}/${run}_${filter} $SCIENCEDIR $SCIENCEDIR "_illum${SKYBACK}" 8 -32
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
@@ -102,6 +121,10 @@ fi
 ##
 if [ ${FRINGE} == "FRINGE" ]; then
   ./create_binnedmosaics.sh ${SUBARUDIR}/${run}_${filter} $SCIENCEDIR $SCIENCEDIR "_fringe${SKYBACK}" 8 -32
+fi
+exit_stat=$?
+if [ "${exit_stat}" -gt "0" ]; then
+	exit ${exit_stat};
 fi
 
 ##
@@ -133,6 +156,10 @@ fi
 
 if [ ${FRINGE} == "FRINGE" ]; then
   ./create_binnedmosaics.sh ${SUBARUDIR}/${run}_${filter} ${SCIENCEDIR}_norm ${SCIENCEDIR} "_fringe${SKYBACK}" 8 -32
+fi
+exit_stat=$?
+if [ "${exit_stat}" -gt "0" ]; then
+	exit ${exit_stat};
 fi
 
 echo "adam-look| Todo: Inspect ${SCIENCEDIR}/BINNED frames for bright stars, autotracker shadows, etc.

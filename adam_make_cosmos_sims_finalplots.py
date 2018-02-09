@@ -27,6 +27,7 @@ from adam_cosmos_options import zchoice_switch, cat_switch, dirtag
 #adam-old# pylab.savefig('plt_plotZCompact-%s-%s' % ( dirtag , filterset ) )
 
 #note that scatter_sims_plots.PointEstPzScript is the plot in Weighing the Giants - III figure 8
+
 #import scatter_sims_plots
 #pointest=scatter_sims_plots.PointEstPzScript()
 

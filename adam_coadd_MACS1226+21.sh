@@ -1,7 +1,7 @@
 #!/bin/bash
 set -xv
 export INSTRUMENT=SUBARU
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export ending="OCF"
 export cluster=MACS1226+21
 

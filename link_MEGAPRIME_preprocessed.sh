@@ -5,7 +5,7 @@ REDDIR=`pwd`
 cluster=$1
 clusterMP=`echo ${cluster} | sed 's/+/p/g' | sed 's/-/m/g'`
 
-SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 MPDIR=/nfs/slac/g/ki/ki06/anja/MEGAPRIME/CLUSTERS
 
 filters="u g r i z"

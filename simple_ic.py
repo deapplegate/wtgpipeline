@@ -14,7 +14,7 @@ global data_path, tmpdir, test
 username = os.environ['USER']
 if username=="awright":
         ## get/set env variables
-        data_root = '/nfs/slac/g/ki/ki18/anja/SUBARU/' #adam-Warning#
+        data_root = '/gpfs/slac/kipac/fs1/u/awright/SUBARU/' #Warning#
         if 'SUBARUDIR' in os.environ.keys():
                 if "pat" in os.environ['SUBARUDIR']: raise Exception("You have /nfs/slac/g/ki/ki18/anja/SUBARU/pat/ as your SUBARUDIR, this is a mistake right?")
         else:
@@ -22,7 +22,7 @@ if username=="awright":
         if 'cluster' in os.environ.keys():
                 cluster=os.environ['cluster']
         else:
-                cluster="MACS1226+21" #adam-Warning#
+                cluster="MACS0429-02"
 
         ## mess with SQL databases
         #sql databases used by pat: illumination_db, test_try_db, test_fit_db, sdss_db
@@ -256,7 +256,15 @@ def sextract(SUPA,FLAT_TYPE): #intermediate #step2_sextract
 				elif len(glob(SDSS2)) > 0:
 				    head = glob(SDSS2)[0]
 			        else:
-				    raise Exception("No headers_scamp_SDSS-R9 or headers_scamp_SDSS-R6 directories available")
+					PANSTARRS1 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_PANSTARRS/%(BASE)s.head" % params
+					PANSTARRS2 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_PANSTARRS/%(BASE)sO*.head" % params
+					print "sextract| ",' glob(PANSTARRS1)=' ,glob(PANSTARRS1) , ' glob(PANSTARRS2)=' ,glob(PANSTARRS2)
+					if len(glob(PANSTARRS1)) > 0:
+					    head = glob(PANSTARRS1)[0]
+					elif len(glob(PANSTARRS2)) > 0:
+					    head = glob(PANSTARRS2)[0]
+					else:
+					    raise Exception("No headers_scamp_SDSS-R6 or SDSS-R9 or PANSTARRS directories available")
 
 
                         if 1:
@@ -4984,26 +4992,30 @@ if __name__=="__main__" and username=="awright":
 	#FILTERs=["W-J-B","W-J-V","W-C-RC","W-C-IC","W-S-Z+"] #adam-Warning#
 	#PPRUNs=["W-C-IC_2010-02-12", "W-C-IC_2011-01-06","W-C-RC_2010-02-12", "W-J-B_2010-02-12", "W-J-V_2010-02-12", "W-S-Z+_2011-01-06"] #adam-Warning#
 	#FILTERs_matching_PPRUNs=["W-C-IC", "W-C-IC","W-C-RC", "W-J-B", "W-J-V", "W-S-Z+"] #adam-Warning#
-	FILTERs=["W-J-B","W-C-RC","W-S-Z+"] #adam-Warning#
-	PPRUNs=["W-S-Z+_2009-04-29","W-J-B_2009-04-29","W-J-B_2010-03-12","W-S-Z+_2010-03-12","W-C-RC_2010-03-12"]
-	FILTERs_matching_PPRUNs=["W-S-Z+","W-J-B","W-J-B","W-S-Z+","W-C-RC"]
+	#FILTERs=["W-J-B","W-C-RC","W-S-Z+"] #adam-Warning#
+	#PPRUNs=["W-S-Z+_2009-04-29","W-J-B_2009-04-29","W-J-B_2010-03-12","W-S-Z+_2010-03-12","W-C-RC_2010-03-12"]
+	#FILTERs_matching_PPRUNs=["W-S-Z+","W-J-B","W-J-B","W-S-Z+","W-C-RC"]
+	FILTERs=["W-J-B","W-S-Z+"] #adam-Warning#
+	FILTERs_matching_PPRUNs=["W-S-Z+","W-J-B"]
+	PPRUNs=["W-S-Z+_2015-12-15","W-J-B_2015-12-15"]
 	OBJNAME=cluster #adam-Warning#
 
 	#adam-Warning# either handle SQL tables here or at the beginning!
         #This will drop tables and re-run everything. just comment out anything above here and run :%s///g
-	db2,c = connect_except()
-	c.execute(" DROP TABLE adam_illumination_db ; ")
-	c.execute(" DROP TABLE adam_try_db ; ")
-	c.execute(" DROP TABLE adam_fit_db ; ")
-	c.execute(" CREATE TABLE adam_illumination_db LIKE illumination_db; ")
-	c.execute(" CREATE TABLE adam_try_db LIKE test_try_db; ")
-	c.execute(" CREATE TABLE adam_fit_db LIKE test_fit_db; ")
+	#db2,c = connect_except()
+	#c.execute(" DROP TABLE adam_illumination_db ; ")
+	#c.execute(" DROP TABLE adam_try_db ; ")
+	#c.execute(" DROP TABLE adam_fit_db ; ")
+	#c.execute(" CREATE TABLE adam_illumination_db LIKE illumination_db; ")
+	#c.execute(" CREATE TABLE adam_try_db LIKE test_try_db; ")
+	#c.execute(" CREATE TABLE adam_fit_db LIKE test_fit_db; ")
 
-	print "adam-look: gather_exposures(cluster,filters=FILTERs)"
-	gather_exposures(cluster,filters=FILTERs)
+	#print "adam-look: gather_exposures(cluster,filters=FILTERs)"
+	#gather_exposures(cluster,filters=FILTERs)
 	print "adam-look: get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)"
 	get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)
 	print "adam-look: get_sdss_cats(OBJNAME)"
+	sys.exit() #adam-SHNT# I'll have to come up with a PANSTARRS replacement for `get_sdss_cats`
 	get_sdss_cats(OBJNAME)
 
 	extra_nametag=""

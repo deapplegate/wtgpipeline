@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 curdate=`date +%y-%m-%d_%H-%M`
 

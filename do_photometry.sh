@@ -59,7 +59,7 @@ done
 
 ########################
 export subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 #adam#photrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/photometry_2010
 #adam#lensingrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/lensing_2010

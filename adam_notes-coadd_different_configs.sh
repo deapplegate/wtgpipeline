@@ -12,7 +12,7 @@ set -xv
 #ln -s /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/10_3_W-C-RC/SCIENCE/*.fits /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/
 
 #see /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/out_history-B4.log for details
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU
+export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export cluster=MACS1226+21
 export INSTRUMENT=SUBARU
 export ending="OCF"

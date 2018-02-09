@@ -44,12 +44,13 @@ do
       CONFIG="'10_2'"
     fi
     #adam# changed from 4000 to 6000
-    if [ ${GABODSID} -ge 3470 ] && [ ${GABODSID} -lt 6000 ]; then 
+    if [ ${GABODSID} -ge 3470 ] && [ ${GABODSID} -lt 6200 ]; then 
       echo "10_3 chip configuration"  
       CONFIG="'10_3'"
     fi
 
-    if [ ${GABODSID} -ge 6000 ]; then
+    echo "GABODSID= ${GABODSID}"
+    if [ ${GABODSID} -ge 6200 ]; then
 	echo "no config file provided yet. Exiting !!"
 	#adam-BL# log_status 1 "no config file provided yet"
 	exit 1

@@ -55,7 +55,7 @@ do
 		sfdir/satfinder ${TEMPDIR}/OBJECTS1_$$.fits  ${1}/${2}/diffmask/${BASE}.sa.fits 
 		
 		#get the background for shadowfinder...  Needs the basename...
-		${P_IC} '%1 -1 %2 0 == ?' $file ${TEMPDIR}/OBJECTS1_$$.fits >   ${TEMPDIR}/BKG_${BASE}_$$.fits
+		#${P_IC} '%1 -1 %2 0 == ?' $file ${TEMPDIR}/OBJECTS1_$$.fits >   ${TEMPDIR}/BKG_${BASE}_$$.fits
 		#adam# commenting out shadowfinder for now, because it's masking out wayyy too much (this means that the .sh files are not made)
 		#adam#sfdir/shadowfinder ${TEMPDIR}/BKG_${BASE}_$$.fits  ${1}/${2}/diffmask/${BASE}.sh.fits 
 
