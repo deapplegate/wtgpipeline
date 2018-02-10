@@ -1,3 +1,9 @@
+## These three invoke the strategy defined in part 7.3 of WtG paper III
+newmanstyle_batchrunner.py
+bootstrap_masses.py
+scatter_sims_plots.py
+
+## These might also be helpful
 nfwmodel.py
 nfwmodel2param.pyx
 nfwmodelML_batchrunner.py
