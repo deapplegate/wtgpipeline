@@ -225,7 +225,7 @@ def sextract(SUPA,FLAT_TYPE): #intermediate #step2_sextract
                         dd=utilities.get_header_kw(image,['CONFIG'])
                         config=dd['CONFIG']
                         params['GAIN'] = config_dict['GAIN'][config]
-                        print "sextract| (adam-look) config=",config," params['GAIN']=",params['GAIN']
+                        print "sextract|  config=",config," params['GAIN']=",params['GAIN']
                         print "sextract| ",'ROOT=',ROOT
                         finalflagim = "%(TEMPDIR)sflag_%(ROOT)s.fits" % params
                         res = re.split('SCIENCE',image)
@@ -333,7 +333,7 @@ def sextract(SUPA,FLAT_TYPE): #intermediate #step2_sextract
                                     if ooo!=0: raise Exception("the line utilities.run(command_sex,[catname]) failed\ncommand_sex,[catname]="+command_sex+",["+catname+"]")
                                     #adam-watch# hmm, this doesn't have a -t input, does it need one?
                                     command_ldacconv = progs_path['p_ldacconv'] +' -b 1 -c R -i ' + params['double_cat']  + ' -o '  + params['double_cat'].replace('cat','rawconv')
-                                    print "sextract| ",'adam-look(no -t input) command_ldacconv=',command_ldacconv
+				    #adam-watch# print "sextract| ",'adam-look(no -t input) command_ldacconv=',command_ldacconv
                                     ooo=utilities.run(command_ldacconv)
                                     if ooo!=0: raise Exception("the line utilities.run(command_ldacconv) failed\ncommand_ldacconv="+command_ldacconv)
 
@@ -560,9 +560,6 @@ def get_astrom_run_sextract(OBJNAME,PPRUNs): #main #step2_sextract
 		first = True
 		while len(results) > 0 or first:
 		    first = False
-		    #command= "SELECT * from "+illum_db+" where (OBJNAME like 'A%' or OBJNAME like 'MACS%') and (pasted_cat is null or pasted_cat like '%None%') and CORRECTED='True' " # and PPRUN='2003-04-04_W-C-IC'"
-		    #command= "SELECT * from ' + test + 'try_db where sdssstatus='fitfinished' and OBJNAME like 'MACS2129%' ORDER BY RAND()" # and PPRUN='2003-04-04_W-C-IC'"
-		    #command = 'SELECT * from '+illum_db+' where SUPA="SUPA0118300" and OBJNAME like "MACS1226%"' #  order by rand()' #fwhm!=-999 and objname not like "%ki06%" order by rand()'
 		    #command = 'SELECT * from '+illum_db+' where  pasted_cat is null and OBJNAME like "MACS1226%" and PPRUN="W-C-RC_2006-03-04"' #  order by rand()' #fwhm!=-999 and objname not like "%ki06%" order by rand()'
 
 		    command = 'SELECT * from '+illum_db+' where  pasted_cat is null and OBJNAME like "'+OBJNAME+'%" and PPRUN="'+PPRUN+'"' #  order by rand()' #fwhm!=-999 and objname not like "%ki06%" order by rand()'
@@ -820,6 +817,39 @@ def connect_except(): #simple #database
     #print "connect_except| DONE with func"
     return db2,c
 
+from astropy.table import Table
+def get_db_obj(db,cluster):
+        '''dbs=["adam_illumination_db","adam_try_db","adam_fit_db","sdss_db","adamPAN_illumination_db","adamPAN_try_db","adamPAN_fit_db","sdss_db","illumination_db","test_try_db","test_fit_db","try_db","fit_db"]
+        clusters=["MACS0429-02","RXJ2129","MACS1226+21"]'''
+        command='SELECT * from ' +  db  + " where OBJNAME='" +cluster + "'"
+        Nresults=c.execute(command)
+        results =c.fetchall()
+        #c.execute("SELECT OBJNAME from sdss_db where OBJNAME = '" + OBJNAME + "'")
+        print cluster,db,Nresults
+        keys=describe_db(c,[db])
+        db_results = {}
+        for k in keys:
+                db_results[k]=[]
+        for line in results:
+                for i in range(len(keys)):
+                        db_results[keys[i]].append(line[i])
+        print ' db_results.values()=',db_results.values()
+        print ' db_results.keys()=',db_results.keys()
+        dbtab=Table(db_results.values(),names=db_results.keys())
+        return dbtab
+
+def db_cluster_logfile(db=test+'try_db',cluster='RXJ2129'):
+        trytab=get_db_obj(db,cluster)
+        allnames=trytab.colnames
+        t=trytab.copy()
+        tfl=trytab['logfile'][0].split('ILLUMINATION')[0]+'logfile'
+        keepnames=['OBJNAME',"PPRUN","var_correction","mean","std","match_stars","sdss_imp","sdss_imp_all","sdss_imp","sdss_imp_all","todo"]
+        for name in allnames:
+            if not name in keepnames:
+                t.remove_column(name)
+        t.write(tfl+'_'+db,format='ascii.fixed_width')
+        return t
+
 ''' find full set of files corresponding to all '''
 def get_files(SUPA,FLAT_TYPE=None): #simple #database
     '''inputs: SUPA,FLAT_TYPE=None
@@ -883,7 +913,7 @@ def combine_cats(cats,outfile,search_params):
 		allconv = tempfile.NamedTemporaryFile(dir=search_params['TEMPDIR']).name
 		#adam-watch# hmm, this doesn't have a -t input, does it need one?
 		command_ldacjoinkey = progs_path['p_ldacjoinkey']+' -i ' + catalog['cat'] + ' -p ' + cat1 + ' -o ' + allconv + '  -k MAG_APER1 MAG_APER2 MAGERR_APER1 MAGERR_APER2'
-		print 'combine_cats| adam-look (no -t input) command_ldacjoinkey=',command_ldacjoinkey
+		#adam-watch# print 'combine_cats| adam-look (no -t input) command_ldacjoinkey=',command_ldacjoinkey
 		ooo=os.system(command_ldacjoinkey)
 		if ooo!=0: raise Exception("the line os.system(command_ldacjoinkey) failed\ncommand_ldacjoinkey="+command_ldacjoinkey)
 
@@ -1157,7 +1187,7 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
         dd=utilities.get_header_kw(image,['CONFIG'])
         config=dd['CONFIG']
         params['GAIN'] = config_dict['GAIN'][config]
-        print "fix_radec| (adam-look) config=",config," params['GAIN']=",params['GAIN']
+        print "fix_radec| config=",config," params['GAIN']=",params['GAIN']
 
         finalflagim = "%(TEMPDIR)sflag_%(ROOT)s.fits" % params
         res = re.split('SCIENCE',image)
@@ -1181,11 +1211,13 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
         print 'fix_radec| params["directory"]=',params["directory"]
         print 'fix_radec| BASE=',BASE
         SDSS_R6 = "/%(path)s/%(directory)s/SCIENCE/headers_scamp_SDSS-R6/%(BASE)s.head" % params   # it's not a ZERO!!!
+        PANSTARRS = "/%(path)s/%(directory)s/SCIENCE/headers_scamp_PANSTARRS/%(BASE)s.head" % params   # it's not a ZERO!!!
         SDSS_R9 = "/%(path)s/%(directory)s/SCIENCE/headers_scamp_SDSS-R9/%(BASE)s.head" % params   # it's not a ZERO!!!
         TWOMASS = "/%(path)s/%(directory)s/SCIENCE/headers_scamp_2MASS/%(BASE)s.head" % params
         NOMAD = "/%(path)s/%(directory)s/SCIENCE/headers_scamp_NOMAD*/%(BASE)s.head" % params
 
         SDSS_R6 = SDSS_R6.replace('I_','_').replace('I.','.')
+        PANSTARRS = PANSTARRS.replace('I_','_').replace('I.','.')
         SDSS_R9 = SDSS_R9.replace('I_','_').replace('I.','.')
 
         print 'fix_radec| looking for SCAMP header'
@@ -1216,6 +1248,12 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
             head = a[-1][1]
             print 'fix_radec| head=',head
 
+        ''' if PANSTARRS exists, use that '''
+        if len(glob(PANSTARRS)) > 0:
+            head = glob(PANSTARRS)[0]
+        if len(glob(PANSTARRS.replace('.head','O*.head'))) > 0:
+            head = glob(PANSTARRS.replace('.head','O*.head'))[0]
+
         ''' if SDSS_R9 exists, use that '''
         if len(glob(SDSS_R9)) > 0:
             head = glob(SDSS_R9)[0]
@@ -1228,7 +1266,7 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
         if len(glob(SDSS_R6.replace('.head','O*.head'))) > 0:
             head = glob(SDSS_R6.replace('.head','O*.head'))[0]
 
-        print 'fix_radec| head=',head , ' SDSS_R9=',SDSS_R9 , ' glob(SDSS_R9)=',glob(SDSS_R9), ' SDSS_R6=',SDSS_R6 , ' glob(SDSS_R6)=',glob(SDSS_R6)
+	print 'fix_radec| head=',head , ' PANSTARRS=',PANSTARRS , ' glob(PANSTARRS)=',glob(PANSTARRS), ' SDSS_R6=',SDSS_R6 , ' glob(SDSS_R6)=',glob(SDSS_R6)
 
         w = {}
 
@@ -1561,7 +1599,7 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
                         a=1
                         print 'match_OBJNAME| d["CHIPS"]=',d["CHIPS"] , ' d["fixradecCR"]=',d["fixradecCR"]
                         ooo=os.system('cd ' + tmpdir)
-                        if ooo!=0: raise xception("the line os.system('cd ' + tmpdir) failed\n'cd ' + tmpdir="+'cd ' + tmpdir)
+                        if ooo!=0: raise Exception("the line os.system('cd ' + tmpdir) failed\n'cd ' + tmpdir="+'cd ' + tmpdir)
                         print 'match_OBJNAME| tmpdir=',tmpdir
                         if str(d['CHIPS'])=='None' or str(d['fixradecCR']) != str(1.0): # or str(d['fixradecCR']) == '-1':
                             a = fix_radec(d['SUPA'],d['FLAT_TYPE'])
@@ -1592,7 +1630,7 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
                         if sdss_cov:
                             ''' retrieve SDSS catalog '''
                             match = 'sdss'
-                            sdssmatch = get_cats_ready(d['SUPA'],d['FLAT_TYPE'],galaxycat,starcat)
+                            sdssmatch = get_cats_ready(d['SUPA'],d['FLAT_TYPE'],starcat)
                             print 'match_OBJNAME| d["SUPA"]=',d["SUPA"] , ' d["FLAT_TYPE"]=',d["FLAT_TYPE"] , ' d["OBJECT"]=',d["OBJECT"] , ' d["CRVAL1"]=',d["CRVAL1"] , ' d["CRVAL2"]=',d["CRVAL2"]
                             print 'match_OBJNAME| d["pasted_cat"]=',d["pasted_cat"] , ' sdss_cov=',sdss_cov
                             print 'match_OBJNAME| calibration done'
@@ -3471,7 +3509,7 @@ def get_fits(OBJNAME,FILTER,PPRUN,sample, sample_size):
 
 #adam-note# modified from calc_test_save
 ''' read in the photometric calibration and apply it to the data '''
-def get_cats_ready(SUPA,FLAT_TYPE,galaxycat,starcat): #step3_run_fit
+def get_cats_ready(SUPA,FLAT_TYPE,starcat): #step3_run_fit
     '''inputs:SUPA,FLAT_TYPE,galaxycat=data_path+'PHOTOMETRY/sdssgalaxy.cat', starcat=data_path+'PHOTOMETRY/sdssstar.cat'
     purpose: this gets the information from sdssstar.cat relevant to this specific SUPA, saves it in starsdssmatch__SUPA0121585_star.txt, and then corrects it ( starts the seqNr at 2 instead of 1 ) sdssmatch__SUPA0121585_star.txt
     '''
@@ -3568,7 +3606,8 @@ def get_sdss_cats(OBJNAME=None): #step3_run_fit
     db_keys = describe_db(c)
 
     if OBJNAME is not None:
-        command="SELECT * from "+illum_db+" LEFT OUTER JOIN sdss_db on sdss_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".SUPA like 'SUPA%' and "+illum_db+".OBJNAME like '%" + OBJNAME + "%' and "+illum_db+".pasted_cat is not null GROUP BY "+illum_db+".OBJNAME" # LEFT OUTER JOIN sdss_db on sdss_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".OBJNAME is not null  GROUP BY "+illum_db+".OBJNAME" #and sdss_db.cov is not NULL
+        command="SELECT * from "+illum_db+" LEFT OUTER JOIN sdss_db on sdss_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".SUPA like 'SUPA%' and "+illum_db+".OBJNAME like '%" + OBJNAME + "%' and "+illum_db+".pasted_cat is not null GROUP BY "+illum_db+".OBJNAME"
+	# LEFT OUTER JOIN sdss_db on sdss_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".OBJNAME is not null  GROUP BY "+illum_db+".OBJNAME" #and sdss_db.cov is not NULL
     else:
         command="SELECT * from "+illum_db+" LEFT OUTER JOIN sdss_db on sdss_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".SUPA like 'SUPA%' and "+illum_db+".pasted_cat is not null GROUP BY "+illum_db+".OBJNAME" # LEFT OUTER JOIN sdss_db on sdss_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".OBJNAME is not null  GROUP BY "+illum_db+".OBJNAME" #and sdss_db.cov is not NULL
 
@@ -3590,14 +3629,13 @@ def get_sdss_cats(OBJNAME=None): #step3_run_fit
             #cov = sdss_coverage(SUPA, FLAT_TYPE)
             #starcat = None
             #if cov:
-            cov, starcat, galaxycat = get_sdss_obj(SUPA, FLAT_TYPE)
-            print 'get_sdss_cats| cov=',cov , ' starcat=',starcat , ' galaxycat=',galaxycat
+            cov, starcat = get_sdss_obj(SUPA, FLAT_TYPE)
+            print 'get_sdss_cats| cov=',cov , ' starcat=',starcat
 
             dict_sdss = {}
             dict_sdss['cov'] = cov
             if cov:
                 dict_sdss['starcat_sdss'] = starcat
-                dict_sdss['galaxycat_sdss'] = galaxycat
 
             dict_sdss['OBJNAME'] = OBJNAME
             floatvars = {}
@@ -3670,7 +3708,6 @@ def get_sdss_obj(SUPA, FLAT_TYPE): #step3_run_fit
     search_params = initialize(dict_sdss_obj['FILTER'],dict_sdss_obj['OBJNAME'])
     search_params.update(dict_sdss_obj)
     starcat=data_path+'PHOTOMETRY/sdssstar.cat'
-    galaxycat=data_path+'PHOTOMETRY/sdssgalaxy.cat'
     print 'get_sdss_obj| starcat=',starcat
 
     catalog = search_params['pasted_cat'] #exposures[exposure]['pasted_cat']
@@ -3681,12 +3718,12 @@ def get_sdss_obj(SUPA, FLAT_TYPE): #step3_run_fit
     image = search_params['files'][0]
     print 'get_sdss_obj| image=',image
     import retrieve_test
-    for type_stargal,cat in [['galaxy',galaxycat],['star',starcat]]:
+    for type_stargal,cat in [['star',starcat]]:
         cov, outcat = retrieve_test.run(image,cat,type_stargal,limits)
         save_exposure({type_stargal + 'cat':outcat},SUPA,FLAT_TYPE)
 
     print "get_sdss_obj| DONE with func"
-    return cov, starcat, galaxycat
+    return cov, starcat
 
 #adam-note# modified from calc_tmpsave
 def coordinate_limits(cat): #step3_run_fit
@@ -4776,7 +4813,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                     else: hasCHIP = False
 
                     RUN = re.split('\_',PPRUN)[0] #adam-watch#
-                    print 'construct_correction| (adam-look) RUN=',RUN
+                    print 'construct_correction| RUN=',RUN
                     p = re.compile('\_\d+O')
                     file_chip_1 = p.sub('_' + str(CHIP) + 'O',file)#.replace('.fits','.sub.fits')
 
@@ -5020,8 +5057,17 @@ if __name__=="__main__" and username=="awright":
 	print "adam-look: get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)"
 	get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)
 	print "adam-look: get_sdss_cats(OBJNAME)"
-	#adam-SHNT# I'll have to come up with a PANSTARRS replacement for `get_sdss_cats`
 	get_sdss_cats(OBJNAME)
+	#db_cluster_logfile(db=test+'try_db',cluster='RXJ2129')
+	
+	### which dbs do these functions use?
+	# gather_exposures ['i']
+	# get_astrom_run_sextract ['i']
+	# get_sdss_cats ['i', 's']
+	# match_OBJNAME ['i', 's', 't', 'f']
+	# calc_good ['t', 'f']
+	# testgood ['i', 't', 'f']
+	# construct_correction ['i', 't', 'f']
 
 	extra_nametag=""
 	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
@@ -5029,9 +5075,11 @@ if __name__=="__main__" and username=="awright":
 	 	match_OBJNAME(OBJNAME,FILTER,PPRUN)
 		print "\n\nadam-look: calc_good starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
 		calc_good(OBJNAME,FILTER,PPRUN)
+	good_tracker={}
 	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
 		print "\n\nadam-look: testgood starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-		testgood(OBJNAME,FILTER,PPRUN)
+	 	good_tracker[FILTER]=testgood(OBJNAME,FILTER,PPRUN)
+		#testgood(OBJNAME,FILTER,PPRUN)
 	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
 		print "\n\nadam-look: construct_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
 		#adam-Warning# r_ext=True if you've already done the stellar halo rings, otherwise r_ext=False. So for MACS0416 I'll sure r_ext=True

@@ -32,8 +32,8 @@ if username=="awright":
         #c.execute(" CREATE TABLE adam_try_db LIKE test_try_db; ")
         #c.execute(" CREATE TABLE adam_fit_db LIKE test_fit_db; ")
         #panstarrs_db will be fine, I can't really mess that one up
-        test = 'adamPAN_' #this takes care of test_try_db, test_fit_db #adam-Warning#
-        illum_db="adamPAN_illumination_db"
+        test = 'adamPAN2_' #this takes care of test_try_db, test_fit_db #adam-Warning#
+        illum_db="adamPAN2_illumination_db"
 
         ## set data_path and tmpdir
         data_path = data_root + cluster+'/'
@@ -225,7 +225,7 @@ def sextract(SUPA,FLAT_TYPE): #intermediate #step2_sextract
                         dd=utilities.get_header_kw(image,['CONFIG'])
                         config=dd['CONFIG']
                         params['GAIN'] = config_dict['GAIN'][config]
-                        print "sextract| (adam-look) config=",config," params['GAIN']=",params['GAIN']
+                        print "sextract|  config=",config," params['GAIN']=",params['GAIN']
                         print "sextract| ",'ROOT=',ROOT
                         finalflagim = "%(TEMPDIR)sflag_%(ROOT)s.fits" % params
                         res = re.split('SCIENCE',image)
@@ -333,7 +333,7 @@ def sextract(SUPA,FLAT_TYPE): #intermediate #step2_sextract
                                     if ooo!=0: raise Exception("the line utilities.run(command_sex,[catname]) failed\ncommand_sex,[catname]="+command_sex+",["+catname+"]")
                                     #adam-watch# hmm, this doesn't have a -t input, does it need one?
                                     command_ldacconv = progs_path['p_ldacconv'] +' -b 1 -c R -i ' + params['double_cat']  + ' -o '  + params['double_cat'].replace('cat','rawconv')
-                                    print "sextract| ",'adam-look(no -t input) command_ldacconv=',command_ldacconv
+				    #adam-watch# print "sextract| ",'adam-look(no -t input) command_ldacconv=',command_ldacconv
                                     ooo=utilities.run(command_ldacconv)
                                     if ooo!=0: raise Exception("the line utilities.run(command_ldacconv) failed\ncommand_ldacconv="+command_ldacconv)
 
@@ -560,9 +560,6 @@ def get_astrom_run_sextract(OBJNAME,PPRUNs): #main #step2_sextract
 		first = True
 		while len(results) > 0 or first:
 		    first = False
-		    #command= "SELECT * from "+illum_db+" where (OBJNAME like 'A%' or OBJNAME like 'MACS%') and (pasted_cat is null or pasted_cat like '%None%') and CORRECTED='True' " # and PPRUN='2003-04-04_W-C-IC'"
-		    #command= "SELECT * from ' + test + 'try_db where panstarrsstatus='fitfinished' and OBJNAME like 'MACS2129%' ORDER BY RAND()" # and PPRUN='2003-04-04_W-C-IC'"
-		    #command = 'SELECT * from '+illum_db+' where SUPA="SUPA0118300" and OBJNAME like "MACS1226%"' #  order by rand()' #fwhm!=-999 and objname not like "%ki06%" order by rand()'
 		    #command = 'SELECT * from '+illum_db+' where  pasted_cat is null and OBJNAME like "MACS1226%" and PPRUN="W-C-RC_2006-03-04"' #  order by rand()' #fwhm!=-999 and objname not like "%ki06%" order by rand()'
 
 		    command = 'SELECT * from '+illum_db+' where  pasted_cat is null and OBJNAME like "'+OBJNAME+'%" and PPRUN="'+PPRUN+'"' #  order by rand()' #fwhm!=-999 and objname not like "%ki06%" order by rand()'
@@ -820,6 +817,39 @@ def connect_except(): #simple #database
     #print "connect_except| DONE with func"
     return db2,c
 
+from astropy.table import Table
+def get_db_obj(db,cluster):
+        '''dbs=["adam_illumination_db","adam_try_db","adam_fit_db","sdss_db","adamPAN_illumination_db","adamPAN_try_db","adamPAN_fit_db","panstarrs_db","illumination_db","test_try_db","test_fit_db","try_db","fit_db"]
+        clusters=["MACS0429-02","RXJ2129","MACS1226+21"]'''
+        command='SELECT * from ' +  db  + " where OBJNAME='" +cluster + "'"
+        Nresults=c.execute(command)
+        results =c.fetchall()
+        #c.execute("SELECT OBJNAME from sdss_db where OBJNAME = '" + OBJNAME + "'")
+        print cluster,db,Nresults
+        keys=describe_db(c,[db])
+        db_results = {} 
+        for k in keys:
+                db_results[k]=[]
+        for line in results:
+                for i in range(len(keys)):
+                        db_results[keys[i]].append(line[i])
+        print ' db_results.values()=',db_results.values()
+        print ' db_results.keys()=',db_results.keys()
+        dbtab=Table(db_results.values(),names=db_results.keys())
+        return dbtab
+
+def db_cluster_logfile(db=test+'try_db',cluster='RXJ2129'):
+        trytab=get_db_obj(db,cluster)
+        allnames=trytab.colnames
+        t=trytab.copy()
+        tfl=trytab['logfile'][0].split('ILLUMINATION')[0]+'logfile'
+        keepnames=['OBJNAME',"PPRUN","var_correction","mean","std","match_stars","sdss_imp","sdss_imp_all","panstarrs_imp","panstarrs_imp_all","todo"]
+        for name in allnames:
+            if not name in keepnames:
+                t.remove_column(name)
+        t.write(tfl+'_'+db,format='ascii.fixed_width')
+        return t
+
 ''' find full set of files corresponding to all '''
 def get_files(SUPA,FLAT_TYPE=None): #simple #database
     '''inputs: SUPA,FLAT_TYPE=None
@@ -883,7 +913,7 @@ def combine_cats(cats,outfile,search_params):
 		allconv = tempfile.NamedTemporaryFile(dir=search_params['TEMPDIR']).name
 		#adam-watch# hmm, this doesn't have a -t input, does it need one?
 		command_ldacjoinkey = progs_path['p_ldacjoinkey']+' -i ' + catalog['cat'] + ' -p ' + cat1 + ' -o ' + allconv + '  -k MAG_APER1 MAG_APER2 MAGERR_APER1 MAGERR_APER2'
-		print 'combine_cats| adam-look (no -t input) command_ldacjoinkey=',command_ldacjoinkey
+		#adam-watch# print 'combine_cats| adam-look (no -t input) command_ldacjoinkey=',command_ldacjoinkey
 		ooo=os.system(command_ldacjoinkey)
 		if ooo!=0: raise Exception("the line os.system(command_ldacjoinkey) failed\ncommand_ldacjoinkey="+command_ldacjoinkey)
 
@@ -1157,7 +1187,7 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
         dd=utilities.get_header_kw(image,['CONFIG'])
         config=dd['CONFIG']
         params['GAIN'] = config_dict['GAIN'][config]
-        print "fix_radec| (adam-look) config=",config," params['GAIN']=",params['GAIN']
+        print "fix_radec| config=",config," params['GAIN']=",params['GAIN']
 
         finalflagim = "%(TEMPDIR)sflag_%(ROOT)s.fits" % params
         res = re.split('SCIENCE',image)
@@ -1444,6 +1474,7 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
             try_db_keys = describe_db(c,['' + test + 'try_db'])
             illum_db_keys = describe_db(c,[illum_db])
 
+	    #adam-SHNT# does column "panstarrsstatus" actually exist?
             command = "select * from " + test + "try_db t where t.panstarrsstatus is null and t.Nonestatus is null and (config='8.0' or config='9.0') group by t.objname, t.pprun order by rand()"
             print 'match_OBJNAME| command=',command
             c.execute(command)
@@ -3573,7 +3604,8 @@ def get_panstarrs_cats(OBJNAME,illum_cat): #step3_run_fit
     db_keys = describe_db(c)
 
     if OBJNAME is not None:
-        command="SELECT * from "+illum_db+" LEFT OUTER JOIN panstarrs_db on panstarrs_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".SUPA like 'SUPA%' and "+illum_db+".OBJNAME like '%" + OBJNAME + "%' and "+illum_db+".pasted_cat is not null GROUP BY "+illum_db+".OBJNAME" # LEFT OUTER JOIN panstarrs_db on panstarrs_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".OBJNAME is not null  GROUP BY "+illum_db+".OBJNAME" #and panstarrs_db.cov is not NULL
+        command="SELECT * from "+illum_db+" LEFT OUTER JOIN panstarrs_db on panstarrs_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".SUPA like 'SUPA%' and "+illum_db+".OBJNAME like '%" + OBJNAME + "%' and "+illum_db+".pasted_cat is not null GROUP BY "+illum_db+".OBJNAME"
+	# LEFT OUTER JOIN panstarrs_db on panstarrs_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".OBJNAME is not null  GROUP BY "+illum_db+".OBJNAME" #and panstarrs_db.cov is not NULL
 	#command="SELECT * from "+illum_db+" where "+illum_db+".SUPA like 'SUPA%' and "+illum_db+".OBJNAME like '%" + OBJNAME + "%' and "+illum_db+".pasted_cat is not null GROUP BY "+illum_db+".OBJNAME"
     else:
         command="SELECT * from "+illum_db+" LEFT OUTER JOIN panstarrs_db on panstarrs_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".SUPA like 'SUPA%' and "+illum_db+".pasted_cat is not null GROUP BY "+illum_db+".OBJNAME"
@@ -4208,9 +4240,12 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                     for rot in ['0','1','2','3']:
                         if not o.has_key(rot):
                             o[rot] = {}
-                        if drand['panstarrsredchinocorr$' + rot] != 'None':
-                            o[rot]['corr'] = drand['panstarrsredchicorr$' + rot]
-                            o[rot]['uncorr'] = drand['panstarrsredchinocorr$' + rot]
+			    if drand.has_key('panstarrsredchinocorr$' + rot):
+                                if drand['panstarrsredchinocorr$' + rot] != 'None':
+                                    o[rot]['corr'] = drand['panstarrsredchicorr$' + rot]
+                                    o[rot]['uncorr'] = drand['panstarrsredchinocorr$' + rot]
+			    else:
+				print 'calc_good| adam-look: potentially a problem here, `drand` doesnt have the key panstarrsredchinocorr$' + rot
                     num = 0;factor = 0
                     for rot in ['0','1','2','3']:
                         #adam-old# if 'corr' in o[rot] and 'uncorr' in o[rot]:
@@ -4238,13 +4273,16 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                         for rot in ['0','1','2','3']:
                             if not o.has_key(rot):
                                 o[rot] = {}
-                            if drand['panstarrsredchinocorr$' + rot] != 'None':
-                                #print 'calc_good| drand["sample_size"]=',drand["sample_size"] , ' string.find(drand["sample_size"],"uncorr")!=-1=',string.find(drand["sample_size"],"uncorr")!=-1
-                                if string.find(drand['sample_size'],'corr') != -1 and string.find(drand['sample_size'],'uncorr') == -1:
-                                    #if drand['panstarrsredchinocorr$' + rot]
-                                    o[rot]['corr'] = drand['panstarrsredchinocorr$' + rot]
-                                if string.find(drand['sample_size'],'uncorr') != -1:
-                                    o[rot]['uncorr'] = drand['panstarrsredchinocorr$' + rot]
+                            if drand.has_key('panstarrsredchinocorr$' + rot):
+                                if drand['panstarrsredchinocorr$' + rot] != 'None':
+                                    #print 'calc_good| drand["sample_size"]=',drand["sample_size"] , ' string.find(drand["sample_size"],"uncorr")!=-1=',string.find(drand["sample_size"],"uncorr")!=-1
+                                    if string.find(drand['sample_size'],'corr') != -1 and string.find(drand['sample_size'],'uncorr') == -1:
+                                        #if drand['panstarrsredchinocorr$' + rot]
+                                        o[rot]['corr'] = drand['panstarrsredchinocorr$' + rot]
+                                    if string.find(drand['sample_size'],'uncorr') != -1:
+                                        o[rot]['uncorr'] = drand['panstarrsredchinocorr$' + rot]
+                            else:
+				print 'calc_good| adam-look: potentially a problem here, `drand` doesnt have the key panstarrsredchinocorr$' + rot
                     num = 0;factor = 0
                     for rot in ['0','1','2','3']:
                         #adam-old# if 'corr' in o[rot] and 'uncorr' in o[rot]:
@@ -4780,7 +4818,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                     else: hasCHIP = False
 
                     RUN = re.split('\_',PPRUN)[0] #adam-watch#
-                    print 'construct_correction| (adam-look) RUN=',RUN
+                    print 'construct_correction| RUN=',RUN
                     p = re.compile('\_\d+O')
                     file_chip_1 = p.sub('_' + str(CHIP) + 'O',file)#.replace('.fits','.sub.fits')
 
@@ -5011,14 +5049,17 @@ if __name__=="__main__" and username=="awright":
 	#adam-tmp# good_tracker={}
 	#adam-tmp# for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
 	#adam-tmp# 	good_tracker[FILTER]=testgood(OBJNAME,FILTER,PPRUN)
-	c.execute(" DROP TABLE adamPAN_illumination_db ; ")
-	c.execute(" DROP TABLE adamPAN_try_db ; ")
-	c.execute(" DROP TABLE adamPAN_fit_db ; ")
-	c.execute(" CREATE TABLE adamPAN_illumination_db LIKE illumination_db; ")
-	c.execute(" CREATE TABLE adamPAN_try_db LIKE test_try_db; ")
-	c.execute(" CREATE TABLE adamPAN_fit_db LIKE test_fit_db; ")
-	c.execute(" DROP TABLE panstarrs_db ; ")
-	c.execute(" CREATE TABLE panstarrs_db LIKE sdss_db; ")
+	#adam-tmp# c.execute(" DROP TABLE adamPAN_illumination_db ; ")
+	#adam-tmp# c.execute(" DROP TABLE adamPAN_try_db ; ")
+	#adam-tmp# c.execute(" DROP TABLE adamPAN_fit_db ; ")
+	#adam-tmp# c.execute(" CREATE TABLE adamPAN_illumination_db LIKE illumination_db; ")
+	#adam-tmp# c.execute(" CREATE TABLE adamPAN_try_db LIKE test_try_db; ")
+	#adam-tmp# c.execute(" CREATE TABLE adamPAN_fit_db LIKE test_fit_db; ")
+	#adam-tmp# c.execute(" DROP TABLE panstarrs_db ; ")
+	#adam-tmp# c.execute(" CREATE TABLE panstarrs_db LIKE sdss_db; ")
+	c.execute(" CREATE TABLE adamPAN2_illumination_db LIKE illumination_db; ")
+	c.execute(" CREATE TABLE adamPAN2_try_db LIKE test_try_db; ")
+	c.execute(" CREATE TABLE adamPAN2_fit_db LIKE test_fit_db; ")
 
 	print "adam-look: gather_exposures(cluster,filters=FILTERs)"
 	gather_exposures(cluster,filters=FILTERs)
@@ -5029,7 +5070,17 @@ if __name__=="__main__" and username=="awright":
 	#	use catalog written out by adam_illumcorr_panstarrs_catalog.py
 	#	illum_cat='/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/PHOTOMETRY/%s' % (cluster,'panstarrs_stars_illumcorr.csv')
 	illum_cat='/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/PHOTOMETRY/%s' % (cluster,'panstarrs_stars_illumcorr.csv')
-	get_panstarrs_cats(OBJNAME,illum_cat)
+	#adam-tmp# get_panstarrs_cats(OBJNAME,illum_cat)
+	#db_cluster_logfile(db=test+'try_db',cluster='RXJ2129')
+	
+	### which dbs do these functions use?
+	# gather_exposures ['i']
+	# get_astrom_run_sextract ['i']
+	# get_panstarrs_cats ['i', 'p']
+	# match_OBJNAME ['i', 'p', 't', 'f']
+	# calc_good ['t', 'f']
+	# testgood ['i', 't', 'f']
+	# construct_correction ['i', 't', 'f']
 
 	extra_nametag="PANSTARRS"
 	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
