@@ -3,6 +3,7 @@
 import pickle, sys, os, re, time, string, math
 import random, tempfile, traceback, commands
 import MySQLdb
+import time
 
 from copy import copy
 from glob import glob
@@ -12,83 +13,12 @@ import utilities
 import bashreader #only need "parseFile"
 global data_path, tmpdir, test
 username = os.environ['USER']
-if username=="awright":
-        ## get/set env variables
-        data_root = '/gpfs/slac/kipac/fs1/u/awright/SUBARU/' #Warning#
-        if 'SUBARUDIR' in os.environ.keys():
-                if "pat" in os.environ['SUBARUDIR']: raise Exception("You have /nfs/slac/g/ki/ki18/anja/SUBARU/pat/ as your SUBARUDIR, this is a mistake right?")
-        else:
-                os.environ['SUBARUDIR']=data_root
-        if 'cluster' in os.environ.keys():
-                cluster=os.environ['cluster']
-        else:
-		#cluster="MACS0429-02"
-                cluster="RXJ2129"
-
-        ## mess with SQL databases
-        #sql databases used by pat: illumination_db, test_try_db, test_fit_db, sdss_db
-        #sql databases used by adam: adam_illumination_db, adam_try_db, adam_fit_db, sdss_db
-        #c.execute(" CREATE TABLE adam_illumination_db LIKE illumination_db; ")
-        #c.execute(" CREATE TABLE adam_try_db LIKE test_try_db; ")
-        #c.execute(" CREATE TABLE adam_fit_db LIKE test_fit_db; ")
-        #sdss_db will be fine, I can't really mess that one up
-        test = 'adam_' #this takes care of test_try_db, test_fit_db #adam-Warning#
-        illum_db="adam_illumination_db"
-
-        ## set data_path and tmpdir
-        data_path = data_root + cluster+'/'
-        tmpdir=data_path+"tmp_simple_ic/"
-        os.environ['bonn']='/u/ki/awright/wtgpipeline/' #adam-Warning#
-
-elif username=="pkelly":
-        data_root = '/nfs/slac/g/ki/ki18/anja/SUBARU/pat/'
-        data_path = data_root + 'MACS1226+21/' #adam-Warning#
-        test = 'test_'
-        illum_db="illumination_db"
-        ''' the idea here is to only create a new temp directory when loading the module for the first time -- otherwise, it will change each time you reload(simple_ic) '''
-        if not 'loaded' in locals():
-            #tmpdir = tempfile.mkdtemp(dir='/tmp/') + '/'
-            #if not os.path.exists('/tmp/%s' % username):
-            #    os.mkdir('/tmp/%s/' % username)
-            #tmphome = tempfile.mkdtemp(dir='/tmp/%s/' % username) + '/'
-            tmpdir = os.environ['subdir'] + '/pattmp/'
-            #adam-del#tmphome = tmpdir
-            loaded='yes'
-else:
-        #adam-Warning# set the needed info here regarding target, paths to data, and SQL db stuff
-        ## get/set env variables
-        if not 'bonn' in os.environ.keys(): raise Exception("Must have environment variable 'bonn' set to wtgpipeline path")
-
-        if 'SUBARUDIR' in os.environ.keys():
-                data_root=os.environ['SUBARUDIR']
-        else:
-                data_root="SET PATH to DATA DIRECTORY HERE" #adam-Warning#
-
-        if 'cluster' in os.environ.keys():
-                cluster=os.environ['cluster']
-        else:
-                cluster="SET CLUSTER NAME HERE" #adam-Warning#
-
-        ## set data_path and tmpdir
-        data_path = data_root + cluster+'/'
-        tmpdir=data_path+"tmp_simple_ic/"
-
-	#adam-Warning# either handle SQL tables here or at the end!
-        #sql databases used by pat which you could copy the structure of: illumination_db, test_try_db, test_fit_db, sdss_db (see mysqldb_params below)
-        test = 'name_' #this takes care of test_try_db, test_fit_db #name-Warning# change from generic "name" to username or something
-        #c.execute(" CREATE TABLE "+test+"illumination_db LIKE illumination_db; ") #adam-Warning# run this once, then comment out
-        #c.execute(" CREATE TABLE "+test+"try_db LIKE test_try_db; ") #adam-Warning# run this once, then comment out
-        #c.execute(" CREATE TABLE "+test+"fit_db LIKE test_fit_db; ") #adam-Warning# run this once, then comment out
-        #sdss_db will be fine, I can't really mess that one up
-        illum_db=test+"illumination_db"
 
 #adam-note# the program paths used in simple_ic.py should be taken from progs.ini for the sake of consistency, since os.system kinda uses whatever paths it wants!
 #adam-note# program paths in progs.ini used in this code: "p_sex","p_ldacconv","p_ldactoasc","p_ldaccalc","p_dfits","p_asctoldac","p_ldacjoinkey","p_ldacfilter","p_ldacaddkey","p_associate","p_makessc"
 #adam-note# programs used in simple_ic.py: progs=["sex","ldacconv","ldactoasc","ldaccalc","dfits","asctoldac","ldacjoinkey","ldacfilter","ldacaddkey","associate","make_ssc"]
 progs_path= bashreader.parseFile(os.environ['bonn']+'/progs.ini') #adam-Warning# both use my progs.ini file so that we have a consistent set of catalogs/files
 
-if not os.path.isdir(tmpdir):
-        os.mkdir(tmpdir) # same as: os.system('mkdir -p ' + tmpdir)
 
 #adam-Warning# If you're not working at SLAC you're probably going to use a different mysqldb
 mysqldb_params = {'db' : 'subaru',
@@ -125,6 +55,12 @@ config_dict["GAIN"]={ "10_1":2.5 ,"10_2":2.5 ,"10_3":3.0 ,"8":2.5 ,"9":2.5 }
 #Here are the steps that simple_ic.py carries out: (in parentheses are the funcs that each step begins with, i.e. the func with the tag #main)
 #step1_add_database: first enter all exposures into the database (gather_exposures)
 #step2_sextract    : run sextractor on them (get_astrom_run_sextract)
+# get_astrom_run_sextract
+# > fix_radec
+# > > length_swarp
+# > > find_seeing
+# > > > calc_seeing
+# > > sextract
 #step3_run_fit     : get the sdss catalogs and do fitting (match_OBJNAME)
 #step4_test_fit    : assess the quality of the fit (testgood,sort_results)
 #step5_correct_ims : apply correction to the data (currently it's construct_correction) (later maybe run_correction, find_nearby)
@@ -145,6 +81,8 @@ config_dict["GAIN"]={ "10_1":2.5 ,"10_2":2.5 ,"10_3":3.0 ,"8":2.5 ,"9":2.5 }
 #	2. Input images (and their weight-maps, if available) are read one-by-one. Background-maps are built, and subtracted from the images if required.
 #	3. Images are resampled, projected into subsections of the output frame, and saved as FITS files. "Projected" weight-maps are created too, even if no weight-maps were given in input.
 #	4. A combined output image is created using the information stored in the "Projected" weightmaps.  It consists of a composite of the resampled sub-sections. A composite output weight-map is also written in the process.
+#associate: The associate program tries to match objects that have been observed multiple times in a catalog and among catalogs, either in color or in position.
+#make_ssc: The make ssc program takes the pairing information as derived by the associate programs and uses specific merging algorithms to combine the information from multiply observed astronomical sources into a homogeneous set of parameters.
 
 #adam-note# include the line `ns.update(locals())` in functions to place the func namespace in the global namespace for debugging
 ns=globals()
@@ -164,7 +102,7 @@ def sextract(SUPA,FLAT_TYPE): #intermediate #step2_sextract
     dict_sextract = get_files(SUPA,FLAT_TYPE)
     search_params = initialize(dict_sextract['FILTER'],dict_sextract['OBJNAME'])
     search_params.update(dict_sextract)
-    print "sextract| ",'search_params=',search_params
+    #print "sextract| ",'search_params=',search_params
 
     print "sextract| ",' SUPA=' ,SUPA , ' FLAT_TYPE=' ,FLAT_TYPE , ' search_params["files"]=' ,search_params["files"]
     kws = utilities.get_header_kw(search_params['files'][0],['PPRUN'])
@@ -172,234 +110,218 @@ def sextract(SUPA,FLAT_TYPE): #intermediate #step2_sextract
     pprun = kws['PPRUN']
     search_params['files'].sort()
     children = []
-    if True:
-        for image in search_params['files']:
-            ROOT = re.split('\.',re.split('\/',image)[-1])[0]
-            BASE = re.split('O',ROOT)[0]
-            NUM = re.split('O',re.split('\_',ROOT)[1])[0]
-            print "sextract| ",'image=',image , ' search_params["CRVAL1ASTROMETRY_"+NUM]=',search_params["CRVAL1ASTROMETRY_"+NUM]
+    for image in search_params['files']:
+        ROOT = re.split('\.',re.split('\/',image)[-1])[0]
+        BASE = re.split('O',ROOT)[0]
+        NUM = re.split('O',re.split('\_',ROOT)[1])[0]
+        print "sextract| ",'image=',image , ' search_params["CRVAL1ASTROMETRY_"+NUM]=',search_params["CRVAL1ASTROMETRY_"+NUM]
 
-        ''' copy over ASTROMETRY keywords to Corrected if they exist for the unCorrected frame '''
-        if search_params['CORRECTED']=='True': # and string.find(str(search_params['CRVAL1ASTROMETRY_2']),'None') != -1:
-            ''' adding correct WCS info '''
-            dict_uncorrected = get_files(SUPA[:-1],FLAT_TYPE)
-            d = {}
-            akeys = filter(lambda x:string.find(x,'ASTROMETRY')!=-1,dict_uncorrected.keys())
-            for key in akeys:
-                d[key] = dict_uncorrected[key]
-                print "sextract| ",' key=' ,key , ' d[key]=' ,d[key] , ' SUPA[:-1]=' ,SUPA[:-1]
-            save_exposure(d,SUPA,FLAT_TYPE)
-            os.system('mkdir -p ' + search_params['TEMPDIR'])
+    ''' copy over ASTROMETRY keywords to Corrected if they exist for the unCorrected frame '''
+    if search_params['CORRECTED']=='True': # and string.find(str(search_params['CRVAL1ASTROMETRY_2']),'None') != -1:
+        ''' adding correct WCS info '''
+        dict_uncorrected = get_files(SUPA[:-1],FLAT_TYPE)
+        d = {}
+        akeys = filter(lambda x:string.find(x,'ASTROMETRY')!=-1,dict_uncorrected.keys())
+        for key in akeys:
+            d[key] = dict_uncorrected[key]
+	    #print "sextract| ",' key=' ,key , ' d[key]=' ,d[key] , ' SUPA[:-1]=' ,SUPA[:-1]
+        save_exposure(d,SUPA,FLAT_TYPE)
 
-            dict_sextract = get_files(SUPA,FLAT_TYPE)
-            search_params = initialize(dict_sextract['FILTER'],dict_sextract['OBJNAME'])
-            search_params.update(dict_sextract)
+        dict_sextract = get_files(SUPA,FLAT_TYPE)
+        search_params = initialize(dict_sextract['FILTER'],dict_sextract['OBJNAME'])
+        search_params.update(dict_sextract)
+        for key in akeys:
+            print "sextract| ",' key=' ,key , ' search_params[key]=' ,search_params[key]
 
-            for key in akeys:
-                print "sextract| ",' key=' ,key , ' search_params[key]=' ,search_params[key]
+    for image in search_params['files']:
+        print "sextract| ",'image=',image
+        child = False
+        if not trial:
+            child = os.fork()
+            if child:
+                children.append(child)
 
+        params = copy(search_params)
+        ROOT = re.split('\.',re.split('\/',image)[-1])[0]
+        params['ROOT'] = ROOT
+        params['ROOT_WEIGHT'] = ROOT.replace('I','')
+        BASE = re.split('O',ROOT)[0]
+        params['BASE'] = BASE
+        NUM = re.split('O',re.split('\_',ROOT)[1])[0]
+        params['NUM'] = NUM
+        print "sextract| ",' NUM=' ,NUM , ' BASE=' ,BASE , ' ROOT=' ,ROOT
 
-        for image in search_params['files']:
-            print "sextract| ",'image=',image
-            child = False
-            if not trial:
-                child = os.fork()
-                if child:
-                    children.append(child)
+        if not child:
+            if (search_params['CORRECTED']!='True' or (search_params['CORRECTED']=='True' and string.find(str(search_params['CRVAL1ASTROMETRY_' + NUM]),'None') == -1)):
+                try:
 
-            params = copy(search_params)
-            ROOT = re.split('\.',re.split('\/',image)[-1])[0]
-            params['ROOT'] = ROOT
-            params['ROOT_WEIGHT'] = ROOT.replace('I','')
-            BASE = re.split('O',ROOT)[0]
-            params['BASE'] = BASE
-            NUM = re.split('O',re.split('\_',ROOT)[1])[0]
-            params['NUM'] = NUM
-            print "sextract| ",' NUM=' ,NUM , ' BASE=' ,BASE , ' ROOT=' ,ROOT
+                    ## get the correct gain for the configuration
+                    dd=utilities.get_header_kw(image,['CONFIG'])
+                    config=dd['CONFIG']
+                    params['GAIN'] = config_dict['GAIN'][config]
+                    print "sextract|  config=",config," params['GAIN']=",params['GAIN']
+                    print "sextract| ",'ROOT=',ROOT
+                    finalflagim = "%(TEMPDIR)sflag_%(ROOT)s.fits" % params
+                    res = re.split('SCIENCE',image)
+                    res = re.split('/',res[0])
+                    if res[-1]=='':res = res[:-1]
+                    params['path'] = reduce(lambda x,y:x+'/'+y,res[:-1])
+                    params['fil_directory'] = res[-1]
+                    weightim = "/%(path)s/%(fil_directory)s/WEIGHTS/%(ROOT)s.weight.fits" % params
+                    #flagim = "/%(path)s/%(fil_directory)s/WEIGHTS/globalflag_%(NUM)s.fits" % params
+                    #finalflagim = TEMPDIR + "flag_%(ROOT)s.fits" % params
+                    params['finalflagim'] = weightim
+                    im = "/%(path)s/%(fil_directory)s/SCIENCE/%(ROOT)s.fits" % params
+                    crpix = utilities.get_header_kw(im,['CRPIX1','CRPIX2'])
 
-            if not child:
-                if (search_params['CORRECTED']!='True' or (search_params['CORRECTED']=='True' and string.find(str(search_params['CRVAL1ASTROMETRY_' + NUM]),'None') == -1)):
-                    try:
-
-                        ## get the correct gain for the configuration
-                        dd=utilities.get_header_kw(image,['CONFIG'])
-                        config=dd['CONFIG']
-                        params['GAIN'] = config_dict['GAIN'][config]
-                        print "sextract|  config=",config," params['GAIN']=",params['GAIN']
-                        print "sextract| ",'ROOT=',ROOT
-                        finalflagim = "%(TEMPDIR)sflag_%(ROOT)s.fits" % params
-                        res = re.split('SCIENCE',image)
-                        res = re.split('/',res[0])
-                        if res[-1]=='':res = res[:-1]
-                        params['path'] = reduce(lambda x,y:x+'/'+y,res[:-1])
-                        params['fil_directory'] = res[-1]
-                        weightim = "/%(path)s/%(fil_directory)s/WEIGHTS/%(ROOT)s.weight.fits" % params
-                        #flagim = "/%(path)s/%(fil_directory)s/WEIGHTS/globalflag_%(NUM)s.fits" % params
-                        #finalflagim = TEMPDIR + "flag_%(ROOT)s.fits" % params
-                        params['finalflagim'] = weightim
-                        im = "/%(path)s/%(fil_directory)s/SCIENCE/%(ROOT)s.fits" % params
-                        crpix = utilities.get_header_kw(im,['CRPIX1','CRPIX2'])
-
-                        SDSS1 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_SDSS-R6/%(BASE)s.head" % params
-                        SDSS2 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_SDSS-R6/%(BASE)sO*.head" % params
-                        print "sextract| ",' glob(SDSS1)=' ,glob(SDSS1) , ' glob(SDSS2)=' ,glob(SDSS2)
-                        head = None
-                        if len(glob(SDSS1)) > 0:
+                    SDSS1 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_SDSS-R6/%(BASE)s.head" % params
+                    SDSS2 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_SDSS-R6/%(BASE)sO*.head" % params
+                    print "sextract| ",' glob(SDSS1)=' ,glob(SDSS1) , ' glob(SDSS2)=' ,glob(SDSS2)
+                    head = None
+                    if len(glob(SDSS1)) > 0:
+                            head = glob(SDSS1)[0]
+                    elif len(glob(SDSS2)) > 0:
+                            head = glob(SDSS2)[0]
+                    else:
+                            SDSS1 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_SDSS-R9/%(BASE)s.head" % params
+                            SDSS2 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_SDSS-R9/%(BASE)sO*.head" % params
+                            print "sextract| ",' glob(SDSS1)=' ,glob(SDSS1) , ' glob(SDSS2)=' ,glob(SDSS2)
+                            if len(glob(SDSS1)) > 0:
                                 head = glob(SDSS1)[0]
-                        elif len(glob(SDSS2)) > 0:
+                            elif len(glob(SDSS2)) > 0:
                                 head = glob(SDSS2)[0]
-		        else:
-				SDSS1 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_SDSS-R9/%(BASE)s.head" % params
-				SDSS2 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_SDSS-R9/%(BASE)sO*.head" % params
-				print "sextract| ",' glob(SDSS1)=' ,glob(SDSS1) , ' glob(SDSS2)=' ,glob(SDSS2)
-				if len(glob(SDSS1)) > 0:
-				    head = glob(SDSS1)[0]
-				elif len(glob(SDSS2)) > 0:
-				    head = glob(SDSS2)[0]
-			        else:
-					PANSTARRS1 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_PANSTARRS/%(BASE)s.head" % params
-					PANSTARRS2 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_PANSTARRS/%(BASE)sO*.head" % params
-					print "sextract| ",' glob(PANSTARRS1)=' ,glob(PANSTARRS1) , ' glob(PANSTARRS2)=' ,glob(PANSTARRS2)
-					if len(glob(PANSTARRS1)) > 0:
-					    head = glob(PANSTARRS1)[0]
-					elif len(glob(PANSTARRS2)) > 0:
-					    head = glob(PANSTARRS2)[0]
-					else:
-					    raise Exception("No headers_scamp_SDSS-R6 or SDSS-R9 or PANSTARRS directories available")
+                            else:
+                                    PANSTARRS1 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_PANSTARRS/%(BASE)s.head" % params
+                                    PANSTARRS2 = "/%(path)s/%(fil_directory)s/SCIENCE/headers_scamp_PANSTARRS/%(BASE)sO*.head" % params
+                                    print "sextract| ",' glob(PANSTARRS1)=' ,glob(PANSTARRS1) , ' glob(PANSTARRS2)=' ,glob(PANSTARRS2)
+                                    if len(glob(PANSTARRS1)) > 0:
+                                        head = glob(PANSTARRS1)[0]
+                                    elif len(glob(PANSTARRS2)) > 0:
+                                        head = glob(PANSTARRS2)[0]
+                                    else:
+                                        raise Exception("No headers_scamp_SDSS-R6 or SDSS-R9 or PANSTARRS directories available")
+
+                    if not os.path.isdir('%(TEMPDIR)s' % params):
+                        command = 'mkdir -p %(TEMPDIR)s' % params
+                        print "sextract| ",'command=',command
+                        os.system(command)
+                    imfix = "%(TEMPDIR)s/%(ROOT)s.fixwcs.fits" % params
+                    command = "cp " + im + " " + imfix
+                    print "sextract| ",'command=',command
+                    utilities.run(command)
+                    print "sextract| ",'finished copying'
+
+                    ''' now run sextractor '''
+                    main_file = im #'%(TEMPDIR)s/%(ROOT)s.fixwcs.fits' % params
+                    doubles_raw = [{'file_pattern':main_file,'im_type':''},]
+                                   #{'file_pattern':subpath+pprun+'/SCIENCE_DOMEFLAT*/'+BASE+'OC*.fits','im_type':'D'},
+                                   #{'file_pattern':subpath+pprun+'/SCIENCE_SKYFLAT*/'+BASE+'OC*.fits','im_type':'S'}]
+                                   #{'file_pattern':subpath+pprun+'/SCIENCE/OC_IMAGES/'+BASE+'OC*.fits','im_type':'OC'}
+                                   # ]
+
+                    print "sextract| ",'doubles_raw=',doubles_raw
+                    doubles_output = []
+                    for double in doubles_raw:
+                        file = glob(double['file_pattern'])
+                        print "sextract| ",' double["file_pattern"]=',double["file_pattern"] , ' file=',file
+
+                        if len(file) > 0:
+                            params.update(double)
+                            params['double_cat'] = '%(TEMPDIR)s/%(ROOT)s.%(im_type)s.fixwcs.cat' % params
+                            params['file_double'] = file[0]
+                            #print "sextract| ",params
+                            #for par in ['fwhm','GAIN']:
+                            #    print "sextract| ",par, type(params[par]), params[par]
+                            #params['fwhm'] = 2.
+
+                            print "sextract| ",' params["fwhm"]=',params["fwhm"]
+                            params['p_sex']=progs_path['p_sex']
+                            command_sex = "nice %(p_sex)s %(TEMPDIR)s%(ROOT)s.fixwcs.fits,%(file_double)s -c %(PHOTCONF)s/phot.conf.sex \
+                            -PARAMETERS_NAME %(PHOTCONF)s/phot.param.sex \
+                            -CATALOG_NAME %(double_cat)s \
+                            -FILTER_NAME %(DATACONF)s/default.conv\
+                            -FILTER  Y \
+                            -FLAG_TYPE MAX\
+                            -FLAG_IMAGE /%(path)s/%(fil_directory)s/WEIGHTS/%(ROOT_WEIGHT)s.flag.fits\
+                            -SEEING_FWHM %(fwhm).3f \
+                            -DETECT_MINAREA 3 -DETECT_THRESH 3 -ANALYSIS_THRESH 3 \
+                            -MAG_ZEROPOINT 27.0 \
+                            -GAIN %(GAIN).3f \
+                            -WEIGHT_IMAGE /%(path)s/%(fil_directory)s/WEIGHTS/%(ROOT_WEIGHT)s.weight.fits\
+                            -WEIGHT_TYPE MAP_WEIGHT" % params
+
+                            #-CHECKIMAGE_TYPE BACKGROUND,APERTURES,SEGMENTATION\
+                            #-CHECKIMAGE_NAME /%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.background.fits,/%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.apertures.fits,/%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.segmentation.fits\
+                            catname = "%(TEMPDIR)s/%(ROOT)s.cat" % params
+                            print "sextract| ",' command_sex=',command_sex
+
+                            ooo=utilities.run(command_sex,[catname])
+                            if ooo!=0: raise Exception("the line utilities.run(command_sex,[catname]) failed\ncommand_sex,[catname]="+command_sex+",["+catname+"]")
+                            #adam-watch# hmm, this doesn't have a -t input, does it need one?
+                            command_ldacconv = progs_path['p_ldacconv'] +' -b 1 -c R -i ' + params['double_cat']  + ' -o '  + params['double_cat'].replace('cat','rawconv')
+                            #adam-watch# print "sextract| ",'adam-look(no -t input) command_ldacconv=',command_ldacconv
+                            ooo=utilities.run(command_ldacconv)
+                            if ooo!=0: raise Exception("the line utilities.run(command_ldacconv) failed\ncommand_ldacconv="+command_ldacconv)
 
 
-                        if 1:
-                            command = 'mkdir -p %(TEMPDIR)s' % params
-                            print "sextract| ",'command=',command
-                            os.system(command)
-                            imfix = "%(TEMPDIR)s/%(ROOT)s.fixwcs.fits" % params
-                            print "sextract| ",'imfix=',imfix
-
-                            os.system('mkdir ' + search_params['TEMPDIR'])
-                            command = "cp " + im + " " + imfix
-                            print "sextract| ",'command=',command
-                            print "sextract| ",'copying file', im
-                            utilities.run(command)
-                            print "sextract| ",'finished copying'
-
-
-
-                        ''' now run sextractor '''
-                        if 1:
-                            main_file = im #'%(TEMPDIR)s/%(ROOT)s.fixwcs.fits' % params
-                            doubles_raw = [{'file_pattern':main_file,'im_type':''},]
-                                           #{'file_pattern':subpath+pprun+'/SCIENCE_DOMEFLAT*/'+BASE+'OC*.fits','im_type':'D'},
-                                           #{'file_pattern':subpath+pprun+'/SCIENCE_SKYFLAT*/'+BASE+'OC*.fits','im_type':'S'}]
-                                           #{'file_pattern':subpath+pprun+'/SCIENCE/OC_IMAGES/'+BASE+'OC*.fits','im_type':'OC'}
-                                           # ]
-
-                            print "sextract| ",'doubles_raw=',doubles_raw
-                            doubles_output = []
-                            for double in doubles_raw:
-                                file = glob(double['file_pattern'])
-                                print "sextract| ",' double["file_pattern"]=',double["file_pattern"] , ' file=',file
-
-                                if len(file) > 0:
-                                    params.update(double)
-                                    params['double_cat'] = '%(TEMPDIR)s/%(ROOT)s.%(im_type)s.fixwcs.cat' % params
-                                    params['file_double'] = file[0]
-                                    #print "sextract| ",params
-                                    #for par in ['fwhm','GAIN']:
-                                    #    print "sextract| ",par, type(params[par]), params[par]
-                                    #params['fwhm'] = 2.
-
-                                    print "sextract| ",' params["fwhm"]=',params["fwhm"]
-                                    params['p_sex']=progs_path['p_sex']
-                                    command_sex = "nice %(p_sex)s %(TEMPDIR)s%(ROOT)s.fixwcs.fits,%(file_double)s -c %(PHOTCONF)s/phot.conf.sex \
-                                    -PARAMETERS_NAME %(PHOTCONF)s/phot.param.sex \
-                                    -CATALOG_NAME %(double_cat)s \
-                                    -FILTER_NAME %(DATACONF)s/default.conv\
-                                    -FILTER  Y \
-                                    -FLAG_TYPE MAX\
-                                    -FLAG_IMAGE ''\
-                                    -SEEING_FWHM %(fwhm).3f \
-                                    -DETECT_MINAREA 3 -DETECT_THRESH 3 -ANALYSIS_THRESH 3 \
-                                    -MAG_ZEROPOINT 27.0 \
-                                    -GAIN %(GAIN).3f \
-                                    -WEIGHT_IMAGE /%(path)s/%(fil_directory)s/WEIGHTS/%(ROOT_WEIGHT)s.weight.fits\
-                                    -WEIGHT_TYPE MAP_WEIGHT" % params
-
-                                    #-CHECKIMAGE_TYPE BACKGROUND,APERTURES,SEGMENTATION\
-                                    #-CHECKIMAGE_NAME /%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.background.fits,/%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.apertures.fits,/%(path)s/%(fil_directory)s/PHOTOMETRY/coadd.segmentation.fits\
-                                    catname = "%(TEMPDIR)s/%(ROOT)s.cat" % params
-                                    print "sextract| ",' command_sex=',command_sex
-
-                                    ooo=utilities.run(command_sex,[catname])
-                                    if ooo!=0: raise Exception("the line utilities.run(command_sex,[catname]) failed\ncommand_sex,[catname]="+command_sex+",["+catname+"]")
-                                    #adam-watch# hmm, this doesn't have a -t input, does it need one?
-                                    command_ldacconv = progs_path['p_ldacconv'] +' -b 1 -c R -i ' + params['double_cat']  + ' -o '  + params['double_cat'].replace('cat','rawconv')
-				    #adam-watch# print "sextract| ",'adam-look(no -t input) command_ldacconv=',command_ldacconv
-                                    ooo=utilities.run(command_ldacconv)
-                                    if ooo!=0: raise Exception("the line utilities.run(command_ldacconv) failed\ncommand_ldacconv="+command_ldacconv)
-
-
-
-                                    #command = progs_path['p_ldactoasc'] + ' -b -q -i ' + params['double_cat'].replace('cat','rawconv') + '  -t OBJECTS\
-                                    #        -k ALPHA_J2000 DELTA_J2000 > ' + params['double_cat'].replace('cat','pos')
-                                    #print "sextract| ",command
-                                    #utilities.run(command)
-                                    #print "sextract| ",'mkreg.pl -c -rad 8 -xcol 0 -ycol 1 -wcs -colour green ' + params['double_cat'].replace('cat','pos')
-                                    #print "sextract| ",params['double_cat'].replace('cat','pos')
-                                    # Xpos_ABS is difference of CRPIX and zero CRPIX
-                                    doubles_output.append({'cat':params['double_cat'].replace('cat','rawconv'),'im_type':double['im_type']})
-
-
-
-                            print "sextract| ",' doubles_output=',doubles_output
-                            print "sextract| ",'***********************************'
-
-                            outfile = params['TEMPDIR'] + params['ROOT'] + '.conv'
-                            print "sextract| ",' len(file),=',len(file)
-
-                            combine_cats(doubles_output,outfile,search_params)
-
-                            #outfile_field = params['TEMPDIR'] + params['ROOT'] + '.field'
-                            #command = 'ldacdeltab -i ' + outfile + ' -t FIELDS -o ' + outfile_field
-                            #utilities.run(command)
-
-                            command_ldactoasc = progs_path['p_ldactoasc'] + ' -b -q -i ' + outfile + '  -t OBJECTS\
-                                            -k ALPHA_J2000 DELTA_J2000 > ' + outfile.replace('conv','pos')
-                            print "sextract| ",' command_ldactoasc=',command_ldactoasc
-                            ooo=utilities.run(command_ldactoasc)
-                            if ooo!=0: raise Exception("the line utilities.run(command_ldactoasc) failed\ncommand_ldactoasc="+command_ldactoasc)
-                            #command = 'mkreg.pl -c -rad 8 -xcol 0 -ycol 1 -wcs -colour green ' + outfile.replace('conv','pos')
+                            #command = progs_path['p_ldactoasc'] + ' -b -q -i ' + params['double_cat'].replace('cat','rawconv') + '  -t OBJECTS\
+                            #        -k ALPHA_J2000 DELTA_J2000 > ' + params['double_cat'].replace('cat','pos')
                             #print "sextract| ",command
                             #utilities.run(command)
-                            #print "sextract| ",outfile
-                            #print "sextract| ",[search_params[key] for key in ['CRPIX1ZERO', 'CRPIX1', 'CRPIX2ZERO', 'CRPIX2'] ]
-                            #print "sextract| ",'ldaccalc -i ' , outfile , ' -o ' , params['TEMPDIR'] , params['ROOT'] , '.newpos -t OBJECTS -c "(Xpos + ' ,  str(search_params['CRPIX1ZERO']) - crpix['CRPIX1']) + ');" -k FLOAT -n Xpos_ABS "" -c "(Ypos + ' + search_params['CRPIX2ZERO'] , crpix['CRPIX2'] , ');" -k FLOAT -n Ypos_ABS "" -c "(Ypos*0 + ' , str(params['NUM']) , ');" -k FLOAT -n CHIP "" '
-                            print "sextract| ",' search_params["CRPIX1ZERO"]=',search_params["CRPIX1ZERO"] , ' crpix["CRPIX1"]=',crpix["CRPIX1"] , ' search_params["CRPIX2ZERO"]=',search_params["CRPIX2ZERO"] , ' crpix["CRPIX2"]=',crpix["CRPIX2"]
+                            #print "sextract| ",params['double_cat'].replace('cat','pos')
+                            # Xpos_ABS is difference of CRPIX and zero CRPIX
+                            doubles_output.append({'cat':params['double_cat'].replace('cat','rawconv'),'im_type':double['im_type']})
+
+                    print "sextract| ",' doubles_output=',doubles_output
+                    print "sextract| ",'***********************************'
+
+                    outfile = params['TEMPDIR'] + params['ROOT'] + '.conv'
+                    print "sextract| ",' len(file),=',len(file)
+
+                    combine_cats(doubles_output,outfile,search_params)
+
+                    #outfile_field = params['TEMPDIR'] + params['ROOT'] + '.field'
+                    #command = 'ldacdeltab -i ' + outfile + ' -t FIELDS -o ' + outfile_field
+                    #utilities.run(command)
+
+                    command_ldactoasc = progs_path['p_ldactoasc'] + ' -b -q -i ' + outfile + '  -t OBJECTS\
+                                    -k ALPHA_J2000 DELTA_J2000 > ' + outfile.replace('conv','pos')
+                    print "sextract| ",' command_ldactoasc=',command_ldactoasc
+                    ooo=utilities.run(command_ldactoasc)
+                    if ooo!=0: raise Exception("the line utilities.run(command_ldactoasc) failed\ncommand_ldactoasc="+command_ldactoasc)
+                    #print "sextract| ",command
+                    #utilities.run(command)
+                    #print "sextract| ",outfile
+                    #print "sextract| ",[search_params[key] for key in ['CRPIX1ZERO', 'CRPIX1', 'CRPIX2ZERO', 'CRPIX2'] ]
+                    #print "sextract| ",'ldaccalc -i ' , outfile , ' -o ' , params['TEMPDIR'] , params['ROOT'] , '.newpos -t OBJECTS -c "(Xpos + ' ,  str(search_params['CRPIX1ZERO']) - crpix['CRPIX1']) + ');" -k FLOAT -n Xpos_ABS "" -c "(Ypos + ' + search_params['CRPIX2ZERO'] , crpix['CRPIX2'] , ');" -k FLOAT -n Ypos_ABS "" -c "(Ypos*0 + ' , str(params['NUM']) , ');" -k FLOAT -n CHIP "" '
+                    print "sextract| ",' search_params["CRPIX1ZERO"]=',search_params["CRPIX1ZERO"] , ' crpix["CRPIX1"]=',crpix["CRPIX1"] , ' search_params["CRPIX2ZERO"]=',search_params["CRPIX2ZERO"] , ' crpix["CRPIX2"]=',crpix["CRPIX2"]
 
 
-                            command_ldaccalc = progs_path['p_ldaccalc']+' -i ' + outfile + ' -o ' + params['TEMPDIR'] + params['ROOT'] + '.newpos -t OBJECTS -c "(Xpos + ' +  str(float(search_params['CRPIX1ZERO']) - float(crpix['CRPIX1'])) + ');" -k FLOAT -n Xpos_ABS "" -c "(Ypos + ' + str(float(search_params['CRPIX2ZERO']) - float(crpix['CRPIX2'])) + ');" -k FLOAT -n Ypos_ABS "" -c "(Ypos*0 + ' + str(params['NUM']) + ');" -k FLOAT -n CHIP "" '
-                            print "sextract| ",' command_ldaccalc=',command_ldaccalc
-                            ooo=utilities.run(command_ldaccalc)
-                            if ooo!=0: raise Exception("the line utilities.run(command_ldaccalc) failed\ncommand_ldaccalc="+command_ldaccalc)
-                    except:
-                        print "sextract| ",' traceback.print_exc(file=sys.stdout)=',traceback.print_exc(file=sys.stdout)
-                        if not trial:
-                            os._exit(0)
-                        if trial:
-                            raise
-                if not trial:
-                    os._exit(0)
-        print "sextract| ",' children=',children
-        for child in children:
-            print "sextract| ",'waiting for', child
-            os.waitpid(child,0)
+                    command_ldaccalc = progs_path['p_ldaccalc']+' -i ' + outfile + ' -o ' + params['TEMPDIR'] + params['ROOT'] + '.newpos -t OBJECTS -c "(Xpos + ' +  str(float(search_params['CRPIX1ZERO']) - float(crpix['CRPIX1'])) + ');" -k FLOAT -n Xpos_ABS "" -c "(Ypos + ' + str(float(search_params['CRPIX2ZERO']) - float(crpix['CRPIX2'])) + ');" -k FLOAT -n Ypos_ABS "" -c "(Ypos*0 + ' + str(params['NUM']) + ');" -k FLOAT -n CHIP "" '
+                    print "sextract| ",' command_ldaccalc=',command_ldaccalc
+                    ooo=utilities.run(command_ldaccalc)
+                    if ooo!=0: raise Exception("the line utilities.run(command_ldaccalc) failed\ncommand_ldaccalc="+command_ldaccalc)
+                except:
+                    print "sextract| ",' traceback.print_exc(file=sys.stdout)=',traceback.print_exc(file=sys.stdout)
+                    if not trial:
+                        os._exit(0)
+                    if trial:
+                        raise
+            if not trial:
+                os._exit(0)
+    print "sextract| ",' children=',children
+    for child in children:
+        print "sextract| ",'waiting for', child
+        os.waitpid(child,0)
 
-        print "sextract| ",'finished waiting'
+    print "sextract| ",'finished waiting'
 
     print "sextract| ",' data_path,=',data_path, ' SUPA=',SUPA , ' search_params["FILTER"]=',search_params["FILTER"] , ' search_params["ROTATION"]=',search_params["ROTATION"]
 
-    pasted_cat = data_path + 'PHOTOMETRY/ILLUMINATION/' + 'pasted_' + SUPA + '_' + search_params['FILTER'] + '_' + str(search_params['ROTATION']) + '.cat'
+    pasted_cat = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + 'pasted_' + SUPA + '_' + search_params['FILTER'] + '_' + str(search_params['ROTATION']) + '.cat'
     print "sextract| ",' pasted_cat=',pasted_cat
-    os.system('mkdir -p ' + data_path + 'PHOTOMETRY/ILLUMINATION/')
+    if not os.path.isdir(data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/'):
+            os.system('mkdir -p ' + data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/')
 
     outcat = search_params['TEMPDIR'] + 'tmppaste_' + SUPA + '.cat'
     newposlist = glob(search_params['TEMPDIR'] + SUPA.replace('I','*I') + '*newpos')
@@ -415,9 +337,8 @@ def sextract(SUPA,FLAT_TYPE): #intermediate #step2_sextract
         utilities.run(command)
     save_exposure({'pasted_cat':pasted_cat},SUPA,FLAT_TYPE)
 
-    command = "rm -rf " + search_params['TEMPDIR'] +"/*"
-    os.system(command)
-
+    #adam-tmp# command = "rm -rf " + search_params['TEMPDIR'] +"/*"
+    #adam-tmp# os.system(command)
     print "sextract| DONE with func"
     #return exposures, LENGTH1, LENGTH2
 
@@ -695,9 +616,8 @@ def initialize(FILTER,OBJNAME): #simple #database
     ppid = str(os.getppid())
     PHOTCONF = os.environ['bonn'] + '/photconf/'
     if not os.path.isdir(PHOTCONF): raise Exception("The PHOTCONF directory %s isn't there" % (PHOTCONF))
-    TEMPDIR = tmpdir
-    if not os.path.isdir(tmpdir):os.system('mkdir ' + TEMPDIR)
-    search_params = {'path':data_path, 'OBJNAME':OBJNAME, 'FILTER':FILTER, 'PHOTCONF':PHOTCONF, 'DATACONF':progs_path['dataconf'], 'TEMPDIR':TEMPDIR}
+    if not os.path.isdir(tmpdir):os.system('mkdir ' + tmpdir)
+    search_params = {'path':data_path, 'OBJNAME':OBJNAME, 'FILTER':FILTER, 'PHOTCONF':PHOTCONF, 'DATACONF':progs_path['dataconf'], 'TEMPDIR':tmpdir}
     print "initialize| DONE with func"
     return search_params
 
@@ -838,11 +758,15 @@ def get_db_obj(db,cluster):
         dbtab=Table(db_results.values(),names=db_results.keys())
         return dbtab
 
-def db_cluster_logfile(db=test+'try_db',cluster='RXJ2129'):
+def db_cluster_logfile(db=None,cluster='RXJ2129'):
+	'''inputs: db=test+'try_db',cluster='RXJ2129'
+	returns: table
+	purpose: converts the needed sqldb data into a table which is saved to a file and returned for you to see'''
+	if db==None: db=test+'try_db'
         trytab=get_db_obj(db,cluster)
         allnames=trytab.colnames
         t=trytab.copy()
-        tfl=trytab['logfile'][0].split('ILLUMINATION')[0]+'logfile'
+        tfl=trytab['logfile'][0].split('ILLUMINATION_SDSS')[0]+'logfile'
         keepnames=['OBJNAME',"PPRUN","var_correction","mean","std","match_stars","sdss_imp","sdss_imp_all","sdss_imp","sdss_imp_all","todo"]
         for name in allnames:
             if not name in keepnames:
@@ -883,7 +807,7 @@ def get_files(SUPA,FLAT_TYPE=None): #simple #database
     #print "get_files| DONE with func"
     return dict_files
 
-def combine_cats(cats,outfile,search_params):
+def combine_cats(cats,outfile,search_params): #step2_sextract
     '''inputs: cats,outfile,search_params
     returns:
     calls:
@@ -899,7 +823,6 @@ def combine_cats(cats,outfile,search_params):
 	    cols = []
 	    for catalog in cats:
 		file = catalog['cat']
-		os.system('mkdir ' + search_params['TEMPDIR'] )
 		aper = tempfile.NamedTemporaryFile(dir=search_params['TEMPDIR']).name
 		command_ldactoasc = progs_path['p_ldactoasc'] + ' -i ' + catalog['cat'] + ' -b -s -k MAG_APER MAGERR_APER MAG_APER MAGERR_APER -t OBJECTS > ' + aper
 		print 'combine_cats| command_ldactoasc=',command_ldactoasc
@@ -942,8 +865,9 @@ def combine_cats(cats,outfile,search_params):
             hdulist[2].header["EXTNAME"]='OBJECTS'
 	    print 'combine_cats| file=',file
 	    res = re.split('/',outfile)
-	    ooo=os.system('mkdir -p ' + reduce(lambda x,y: x + '/' + y,res[:-1]))
-	    if ooo!=0: raise Exception("the line os.system('mkdir -p ' + reduce(lambda x,y: x + '/' + y,res[:-1])) failed\nreduce(lambda x,y: x + '/' + y,res[:-1])="+reduce(lambda x,y: x + '/' + y,res[:-1]))
+	    if not os.path.isdir(reduce(lambda x,y: x + '/' + y,res[:-1])):
+                ooo=os.system('mkdir -p ' + reduce(lambda x,y: x + '/' + y,res[:-1]))
+	        if ooo!=0: raise Exception("the line os.system('mkdir -p ' + reduce(lambda x,y: x + '/' + y,res[:-1])) failed\nreduce(lambda x,y: x + '/' + y,res[:-1])="+reduce(lambda x,y: x + '/' + y,res[:-1]))
 	    hdulist.writeto(outfile,overwrite=True)
 	    print 'combine_cats| outfile=',outfile , '$#######$'
 	    print "combine_cats| DONE with func"
@@ -1020,7 +944,7 @@ def paste_cats(cats,outfile,index=2): #simple #step2_sextract
     print "paste_cats| DONE with func"
 
 #adam-watch# I wonder if find_seeing and calc_seeing would be more accurate if it just used MYSEEING in the file header
-def find_seeing(SUPA,FLAT_TYPE):
+def find_seeing(SUPA,FLAT_TYPE): #step2_sextract
     '''inputs: SUPA,FLAT_TYPE
     returns:
     calls: get_files,initialize,calc_seeing,save_exposure
@@ -1059,25 +983,18 @@ def find_seeing(SUPA,FLAT_TYPE):
             params['NUM'] = NUM
             print 'find_seeing| ROOT=',ROOT
 
-            weightim = params['file'].replace('.fits','.weight.fits')
+            flagim = (params['file'].replace('.fits','.flag.fits')).replace('SCIENCE','WEIGHTS')
             #weightim = "/%(path)s/%(fil_directory)s/WEIGHTS/%(ROOT)s.weight.fits" % params
             #flagim = "/%(path)s/%(fil_directory)s/WEIGHTS/globalflag_%(NUM)s.fits" % params
             #finalflagim = TEMPDIR + "flag_%(ROOT)s.fits" % params
-            os.system('mkdir -p ' + params['TEMPDIR'])
 
-            params['finalflagim'] = weightim
-            #os.system('rm ' + finalflagim)
-            #command_ic = "ic -p 16 '1 %2 %1 0 == ?' " + weightim + " " + flagim + " > " + finalflagim
-            #utilities.run(command_ic)
-
-            # -WEIGHT_IMAGE /%(path)s/%(fil_directory)s/WEIGHTS/%(ROOT_WEIGHT)s.weight.fits\
-            # -WEIGHT_TYPE MAP_WEIGHT\
+            params['flagim'] = flagim
 
             params['p_sex']=progs_path['p_sex']
             command_sex = "nice %(p_sex)s %(file)s -c %(PHOTCONF)s/singleastrom.conf.sex \
-                        -FLAG_IMAGE ''\
+                        -FLAG_IMAGE %(flagim)s\
                         -FLAG_TYPE MAX \
-                        -CATALOG_NAME %(TEMPDIR)s/seeing_%(ROOT)s.cat \
+                        -CATALOG_NAME %(TEMPDIR)s/seeing_%(ROOT)s.unfilt_tmp.cat \
                         -FILTER_NAME %(PHOTCONF)s/default.conv\
                         -CATALOG_TYPE 'ASCII' \
                         -DETECT_MINAREA 8 -DETECT_THRESH 8.\
@@ -1087,27 +1004,39 @@ def find_seeing(SUPA,FLAT_TYPE):
             print 'find_seeing| command_sex=',command_sex
             ooo=os.system(command_sex)
             if ooo!=0: raise Exception("the line os.system(command_sex) failed\ncommand_sex="+command_sex)
+            ### now filter out ones with flags
+            command_fix = "grep '0$' %(TEMPDIR)s/seeing_%(ROOT)s.unfilt_tmp.cat > %(TEMPDIR)s/seeing_%(ROOT)s.cat " %  params
+
+            print 'find_seeing| command_fix=',command_fix
+            ooo=os.system(command_fix)
+            if ooo!=0: raise Exception("the line os.system(command_fix) failed\ncommand_fix="+command_fix)
+            
             if not trial:
                 os._exit(0)
 
     for child in children:
         os.waitpid(child,0)
 
-    command_cat = 'cat ' + search_params['TEMPDIR'] + '/seeing_' +  SUPA.replace('I','*I') + '*cat > ' + search_params['TEMPDIR'] + '/paste_seeing_' + SUPA.replace('I','*I') + '.cat'
-    ooo=utilities.run(command_cat)
-    if ooo!=0: raise Exception("the line utilities.run(command_cat) failed\ncommand_cat="+command_cat)
+    #adam-old# command_cat = 'cat ' + search_params['TEMPDIR'] + '/seeing_' +  SUPA.replace('I','*I') + '*cat > ' + search_params['TEMPDIR'] + '/paste_seeing_' + SUPA.replace('I','*I') + '.cat'
+    #adam-old# ooo=utilities.run(command_cat)
+    #adam-old# if ooo!=0: raise Exception("the line utilities.run(command_cat) failed\ncommand_cat="+command_cat)
 
-    file_seeing = search_params['TEMPDIR'] + '/paste_seeing_' + SUPA.replace('I','*I') + '.cat'
+    #adam-old# file_seeing = search_params['TEMPDIR'] + '/paste_seeing_' + SUPA.replace('I','*I') + '.cat'
     PIXSCALE = float(search_params['PIXSCALE'])
     print 'find_seeing| running calc_seeing(file_seeing,PIXSCALE)'
-    fwhm = calc_seeing(file_seeing,PIXSCALE)
+    ##get seeing from header keyword here: params['file']
+    dd=utilities.get_header_kw(params['file'],['MYSEEING'])
+    fwhm=dd['MYSEEING']
+    #adam-old# fwhm = calc_seeing(file_seeing,PIXSCALE)
 
     save_exposure({'fwhm':fwhm},SUPA,FLAT_TYPE)
 
-    print 'find_seeing| file_seeing=',file_seeing , ' SUPA=',SUPA , ' PIXSCALE=',PIXSCALE , ' fwhm=',fwhm
+    #print 'find_seeing| file_seeing=',file_seeing , ' SUPA=',SUPA , ' PIXSCALE=',PIXSCALE , ' fwhm=',fwhm
+    #command_grep="grep "+SUPA+" CRNitschke_final_*.txt"
+    print 'find_seeing| (adam-look) file=',params['file'] , 'SUPA=',SUPA , ' fwhm=',fwhm
     print 'find_seeing| DONE with func'
 
-def calc_seeing(infile,PIXSCALE):
+def calc_seeing(infile,PIXSCALE): #step2_sextract
     '''inputs: infile,PIXSCALE
     returns:  fwhm
     calls:
@@ -1308,7 +1237,12 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
         except:
             print 'fix_radec| SExtractor catalog not found. So go ahead and run sextractor'
             if string.find(str(params['fwhm']),'None') != -1 or str(params['fwhm'])=='0.3':
-                find_seeing(search_params['SUPA'],search_params['FLAT_TYPE'])
+		    #adam-SHNT# now I'll skip find_seeing and use MYSEEING from header instead
+		    dd=utilities.get_header_kw(params['file'],['MYSEEING'])
+		    fwhm=dd['MYSEEING']
+		    print 'fix_radec| (adam-look) NOW FROM MYSEEING: fwhm=',fwhm
+		    save_exposure({'fwhm':fwhm},search_params['SUPA'],search_params['FLAT_TYPE'])
+		    #adam-old# find_seeing(search_params['SUPA'],search_params['FLAT_TYPE'])
 
             sextract(search_params['SUPA'],search_params['FLAT_TYPE'])
             dict_radec = get_files(SUPA,FLAT_TYPE)
@@ -1409,9 +1343,7 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
                 #cat.write(str(ra[i]) + ' ' + str(dec[i]) + '\n')
             cat.close()
             #index = int(random.random()*4)
-            #colour = ['red','blue','green','yellow'][index]
             #rad = [1,2,3,4][index]
-            #os.system(' mkreg.pl -xcol 0 -ycol 1 -c -rad ' + str(rad) + ' -wcs -colour ' + colour + ' ' + BASE + 'cat')
 
             hdu[2].data.field('Xpos_ABS')[:] = scipy.array(x0_ABS)
             hdu[2].data.field('Ypos_ABS')[:] = scipy.array(y0_ABS)
@@ -1434,15 +1366,6 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
         save_exposure({'fixradecCR':-1},SUPA,FLAT_TYPE)
         print "fix_radec| DONE with func (return -1)"
         return -1
-
-def test_1226():
-    '''inputs:
-    returns:
-    purpose: runs match_OBJNAME on MACS1226
-    calls: match_OBJNAME
-    called_by: '''
-    OBJNAME, FILTER, PPRUN = 'MACS1226+21', 'W-C-RC', 'W-C-RC_2006-03-04'
-    match_OBJNAME( OBJNAME, FILTER, PPRUN )
 
 def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_run_fit
     '''inputs: OBJNAME=None,FILTER=None,PPRUN=None,todo=None
@@ -1535,8 +1458,9 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
 
             print 'match_OBJNAME| now running save_fit',({"PPRUN":PPRUN,"OBJNAME":OBJNAME,"FILTER":FILTER,"sample":"record","sample_size":"record"},"db="+""+test+"try_db")
             save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'sample':'record','sample_size':'record'},db='' + test + 'try_db')
-            illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION/' + FILTER + '/' + PPRUN + '/'
-	    os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
+            illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/'
+	    if not os.path.isdir(illum_dir+'/other_runs_plots/'):
+		    os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
             logfile  = open(illum_dir + 'logfile','w')
             print 'match_OBJNAME| illum_dir+"logfile"=',illum_dir+"logfile"
             print 'match_OBJNAME| dtop["FILTER"]=',dtop["FILTER"] , 'dtop["PPRUN"]=',dtop["PPRUN"] , 'dtop["OBJNAME"]=',dtop["OBJNAME"]
@@ -1624,7 +1548,7 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
                         print 'match_OBJNAME| finalcat=',finalcat
                     else:
                         ''' now check to see if there is SDSS '''
-                        sdss_cov,galaxycat,starcat = sdss_coverage(d['SUPA'],d['FLAT_TYPE'])
+                        sdss_cov,starcat = sdss_coverage(d['SUPA'],d['FLAT_TYPE'])
                         ''' get SDSS matched stars, use photometric calibration to remove color term '''
                         #adam-watch# make sure the rest of this code actually uses `sdss_coverage` output and `get_cats_ready` output, rather than just appearing to use it. Remember that at first it was claiming to use SDSS info even when there weren't any SDSS catalogs
                         if sdss_cov:
@@ -1652,9 +1576,9 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
                     for f in input:
                         ''' may need fainter objects for bootstrap '''
                         if match=='bootstrap':
-                            Ns = ['MAGERR_AUTO < 0.1)','Flag = 0)']
+                            Ns = ['MAGERR_AUTO < 0.1)','Flag = 0)','IMAFLAGS_ISO = 0)']
                         else:
-                            Ns = ['MAGERR_AUTO < 0.05)','Flag = 0)']
+                            Ns = ['MAGERR_AUTO < 0.05)','Flag = 0)','IMAFLAGS_ISO = 0)']
                         filt= '(' + reduce(lambda x,y: '(' + x + '  AND (' + y + ')',Ns)
                         print 'match_OBJNAME| filt=',filt , ' f=',f
                         filtered = f[0].replace('.cat','.filt.cat')
@@ -1665,18 +1589,6 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
                         if ooo!=0: raise Exception("the line utilities.run(command_ldacfilter,[filtered]) failed\ncommand_ldacfilter="+command_ldacfilter)
                         input_filt.append([filtered,f[1],f[2]])
 
-                    if 0: #len(input) > 8:
-                        input_short = []
-                        i = 0
-                        while len(input_short) < 6 and len(input_short)<len(input):
-                            i += 1
-                            rot0 = filter(lambda x:float(x[1][0])==0,input)[0:i]
-                            rot1 = filter(lambda x:float(x[1][0])==1,input)[0:i]
-                            rot2 = filter(lambda x:float(x[1][0])==2,input)[0:i]
-                            rot3 = filter(lambda x:float(x[1][0])==2,input)[0:i]
-                            input_short = rot0 + rot1 + rot2 + rot3
-                        input = input_short
-                        print 'match_OBJNAME| new input=', input
                     print 'match_OBJNAME| input=',input
                     input = input_filt
                     print 'match_OBJNAME| input_filt=',input_filt
@@ -1702,7 +1614,9 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
                     CONFIG = find_config(dt['GABODSID'])
                     print 'match_OBJNAME| CONFIG=',CONFIG , ' dt["PPRUN"]=',dt["PPRUN"] , ' dt["OBJNAME"]=',dt["OBJNAME"]
 
+	            #adam-SHNT# this most certainly is not the actual value of the background!
                     EXPS, star_good,supas, totalstars, mdn_background = selectGoodStars(start_EXPS,match,LENGTH1,LENGTH2,CONFIG)
+                    print 'match_OBJNAME| totalstars=',totalstars
                     info = starStats(supas)
                     print 'match_OBJNAME| info=',info
                     print 'match_OBJNAME| match=',match
@@ -1777,13 +1691,14 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
                     logfile.close()
     print "match_OBJNAME| DONE with func"
 
-def describe_db(c,db=[illum_db]):
+def describe_db(c,db=[None]):
     '''inputs: c,db=[illum_db]
     returns:  keys
     calls:
     called_by: match_OBJNAME,match_OBJNAME,match_OBJNAME,match_OBJNAME,match_OBJNAME,save_fit,linear_fit,get_fits'''
     if type(db) != type([]):
         db = [db]
+    if db==[None]: db=[illum_db]
     keys = []
     for d in db:
         command = "DESCRIBE " + d
@@ -1794,12 +1709,13 @@ def describe_db(c,db=[illum_db]):
             keys.append(line[0])
     return keys
 
-def save_fit(dict_fit,OBJNAME=None,FILTER=None,PPRUN=None,db=test + 'fit_db'):
+def save_fit(dict_fit,OBJNAME=None,FILTER=None,PPRUN=None,db=None):
     '''inputs: dict_fit,OBJNAME=None,FILTER=None,PPRUN=None,db=test + 'fit_db'
     returns:
     calls: connect_except,describe_db
     called_by: match_OBJNAME,match_OBJNAME,match_OBJNAME,match_OBJNAME,linear_fit,linear_fit,linear_fit,linear_fit,linear_fit,linear_fit,linear_fit,linear_fit'''
     print '\nsave_fit| START the func. inputs: dict_fit=',dict_fit , ' OBJNAME=',OBJNAME , ' FILTER=',FILTER , ' PPRUN=',PPRUN , ' db=',db
+    if db==None: db=test + 'fit_db'
     if OBJNAME!= None and FILTER!= None and  PPRUN!=None:
         dict_fit['OBJNAME'] = OBJNAME
         dict_fit['FILTER'] = FILTER
@@ -1908,8 +1824,8 @@ def save_fit(dict_fit,OBJNAME=None,FILTER=None,PPRUN=None,db=test + 'fit_db'):
 
 def sdss_coverage(SUPA,FLAT_TYPE):  #intermediate #step3_run_fit
     '''inputs: SUPA,FLAT_TYPE
-    returns:  cov, galaxycat, starcat
-    purpose: Determines if the SUPA is in the SDSS field (cov=True if it is, else cov=False). Returns `cov` and path to galaxy/star SDSS catalogs
+    returns:  cov, starcat
+    purpose: Determines if the SUPA is in the SDSS field (cov=True if it is, else cov=False). Returns `cov` and path to star SDSS catalogs
     calls: get_files,initialize,get_files,save_exposure
     called_by: match_OBJNAME'''
 
@@ -1957,14 +1873,15 @@ def sdss_coverage(SUPA,FLAT_TYPE):  #intermediate #step3_run_fit
     else: cov=False
 
     starcat=data_path+'PHOTOMETRY/sdssstar.cat'
-    galaxycat=data_path+'PHOTOMETRY/sdssgalaxy.cat'
     print "sdss_coverage| DONE with func"
-    return cov, galaxycat, starcat
+    return cov, starcat
 
 #adam-watch# checkout what's going on with `match_many` func and associate command
 def match_many(input_list,color=False):
     '''inputs: input_list,color=False
-    returns:
+    purpose: runs ldacaddkey, associate, and make_ssc commands which do all of the matching among all of my catalogs and the sdss catalog.
+	 IMPORTANT: final cat output is saved in: /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/tmp_simple_ic_SDSS/final.cat
+	 output assoc cats output are saved in files like: /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/tmp_simple_ic_SDSS//assoc/pasted_SUPA0135159_W-C-RC_1.0.filt.cat.assoc1.assd
     calls: make_ssc_config_few
     called_by: match_OBJNAME'''
 
@@ -1979,20 +1896,8 @@ def match_many(input_list,color=False):
     os.system('mkdir -p ' + tmpdir + '/assoc/')
 
     files = []
-    i=0
     for file,prefix,rot in input_list:
         print 'match_many| file=',file
-        res = re.split('\/',file)
-        #os.system(progs_path['p_ldactoasc']+' -i ' + file + ' -t OBJECTS -k ALPHA_J2000 DELTA_J2000 > ' +  os.environ['bonn'] +  res[-1] )
-        #os.system('mkreg.pl -c -rad 3 -xcol 0 -ycol 1 -wcs ' +  os.environ['bonn'] + res[-1])
-
-        i += 1
-        colour = 'blue'
-        if i%2 ==0: colour = 'red'
-        if i%3 ==0: colour = 'green'
-        res = re.split('\/',file)
-        #os.system(progs_path['p_ldactoasc']+' -i ' + file + ' -t OBJECTS -k ALPHA_J2000 DELTA_J2000 > ' +  os.environ['bonn'] +  res[-1] )
-        #os.system('mkreg.pl -c -rad ' + str(i) + ' -xcol 0 -ycol 1 -colour ' + colour + ' -wcs ' +  os.environ['bonn'] + res[-1])
         command_ldacaddkey = '%(p_ldacaddkey)s -i %(inputcat)s -t OBJECTS -o %(outputcat)s -k A_WCS_assoc 0.0003 FLOAT "" \
                                         B_WCS_assoc 0.0003 FLOAT "" \
                                         Theta_assoc 0.0 FLOAT "" \
@@ -2001,8 +1906,6 @@ def match_many(input_list,color=False):
         ooo=os.system(command_ldacaddkey)
         if ooo!=0: raise Exception("the line os.system(command_ldacaddkey) failed\ncommand_ldacaddkey="+command_ldacaddkey)
 
-        #command = 'ldacrenkey -i %(inputcat)s -o %(outputcat)s -k ALPHA_J2000 Ra DELTA_J2000 Dec' % {'inputcat':file + '.assoc1','outputcat':file+'.assoc2'}
-        #os.system(command)
         files.append(file+'.assoc1')
     files_input = reduce(lambda x,y:x + ' ' + y,files)
     files_output = reduce(lambda x,y:x + ' ' + y,[tmpdir + '/assoc/'+re.split('\/',z)[-1] +'.assd' for z in files])
@@ -2309,7 +2212,7 @@ def starStats(supas): #simple #step3
 def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=None,secondary=None): #intermediate #step3_run_fit
     '''inputs: OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=None,secondary=None
     returns: it runs the IC fit and saves the fit to the SQL database
-    purpose: creates the matricies and performs a sparse fit. Does some diagnostic plotting. Writes out the catalogs: data_path + 'PHOTOMETRY/ILLUMINATION/' + 'catalog_' + PPRUN + '.cat'
+    purpose: creates the matricies and performs a sparse fit. Does some diagnostic plotting. Writes out the catalogs: data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + 'catalog_' + PPRUN + '.cat'
     calls: getTableInfo,get_files,selectGoodStars,starStats,describe_db,save_fit,starStats,calcDataIllum,save_fit,save_fit,save_fit,save_fit,get_fits,save_fit,save_fit,calcDataIllum,calcDataIllum,calcDataIllum,save_fit
     called_by: match_OBJNAME'''
 
@@ -2811,8 +2714,9 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
 
                 if attempt == 'first': rejectlist = 0*copy(B)
 
-                Af = open('A','w')
-                Bf = open('b','w')
+		#adam-SHNT# I'll have to place these in another folder to get this to work
+                Af = open(tmpdir+'/A','w')
+                Bf = open(tmpdir+'/b','w')
 
                 rejected_x = [] ; rejected_y = [] ; all_x = [] ; all_y = [] ; all_resids = []
                 if attempt == 'rejected':
@@ -2843,9 +2747,10 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
 
                 if attempt == 'rejected':
                     print 'linear_fit| num_rejected=',num_rejected
-                    illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION/' + FILTER + '/' + PPRUN + '/'
+                    illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/'
                     print 'linear_fit| all_resids[0:20]=',all_resids[0:20]
-                    os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
+	            if not os.path.isdir(illum_dir+'/other_runs_plots/'):
+		        os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
                     #adam-old# calcDataIllum(sample + 'reducedchi'+str(ROT)+FILTER,LENGTH1,LENGTH2,scipy.array(all_resids),scipy.ones(len(all_resids)),scipy.array(all_x),scipy.array(all_y),pth=illum_dir,rot=0,limits=[-10,10],ylab='Residual/Error')
                     plot_name='_'.join(['reducedchi',run_info,PPRUN])
                     print 'linear_fit| running calcDataIllum plot_name=',plot_name
@@ -2886,17 +2791,21 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                 print 'linear_fit|  B[0:10]=',B[0:10] , ' scipy.shape(A)=',scipy.shape(A) , ' scipy.shape(B)=',scipy.shape(B)
                 print 'linear_fit|  A[0,0:10]=',A[0,0:10] , ' A[1,0:10]=',A[1,0:10]
 
-                Bf = open(tmpdir + '/B','w')
+                Bf = open(tmpdir + '/B_other','w')
                 for i in xrange(len(B)):
                     Bf.write(str(B[i]) + '\n')
                 Bf.close()
 
+		#adam-SHNT# I'll have to place these in another folder to get this to work
                 print 'linear_fit| ...solving matrix...'
-                os.system('rm -f x')
-                ooo=os.system('./sparse < A')
-                if ooo!=0: raise Exception("the line os.system('./sparse < A') failed\n'./sparse < A'="+'./sparse < A')
+		os.chdir(tmpdir)
+		if os.path.isfile(tmpdir+'/x'):
+			os.system('rm -f '+tmpdir+'/x')
+                ooo=os.system('/u/ki/awright/wtgpipeline/sparse < A')
+                if ooo!=0: raise Exception("the line os.system('/u/ki/awright/wtgpipeline/sparse < A') failed\n'/u/ki/awright/wtgpipeline/sparse < A'")
+		os.chdir('/u/ki/awright/wtgpipeline/')
 
-                read_x_soln = open('x','r').read()
+                read_x_soln = open(tmpdir+'/x','r').read()
                 print 'linear_fit| len(read_x_soln)=',len(read_x_soln),' x_length=',x_length
                 res_x_soln = re.split('\s+',read_x_soln[:-1])
                 Traw = [float(x) for x in res_x_soln][:x_length]
@@ -3029,7 +2938,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
             cols.append(pyfits.Column(name='SeqNr', format='E',array=scipy.array(SeqNr)))
             cols.append(pyfits.Column(name='Star_corr', format='E',array=scipy.array(Star_corr)))
 
-            outcat = data_path + 'PHOTOMETRY/ILLUMINATION/' + 'catalog_' + PPRUN + '.cat'
+            outcat = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + 'catalog_' + PPRUN + '.cat'
             #adam-watch# do these catalogs get used anywhere else?
             hdu = pyfits.PrimaryHDU()
             hdulist = pyfits.HDUList([hdu])
@@ -3037,7 +2946,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
             hdulist.append(tbhu)
             hdulist[1].header["EXTNAME"]='OBJECTS'
             hdulist.writeto( outcat ,overwrite=True)
-            catalog_save_name=data_path + 'PHOTOMETRY/ILLUMINATION/'+'_'.join(['catalog',run_info,PPRUN]) + '.cat'
+            catalog_save_name=data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/'+'_'.join(['catalog',run_info,PPRUN]) + '.cat'
             os.system('cp %s %s' % ( outcat , catalog_save_name))
             print 'linear_fit| wrote out new cat! outcat=',outcat
             print 'linear_fit| wrote out new cat! catalog_save_name=',catalog_save_name
@@ -3086,8 +2995,9 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                     xA = coord_conv_x(xA);yA = coord_conv_y(yA)
                     for ROT in EXPS.keys():
                         print "linear_fit| loop2-(3/3) plots the fit | for ROT =",ROT, " in EXPS.keys()=",EXPS.keys()
-                        illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION/' + FILTER + '/' + PPRUN + '/' + str(ROT) + '/'
-		        os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
+                        illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/' + str(ROT) + '/'
+			if not os.path.isdir(illum_dir+'/other_runs_plots/'):
+				os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
 
                         epsilonA = 0
                         for term in cheby_terms_use:
@@ -3154,8 +3064,8 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                             data1+=fitvars['zp_SDSS']
 
                     print 'linear_fit| len(data1)=',len(data1) , ' len(data[ROT])=',len(data[ROT]) , ' match=',match , ' sample=',sample
-                    illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION/' + FILTER + '/' + PPRUN + '/' + str(ROT) + '/'
-                    for kind,keyvalue in [['star',1]]: #['galaxy',0],
+                    illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/' + str(ROT) + '/'
+                    for kind,keyvalue in [['star',1]]:
 
                         #adam-old# data2 = data1 - scipy.median(data1)
                         #adam-old#calcim=sample + kind + 'nocorr'+str(ROT)+FILTER
@@ -3248,7 +3158,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
             goodness_runs_info_str+=run_goodness_info["stars"]
             goodness_runs_info_str+='\n\n### How good did the fits perform? How was the chi-squared for each run? ### PPRUN: %s\n\n' % (PPRUN)
             for run_info in run_infos: goodness_runs_info_str+='\n\n'+run_goodness_info[run_info]
-            adam_str=adam_fit_goodness(fitvars_runs,run_infos,data_path + 'PHOTOMETRY/ILLUMINATION/' + FILTER + '/' + PPRUN + '/',PPRUN,goodness_runs_info_str)
+            adam_str=adam_fit_goodness(fitvars_runs,run_infos,data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/',PPRUN,goodness_runs_info_str)
             adam_str= adam_str.replace('\n',' (adam-look)\n')+ " (adam-look)\n"
             print adam_str
 
@@ -3296,16 +3206,16 @@ def adam_fit_goodness(fitvars_runs,run_infos,illum_dir,PPRUN,extra_str=''):
     #print table_str
     global table_zps_runs_new
     if table_zps_runs_new==1:
-        fl_table_zps_runs=open('table_zps_runs.txt','w')
+        fl_table_zps_runs=open('table_zps_runs_sdss.txt','w')
         fl_table_zps_runs.write(table_str)
         table_zps_runs_new=0
         fl_table_zps_runs.close()
     else:
-        fl_table_zps_runs=open('table_zps_runs.txt','a+')
+        fl_table_zps_runs=open('table_zps_runs_sdss.txt','a+')
         fl_table_zps_runs.write('\n##### NEW PPRUN ##### PPRUN=%s ##### NEW PPRUN #####\n')
         fl_table_zps_runs.write(table_str)
         fl_table_zps_runs.close()
-    fl=open(illum_dir+'table_zps_runs.txt','w')
+    fl=open(illum_dir+'table_zps_runs_sdss.txt','w')
     fl.write(table_str)
     fl.close()
     return table_str
@@ -3513,7 +3423,7 @@ def get_cats_ready(SUPA,FLAT_TYPE,starcat): #step3_run_fit
     '''inputs:SUPA,FLAT_TYPE,galaxycat=data_path+'PHOTOMETRY/sdssgalaxy.cat', starcat=data_path+'PHOTOMETRY/sdssstar.cat'
     purpose: this gets the information from sdssstar.cat relevant to this specific SUPA, saves it in starsdssmatch__SUPA0121585_star.txt, and then corrects it ( starts the seqNr at 2 instead of 1 ) sdssmatch__SUPA0121585_star.txt
     '''
-    print 'get_cats_ready| START the func. inputs: SUPA=',SUPA , ' FLAT_TYPE=',FLAT_TYPE , ' galaxycat=',galaxycat , ' starcat=',starcat
+    print 'get_cats_ready| START the func. inputs: SUPA=',SUPA , ' FLAT_TYPE=',FLAT_TYPE , ' starcat=',starcat
 
     dict_cats = get_files(SUPA,FLAT_TYPE)
     search_params = initialize(dict_cats['FILTER'],dict_cats['OBJNAME'])
@@ -3580,15 +3490,16 @@ def get_cats_ready(SUPA,FLAT_TYPE,starcat): #step3_run_fit
         print 'get_cats_ready| headers'
         hdulist[1].header["EXTNAME"]='OBJECTS'
         #this outcat is like: starsdssmatch__SUPA0121585_star.txt (not sdssmatch__SUPA0121585_star.txt)
-        outcat = data_path + 'PHOTOMETRY/ILLUMINATION/' + type_stargal + 'sdssmatch__' + search_params['SUPA'] + '_' +  type_stargal + '.cat'
+        outcat = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + type_stargal + 'sdssmatch__' + search_params['SUPA'] + '_' +  type_stargal + '.cat'
         hdulist.writeto( outcat ,overwrite=True)
         print 'get_cats_ready| wrote out new cat. outcat=',outcat
         save_exposure({type_stargal + 'sdssmatch':outcat},SUPA,FLAT_TYPE)
         tmp[type_stargal + 'sdssmatch'] = outcat
 
         #this outcat2 is like: sdssmatch__SUPA0121585_star.txt (not starsdssmatch__SUPA0121585_star.txt) like in the loop
-        outcat2 = data_path + 'PHOTOMETRY/ILLUMINATION/sdssmatch__' + search_params['SUPA'] + '_' +  type_stargal + '.cat'
-        os.system('rm ' + outcat2)
+        outcat2 = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/sdssmatch__' + search_params['SUPA'] + '_' +  type_stargal + '.cat'
+	if os.path.isfile(outcat2):
+		os.system('rm ' + outcat2)
         #this saves the stuff in starsdssmatch__SUPA0121585_star.txt to the name sdssmatch__SUPA0121585_star.txt starting the seqNr at 2 instead of 1
         paste_cats([tmp[type_stargal + 'sdssmatch']],outcat2,index=1)
 
@@ -3717,9 +3628,9 @@ def get_sdss_obj(SUPA, FLAT_TYPE): #step3_run_fit
 
     image = search_params['files'][0]
     print 'get_sdss_obj| image=',image
-    import retrieve_test
+    import retrieve_test_SDSS
     for type_stargal,cat in [['star',starcat]]:
-        cov, outcat = retrieve_test.run(image,cat,type_stargal,limits)
+        cov, outcat = retrieve_test_SDSS.run(image,cat,type_stargal,limits)
         save_exposure({type_stargal + 'cat':outcat},SUPA,FLAT_TYPE)
 
     print "get_sdss_obj| DONE with func"
@@ -4405,7 +4316,8 @@ def test_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,paper_stat=False): #
         #os.system('rm ' + tmpdir + 'correction' + ROT + filter + sample_size + '.fits')
         #hdu.writeto(tmpdir + '/correction' + ROT + filter + sample_size + '.fits')
         im = '/scratch/pkelly/test.fits'
-        os.system('rm ' + im)
+	if os.path.isfile(im):
+		os.system('rm ' + im)
         hdu.writeto(im)
         print 'test_correction| im =',im, 'finished'
     return epsilon, diff_bool
@@ -4447,7 +4359,7 @@ def run_correction(OBJNAME=None,FILTER=None,PPRUN=None,r_ext=True): #step5_corre
 
         print ' dtop2["OBJNAME"]=',dtop2["OBJNAME"] , ' dtop2["correction_applied"]=',dtop2["correction_applied"]
 
-        illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION/' + dtop2['FILTER'] + '/' + dtop2['PPRUN'] + '/'
+        illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + dtop2['FILTER'] + '/' + dtop2['PPRUN'] + '/'
         #logfile  = open(illum_dir + 'logfile','w')
 
         OBJNAME_use, FILTER_use, PPRUN_use = dtop2['OBJNAME'], dtop2['FILTER'], dtop2['PPRUN']
@@ -4728,7 +4640,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
             x = coord_conv_x(x)
             y = coord_conv_y(y)
 
-            illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION/' + FILTER + '/' + PPRUN + '/' + str(ROT)
+            illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/' + str(ROT)
 
             epsilon = 0
             index = 0
@@ -4858,16 +4770,22 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                     else:
                         use_run_dir = run_dir
 
-                    os.system('rm ' + data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/*II.fits')
-                    os.system('rm ' + data_root + '/' + OBJNAME + '/' + use_run_dir + '/WEIGHTS/*II.weight.fits')
+		    #os.system('rm ' + data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/*II.fits')
+		    #os.system('rm ' + data_root + '/' + OBJNAME + '/' + use_run_dir + '/WEIGHTS/*II.weight.fits')
+                    scifls2rm=glob(data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/*II.fits')
+                    wtfls2rm=glob(data_root + '/' + OBJNAME + '/' + use_run_dir + '/WEIGHTS/*II.weight.fits')
+		    for flrm in scifls2rm+wtfls2rm:
+			    os.system('rm ' + flrm)
 
                     ''' get rid of zero-size files '''
                     print 'construct_correction| use_run_dir=',use_run_dir , ' run_dir=',run_dir , ' string.find(run_dir,"CALIB")=',string.find(run_dir,"CALIB")
                     if string.find(run_dir,'CALIB') != -1:
                         out_file =  data_root + '/' + OBJNAME + '/' + FILTER + '/SCIENCE/' +  file_short.replace('.fits','I.fits')
-                        os.system('rm ' + out_file)
+			if os.path.isfile(out_file):
+				os.system('rm ' + out_file)
                         out_weight_file =  data_root + '/' + OBJNAME + '/' + FILTER + '/WEIGHTS/' +  file_short.replace('.fits','I.weight.fits')
-                        os.system('rm ' + out_weight_file)
+			if os.path.isfile(out_weight_file):
+				os.system('rm ' + out_weight_file)
                     ''' see if there are different extensions '''
                     out_file =  data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/' +  file_short.replace('.fits','I.fits')
                     print 'construct_correction| out_file=',out_file
@@ -4891,15 +4809,18 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                     flag_file = file_chip.replace('SCIENCE','WEIGHTS').replace('.fits','.flag.fits')
                     out_flag_file = data_root + '/' + OBJNAME + '/' + use_run_dir + '/WEIGHTS/' +  file_short.replace('.fits','I.flag.fits')
                     bad_out_weight_file =  data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/' +  file_short.replace('.fits','I.weight.fits')
-                    os.system('rm ' + out_flag_file)
+                    if os.path.isfile(out_flag_file):
+			    os.system('rm ' + out_flag_file)
                     command_ln = 'ln -s  ' + flag_file + ' ' + out_flag_file
                     print 'construct_correction| command_ln=',command_ln
                     ooo=os.system(command_ln)
                     if ooo!=0: raise Exception("os.system==0")
 
                     if str(dt['CRPIX1_' + str(CHIP)]) == 'None':
-                        os.system('rm ' + out_file)
-                        os.system('rm ' + out_weight_file)
+			if os.path.isfile(out_weight_file):
+                            os.system('rm ' + out_weight_file)
+			if os.path.isfile(out_file):
+                            os.system('rm ' + out_file)
                     else:
                         CHIP_ROT = int(rot_dat)
                         print 'construct_correction| CHIP_ROT=',CHIP_ROT , ' ROT=',ROT,' int(CHIP_ROT)==int(ROT)=',int(CHIP_ROT) == int(ROT)
@@ -4926,7 +4847,8 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                             elif 0.98 < os.path.getsize(file_chip) / os.path.getsize(out_file) < 1.02: go = True
                             go = True
                             if go:
-                                os.system('rm ' + out_file)
+			        if os.path.isfile(out_file):
+                                    os.system('rm ' + out_file)
 
                                 tried = 0
                                 while 1:
@@ -4975,7 +4897,8 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                             elif 0.98 < os.path.getsize(out_weight_file) / os.path.getsize(weight_file) < 1.02: go = True
                             go = True
                             if go:
-                                os.system('rm ' + out_weight_file)
+			        if os.path.isfile(out_weight_file):
+                                    os.system('rm ' + out_weight_file)
                                 tried = 0
                                 while True:
                                     if hasCHIP:
@@ -5026,40 +4949,78 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
 #r29:def calcBinStats(output_files_nametag, LENGTH1, LENGTH2, data,magErr, X, Y, pth,  limits=[-0.4,0.4], data_label='SUBARU-SDSS'):
 #r29:adam_tmp_plots(*args):
 
-if __name__=="__main__" and username=="awright":
-	#FILTERs=["W-J-B","W-J-V","W-C-RC","W-C-IC","W-S-Z+"]
-	#PPRUNs=["W-C-IC_2010-02-12", "W-C-IC_2011-01-06","W-C-RC_2010-02-12", "W-J-B_2010-02-12", "W-J-V_2010-02-12", "W-S-Z+_2011-01-06"]
-	#FILTERs_matching_PPRUNs=["W-C-IC", "W-C-IC","W-C-RC", "W-J-B", "W-J-V", "W-S-Z+"] 
-	#FILTERs=["W-J-B","W-C-RC","W-S-Z+"] 
-	#PPRUNs=["W-S-Z+_2009-04-29","W-J-B_2009-04-29","W-J-B_2010-03-12","W-S-Z+_2010-03-12","W-C-RC_2010-03-12"]
-	#FILTERs_matching_PPRUNs=["W-S-Z+","W-J-B","W-J-B","W-S-Z+","W-C-RC"]
-	FILTERs=["W-J-B","W-C-RC","W-S-Z+"] #adam-Warning#
-	FILTERs_matching_PPRUNs=["W-J-B","W-C-RC","W-S-Z+"]
-	PPRUNs=["W-J-B_2010-11-04","W-C-RC_2012-07-23","W-S-Z+_2010-11-04"]
-	OBJNAME=cluster #adam-Warning#
+#adam-Warning# set FILTERs/PPRUNs for each cluster!
+cldata={'MACS0429-02':{},'MACS1226+21':{},'RXJ2129':{},'MACS1115+01':{}}
+cldata['MACS1226+21']['FILTERs']=["W-J-B","W-J-V","W-C-RC","W-C-IC","W-S-Z+"]
+cldata['MACS1226+21']['PPRUNs']=["W-C-IC_2010-02-12", "W-C-IC_2011-01-06","W-C-RC_2010-02-12", "W-J-B_2010-02-12", "W-J-V_2010-02-12", "W-S-Z+_2011-01-06"]
+cldata['MACS1226+21']['FILTERs_matching_PPRUNs']=["W-C-IC", "W-C-IC","W-C-RC", "W-J-B", "W-J-V", "W-S-Z+"] 
+cldata['MACS0429-02']['FILTERs']=["W-J-B","W-S-Z+"]
+cldata['MACS0429-02']['FILTERs_matching_PPRUNs']=["W-S-Z+","W-J-B"]
+cldata['MACS0429-02']['PPRUNs']=["W-S-Z+_2015-12-15","W-J-B_2015-12-15"]
+cldata['RXJ2129']['FILTERs']=["W-J-B","W-C-RC","W-S-Z+"]
+cldata['RXJ2129']['FILTERs_matching_PPRUNs']=["W-J-B","W-C-RC","W-S-Z+"]
+cldata['RXJ2129']['PPRUNs']=["W-J-B_2010-11-04","W-C-RC_2012-07-23","W-S-Z+_2010-11-04"]
+cldata['MACS1115+01']['FILTERs']=["W-J-B","W-C-RC","W-S-Z+"] 
+cldata['MACS1115+01']['FILTERs_matching_PPRUNs']=["W-S-Z+","W-J-B","W-J-B","W-S-Z+","W-C-RC"]
+cldata['MACS1115+01']['PPRUNs']=["W-S-Z+_2009-04-29","W-J-B_2009-04-29","W-J-B_2010-03-12","W-S-Z+_2010-03-12","W-C-RC_2010-03-12"]
 
-	#adam-Warning# either handle SQL tables here or at the beginning!
-        #This will drop tables and re-run everything. just comment out anything above here and run :%s///g
+if username!="awright":
+        #adam-Warning# set the needed info here regarding target, paths to data, and SQL db stuff
+        ## get/set env variables
+        if not 'bonn' in os.environ.keys(): raise Exception("Must have environment variable 'bonn' set to wtgpipeline path")
+        if 'SUBARUDIR' in os.environ.keys():
+                data_root=os.environ['SUBARUDIR']
+        else:
+                data_root="SET PATH to DATA DIRECTORY HERE" #adam-Warning#
+
+        if 'cluster' in os.environ.keys():
+                cluster=os.environ['cluster']
+        else:
+                cluster="SET CLUSTER NAME HERE" #adam-Warning#
+
+        ## set data_path and tmpdir
+        data_path = data_root + cluster+'/'
+        tmpdir=data_path+"tmp_simple_ic_SDSS/"
+	if not os.path.isdir(tmpdir):
+		os.mkdir(tmpdir)
+
+	#adam-Warning# either handle SQL tables here or at the end!
+        #sql databases used by pat which you could copy the structure of: illumination_db, test_try_db, test_fit_db, sdss_db (see mysqldb_params below)
+        test = 'name_' #this takes care of test_try_db, test_fit_db #name-Warning# change from generic "name" to username or something
+        illum_db=test+"illumination_db"
+
+if __name__=="__main__" and username=="awright":
+	## get/set env variables (#adam-Warning# cluster name here )
+        os.environ['bonn']='/u/ki/awright/wtgpipeline/'
+        data_root = '/gpfs/slac/kipac/fs1/u/awright/SUBARU/' #adam-Warning#
+        if 'SUBARUDIR' in os.environ.keys():
+                data_root=os.environ['SUBARUDIR']
+        else:
+                os.environ['SUBARUDIR']=data_root
+        if 'cluster' in os.environ.keys():
+                cluster=os.environ['cluster']
+        else:
+		#cluster="MACS0429-02"
+                cluster="RXJ2129" #adam-Warning#
+
+        ## set data_path and tmpdir(#adam-Warning# make tmpdir and set path to data)
+        data_path = data_root + cluster+'/'
+        tmpdir=data_path+"tmp_simple_ic_SDSS/"
+	if not os.path.isdir(tmpdir):
+		os.mkdir(tmpdir)
+
+        ## SQL databases (#adam-Warning# handle SQL tables here)
+        #sql databases used by pat: illumination_db, test_try_db, test_fit_db, sdss_db
+        #sql databases used by adam: adam_illumination_db, adam_try_db, adam_fit_db, sdss_db
+        test = 'adam_' #this takes care of test_try_db, test_fit_db #adam-Warning#
+        illum_db="adam_illumination_db"
 	db2,c = connect_except()
-	good_tracker={}
-	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
-		good_tracker[FILTER]=testgood(OBJNAME,FILTER,PPRUN)
-	sys.exit() #adam-tmp#
-	c.execute(" DROP TABLE adam_illumination_db ; ")
+	#c.execute(" DROP TABLE adam_illumination_db ; ")
 	c.execute(" DROP TABLE adam_try_db ; ")
 	c.execute(" DROP TABLE adam_fit_db ; ")
-	c.execute(" CREATE TABLE adam_illumination_db LIKE illumination_db; ")
+	#c.execute(" CREATE TABLE adam_illumination_db LIKE illumination_db; ")
 	c.execute(" CREATE TABLE adam_try_db LIKE test_try_db; ")
 	c.execute(" CREATE TABLE adam_fit_db LIKE test_fit_db; ")
-
-	print "adam-look: gather_exposures(cluster,filters=FILTERs)"
-	gather_exposures(cluster,filters=FILTERs)
-	print "adam-look: get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)"
-	get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)
-	print "adam-look: get_sdss_cats(OBJNAME)"
-	get_sdss_cats(OBJNAME)
-	#db_cluster_logfile(db=test+'try_db',cluster='RXJ2129')
-	
 	### which dbs do these functions use?
 	# gather_exposures ['i']
 	# get_astrom_run_sextract ['i']
@@ -5069,22 +5030,44 @@ if __name__=="__main__" and username=="awright":
 	# testgood ['i', 't', 'f']
 	# construct_correction ['i', 't', 'f']
 
+	OBJNAME=cluster #adam-Warning#
+	FILTERs,FILTERs_matching_PPRUNs,PPRUNs=cldata[OBJNAME]['FILTERs'],cldata[OBJNAME]['FILTERs_matching_PPRUNs'],cldata[OBJNAME]['PPRUNs']
+
+	times=[0,0,0,0,0,0,0]
+	times[0]=time.time()
+	#print "adam-look: gather_exposures(cluster,filters=FILTERs)"
+	#gather_exposures(cluster,filters=FILTERs)
+	times[1]=time.time()
+	#print "adam-look: get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)"
+	#get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)
+	times[2]=time.time()
+	print "adam-look: get_sdss_cats(OBJNAME)"
+	get_sdss_cats(OBJNAME)
+
+	times[3]=time.time()
 	extra_nametag=""
 	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
 	 	print "\n\nadam-look: match_OBJNAME starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
 	 	match_OBJNAME(OBJNAME,FILTER,PPRUN)
 		print "\n\nadam-look: calc_good starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
 		calc_good(OBJNAME,FILTER,PPRUN)
+	times[4]=time.time()
 	good_tracker={}
 	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
 		print "\n\nadam-look: testgood starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
 	 	good_tracker[FILTER]=testgood(OBJNAME,FILTER,PPRUN)
-		#testgood(OBJNAME,FILTER,PPRUN)
-	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
-		print "\n\nadam-look: construct_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-		#adam-Warning# r_ext=True if you've already done the stellar halo rings, otherwise r_ext=False. So for MACS0416 I'll sure r_ext=True
-		r_ext=False
-		construct_correction(OBJNAME,FILTER,PPRUN,"sdss","all",OBJNAME,FILTER,PPRUN,r_ext=False)
+	times[5]=time.time()
+	#adam-tmp# for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
+	#adam-tmp# 	print "\n\nadam-look: construct_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+	#adam-tmp# 	#adam-Warning# r_ext=True if you've already done the stellar halo rings, otherwise r_ext=False. So for MACS0416 I'll sure r_ext=True
+	#adam-tmp# 	r_ext=False
+	#adam-tmp# 	construct_correction(OBJNAME,FILTER,PPRUN,"sdss","all",OBJNAME,FILTER,PPRUN,r_ext=False)
+	#adam-tmp# times[6]=time.time()
+	times=numpy.array(times)
+	timediffs=times[1:]-times[0:-1]
+	print ' timediffs=',timediffs
+	print "adam-look: each step took this much time: %.1f %.1f %.1f %.1f %.1f %.1f " % tuple(times[1:]-times[0:-1])
+	db_cluster_logfile(db=test+'try_db',cluster='RXJ2129')
 	#print "\n\nadam-look: run_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
 	#run_correction(OBJNAME,FILTER,PPRUN)
 	#Note: run_correction and find_nearby are not necessary if you know which OBJECT/PPRUN you want to fit, the fit was successful, it's in sdss, and you don't want to bootstrap/etc.

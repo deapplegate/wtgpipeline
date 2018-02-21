@@ -37,6 +37,7 @@ Made batch wrapper for them using the combo of these:
 
 #6.) illumination correction ( see Evernote)
 ## before running simple_ic.py, I need to have OBJNAME in all images (and consistent in all images). Might as well do the same for OBJECT and MYOBJ too.
+vim pre_ic_headers.sh
 ## I also should rename PPRUN to PPRUN0 and have filter_run be the pattern for PPRUN
 ipython develop_simple_ic/simple_ic.py
 

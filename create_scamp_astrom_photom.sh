@@ -519,10 +519,11 @@ done
 #/nfs/slac/g/ki/ki05/anja/MEGAPRIME/software/THELI/ldacpipeline-0.12.33/scripts/Linux_64/scampcat.py: merge single frame THELI files to a scamp MEF catalogue                                     
 #merges individual chip cats BASE_${i}${ending}.ldac to BASE_scamp.cat
 
-##adam: changing to a different version of scampcat.py, because the one in ${S_SCAMPCAT} uses pyfits
+#adam-new# now using ldac_cat_aper_splitter.py to split MAG_APER/FLUX_APER vectors into 6 scalars MAG_APER[0-5]/FLUX_APER[0-5], most useful is MAG_APER1/FLUX_APER1
 cd ~/wtgpipeline
-./ldac_cat_aper_splitter.py
+./ldac_cat_aper_splitter.py ${cluster} ${STARCAT}
 cd /$1/$2/astrom_photom_scamp_${STARCAT}/cat
+##adam: changing to a different version of scampcat.py, because the one in ${S_SCAMPCAT} uses pyfits
 python ${S_SCAMPCAT} ${DIR}/catlist.txt_$$
 ##newer version of scampcat.py here: /u/ki/anja/THELI_DECam_pipeline/ldacpipeline/scripts/Linux_64/scampcat.py
 #adam-tmp# python /u/ki/awright/wtgpipeline/scampcat.py ${DIR}/catlist.txt_$$
@@ -552,6 +553,8 @@ scamp_mode_exp_star="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG ${STARCAT} "
 if [ "${STARCAT}" == "PANSTARRS" ]; then
 	cp /nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/astrefcat.cat .
 	scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT \
+	        -PHOTFLUX_KEY FLUX_APER1 \
+	        -PHOTFLUXERR_KEY FLUXERR_APER1 \
 	        -ASTREF_CATALOG FILE \
 	        -ASTREFCAT_NAME astrefcat.cat \
 	        -ASTREFCENT_KEYS raMean,decMean \
@@ -586,10 +589,10 @@ pixscale=1.003
 #adam-look# these keys (FLUX_APER1 FLUXERR_APER1 MAG_APER1 MAGERR_APER1) were added (among others) using ./ldac_cat_aper_splitter.py 
 #adam-look# I've changed these keys to ensure we're using APERATURE MAGS in create_scamp_astrom_photom.sh: "-PHOTFLUX_KEY FLUX_APER1 -PHOTFLUXERR_KEY FLUXERR_APER1 "
 
+#adam-SHNT# early indications that FLUX_APER more reliable than FLUX_AUTO, so I'm switching to "-PHOTFLUX_KEY FLUX_APER1 -PHOTFLUXERR_KEY FLUXERR_APER1 "
 ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
            -c ${CONF}/scamp_astrom_photom.scamp \
-	   -PHOTFLUX_KEY FLUX_APER1 \
-	   -PHOTFLUXERR_KEY FLUXERR_APER1 \
+	   -PHOTFLUX_KEY FLUX_APER1 -PHOTFLUXERR_KEY FLUXERR_APER1 \
            -ASTRINSTRU_KEY FILTER,INSTRUM,CONFIG,ROTATION,MISSCHIP,PPRUN \
            -CDSCLIENT_EXEC ${P_ACLIENT} \
            -NTHREADS ${NPARA} ${MOSAICTYPE} \
