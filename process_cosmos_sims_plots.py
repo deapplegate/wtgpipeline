@@ -196,12 +196,7 @@ def plotZCompact(consols, plotkey=(1,2,1), plotfunc = plotCompactSummary, label=
 
 #adam-SHNT# this is the plot in Weighing the Giants - III figure 8
 #copied and modified from scatter_sims_plots.py
-<<<<<<< HEAD
-import readtxtfile
-def PointEstPzScript():
-=======
 def PointEstPzScript(filterdatadir='/u/ki/awright/simcl/simcl_CATnewcat_matched-Zpoint/UGRIZ/'):
->>>>>>> 97f82e7027cfc3f61e2e71e6455d3db5f89d4e9d
 
     worklist = readtxtfile('simclusterlist')
     clusters = [x[0] for x in worklist]
