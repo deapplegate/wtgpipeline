@@ -1,94 +1,31 @@
 #! /usr/bin/env python
 #ADVICE: when starting fresh with a new cluster. first search for #adam-Warning# in this code and change stuff whereever there is a #adam-Warning
+import commands
+import matplotlib
+host=commands.getoutput('hostname')
+if not host.startswith('ki-ls'):
+    matplotlib.use('Agg')
+import matplotlib.pylab as pylab
+
 import pickle, sys, os, re, time, string, math
-import random, tempfile, traceback, commands
+import random, tempfile, traceback
 import MySQLdb
+import time
 
 from copy import copy
 from glob import glob
-import astropy, astropy.io.fits as pyfits, scipy, pylab, numpy
+import astropy, astropy.io.fits as pyfits, scipy, numpy
 import config_bonn #only need "wavelength_groups"
 import utilities
 import bashreader #only need "parseFile"
-global data_path, tmpdir, test
+global data_path, tmpdir, test, OBJNAME
 username = os.environ['USER']
-if username=="awright":
-        ## get/set env variables
-        data_root = '/gpfs/slac/kipac/fs1/u/awright/SUBARU/' #Warning#
-        if 'SUBARUDIR' in os.environ.keys():
-                if "pat" in os.environ['SUBARUDIR']: raise Exception("You have /nfs/slac/g/ki/ki18/anja/SUBARU/pat/ as your SUBARUDIR, this is a mistake right?")
-        else:
-                os.environ['SUBARUDIR']=data_root
-        if 'cluster' in os.environ.keys():
-                cluster=os.environ['cluster']
-        else:
-		#cluster="MACS0429-02"
-                cluster="RXJ2129"
-
-        ## mess with SQL databases
-        #sql databases used by pat: illumination_db, test_try_db, test_fit_db, panstarrs_db
-        #sql databases used by adam: adam_illumination_db, adam_try_db, adam_fit_db, panstarrs_db
-        #c.execute(" CREATE TABLE adam_illumination_db LIKE illumination_db; ")
-        #c.execute(" CREATE TABLE adam_try_db LIKE test_try_db; ")
-        #c.execute(" CREATE TABLE adam_fit_db LIKE test_fit_db; ")
-        #panstarrs_db will be fine, I can't really mess that one up
-        test = 'adamPAN2_' #this takes care of test_try_db, test_fit_db #adam-Warning#
-        illum_db="adamPAN2_illumination_db"
-
-        ## set data_path and tmpdir
-        data_path = data_root + cluster+'/'
-        tmpdir=data_path+"tmp_simple_ic_PANSTARRS/"
-        os.environ['bonn']='/u/ki/awright/wtgpipeline/' #adam-Warning#
-
-elif username=="pkelly":
-        data_root = '/nfs/slac/g/ki/ki18/anja/SUBARU/pat/'
-        data_path = data_root + 'MACS1226+21/' #adam-Warning#
-        test = 'test_'
-        illum_db="illumination_db"
-        ''' the idea here is to only create a new temp directory when loading the module for the first time -- otherwise, it will change each time you reload(simple_ic) '''
-        if not 'loaded' in locals():
-            #tmpdir = tempfile.mkdtemp(dir='/tmp/') + '/'
-            #if not os.path.exists('/tmp/%s' % username):
-            #    os.mkdir('/tmp/%s/' % username)
-            #tmphome = tempfile.mkdtemp(dir='/tmp/%s/' % username) + '/'
-            tmpdir = os.environ['subdir'] + '/pattmp/'
-            #adam-del#tmphome = tmpdir
-            loaded='yes'
-else:
-        #adam-Warning# set the needed info here regarding target, paths to data, and SQL db stuff
-        ## get/set env variables
-        if not 'bonn' in os.environ.keys(): raise Exception("Must have environment variable 'bonn' set to wtgpipeline path")
-
-        if 'SUBARUDIR' in os.environ.keys():
-                data_root=os.environ['SUBARUDIR']
-        else:
-                data_root="SET PATH to DATA DIRECTORY HERE" #adam-Warning#
-
-        if 'cluster' in os.environ.keys():
-                cluster=os.environ['cluster']
-        else:
-                cluster="SET CLUSTER NAME HERE" #adam-Warning#
-
-        ## set data_path and tmpdir
-        data_path = data_root + cluster+'/'
-        tmpdir=data_path+"tmp_simple_ic_PANSTARRS/"
-
-	#adam-Warning# either handle SQL tables here or at the end!
-        #sql databases used by pat which you could copy the structure of: illumination_db, test_try_db, test_fit_db, panstarrs_db (see mysqldb_params below)
-        test = 'name_' #this takes care of test_try_db, test_fit_db #name-Warning# change from generic "name" to username or something
-        #c.execute(" CREATE TABLE "+test+"illumination_db LIKE illumination_db; ") #adam-Warning# run this once, then comment out
-        #c.execute(" CREATE TABLE "+test+"try_db LIKE test_try_db; ") #adam-Warning# run this once, then comment out
-        #c.execute(" CREATE TABLE "+test+"fit_db LIKE test_fit_db; ") #adam-Warning# run this once, then comment out
-        #panstarrs_db will be fine, I can't really mess that one up
-        illum_db=test+"illumination_db"
 
 #adam-note# the program paths used in simple_ic.py should be taken from progs.ini for the sake of consistency, since os.system kinda uses whatever paths it wants!
 #adam-note# program paths in progs.ini used in this code: "p_sex","p_ldacconv","p_ldactoasc","p_ldaccalc","p_dfits","p_asctoldac","p_ldacjoinkey","p_ldacfilter","p_ldacaddkey","p_associate","p_makessc"
 #adam-note# programs used in simple_ic.py: progs=["sex","ldacconv","ldactoasc","ldaccalc","dfits","asctoldac","ldacjoinkey","ldacfilter","ldacaddkey","associate","make_ssc"]
 progs_path= bashreader.parseFile(os.environ['bonn']+'/progs.ini') #adam-Warning# both use my progs.ini file so that we have a consistent set of catalogs/files
 
-if not os.path.isdir(tmpdir):
-        os.mkdir(tmpdir)
 
 #adam-Warning# If you're not working at SLAC you're probably going to use a different mysqldb
 mysqldb_params = {'db' : 'subaru',
@@ -408,7 +345,7 @@ def sextract(SUPA,FLAT_TYPE): #intermediate #step2_sextract
     save_exposure({'pasted_cat':pasted_cat},SUPA,FLAT_TYPE)
 
     command = "rm -rf " + search_params['TEMPDIR'] +"/*"
-    #adam-tmp# os.system(command)
+    os.system(command)
     print "sextract| DONE with func"
     #return exposures, LENGTH1, LENGTH2
 
@@ -645,7 +582,6 @@ def gather_exposures(OBJNAME,filters=None): #main #step1_add_database
                     file = open('' + search_params['TEMPDIR'] + '/header','r').readlines()
 
                     for line in file:
-                        print "gather_exposures| ",'line=',line
                         if string.find(line,'Flat frame:') != -1 and string.find(line,'illum') != -1:
                             res = re.split('SET',line)
                             if len(res) > 1:
@@ -817,7 +753,7 @@ def get_db_obj(db,cluster):
         #c.execute("SELECT OBJNAME from sdss_db where OBJNAME = '" + OBJNAME + "'")
         print cluster,db,Nresults
         keys=describe_db(c,[db])
-        db_results = {} 
+        db_results = {}
         for k in keys:
                 db_results[k]=[]
         for line in results:
@@ -828,17 +764,28 @@ def get_db_obj(db,cluster):
         dbtab=Table(db_results.values(),names=db_results.keys())
         return dbtab
 
-def db_cluster_logfile(db=test+'try_db',cluster='RXJ2129'):
+def db_cluster_logfile(db=None,cluster='RXJ2129'):
+	'''inputs: db=test+'try_db',cluster='RXJ2129'
+	returns: table
+	purpose: converts the needed sqldb data into a table which is saved to a file and returned for you to see'''
+	if db==None: db=test+'try_db'
         trytab=get_db_obj(db,cluster)
         allnames=trytab.colnames
         t=trytab.copy()
         tfl=trytab['logfile'][0].split('ILLUMINATION_PANSTARRS')[0]+'logfile'
-        keepnames=['OBJNAME',"PPRUN","var_correction","mean","std","match_stars","sdss_imp","sdss_imp_all","panstarrs_imp","panstarrs_imp_all","todo"]
+        keepnames=['OBJNAME',"PPRUN","panstarrs_var_correction","panstarrs_mean","panstarrs_std","match_stars","panstarrs_imp","panstarrs_imp_all","todo"]
         for name in allnames:
             if not name in keepnames:
                 t.remove_column(name)
         t.write(tfl+'_'+db,format='ascii.fixed_width')
-        return t
+	
+	if db==test+'try_db':
+		fl_table_basename='table_zps_runs_panstarrs_%s_%s.txt' % (OBJNAME,PPRUN)
+		if os.path.isfile('/u/ki/awright/wtgpipeline/'+fl_table_basename):
+			os.system('mv /u/ki/awright/wtgpipeline/%s /u/ki/awright/wtgpipeline/%s.tmp' % (fl_table_basename,fl_table_basename))
+			os.system('cat /u/ki/awright/wtgpipeline/%s.tmp %s > /u/ki/awright/wtgpipeline/%s' % (fl_table_basename, tfl+'_'+db,fl_table_basename))
+			os.system('rm /u/ki/awright/wtgpipeline/%s.tmp' % (fl_table_basename) )
+	return t
 
 ''' find full set of files corresponding to all '''
 def get_files(SUPA,FLAT_TYPE=None): #simple #database
@@ -1302,10 +1249,11 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
             print 'fix_radec| SExtractor catalog found'
         except:
             print 'fix_radec| SExtractor catalog not found. So go ahead and run sextractor'
-            if string.find(str(params['fwhm']),'None') != -1 or str(params['fwhm'])=='0.3':
+            if string.find(str(params['fwhm']),'None') != -1 or str(params['fwhm'])=='0.3' or str(params['fwhm'])=='0.0':
 		    #adam-SHNT# now I'll skip find_seeing and use MYSEEING from header instead
 		    dd=utilities.get_header_kw(params['file'],['MYSEEING'])
 		    fwhm=dd['MYSEEING']
+		    print 'fix_radec| NOW FROM MYSEEING: fwhm=',fwhm
 		    save_exposure({'fwhm':fwhm},search_params['SUPA'],search_params['FLAT_TYPE'])
 		    #adam-old# find_seeing(search_params['SUPA'],search_params['FLAT_TYPE'])
 
@@ -1395,7 +1343,7 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
 
                 ra = a*180.0/math.pi
                 dec = d*180.0/math.pi
-                if i % 100== 0:
+                if i % 1000== 0:
                     print 'fix_radec| ra_cat','dec_cat',ra,ra_cat[i], dec, dec_cat[i]
                     print 'fix_radec| (ra-ra_cat[i])*3600.=',(ra-ra_cat[i])*3600. , ' (dec-dec_cat[i])*3600.=',(dec-dec_cat[i])*3600.
                 ''' if no solution, give a -999 value '''
@@ -1416,7 +1364,6 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
             hdu[2].data.field('DELTA_J2000')[:] = scipy.array(dec_out)
             table = hdu[2].data
 
-            print 'fix_radec| BREAK'
             print 'fix_radec| ra_out[0:10]=',ra_out[0:10] , ' table.field("ALPHA_J2000")[0:10]=',table.field("ALPHA_J2000")[0:10]
             print 'fix_radec| dec_out[0:10]=',dec_out[0:10] , ' table.field("DELTA_J2000")[0:10]=',table.field("DELTA_J2000")[0:10]
             print 'fix_radec| SUPA=',SUPA , ' search_params["pasted_cat"]=',search_params["pasted_cat"]
@@ -1438,332 +1385,335 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
     calls: describe_db,describe_db,describe_db,save_fit,describe_db,describe_db,analyze,fix_radec,panstarrs_coverage,get_files,match_many,getTableInfo,get_files,find_config,selectGoodStars,starStats,save_fit,find_config,linear_fit,save_fit,save_fit
     called_by: test_1226'''
     print 'match_OBJNAME| START the func. inputs: OBJNAME=',OBJNAME , ' FILTER=',FILTER , ' PPRUN=',PPRUN , ' todo=',todo
-    #match_many,getTableInfo,get_files,find_config,selectGoodStars,starStats,save_fit,find_config,linear_fit
-    if OBJNAME is None:
-        batchmode = True
-    else: batchmode = False
-
-    ppid = str(os.getppid())
-    trial = True #adam-tmp: this implies DONT FORK!
-    #if __name__ == '__main__':
-    #    trial = False #adam-tmp
-
-    start = 1
-    loop = False
-    go = True
-
-    while go:
-        db2,c = connect_except()
-        illum_db_keys = describe_db(c,[illum_db])
-
-        if loop or OBJNAME is None: # or start == 0:
-            loop=True
-
-            try_db_keys = describe_db(c,['' + test + 'try_db'])
+    try:
+        #match_many,getTableInfo,get_files,find_config,selectGoodStars,starStats,save_fit,find_config,linear_fit
+        if OBJNAME is None:
+            batchmode = True
+        else: batchmode = False
+    
+        ppid = str(os.getppid())
+        trial = True #adam-tmp: this implies DONT FORK!
+        #if __name__ == '__main__':
+        #    trial = False #adam-tmp
+    
+        start = 1
+        loop = False
+        go = True
+    
+        while go:
+            db2,c = connect_except()
             illum_db_keys = describe_db(c,[illum_db])
-
-	    #adam-SHNT# does column "panstarrsstatus" actually exist?
-            command = "select * from " + test + "try_db t where t.panstarrsstatus is null and t.Nonestatus is null and (config='8.0' or config='9.0') group by t.objname, t.pprun order by rand()"
-            print 'match_OBJNAME| command=',command
-            c.execute(command)
-            results=c.fetchall()
-
-            if len(results) > 0:
-                for line in results:
-                    dtop = {}
-                    for i in xrange(len(try_db_keys)):
-                        dtop[try_db_keys[i]] = str(line[i])
-                    command = "select i.* from "+illum_db+" i where i.OBJNAME='" + dtop['OBJNAME'] + "' and i.PPRUN = '" + dtop['PPRUN'] + "' and i.pasted_cat is not null  GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND() limit 1 " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
-                    c.execute(command)
-                    results_b=c.fetchall()
-                    print 'match_OBJNAME| results_b=',results_b
-                    if len(results_b) > 0:
-                        for i in xrange(len(illum_db_keys)):
-                            dtop[illum_db_keys[i]] = str(results_b[0][i])
-                        print 'match_OBJNAME| dtop["PPRUN"]=',dtop["PPRUN"] , ' dtop["OBJNAME"]=',dtop["OBJNAME"]
-                        break
-                else:
-                    dtop= {}
-
-        else:
-            go = False
-            command=" drop temporary table if exists temp  "
-            c.execute(command)
-            command = "create temporary table temp as select * from "+illum_db+" group by objname, pprun "
-            print 'match_OBJNAME| command=',command
-            c.execute(command)
-
-            #command="SELECT * from temp i left join " + test + "fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where i.SUPA not like '%I' and i.objname='"+OBJNAME+"' and i.pprun='"+PPRUN+"' and i.filter='" + FILTER + "' GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND() " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
-            command="SELECT * from "+illum_db+" where  file not like '%CALIB%' and  PPRUN !='KEY_N/A'  and OBJNAME like '" + OBJNAME + "' and FILTER like '" + FILTER + "' and PPRUN='" + PPRUN + "' GROUP BY pprun,filter,OBJNAME" # ORDER BY RAND()" # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
-
-            start = 0
-            print 'match_OBJNAME| command=',command
-            c.execute(command)
-            results=c.fetchall()
-            print 'match_OBJNAME| len(results)=',len(results)
-            print 'match_OBJNAME| results[0]=',results[0]
-            ppid = str(os.getppid())
-
-            print 'match_OBJNAME| hey'
-            if len(results) == 0:
-                print 'match_OBJNAME| breaking!'
-                break
-
-            if len(results) > 0:
-                print 'match_OBJNAME| start next'
-                line = results[0]
-                dtop = {}
-                for i in xrange(len(illum_db_keys)):
-                    dtop[illum_db_keys[i]] = str(line[i])
-
-        if len(results) ==0: return
-        if len(results) > 0:
-            FILTER = dtop['FILTER']
-            PPRUN = dtop['PPRUN']
-            OBJNAME = dtop['OBJNAME']
-
-            print 'match_OBJNAME| now running save_fit',({"PPRUN":PPRUN,"OBJNAME":OBJNAME,"FILTER":FILTER,"sample":"record","sample_size":"record"},"db="+""+test+"try_db")
-            save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'sample':'record','sample_size':'record'},db='' + test + 'try_db')
-            illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_PANSTARRS/' + FILTER + '/' + PPRUN + '/'
-	    if not os.path.isdir(illum_dir+'/other_runs_plots/'):
-		    os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
-            logfile  = open(illum_dir + 'logfile','w')
-            print 'match_OBJNAME| illum_dir+"logfile"=',illum_dir+"logfile"
-            print 'match_OBJNAME| dtop["FILTER"]=',dtop["FILTER"] , 'dtop["PPRUN"]=',dtop["PPRUN"] , 'dtop["OBJNAME"]=',dtop["OBJNAME"]
-            #keys = ['SUPA','OBJNAME','ROTATION','PPRUN','pasted_cat','FILTER','ROTATION','files']
-
-            try_db_keys = describe_db(c,['' + test + 'try_db'])
-            #command="SELECT * from "+illum_db+" where  OBJNAME='" + dtop['OBJNAME'] + "' and PPRUN='" + dtop['PPRUN'] + "' and filter like '" + dtop['FILTER'] + "' and pasted_cat is not NULL"
-            command="SELECT * from " + test + "try_db f  where f.OBJNAME='" + dtop['OBJNAME'] + "' and f.PPRUN='" + dtop['PPRUN'] + "' limit 1"
-            print 'match_OBJNAME| command=',command
-            c.execute(command)
-            results2=c.fetchall()
-            #sort_results(results,try_db_keys)
-
-            for line in results2:
-                dict_temp = {}
-                for i in xrange(len(try_db_keys)):
-                    dict_temp[try_db_keys[i]] = str(line[i])
-
-            primary = dict_temp['primary_filt']
-            primary_catalog = dict_temp['primary_catalog']
-            secondary = dict_temp['secondary_filt']
-            secondary_catalog = dict_temp['secondary_catalog']
-            if todo is None:
-                match = dict_temp['todo']
-            else: match= todo
-
-            print 'match_OBJNAME| primary=',primary , ' secondary=',secondary
-
-            ''' now run with PPRUN '''
-            command_supa="SELECT * from "+illum_db+" i left join " + test + "fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where i.OBJNAME='" + dtop['OBJNAME'] + "' and i.pasted_cat is not NULL and i.PPRUN='" + dtop['PPRUN'] + "' and badccd!=1 group by i.supa"
-
-            print 'match_OBJNAME| command_supa=',command_supa
-            c.execute(command_supa)
-            results_supa=c.fetchall()
-            print 'match_OBJNAME| matching len(results_supa)=', len(results_supa)
-
-            field = []
-            info = []
-            if len(results_supa) > 0: #  and (len(results_try) == 0 or trial):
-                ''' only redirect stdout if actually running on a pprun '''
-                if not trial:
-                    print "match_OBJNAME| not trial"
-                    stderr_orig = sys.stderr
-                    stdout_orig = sys.stdout
-                    sys.stdout = logfile
-                    sys.stderr = logfile
-                try:
-
-                    for line in results_supa:
-                        print 'match_OBJNAME| line=', line
-                        d = {}
-                        for i in xrange(len(illum_db_keys)):
-                            d[illum_db_keys[i]] = str(line[i])
-                        #ana = '' #raw_input('analyze ' + d['SUPA'] + '?')
-                        #if len(ana) > 0:
-                        #    if ana[0] == 'y':
-                        #        analyze(d['SUPA'],d['FLAT_TYPE'])
-                        ''' use SCAMP CRVAL, etc. '''
-
-                        a=1
-                        print 'match_OBJNAME| d["CHIPS"]=',d["CHIPS"] , ' d["fixradecCR"]=',d["fixradecCR"]
-                        ooo=os.system('cd ' + tmpdir)
-                        if ooo!=0: raise Exception("the line os.system('cd ' + tmpdir) failed\n'cd ' + tmpdir="+'cd ' + tmpdir)
-                        print 'match_OBJNAME| tmpdir=',tmpdir
-                        if str(d['CHIPS'])=='None' or str(d['fixradecCR']) != str(1.0): # or str(d['fixradecCR']) == '-1':
-                            a = fix_radec(d['SUPA'],d['FLAT_TYPE'])
-
-                        if a==1:
-                            key = str(int(float(d['ROTATION']))) + '$' + d['SUPA'] + '$'
-                            field.append({'key':key,'pasted_cat':d['pasted_cat'],'ROT':d['ROTATION'],'file':d['file']})
-                            info.append([d['ROTATION'],d['SUPA'],d['OBJNAME']])
-                            print 'match_OBJNAME| d["file"]=',d["file"]
-                        if d['CRVAL1'] == 'None':
-                            length(d['SUPA'],d['FLAT_TYPE'])
-                        print 'match_OBJNAME| d["SUPA"]=',d["SUPA"]
-
-                    #The output catalogs are named in a confusing way. Each PPRUN is supposed to have a panstarrsmatch*.cat.assoc1 file, but it's only run on the last SUPA, because it assumes you'll get the same things from all of the SUPAs. So this stuff doesn't need to be indented, it's not supposed to be part of the loop over the results_supa (line)
-                    #adam-watch# maybe it's best to pick the image with the best image quality instead of just the last one in the list?
-
-                    #adam-note# match == 'bootstrap': then you apply the catalog from a previous successful fit (from a different filter )
-                    if match == 'bootstrap':
-                        print 'match_OBJNAME| primary=', primary, ' secondary=', secondary
-                        ''' match images '''
-                        finalcat = match_many_multi_band([[dict_temp['primary_catalog'],'primary'],[dict_temp['secondary_catalog'],'secondary']])
-                        print 'match_OBJNAME| finalcat=',finalcat
+    
+            if loop or OBJNAME is None: # or start == 0:
+                loop=True
+    
+                try_db_keys = describe_db(c,['' + test + 'try_db'])
+                illum_db_keys = describe_db(c,[illum_db])
+    
+                command = "select * from " + test + "try_db t where t.panstarrsstatus is null and t.Nonestatus is null and (config='8.0' or config='9.0') group by t.objname, t.pprun order by rand()"
+                print 'match_OBJNAME| command=',command
+                c.execute(command)
+                results=c.fetchall()
+    
+                if len(results) > 0:
+                    for line in results:
+                        dtop = {}
+                        for i in xrange(len(try_db_keys)):
+                            dtop[try_db_keys[i]] = str(line[i])
+                        command = "select i.* from "+illum_db+" i where i.OBJNAME='" + dtop['OBJNAME'] + "' and i.PPRUN = '" + dtop['PPRUN'] + "' and i.pasted_cat is not null  GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND() limit 1 " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
+                        c.execute(command)
+                        results_b=c.fetchall()
+                        print 'match_OBJNAME| results_b=',results_b
+                        if len(results_b) > 0:
+                            for i in xrange(len(illum_db_keys)):
+                                dtop[illum_db_keys[i]] = str(results_b[0][i])
+                            print 'match_OBJNAME| dtop["PPRUN"]=',dtop["PPRUN"] , ' dtop["OBJNAME"]=',dtop["OBJNAME"]
+                            break
                     else:
-                        ''' now check to see if there is panstarrs '''
-                        panstarrs_cov,starcat = panstarrs_coverage(d['SUPA'],d['FLAT_TYPE'])
-                        ''' get panstarrs matched stars, use photometric calibration to remove color term '''
-                        #adam-watch# make sure the rest of this code actually uses `panstarrs_coverage` output and `get_cats_ready` output, rather than just appearing to use it. Remember that at first it was claiming to use panstarrs info even when there weren't any panstarrs catalogs
-                        if panstarrs_cov:
-                            ''' retrieve panstarrs catalog '''
-                            match = 'panstarrs'
-                            panstarrsmatch = get_cats_ready(d['SUPA'],d['FLAT_TYPE'],starcat)
-                            print 'match_OBJNAME| d["SUPA"]=',d["SUPA"] , ' d["FLAT_TYPE"]=',d["FLAT_TYPE"] , ' d["OBJECT"]=',d["OBJECT"] , ' d["CRVAL1"]=',d["CRVAL1"] , ' d["CRVAL2"]=',d["CRVAL2"]
-                            print 'match_OBJNAME| d["pasted_cat"]=',d["pasted_cat"] , ' panstarrs_cov=',panstarrs_cov
-                            print 'match_OBJNAME| calibration done'
+                        dtop= {}
+    
+            else:
+                go = False
+                command=" drop temporary table if exists temp  "
+                c.execute(command)
+                command = "create temporary table temp as select * from "+illum_db+" group by objname, pprun "
+                print 'match_OBJNAME| command=',command
+                c.execute(command)
+    
+                #command="SELECT * from temp i left join " + test + "fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where i.SUPA not like '%I' and i.objname='"+OBJNAME+"' and i.pprun='"+PPRUN+"' and i.filter='" + FILTER + "' GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND() " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
+                command="SELECT * from "+illum_db+" where  file not like '%CALIB%' and  PPRUN !='KEY_N/A'  and OBJNAME like '" + OBJNAME + "' and FILTER like '" + FILTER + "' and PPRUN='" + PPRUN + "' GROUP BY pprun,filter,OBJNAME" # ORDER BY RAND()" # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
+    
+                start = 0
+                print 'match_OBJNAME| command=',command
+                c.execute(command)
+                results=c.fetchall()
+                print 'match_OBJNAME| len(results)=',len(results)
+                print 'match_OBJNAME| results[0]=',results[0]
+                ppid = str(os.getppid())
+    
+                print 'match_OBJNAME| hey'
+                if len(results) == 0:
+                    print 'match_OBJNAME| breaking!'
+                    break
+    
+                if len(results) > 0:
+                    print 'match_OBJNAME| start next'
+                    line = results[0]
+                    dtop = {}
+                    for i in xrange(len(illum_db_keys)):
+                        dtop[illum_db_keys[i]] = str(line[i])
+    
+            if len(results) ==0: return
+            if len(results) > 0:
+                FILTER = dtop['FILTER']
+                PPRUN = dtop['PPRUN']
+                OBJNAME = dtop['OBJNAME']
+    
+                print 'match_OBJNAME| now running save_fit',({"PPRUN":PPRUN,"OBJNAME":OBJNAME,"FILTER":FILTER,"sample":"record","sample_size":"record"},"db="+""+test+"try_db")
+                save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'sample':'record','sample_size':'record'},db='' + test + 'try_db')
+                illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_PANSTARRS/' + FILTER + '/' + PPRUN + '/'
+                if not os.path.isdir(illum_dir+'/other_runs_plots/'):
+                        os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
+                logfile  = open(illum_dir + 'logfile','w')
+                print 'match_OBJNAME| illum_dir+"logfile"=',illum_dir+"logfile"
+                print 'match_OBJNAME| dtop["FILTER"]=',dtop["FILTER"] , 'dtop["PPRUN"]=',dtop["PPRUN"] , 'dtop["OBJNAME"]=',dtop["OBJNAME"]
+                #keys = ['SUPA','OBJNAME','ROTATION','PPRUN','pasted_cat','FILTER','ROTATION','files']
+    
+                try_db_keys = describe_db(c,['' + test + 'try_db'])
+                #command="SELECT * from "+illum_db+" where  OBJNAME='" + dtop['OBJNAME'] + "' and PPRUN='" + dtop['PPRUN'] + "' and filter like '" + dtop['FILTER'] + "' and pasted_cat is not NULL"
+                command="SELECT * from " + test + "try_db f  where f.OBJNAME='" + dtop['OBJNAME'] + "' and f.PPRUN='" + dtop['PPRUN'] + "' limit 1"
+                print 'match_OBJNAME| command=',command
+                c.execute(command)
+                results2=c.fetchall()
+                #sort_results(results,try_db_keys)
+    
+                for line in results2:
+                    dict_temp = {}
+                    for i in xrange(len(try_db_keys)):
+                        dict_temp[try_db_keys[i]] = str(line[i])
+    
+                primary = dict_temp['primary_filt']
+                primary_catalog = dict_temp['primary_catalog']
+                secondary = dict_temp['secondary_filt']
+                secondary_catalog = dict_temp['secondary_catalog']
+                if todo is None:
+                    match = dict_temp['todo']
+                else: match= todo
+    
+                print 'match_OBJNAME| primary=',primary , ' secondary=',secondary
+    
+                ''' now run with PPRUN '''
+                command_supa="SELECT * from "+illum_db+" i left join " + test + "fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where i.OBJNAME='" + dtop['OBJNAME'] + "' and i.pasted_cat is not NULL and i.PPRUN='" + dtop['PPRUN'] + "' and badccd!=1 group by i.supa"
+    
+                print 'match_OBJNAME| command_supa=',command_supa
+                c.execute(command_supa)
+                results_supa=c.fetchall()
+                print 'match_OBJNAME| matching len(results_supa)=', len(results_supa)
+    
+                field = []
+                info = []
+                if len(results_supa) > 0: #  and (len(results_try) == 0 or trial):
+                    ''' only redirect stdout if actually running on a pprun '''
+                    if not trial:
+                        print "match_OBJNAME| not trial"
+                        stderr_orig = sys.stderr
+                        stdout_orig = sys.stdout
+                        sys.stdout = logfile
+                        sys.stderr = logfile
+                    try:
+    
+                        for line in results_supa:
+                            print 'match_OBJNAME| line=', line
+                            d = {}
+                            for i in xrange(len(illum_db_keys)):
+                                d[illum_db_keys[i]] = str(line[i])
+                            #ana = '' #raw_input('analyze ' + d['SUPA'] + '?')
+                            #if len(ana) > 0:
+                            #    if ana[0] == 'y':
+                            #        analyze(d['SUPA'],d['FLAT_TYPE'])
+                            ''' use SCAMP CRVAL, etc. '''
+    
+                            a=1
+                            print 'match_OBJNAME| d["CHIPS"]=',d["CHIPS"] , ' d["fixradecCR"]=',d["fixradecCR"]
+                            ooo=os.system('cd ' + tmpdir)
+                            if ooo!=0: raise Exception("the line os.system('cd ' + tmpdir) failed\n'cd ' + tmpdir="+'cd ' + tmpdir)
+                            print 'match_OBJNAME| tmpdir=',tmpdir
+                            if str(d['CHIPS'])=='None' or str(d['fixradecCR']) != str(1.0): # or str(d['fixradecCR']) == '-1':
+                                a = fix_radec(d['SUPA'],d['FLAT_TYPE'])
+    
+                            if a==1:
+                                key = str(int(float(d['ROTATION']))) + '$' + d['SUPA'] + '$'
+                                field.append({'key':key,'pasted_cat':d['pasted_cat'],'ROT':d['ROTATION'],'file':d['file']})
+                                info.append([d['ROTATION'],d['SUPA'],d['OBJNAME']])
+                                print 'match_OBJNAME| d["file"]=',d["file"]
+                            if d['CRVAL1'] == 'None':
+                                length(d['SUPA'],d['FLAT_TYPE'])
+                            print 'match_OBJNAME| d["SUPA"]=',d["SUPA"]
+    
+                        #The output catalogs are named in a confusing way. Each PPRUN is supposed to have a panstarrsmatch*.cat.assoc1 file, but it's only run on the last SUPA, because it assumes you'll get the same things from all of the SUPAs. So this stuff doesn't need to be indented, it's not supposed to be part of the loop over the results_supa (line)
+                        #adam-watch# maybe it's best to pick the image with the best image quality instead of just the last one in the list?
+    
+                        #adam-note# match == 'bootstrap': then you apply the catalog from a previous successful fit (from a different filter )
+                        if match == 'bootstrap':
+                            print 'match_OBJNAME| primary=', primary, ' secondary=', secondary
+                            ''' match images '''
+                            finalcat = match_many_multi_band([[dict_temp['primary_catalog'],'primary'],[dict_temp['secondary_catalog'],'secondary']])
+                            print 'match_OBJNAME| finalcat=',finalcat
                         else:
-                            match=None
-
-                    print 'match_OBJNAME| match=',match
-
-                    #save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record','status':'started','time':str(time.localtime())},db='' + test + 'try_db')
-
-                    d = get_files(d['SUPA'],d['FLAT_TYPE'])
-                    print 'match_OBJNAME| field=',field
-                    input = [[x['pasted_cat'],x['key'],x['ROT']] for x in field]
-                    #input_files = [[x['pasted_cat']] for x in field]
-                    #print 'match_OBJNAME| input_files=',input_files
-
-                    input_filt = []
-                    print 'match_OBJNAME| input=',input
-                    for f in input:
-                        ''' may need fainter objects for bootstrap '''
-                        if match=='bootstrap':
-                            Ns = ['MAGERR_AUTO < 0.1)','Flag = 0)','IMAFLAGS_ISO = 0)']
-                        else:
-                            Ns = ['MAGERR_AUTO < 0.05)','Flag = 0)','IMAFLAGS_ISO = 0)']
-                        filt= '(' + reduce(lambda x,y: '(' + x + '  AND (' + y + ')',Ns)
-                        print 'match_OBJNAME| filt=',filt , ' f=',f
-                        filtered = f[0].replace('.cat','.filt.cat')
-                        print 'match_OBJNAME| filtered=',filtered
-                        command_ldacfilter = progs_path['p_ldacfilter']+' -i ' + f[0] + ' -t OBJECTS -o ' + filtered + ' -c "' + filt + ';" '
-                        print 'match_OBJNAME| command_ldacfilter=',command_ldacfilter
-                        ooo=utilities.run(command_ldacfilter,[filtered])
-                        if ooo!=0: raise Exception("the line utilities.run(command_ldacfilter,[filtered]) failed\ncommand_ldacfilter="+command_ldacfilter)
-                        input_filt.append([filtered,f[1],f[2]])
-
-                    print 'match_OBJNAME| input=',input
-                    input = input_filt
-                    print 'match_OBJNAME| input_filt=',input_filt
-
-                    if match=='panstarrs':
-                        input.append([panstarrsmatch,'panstarrs',None])
-                    elif match=='bootstrap':
-                        input.append([finalcat,'panstarrs',None])
-
-                    if len(input) < 3:
-                        raise TryDb('too few images')
-
-                    print 'match_OBJNAME| input=',input
-                    print 'match_OBJNAME| now running match_many(input)'
-                    match_many(input)
-
-                    start_EXPS = getTableInfo()
-                    print 'match_OBJNAME| start_EXPS=',start_EXPS
-
-                    dt = get_files(start_EXPS[start_EXPS.keys()[0]][0])
-                    CHIPS = [int(x) for x in re.split(',',dt['CHIPS'])]
-                    LENGTH1, LENGTH2 = dt['LENGTH1'], dt['LENGTH2']
-                    CONFIG = find_config(dt['GABODSID'])
-                    print 'match_OBJNAME| CONFIG=',CONFIG , ' dt["PPRUN"]=',dt["PPRUN"] , ' dt["OBJNAME"]=',dt["OBJNAME"]
-
-	            #adam-SHNT# this most certainly is not the actual value of the background!
-                    EXPS, star_good,supas, totalstars, mdn_background = selectGoodStars(start_EXPS,match,LENGTH1,LENGTH2,CONFIG)
-                    print 'match_OBJNAME| totalstars=',totalstars
-                    info = starStats(supas)
-                    print 'match_OBJNAME| info=',info
-                    print 'match_OBJNAME| match=',match
-                    print 'match_OBJNAME| mdn_background=',mdn_background , ' len(supas)=',len(supas)
-
-                    if len(supas) < 300 and mdn_background > 26000:
-                        raise TryDb('high background:'+ str(mdn_background))
-
-                    start_ims = (reduce(lambda x,y: x + y, [len(start_EXPS[x]) for x in start_EXPS.keys()]))
-                    final_ims = (reduce(lambda x,y: x + y, [len(EXPS[x]) for x in EXPS.keys()]))
-                    print 'match_OBJNAME| start_ims=', start_ims
-                    print 'match_OBJNAME| final_ims=', final_ims
-                    if final_ims < 3:
-                        raise TryDb('start:'+str(start_ims)+',end:'+str(final_ims))
-
-                    uu = open(tmpdir + '/selectGoodStars','w')
-                    pickle.dump({'info':info,'EXPS':EXPS,'star_good':star_good,'supas':supas,'totalstars':totalstars},uu)
-                    uu.close()
-
-                    ''' if there are too few matches with panstarrs stars, dont use them '''
-                    if match == 'panstarrs' and info['match'] < 100:
-                        match = None
-
-                    save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'started','fit_time':str(time.localtime())},db='' + test + 'try_db')
-                    print 'match_OBJNAME| ',{'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'started','fit_time':str(time.localtime())}
-
-                    if match == 'bootstrap' and info['match'] < 200:
-                        print 'match_OBJNAME| info["match"]=',info["match"]
-                        raise TryDb('too few objects/bootstrap:' + str(info['match']))
-
-                    print 'match_OBJNAME| match=',match , ' info=',info
-                    command="SELECT * from " + test + "fit_db i  where i.OBJNAME='" + dtop['OBJNAME'] + "' and (i.sample_size='all' and i.sample='" + str(match) + "' and i.positioncolumns is not null) and i.PPRUN='" + dtop['PPRUN'] + "'"
-                    print 'match_OBJNAME| command=',command
-                    c.execute(command)
-                    results_try=c.fetchall()
-                    print 'match_OBJNAME| len(results_try)=',len(results_try)
-                    print 'match_OBJNAME| OBJNAME=',OBJNAME , ' FILTER=',FILTER , ' PPRUN=',PPRUN , ' match=',match
-
-                    print 'match_OBJNAME| matched'
-		    run_these=["all","rand1","rand2","rand3","rand4","rand5","rand6","rand7","rand8","rand9","rand10"]
-                    #adam-no_more# run_these=["all"] 
-                    linear_fit(OBJNAME,FILTER,PPRUN,run_these,match,CONFIG,primary=primary,secondary=secondary)
-                    ''' now records the current sample used in the fit '''
-                    save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':str(illum_dir)+'logfile','sample':str('record'),'sample_size':'record',str(match)+'status':'fitfinished','test_check':'yes','sample_current':str(match),'fit_time':str(time.localtime())},db='' + str(test) + 'try_db')
-                    #save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'sample_size':'record','sample':'record','sample_current':str(match)},db='' + test + 'try_db')
-
-                    ### used to run construct_correction here before, now I run this separate from any other function (could be run in run_correction later  )
-                    print 'match_OBJNAME| ','DONE '*100
-                    if batchmode:
-                        os.system('rm -rf ' + tmpdir +"/*")
-                except KeyboardInterrupt:
-                    print 'match_OBJNAME| HIT EXCEPTION!'
-                    raise
-                except:
-                    print 'match_OBJNAME| HIT EXCEPTION!'
-                    ppid_loc = str(os.getppid())
-                    print 'match_OBJNAME| traceback.print_exc(file=sys.stdout)=',traceback.print_exc(file=sys.stdout)
-                    ''' if a child process fails, just exit '''
-                    if ppid_loc != ppid: sys.exit(0)
-                    print 'match_OBJNAME| fail'
-                    print 'match_OBJNAME| trial=', trial
-                    save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'failed','fit_time':str(time.localtime()),'exception':'no information'},db='' + test + 'try_db')
-                    if batchmode:
-                        os.system('rm -rf ' + tmpdir +"/*")
-                    if trial:
-                        print 'match_OBJNAME| raising exception'
+                            ''' now check to see if there is panstarrs '''
+                            panstarrs_cov,starcat = panstarrs_coverage(d['SUPA'],d['FLAT_TYPE'])
+                            ''' get panstarrs matched stars, use photometric calibration to remove color term '''
+                            #adam-watch# make sure the rest of this code actually uses `panstarrs_coverage` output and `get_cats_ready` output, rather than just appearing to use it. Remember that at first it was claiming to use panstarrs info even when there weren't any panstarrs catalogs
+                            if panstarrs_cov:
+                                ''' retrieve panstarrs catalog '''
+                                match = 'panstarrs'
+                                panstarrsmatch = get_cats_ready(d['SUPA'],d['FLAT_TYPE'],starcat)
+                                print 'match_OBJNAME| d["SUPA"]=',d["SUPA"] , ' d["FLAT_TYPE"]=',d["FLAT_TYPE"] , ' d["OBJECT"]=',d["OBJECT"] , ' d["CRVAL1"]=',d["CRVAL1"] , ' d["CRVAL2"]=',d["CRVAL2"]
+                                print 'match_OBJNAME| d["pasted_cat"]=',d["pasted_cat"] , ' panstarrs_cov=',panstarrs_cov
+                                print 'match_OBJNAME| calibration done'
+                            else:
+                                match=None
+    
+                        print 'match_OBJNAME| match=',match
+    
+                        #save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record','status':'started','time':str(time.localtime())},db='' + test + 'try_db')
+    
+                        d = get_files(d['SUPA'],d['FLAT_TYPE'])
+                        print 'match_OBJNAME| field=',field
+                        input = [[x['pasted_cat'],x['key'],x['ROT']] for x in field]
+                        #input_files = [[x['pasted_cat']] for x in field]
+                        #print 'match_OBJNAME| input_files=',input_files
+    
+                        input_filt = []
+                        print 'match_OBJNAME| input=',input
+                        for f in input:
+                            ''' may need fainter objects for bootstrap '''
+                            if match=='bootstrap':
+                                Ns = ['MAGERR_AUTO < 0.1)','Flag = 0)','IMAFLAGS_ISO = 0)']
+                            else:
+                                Ns = ['MAGERR_AUTO < 0.05)','Flag = 0)','IMAFLAGS_ISO = 0)']
+                            filt= '(' + reduce(lambda x,y: '(' + x + '  AND (' + y + ')',Ns)
+                            print 'match_OBJNAME| filt=',filt , ' f=',f
+                            filtered = f[0].replace('.cat','.filt.cat')
+                            print 'match_OBJNAME| filtered=',filtered
+                            command_ldacfilter = progs_path['p_ldacfilter']+' -i ' + f[0] + ' -t OBJECTS -o ' + filtered + ' -c "' + filt + ';" '
+                            print 'match_OBJNAME| command_ldacfilter=',command_ldacfilter
+                            ooo=utilities.run(command_ldacfilter,[filtered])
+                            if ooo!=0: raise Exception("the line utilities.run(command_ldacfilter,[filtered]) failed\ncommand_ldacfilter="+command_ldacfilter)
+                            input_filt.append([filtered,f[1],f[2]])
+    
+                        print 'match_OBJNAME| input=',input
+                        input = input_filt
+                        print 'match_OBJNAME| input_filt=',input_filt
+    
+                        if match=='panstarrs':
+                            input.append([panstarrsmatch,'panstarrs',None])
+                        elif match=='bootstrap':
+                            input.append([finalcat,'panstarrs',None])
+    
+                        if len(input) < 3:
+                            raise TryDb('too few images')
+    
+                        print 'match_OBJNAME| input=',input
+                        print 'match_OBJNAME| now running match_many(input)'
+                        match_many(input,PPRUN)
+    
+                        start_EXPS = getTableInfo(PPRUN)
+                        print 'match_OBJNAME| start_EXPS=',start_EXPS
+    
+                        dt = get_files(start_EXPS[start_EXPS.keys()[0]][0])
+                        CHIPS = [int(x) for x in re.split(',',dt['CHIPS'])]
+                        LENGTH1, LENGTH2 = dt['LENGTH1'], dt['LENGTH2']
+                        CONFIG = find_config(dt['GABODSID'])
+                        print 'match_OBJNAME| CONFIG=',CONFIG , ' dt["PPRUN"]=',dt["PPRUN"] , ' dt["OBJNAME"]=',dt["OBJNAME"]
+    
+                        #adam-SHNT# this most certainly is not the actual value of the background!
+                        EXPS, star_good,supas, totalstars, mdn_background = selectGoodStars(start_EXPS,match,LENGTH1,LENGTH2,CONFIG,PPRUN)
+                        print 'match_OBJNAME| totalstars=',totalstars
+                        info = starStats(supas)
+                        print 'match_OBJNAME| info=',info
+                        print 'match_OBJNAME| match=',match
+                        print 'match_OBJNAME| mdn_background=',mdn_background , ' len(supas)=',len(supas)
+    
+                        if len(supas) < 300 and mdn_background > 26000:
+                            raise TryDb('high background:'+ str(mdn_background))
+    
+                        start_ims = (reduce(lambda x,y: x + y, [len(start_EXPS[x]) for x in start_EXPS.keys()]))
+                        final_ims = (reduce(lambda x,y: x + y, [len(EXPS[x]) for x in EXPS.keys()]))
+                        print 'match_OBJNAME| start_ims=', start_ims
+                        print 'match_OBJNAME| final_ims=', final_ims
+                        if final_ims < 3:
+                            raise TryDb('start:'+str(start_ims)+',end:'+str(final_ims))
+    
+                        uu = open(tmpdir + '/selectGoodStars_'+PPRUN,'w')
+                        pickle.dump({'info':info,'EXPS':EXPS,'star_good':star_good,'supas':supas,'totalstars':totalstars},uu)
+                        uu.close()
+    
+                        ''' if there are too few matches with panstarrs stars, dont use them '''
+                        if match == 'panstarrs' and info['match'] < 100:
+                            match = None
+    
+                        save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'started','fit_time':str(time.localtime())},db='' + test + 'try_db')
+                        print 'match_OBJNAME| ',{'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'started','fit_time':str(time.localtime())}
+    
+                        if match == 'bootstrap' and info['match'] < 200:
+                            print 'match_OBJNAME| info["match"]=',info["match"]
+                            raise TryDb('too few objects/bootstrap:' + str(info['match']))
+    
+                        print 'match_OBJNAME| match=',match , ' info=',info
+                        command="SELECT * from " + test + "fit_db i  where i.OBJNAME='" + dtop['OBJNAME'] + "' and (i.sample_size='all' and i.sample='" + str(match) + "' and i.positioncolumns is not null) and i.PPRUN='" + dtop['PPRUN'] + "'"
+                        print 'match_OBJNAME| command=',command
+                        c.execute(command)
+                        results_try=c.fetchall()
+                        print 'match_OBJNAME| len(results_try)=',len(results_try)
+                        print 'match_OBJNAME| OBJNAME=',OBJNAME , ' FILTER=',FILTER , ' PPRUN=',PPRUN , ' match=',match
+    
+                        print 'match_OBJNAME| matched'
+                        run_these=["all","rand1","rand2","rand3","rand4","rand5","rand6","rand7","rand8","rand9","rand10"]
+                        #adam-no_more# run_these=["all"] 
+                        linear_fit(OBJNAME,FILTER,PPRUN,run_these,match,CONFIG,primary=primary,secondary=secondary)
+                        ''' now records the current sample used in the fit '''
+                        save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':str(illum_dir)+'logfile','sample':str('record'),'sample_size':'record',str(match)+'status':'fitfinished','test_check':'yes','sample_current':str(match),'fit_time':str(time.localtime())},db='' + str(test) + 'try_db')
+    
+                        ### used to run construct_correction here before, now I run this separate from any other function (could be run in run_correction later  )
+                        print 'match_OBJNAME| ','DONE '*100
+                        if batchmode:
+                            os.system('rm -rf ' + tmpdir +"/*")
+                    except KeyboardInterrupt:
+                        print 'match_OBJNAME| HIT EXCEPTION!'
                         raise
-                    raise
-                if not trial:
-                    sys.stderr = stderr_orig
-                    sys.stdout = stdout_orig
-                    logfile.close()
+                    except:
+                        print 'match_OBJNAME| HIT EXCEPTION!'
+                        ppid_loc = str(os.getppid())
+                        print 'match_OBJNAME| traceback.print_exc(file=sys.stdout)=',traceback.print_exc(file=sys.stdout)
+                        ''' if a child process fails, just exit '''
+                        if ppid_loc != ppid: sys.exit(0)
+                        print 'match_OBJNAME| fail'
+                        print 'match_OBJNAME| trial=', trial
+                        save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'failed','fit_time':str(time.localtime()),'exception':'no information'},db='' + test + 'try_db')
+                        if batchmode:
+                            os.system('rm -rf ' + tmpdir +"/*")
+                        if trial:
+                            print 'match_OBJNAME| raising exception'
+                            raise
+                        raise
+                    if not trial:
+                        sys.stderr = stderr_orig
+                        sys.stdout = stdout_orig
+                        logfile.close()
+    except:
+        ns.update(locals())
+        raise
     print "match_OBJNAME| DONE with func"
 
-def describe_db(c,db=[illum_db]):
+def describe_db(c,db=[None]):
     '''inputs: c,db=[illum_db]
     returns:  keys
     calls:
     called_by: match_OBJNAME,match_OBJNAME,match_OBJNAME,match_OBJNAME,match_OBJNAME,save_fit,linear_fit,get_fits'''
     if type(db) != type([]):
         db = [db]
+    if db==[None]: db=[illum_db]
     keys = []
     for d in db:
         command = "DESCRIBE " + d
@@ -1774,12 +1724,13 @@ def describe_db(c,db=[illum_db]):
             keys.append(line[0])
     return keys
 
-def save_fit(dict_fit,OBJNAME=None,FILTER=None,PPRUN=None,db=test + 'fit_db'):
+def save_fit(dict_fit,OBJNAME=None,FILTER=None,PPRUN=None,db=None):
     '''inputs: dict_fit,OBJNAME=None,FILTER=None,PPRUN=None,db=test + 'fit_db'
     returns:
     calls: connect_except,describe_db
     called_by: match_OBJNAME,match_OBJNAME,match_OBJNAME,match_OBJNAME,linear_fit,linear_fit,linear_fit,linear_fit,linear_fit,linear_fit,linear_fit,linear_fit'''
     print '\nsave_fit| START the func. inputs: dict_fit=',dict_fit , ' OBJNAME=',OBJNAME , ' FILTER=',FILTER , ' PPRUN=',PPRUN , ' db=',db
+    if db==None: db=test + 'fit_db'
     if OBJNAME!= None and FILTER!= None and  PPRUN!=None:
         dict_fit['OBJNAME'] = OBJNAME
         dict_fit['FILTER'] = FILTER
@@ -1923,7 +1874,7 @@ def panstarrs_coverage(SUPA,FLAT_TYPE):  #intermediate #step3_run_fit
     print 'panstarrs_coverage| results=',results
 
     if len(results) == 0:
-	#adam-del# import calc_tmpsave; calc_tmpsave.get_panstarrs_cats(dict_panstarrs['OBJNAME'])
+        #adam-del# import calc_tmpsave; calc_tmpsave.get_panstarrs_cats(dict_panstarrs['OBJNAME'])
         get_panstarrs_cats(dict_panstarrs['OBJNAME'])
         command = "select cov from panstarrs_db where OBJNAME='" + dict_panstarrs['OBJNAME'] + "'"
         c.execute(command)
@@ -1940,12 +1891,11 @@ def panstarrs_coverage(SUPA,FLAT_TYPE):  #intermediate #step3_run_fit
     print "panstarrs_coverage| DONE with func"
     return cov, starcat
 
-#adam-watch# checkout what's going on with `match_many` func and associate command
-def match_many(input_list,color=False):
+def match_many(input_list,PPRUN,color=False):
     '''inputs: input_list,color=False
     purpose: runs ldacaddkey, associate, and make_ssc commands which do all of the matching among all of my catalogs and the panstarrs catalog.
-	 IMPORTANT: final cat output is saved in: /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/tmp_simple_ic_PANSTARRS/final.cat
-	 output assoc cats output are saved in files like: /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/tmp_simple_ic_PANSTARRS//assoc/pasted_SUPA0135159_W-C-RC_1.0.filt.cat.assoc1.assd
+         IMPORTANT: final cat output is saved in: /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/tmp_simple_ic_PANSTARRS/final_'+PPRUN+'.cat
+         output assoc cats output are saved in files like: /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/tmp_simple_ic_PANSTARRS//assoc/pasted_SUPA0135159_W-C-RC_1.0.filt.cat.assoc1.assd
     calls: make_ssc_config_few
     called_by: match_OBJNAME'''
 
@@ -1978,14 +1928,14 @@ def match_many(input_list,color=False):
     print 'match_many| files_input=',files_input,' files_output=', files_output
 
     command_associate = progs_path['p_associate']+' -i %(inputcats)s -o %(outputcats)s -t OBJECTS -c %(bonn)s/photconf/fullphotom.alpha.associate' % {'inputcats':files_input,'outputcats':files_output, 'bonn':os.environ['bonn']}
-    print 'match_many| (adam-look) command_associate=',command_associate
+    print 'match_many| command_associate=',command_associate
     ooo=os.system(command_associate)
     if ooo!=0: raise Exception("the line os.system(command_associate) failed\ncommand_associate="+command_associate)
     print 'match_many| associated'
 
-    outputcat = tmpdir + '/final.cat'
+    outputcat = tmpdir + '/final_'+PPRUN+'.cat'
     command_make_ssc = '%(p_make_ssc)s -i %(inputcats)s -o %(outputcat)s -t OBJECTS -c %(tmpdir)s/tmp.ssc ' % {'p_make_ssc':progs_path['p_makessc'],'tmpdir': tmpdir, 'inputcats':files_output,'outputcat':outputcat}
-    print 'match_many| (adam-look) command_make_ssc=',command_make_ssc
+    print 'match_many| command_make_ssc=',command_make_ssc
     ooo=os.system(command_make_ssc)
     print 'match_many| adam-look program=%(p_make_ssc)s wrote outputcat=%(outputcat)s' % {'p_make_ssc':progs_path['p_makessc'],'outputcat':outputcat}
     if ooo!=0: raise Exception("the line os.system(command_make_ssc) failed\ncommand_make_ssc="+command_make_ssc)
@@ -2024,14 +1974,14 @@ def make_ssc_config_few(input_list):
     out.close()
     print "make_ssc_config_few| DONE with func"
 
-def getTableInfo(): #simple #step3
+def getTableInfo(PPRUN): #simple #step3
     '''purpose: returns a dict with keys=rotations, and values=images corresponding to those rotations
     returns:  ROTS
     calls:
     called_by: match_OBJNAME,linear_fit'''
 
     print '\ngetTableInfo| START the func. No inputs for this func!'
-    p = pyfits.open(tmpdir + '/final.cat') #final.cat is the output from match_many func
+    p = pyfits.open(tmpdir + '/final_'+PPRUN+'.cat') #final_'+PPRUN+'.cat is the output from match_many func
     #tbdata = p[1].data ; types = [] ; KEYS = {}
     ROTS = {}
     for column in p[1].columns:
@@ -2055,7 +2005,7 @@ def find_config(GID): #simple
     calls:
     called_by: match_OBJNAME,match_OBJNAME'''
     #print 'find_config| START the func. inputs: GID=',GID
-    config_list = [[575,691,'8'],[691,871,'9'],[817,1309,'10_1'],[1309,3470,'10_2'],[3470,5000,'10_3']]
+    config_list = [[575,691,'8'],[691,871,'9'],[817,1309,'10_1'],[1309,3470,'10_2'],[3470,7000,'10_3']]
     CONFIG_IM = None
     for config in config_list:
         if config[0] < GID < config[1]:
@@ -2067,10 +2017,10 @@ def find_config(GID): #simple
     #print "find_config| DONE with func"
     return CONFIG_IM
 
-def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
+def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG,PPRUN): #intermediate #step3
     '''inputs: EXPS,match,LENGTH1,LENGTH2,CONFIG
     returns:  EXPS, star_good(=list of indicies of "good stars"), supas(=list of "good star" info dicts), totalstars(=# of "good stars"), mdn_background(=median background of exposures)
-    purpose: find the quality detections in "final.cat". Here are some filtering things that happen:
+    purpose: find the quality detections in "final_'+PPRUN+'.cat". Here are some filtering things that happen:
 	1.) I exclude exposures with <300 good stars and ROTations with <2 exposures
 	2.) calculate the "mag"(mag=zp-magnitude ; w/ zp=median({magnitudes in exposure}) for each star
 	3.) quality stars identified by:
@@ -2078,7 +2028,7 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
 	    (2) in proper flux/magnitude range
 	    (3) within the center of the RADIAL ring portion of the image and without any flags at that point
 	    (4) with fairly certain magnitudes (Mag_err<.1)
-    if match==True: see if there is an panstarrs match and if it's a good match (i.e. match_good==1 if:CLASS_STAR>.65 and panstarrsstdMagClean_corr==1 and 40>panstarrsstdMag_corr>0 and 5>panstarrsstdMagColor_corr>-5)
+    if match==True: see if there is an "external ref cat" match and if it's a good match (i.e. match_good==1 if:CLASS_STAR>.65 and "external ref cat"stdMagClean_corr==1 and 40>"external ref cat"stdMag_corr>0 and 5>"external ref cat"stdMagColor_corr>-5)
     calls:
     called_by: match_OBJNAME,linear_fit'''
 
@@ -2095,8 +2045,8 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
         print 'selectGoodStars| EXPS_new=',EXPS_new
     EXPS = EXPS_new
 
-    p = pyfits.open(tmpdir + '/final.cat') #final.cat is the output from match_many func
-    print 'selectGoodStars| tmpdir+"/final.cat"=',tmpdir+"/final.cat"
+    p = pyfits.open(tmpdir + '/final_'+PPRUN+'.cat') #final_'+PPRUN+'.cat is the output from match_many func
+    print 'selectGoodStars| ',tmpdir+'/final_'+PPRUN+'.cat'
     #print 'selectGoodStars| p[1].columns=',p[1].columns
     table = p[1].data
     star_good = []
@@ -2118,7 +2068,9 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
                 tlist.append([y,ROT])
         print 'selectGoodStars| tlist=',tlist
 
+	good_number=0
         for y,ROT in tlist:
+            print 'selectGoodStars| START: ROT=',ROT , ' y=',y , ' good_number=',good_number
             mask = temp.field(ROT+'$'+y+'$MAG_AUTO') != 0.0
             good_entries = temp[mask] ; temp = good_entries
             print 'selectGoodStars| ',len(good_entries.field(ROT+'$'+y+'$MAG_AUTO')), ' | not 0.0'
@@ -2131,9 +2083,11 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
             mask = (temp.field(ROT+'$'+y+'$MaxVal') + temp.field(ROT+'$'+y+'$BackGr')) < flux_cut1
             good_entries = temp[mask] ; temp = good_entries
             good_number = len(good_entries.field(ROT+'$'+y+'$MAG_AUTO'))
-            print 'selectGoodStars| ROT=',ROT , ' y=',y , ' good_number=',good_number, ' | flux<flux_cut1=',flux_cut1
-            if good_number < 300:
-                print 'selectGoodStars| (adam-look) DROPPING!'
+            exposure_stars= (((table.field(ROT+'$'+y+'$MaxVal') + table.field(ROT+'$'+y+'$BackGr')) < flux_cut1)*(table.field(ROT+'$'+y+'$MAG_AUTO') < 30)*(0<table.field(ROT+'$'+y+'$MAG_AUTO'))).sum()
+            print 'selectGoodStars|  END : ROT=',ROT , ' y=',y , ' good_number=',good_number,'exposure_stars=',exposure_stars
+	    min_good_stars=230 #adam-tmp# was 300
+            if good_number < min_good_stars:
+                print 'selectGoodStars| (adam-look) DROPPING! too few stars! good_number < ',min_good_stars,':',good_number < min_good_stars
                 TEMP = {}
                 for ROTTEMP in EXPS.keys():
                     TEMP[ROTTEMP] = []
@@ -2142,11 +2096,16 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
                             TEMP[ROTTEMP].append(z)
                 EXPS = TEMP
                 Finished = False
+		good_number=0
                 break
         if good_number > 0:
             Finished = True
         print 'selectGoodStars| Finished=',Finished
     print 'selectGoodStars| len(temp)=',len(temp)
+    #adam-SHNT# OK, now I've made this slightly better, but I still need to exclude 3sec and 30sec images! (maybe search for CALIB?)
+    #adam-SHNT# ALSO, I"ve got to get a handle on the colors
+    #adam-SHNT# then do: vimdiff simple_ic_SDSS.py simple_ic_PANSTARRS.py
+    #adam-SHNT# then I can re-run everything from the start
 
     '''now get the zp of each of the different exposures: eventually I'm after "mag"(mag=zp-magnitude ; w/ zp=median({magnitudes in exposure}) for each star.'''
     zps = {}
@@ -2165,7 +2124,6 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
             keys = [ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos_ABS',ROT+'$'+y+'$Ypos_ABS',ROT+'$'+y+'$MAG_AUTO',ROT+'$'+y+'$MAGERR_AUTO',ROT+'$'+y+'$MaxVal',ROT+'$'+y+'$BackGr',ROT+'$'+y+'$CLASS_STAR',ROT+'$'+y+'$Flag',ROT+'$'+y+'$ALPHA_J2000',ROT+'$'+y+'$DELTA_J2000']
             if match:
                 keys = [ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos_ABS',ROT+'$'+y+'$Ypos_ABS',ROT+'$'+y+'$MAG_AUTO',ROT+'$'+y+'$MAGERR_AUTO',ROT+'$'+y+'$MaxVal',ROT+'$'+y+'$BackGr',ROT+'$'+y+'$CLASS_STAR',ROT+'$'+y+'$Flag' ,'panstarrsstdMag_corr','panstarrsstdMagErr_corr','panstarrsstdMagColor_corr','panstarrsstdMagClean_corr','panstarrsStar_corr',ROT+'$'+y+'$ALPHA_J2000',ROT+'$'+y+'$DELTA_J2000']
-                #print 'panstarrs', table.field('panstarrsstdMag_corr')[-1000:]
             for key in keys:
                 tab[key] = copy(table.field(key))
     print 'selectGoodStars| len(table)=',len(table)
@@ -2242,7 +2200,7 @@ def sort_supas(x,y): #simple
 def starStats(supas): #simple #step3
     '''inputs: supas
     returns:  stats
-    purpose: print stats based on how many panstarrs matches, good panstarrs matches, rotations, and stars in each supa you have in this `supas` dict
+    purpose: print stats based on how many "external ref cat" matches, good "external ref cat" matches, rotations, and stars in each supa you have in this `supas` dict
     calls:
     called_by: match_OBJNAME,linear_fit,linear_fit'''
 
@@ -2301,11 +2259,11 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                     cheby_terms.append({'n':tx['n'] + ty['n'],'fx':tx['f'],'fy':ty['f']})
                 if not ((tx['n'] == '0x' and ty['n'] == '0y') or (tx['n'] == '0x' and ty['n'] == '1y') or (tx['n'] == '1x' and ty['n'] == '0y')) :
                     cheby_terms_no_linear.append({'n':tx['n'] + ty['n'],'fx':tx['f'],'fy':ty['f']})
-    print 'linear_fit| cheby_terms=',cheby_terms , ' CONFIG=',CONFIG , ' cheby_terms_no_linear=',cheby_terms_no_linear
+    print 'linear_fit| cheby_terms=',cheby_terms , ' cheby_terms_no_linear=',cheby_terms_no_linear
     #adam-fragments_removed# linear_fit-store_and_model
 
     ''' EXPS has all of the image information for different rotations '''
-    start_EXPS = getTableInfo()
+    start_EXPS = getTableInfo(PPRUN)
     print 'linear_fit| start_EXPS=',start_EXPS
 
     dt = get_files(start_EXPS[start_EXPS.keys()[0]][0])
@@ -2322,12 +2280,12 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
 
     ''' get stars from the selectGoodStars func '''
     if redoselect:
-        EXPS, star_good,supas, totalstars, mdn_background = selectGoodStars(start_EXPS,match,LENGTH1,LENGTH2,CONFIG)
-        uu = open(tmpdir + '/selectGoodStars','w')
+        EXPS, star_good,supas, totalstars, mdn_background = selectGoodStars(start_EXPS,match,LENGTH1,LENGTH2,CONFIG,PPRUN)
+        uu = open(tmpdir + '/selectGoodStars_'+PPRUN,'w')
         info = starStats(supas)
         pickle.dump({'info':info,'EXPS':EXPS,'star_good':star_good,'supas':supas,'totalstars':totalstars},uu)
         uu.close()
-    f=open(tmpdir + '/selectGoodStars','r')
+    f=open(tmpdir + '/selectGoodStars_'+PPRUN,'r')
     m=pickle.Unpickler(f)
     d=m.load()
     f.close()
@@ -2342,7 +2300,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
     print 'linear_fit| len(star_good)=',len(star_good)
 
     #fitvars_fiducial = False
-    p = pyfits.open(tmpdir + '/final.cat') #final.cat is the output from match_many func
+    p = pyfits.open(tmpdir + '/final_'+PPRUN+'.cat') #final_'+PPRUN+'.cat is the output from match_many func
     table = p[1].data
     p.close()
 
@@ -2530,8 +2488,8 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
             x_length = len(position_columns) + len(zp_columns) + len(color_columns) + len(mag_columns)
             if not len(columns)==x_length: raise Exception('linear_fit: COLUMN LENGTH DISAGREEMENT: len(columns)='+str(len(columns))+' != x_length='+str(x_length))
             #adam-old# x_length = len(columns)
-            #adam-watch# what if it's not panstarrs? then not multiply by 2 in y_length? I think it won't effect the solution that you get, but I'm not too sure.
-            y_length = reduce(lambda x,y: x + y,[len(star['supa files'])*2 for star in supas]) # double number of rows for panstarrs
+            #adam-watch# what if it's not external ref cat? then not multiply by 2 in y_length? I think it won't effect the solution that you get, but I'm not too sure.
+            y_length = reduce(lambda x,y: x + y,[len(star['supa files'])*2 for star in supas]) # double number of rows for external ref cat
             print 'linear_fit| x_length=',x_length , ' y_length=',y_length
             '''### MAIN1-END ### SETUP THE MATRIX place all free parameters in columns for this particular run.'''
 
@@ -2610,7 +2568,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                         #        star_A.append([row_num,col_num,value])
 
 
-                    ''' fit for the color term dependence for panstarrs comparison '''
+                    ''' fit for the color term dependence for "external ref cat" comparison '''
                     if match:
                         ''' this is if there are different color terms for EACH CHIP!'''
                         if relative_colors:
@@ -2664,7 +2622,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                 inst.append({'type':'match','A_array':star_A, 'B_array':star_B, 'sigma_array': sigmas})
                 #'''### MAIN2a-END ### put M^exp_star info in MATRIX'''
 
-                ''' only include one panstarrs observation per star '''
+                ''' only include one "external ref cat" observation per star '''
                 #print sample , star["match"] , star["match"] and (sample=="all" or sample=="panstarrs" or sample=="bootstrap") # and tab["panstarrsStar_corr"][star["table index"]] == 1
                 if star['match'] and (sample=='panstarrs' or sample=='bootstrap'): # and tab['panstarrsStar_corr'][star['table index']] == 1:
                     '''### MAIN2b-START ### put panstarrs match information in MATRIX (if sample=='panstarrs' or sample=='bootstrap')'''
@@ -2689,7 +2647,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                             y_positions[row_num] = y
                         #adam-del# first_column = False
 
-                    ''' fit for the color term dependence for panstarrs comparison -- '''
+                    ''' fit for the color term dependence for "external ref cat" comparison -- '''
                     if relative_colors:
                         ''' this is if there are different color terms for EACH CHIP!'''
                         for c in color_columns:
@@ -2717,7 +2675,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                     sigmas.append([row_num,sigma])
                     inst.append({'type':'panstarrs','A_array':star_A, 'B_array':star_B, 'sigma_array': sigmas})
 
-                    ''' record star MAG_panstarrs-MAG_EXP offsets for each star matched in multiple exposures and in panstarrs '''
+                    ''' record star MAG_"external ref cat"-MAG_EXP offsets for each star matched in multiple exposures and in "external ref cat" '''
                     for exp in star['supa files']:
                         rotation = exp['rotation']
                         x = tab[str(rotation) + '$' + exp['name'] + '$Xpos_ABS'][star['table index']]
@@ -2747,7 +2705,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
             '''end loop over stars'''
             '''### MAIN2-END ### FILL THE MATRIX WITH INFORMATION'''
 
-            ''' save the panstarrs matches '''
+            ''' save the "external ref cat" matches '''
             matches = {'data':data,'magErr':magErr,'whichimage':whichimage,'X':X,'Y':Y,'color':color ,'chipnums':chipnums ,'Star':Star}
             uu = open(tmpdir + '/panstarrs','w')
             pickle.dump(matches,uu)
@@ -2781,8 +2739,8 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                 if attempt == 'first': rejectlist = 0*copy(B)
 
 		#adam-SHNT# I'll have to place these in another folder to get this to work
-                Af = open('A','w')
-                Bf = open('b','w')
+                Af = open(tmpdir+'/A','w')
+                Bf = open(tmpdir+'/b','w')
 
                 rejected_x = [] ; rejected_y = [] ; all_x = [] ; all_y = [] ; all_resids = []
                 if attempt == 'rejected':
@@ -2820,7 +2778,7 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                     #adam-old# calcDataIllum(sample + 'reducedchi'+str(ROT)+FILTER,LENGTH1,LENGTH2,scipy.array(all_resids),scipy.ones(len(all_resids)),scipy.array(all_x),scipy.array(all_y),pth=illum_dir,rot=0,limits=[-10,10],ylab='Residual/Error')
                     plot_name='_'.join(['reducedchi',run_info,PPRUN])
                     print 'linear_fit| running calcDataIllum plot_name=',plot_name
-                    fit_redchisq_clipped=calcDataIllum(plot_name,LENGTH1,LENGTH2,scipy.array(all_resids),scipy.ones(len(all_resids)),scipy.array(all_x),scipy.array(all_y),pth=illum_dir,limits=[-5,5],data_label='Fit Residual/Error') #magErr is ones here. that just ignores the errors (fine)
+                    fit_redchisq_clipped=calcDataIllum(plot_name,LENGTH1,LENGTH2,scipy.array(all_resids),scipy.ones(len(all_resids)),scipy.array(all_x),scipy.array(all_y),pth=illum_dir,limits=[-5,5],data_label='Fit Residual',make_pickle=True) #magErr is ones here. that just ignores the errors (fine)
                     run_goodness_info[run_info]+='\nattempt='+str(attempt)+': redchisq=%.3f' % fit_redchisq_clipped
                     if num_rejected > 0:
                         dtmp = {}
@@ -2857,18 +2815,21 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
                 print 'linear_fit|  B[0:10]=',B[0:10] , ' scipy.shape(A)=',scipy.shape(A) , ' scipy.shape(B)=',scipy.shape(B)
                 print 'linear_fit|  A[0,0:10]=',A[0,0:10] , ' A[1,0:10]=',A[1,0:10]
 
-                Bf = open(tmpdir + '/B','w')
+                Bf = open(tmpdir + '/B_other','w')
                 for i in xrange(len(B)):
                     Bf.write(str(B[i]) + '\n')
                 Bf.close()
 
 		#adam-SHNT# I'll have to place these in another folder to get this to work
                 print 'linear_fit| ...solving matrix...'
-                os.system('rm -f x')
-                ooo=os.system('./sparse < A')
-                if ooo!=0: raise Exception("the line os.system('./sparse < A') failed\n'./sparse < A'="+'./sparse < A')
+		os.chdir(tmpdir)
+		if os.path.isfile(tmpdir+'/x'):
+			os.system('rm -f '+tmpdir+'/x')
+                ooo=os.system('/u/ki/awright/wtgpipeline/sparse < A')
+                if ooo!=0: raise Exception("the line os.system('/u/ki/awright/wtgpipeline/sparse < A') failed\n'/u/ki/awright/wtgpipeline/sparse < A'")
+		os.chdir('/u/ki/awright/wtgpipeline/')
 
-                read_x_soln = open('x','r').read()
+                read_x_soln = open(tmpdir+'/x','r').read()
                 print 'linear_fit| len(read_x_soln)=',len(read_x_soln),' x_length=',x_length
                 res_x_soln = re.split('\s+',read_x_soln[:-1])
                 Traw = [float(x) for x in res_x_soln][:x_length]
@@ -3268,17 +3229,18 @@ def adam_fit_goodness(fitvars_runs,run_infos,illum_dir,PPRUN,extra_str=''):
     table_str+=extra_str
     #print table_str
     global table_zps_runs_new
+    fl_table_basename='table_zps_runs_panstarrs_%s_%s.txt' % (OBJNAME,PPRUN)
     if table_zps_runs_new==1:
-        fl_table_zps_runs=open('table_zps_runs_panstarrs.txt','w')
+        fl_table_zps_runs=open(fl_table_basename,'w')
         fl_table_zps_runs.write(table_str)
         table_zps_runs_new=0
         fl_table_zps_runs.close()
     else:
-        fl_table_zps_runs=open('table_zps_runs_panstarrs.txt','a+')
+        fl_table_zps_runs=open(fl_table_basename,'a+')
         fl_table_zps_runs.write('\n##### NEW PPRUN ##### PPRUN=%s ##### NEW PPRUN #####\n')
         fl_table_zps_runs.write(table_str)
         fl_table_zps_runs.close()
-    fl=open(illum_dir+'table_zps_runs_panstarrs.txt','w')
+    fl=open(illum_dir+fl_table_basename,'w')
     fl.write(table_str)
     fl.close()
     return table_str
@@ -3319,139 +3281,142 @@ def calcDataIllum(output_files_nametag, LENGTH1, LENGTH2, data,magErr, X, Y, pth
     returns:
     calls:
     called_by: linear_fit,linear_fit,linear_fit,linear_fit'''
-
-    #output_files_nametag+="_8bins" #adam-no_more#8bins
-    output_files_nametag+="_15bins"
-    print '\ncalcDataIllum| START the func. inputs: output_files_nametag=',output_files_nametag , ' LENGTH1=',LENGTH1 , ' LENGTH2=',LENGTH2 , ' data=',data , ' magErr=',magErr , ' X=',X , ' Y=',Y , ' pth=',pth , ' good=',good , ' limits=',limits , ' data_label=',data_label
-
-    if "try_linear-is-False" in output_files_nametag:
-	    pth+="/other_runs_plots/"
-    f = pth + output_files_nametag + '.pickle'
-    if make_pickle:
-	    calcDataIllum_info = {'file':output_files_nametag, 'LENGTH1':LENGTH1, 'LENGTH2': LENGTH2, 'data': data, 'magErr':magErr, 'X':X, 'Y':Y, 'pth':pth, 'good':good, 'limits':limits, 'data_label':data_label}
-	    output = open(f,'wb')
-	    pickle.dump(calcDataIllum_info,output)
-	    output.close()
-
-    nbin1 =15 ; nbin2 =15
-    #nbin1 =8 ; nbin2 =8 #adam-no_more#8bins
-    bin1 = LENGTH1/float(nbin1) ; bin2 = LENGTH2/float(nbin2) #adam-watch# changed this! I think this is right now, shouldn't hit that except anymore
-    diff_weightsum = -9999*numpy.ones([nbin1,nbin2]) ; diff_invvar = -9999*numpy.ones([nbin1,nbin2]) ; diff_X = -9999*numpy.ones([nbin1,nbin2]) ; diff_Y = -9999*numpy.ones([nbin1,nbin2])
-    X_cen = [];Y_cen = [];data_cen = []#;zerr_cen = []
-
-    chisq = 0
-    clipped_chisq = 0
-    for i in xrange(len(data)):
-        if good is not None:
-            use = good[0][i] == good[1]
-        else:
-            use = True
-        if use:
-            #if 1: # LENGTH1*0.3 < X[i] < LENGTH1*0.6:
-            X_cen.append(X[i]) ; Y_cen.append(Y[i]) ; data_cen.append(data[i]) #; zerr_cen.append(magErr[i])
-            chisq += data[i]**2./magErr[i]**2.
-            err = magErr[i]
-            ''' lower limit on error '''
-	    if err < 0.04: err = 0.04 #adam-ask# sigma lower limit: here if err < 0.04: err = 0.04
-            clipped_chisq += data[i]**2./err**2.
-            weightsum = data[i]/err**2.
-            weightX = X[i]/err**2.
-            weightY = Y[i]/err**2.
-            invvar = 1/err**2.
-
-            x_val = int(X[i]/bin1);y_val = int(Y[i]/bin2) #adam-watch# changed this! I think this is right now, shouldn't hit that except anymore
-            #if 1: #0 <= x_val and x_val < int(nbin1) and y_val >= 0 and y_val < int(nbin2):  #0 < x_val < size_x/bin and 0 < y_val < size_y/bin:
-            try:
-                if diff_weightsum[x_val][y_val] == -9999:
-                    diff_weightsum[x_val][y_val] = weightsum
-                    diff_invvar[x_val][y_val] = invvar
-                    diff_X[x_val][y_val] = weightX
-                    diff_Y[x_val][y_val] = weightY
-                else:
-                    diff_weightsum[x_val][y_val] += weightsum
-                    diff_invvar[x_val][y_val] += invvar
-                    diff_X[x_val][y_val] += weightX
-                    diff_Y[x_val][y_val] += weightY
-            except:
-                    print 'calcDataIllum| (adam-look) failure where diff_weightsum[x_val][y_val] is an index error: i=',i , ' x_val=',x_val , ' y_val=',y_val
-
-    redchisq = numpy.sqrt(chisq) / len(data)
-    clipped_redchisq  = numpy.sqrt(clipped_chisq) / len(data)
-    print 'calcDataIllum| redchisq=', redchisq,' clipped_redchisq=', clipped_redchisq
-
-    x_p = scipy.array(X_cen)
-    y_p = scipy.array(Y_cen)
-    data_p = scipy.array(data_cen)
-    #data_err_p = scipy.array(zerr_cen)
-    x_extrema = (x_p.min(),x_p.max()) ;y_extrema = (y_p.min(),y_p.max())
-
-    #diff_invvar=sum(1/err[1]**2 + 1/err[2]**2 + ... + 1/err[N]**2)
-    #diff_weightsum=sum(data[1]/err[1]**2 + data[2]/err[2]**2 + ... + data[N]/err[N]**2)
-    #diff_X=sum(X[1]/err[1]**2 + X[2]/err[2]**2 + ... + X[N]/err[N]**2)
-    #diff_Y=sum(Y[1]/err[1]**2 + Y[2]/err[2]**2 + ... + Y[N]/err[N]**2)
-    mean = diff_weightsum/diff_invvar # mean = (data[1]/err[1]**2 + data[2]/err[2]**2 + ... + data[N]/err[N]**2) / (1/err[1]**2 + 1/err[2]**2 + ... + 1/err[N]**2)
-    err = 1/diff_invvar**0.5 # err = 1 / sqrt(1/err[1]**2 + 1/err[2]**2 + ... + 1/err[N]**2)
-
-    f = pth + output_files_nametag
-    print 'calcDataIllum| ...writing...'
-    print 'calcDataIllum| f=',f
-    hdu = pyfits.PrimaryHDU(mean)
-    diffmap_fits_name= f + '_diff_mean.fits'
-    hdu.writeto(diffmap_fits_name,overwrite=True)
-    hdu = pyfits.PrimaryHDU(err)
-    diffinvvar_fits_name= f + '_diff_err.fits'
-    hdu.writeto(diffinvvar_fits_name,overwrite=True)
-
-    ''' now make cuts with binned data '''
-    mean_flat = scipy.array(mean.flatten(1))
-    err_flat = scipy.array(err.flatten(1))
-    mean_X = scipy.array((diff_X/diff_invvar).flatten(1))
-    mean_Y = scipy.array((diff_Y/diff_invvar).flatten(1))
-
-    '''set pylab parameters'''
-    params = {'backend' : 'ps', 'text.usetex' : True, 'ps.usedistiller' : 'xpdf', 'ps.distiller.res' : 6000}
-    pylab.rcParams.update(params)
-    fig_size = [20,13]
-    params = {'axes.labelsize' : 16, 'text.fontsize' : 16, 'legend.fontsize' : 16, 'xtick.labelsize' : 12, 'ytick.labelsize' : 12, 'figure.figsize' : fig_size}
-    pylab.rcParams.update(params)
-
-    diffbinned_png_name= f + '_diffbinned_' + test.replace('_','') + '.png'
-    pylab.clf()
-    pylab.subplot(211)
-    pylab.title(r'$\chi^{2}_{clipped}/dof=%.3f$ $\chi^{2}_{clipped}=%.1f$' % (clipped_redchisq,clipped_chisq))
-    pylab.xlabel('X axis')
-    pylab.ylabel(data_label)
-    #pylab.scatter(mean_X,mean_flat,linewidth=0)
-    pylab.scatter(x_p,data_p,linewidth=0,marker='.',color='k')
-    pylab.errorbar(mean_X,mean_flat,err_flat,marker='o',lw=0.0,elinewidth=0.5,color='r')
-    pylab.ylim(limits)
-    pylab.xlim(x_extrema[0],x_extrema[-1])
-    pylab.grid(axis='y')
-    pylab.subplot(212)
-    #pylab.scatter(mean_Y,mean_flat,linewidth=0)
-    pylab.scatter(y_p,data_p,linewidth=0,marker='.',color='k')
-    pylab.errorbar(mean_Y,mean_flat,err_flat,lw=0.0,elinewidth=0.5,marker='o',color='r')
-    pylab.ylim(limits)
-    pylab.xlim(y_extrema[0],y_extrema[-1])
-    pylab.xlabel('Y axis')
-    pylab.ylabel(data_label)     # label the plot
-    pylab.grid(axis='y')
-    pylab.suptitle(r'diffbinned: the data (%s) has been binned up in X and Y with appropriate mean and uncertainty for each bin plotted here' % (data_label))
-    pylab.savefig(diffbinned_png_name)
-    pylab.clf()
-    print 'calcDataIllum| finished: diffbinned_png_name=',diffbinned_png_name
-
-    pos_png_name= f + '_pos_' + test.replace('_','') + '.png'
-    pylab.scatter(x_p,y_p,linewidth=0)
-    pylab.xlabel('X axis')
-    pylab.ylabel('Y axis')     # label the plot
-    pylab.ylim(y_extrema[0],y_extrema[-1])
-    pylab.xlim(x_extrema[0],x_extrema[-1])
-    pylab.grid(axis='both')
-    pylab.suptitle(r'pos: the positions of the image/panstarrs matched detections are shown here')
-    pylab.savefig(pos_png_name)
-    pylab.clf()
-    print 'calcDataIllum| finished: pos_png_name=',pos_png_name
+    try:
+        #output_files_nametag+="_8bins" #adam-no_more#8bins
+        output_files_nametag+="_15bins"
+        print '\ncalcDataIllum| START the func. inputs: output_files_nametag=',output_files_nametag , ' LENGTH1=',LENGTH1 , ' LENGTH2=',LENGTH2 , ' data=',data , ' magErr=',magErr , ' X=',X , ' Y=',Y , ' pth=',pth , ' good=',good , ' limits=',limits , ' data_label=',data_label
+    
+        if "try_linear-is-False" in output_files_nametag:
+    	    pth+="/other_runs_plots/"
+        f = pth + output_files_nametag + '.pickle'
+        if make_pickle:
+    	    calcDataIllum_info = {'file':output_files_nametag, 'LENGTH1':LENGTH1, 'LENGTH2': LENGTH2, 'data': data, 'magErr':magErr, 'X':X, 'Y':Y, 'pth':pth, 'good':good, 'limits':limits, 'data_label':data_label}
+    	    output = open(f,'wb')
+    	    pickle.dump(calcDataIllum_info,output)
+    	    output.close()
+    
+        nbin1 =15 ; nbin2 =15
+        #nbin1 =8 ; nbin2 =8 #adam-no_more#8bins
+        bin1 = LENGTH1/float(nbin1) ; bin2 = LENGTH2/float(nbin2) #adam-watch# changed this! I think this is right now, shouldn't hit that except anymore
+        diff_weightsum = -9999*numpy.ones([nbin1,nbin2]) ; diff_invvar = -9999*numpy.ones([nbin1,nbin2]) ; diff_X = -9999*numpy.ones([nbin1,nbin2]) ; diff_Y = -9999*numpy.ones([nbin1,nbin2])
+        X_cen = [];Y_cen = [];data_cen = []#;zerr_cen = []
+    
+        chisq = 0
+        clipped_chisq = 0
+        for i in xrange(len(data)):
+            if good is not None:
+                use = good[0][i] == good[1]
+            else:
+                use = True
+            if use:
+                #if 1: # LENGTH1*0.3 < X[i] < LENGTH1*0.6:
+                X_cen.append(X[i]) ; Y_cen.append(Y[i]) ; data_cen.append(data[i]) #; zerr_cen.append(magErr[i])
+                chisq += data[i]**2./magErr[i]**2.
+                err = magErr[i]
+                ''' lower limit on error '''
+                if err < 0.04: err = 0.04 #adam-ask# sigma lower limit: here if err < 0.04: err = 0.04
+                clipped_chisq += data[i]**2./err**2.
+                weightsum = data[i]/err**2.
+                weightX = X[i]/err**2.
+                weightY = Y[i]/err**2.
+                invvar = 1/err**2.
+    
+                x_val = int(X[i]/bin1);y_val = int(Y[i]/bin2) #adam-watch# changed this! I think this is right now, shouldn't hit that except anymore
+                #if 1: #0 <= x_val and x_val < int(nbin1) and y_val >= 0 and y_val < int(nbin2):  #0 < x_val < size_x/bin and 0 < y_val < size_y/bin:
+                try:
+                    if diff_weightsum[x_val][y_val] == -9999:
+                        diff_weightsum[x_val][y_val] = weightsum
+                        diff_invvar[x_val][y_val] = invvar
+                        diff_X[x_val][y_val] = weightX
+                        diff_Y[x_val][y_val] = weightY
+                    else:
+                        diff_weightsum[x_val][y_val] += weightsum
+                        diff_invvar[x_val][y_val] += invvar
+                        diff_X[x_val][y_val] += weightX
+                        diff_Y[x_val][y_val] += weightY
+                except:
+                        print 'calcDataIllum| (adam-look) failure where diff_weightsum[x_val][y_val] is an index error: i=',i , ' x_val=',x_val , ' y_val=',y_val
+    
+        redchisq = numpy.sqrt(chisq) / len(data)
+        clipped_redchisq  = numpy.sqrt(clipped_chisq) / len(data)
+        print 'calcDataIllum| redchisq=', redchisq,' clipped_redchisq=', clipped_redchisq
+    
+        x_p = scipy.array(X_cen)
+        y_p = scipy.array(Y_cen)
+        data_p = scipy.array(data_cen)
+        #data_err_p = scipy.array(zerr_cen)
+        x_extrema = (x_p.min(),x_p.max()) ;y_extrema = (y_p.min(),y_p.max())
+    
+        #diff_invvar=sum(1/err[1]**2 + 1/err[2]**2 + ... + 1/err[N]**2)
+        #diff_weightsum=sum(data[1]/err[1]**2 + data[2]/err[2]**2 + ... + data[N]/err[N]**2)
+        #diff_X=sum(X[1]/err[1]**2 + X[2]/err[2]**2 + ... + X[N]/err[N]**2)
+        #diff_Y=sum(Y[1]/err[1]**2 + Y[2]/err[2]**2 + ... + Y[N]/err[N]**2)
+        mean = diff_weightsum/diff_invvar # mean = (data[1]/err[1]**2 + data[2]/err[2]**2 + ... + data[N]/err[N]**2) / (1/err[1]**2 + 1/err[2]**2 + ... + 1/err[N]**2)
+        err = 1/diff_invvar**0.5 # err = 1 / sqrt(1/err[1]**2 + 1/err[2]**2 + ... + 1/err[N]**2)
+    
+        f = pth + output_files_nametag
+        print 'calcDataIllum| ...writing...'
+        print 'calcDataIllum| f=',f
+        hdu = pyfits.PrimaryHDU(mean)
+        diffmap_fits_name= f + '_diff_mean.fits'
+        hdu.writeto(diffmap_fits_name,overwrite=True)
+        hdu = pyfits.PrimaryHDU(err)
+        diffinvvar_fits_name= f + '_diff_err.fits'
+        hdu.writeto(diffinvvar_fits_name,overwrite=True)
+    
+        ''' now make cuts with binned data '''
+        mean_flat = scipy.array(mean.flatten(1))
+        err_flat = scipy.array(err.flatten(1))
+        mean_X = scipy.array((diff_X/diff_invvar).flatten(1))
+        mean_Y = scipy.array((diff_Y/diff_invvar).flatten(1))
+    
+        '''set pylab parameters'''
+        params = {'backend' : 'ps', 'text.usetex' : True, 'ps.usedistiller' : 'xpdf', 'ps.distiller.res' : 6000}
+        pylab.rcParams.update(params)
+        fig_size = [20,13]
+        params = {'axes.labelsize' : 16, 'text.fontsize' : 16, 'legend.fontsize' : 16, 'xtick.labelsize' : 12, 'ytick.labelsize' : 12, 'figure.figsize' : fig_size}
+        pylab.rcParams.update(params)
+    
+        diffbinned_png_name= f + '_diffbinned_' + test.replace('_','') + '.png'
+        pylab.clf()
+        pylab.subplot(211)
+        pylab.title(r'$\chi^{2}_{clipped}/dof=%.3f$ $\chi^{2}_{clipped}=%.1f$' % (clipped_redchisq,clipped_chisq))
+        pylab.xlabel('X axis')
+        pylab.ylabel(data_label)
+        #pylab.scatter(mean_X,mean_flat,linewidth=0)
+        pylab.scatter(x_p,data_p,linewidth=0,marker='.',color='k')
+        pylab.errorbar(mean_X,mean_flat,err_flat,marker='o',lw=0.0,elinewidth=0.5,color='r')
+        pylab.ylim(limits)
+        pylab.xlim(x_extrema[0],x_extrema[-1])
+        pylab.grid(axis='y')
+        pylab.subplot(212)
+        #pylab.scatter(mean_Y,mean_flat,linewidth=0)
+        pylab.scatter(y_p,data_p,linewidth=0,marker='.',color='k')
+        pylab.errorbar(mean_Y,mean_flat,err_flat,lw=0.0,elinewidth=0.5,marker='o',color='r')
+        pylab.ylim(limits)
+        pylab.xlim(y_extrema[0],y_extrema[-1])
+        pylab.xlabel('Y axis')
+        pylab.ylabel(data_label)     # label the plot
+        pylab.grid(axis='y')
+        pylab.suptitle(r'diffbinned: the data (%s) has been binned up in X and Y with appropriate mean and uncertainty for each bin plotted here' % (data_label))
+        pylab.savefig(diffbinned_png_name)
+        pylab.clf()
+        print 'calcDataIllum| finished: diffbinned_png_name=',diffbinned_png_name
+    
+        pos_png_name= f + '_pos_' + test.replace('_','') + '.png'
+        pylab.scatter(x_p,y_p,linewidth=0)
+        pylab.xlabel('X axis')
+        pylab.ylabel('Y axis')     # label the plot
+        pylab.ylim(y_extrema[0],y_extrema[-1])
+        pylab.xlim(x_extrema[0],x_extrema[-1])
+        pylab.grid(axis='both')
+        pylab.suptitle(r'pos: the positions of the image/panstarrs matched detections are shown here')
+        pylab.savefig(pos_png_name)
+        pylab.clf()
+        print 'calcDataIllum| finished: pos_png_name=',pos_png_name
+    except:
+	ns.update(locals())
+	raise
 
     #adam-fragments_removed# calcDataIllum-diff_png
     print "calcDataIllum| DONE with func\n"
@@ -3480,6 +3445,32 @@ def get_fits(OBJNAME,FILTER,PPRUN,sample, sample_size):
     #print "get_fits| DONE with func"
     return dtop
 
+def adam_get_fits2(OBJNAME,FILTER,PPRUN):
+    '''inputs: OBJNAME,FILTER,PPRUN,sample, sample_size
+    returns:  dtop
+    calls: connect_except,describe_db
+    called_by: linear_fit'''
+
+    #print 'get_fits| START the func. inputs: OBJNAME=',OBJNAME , ' FILTER=',FILTER , ' PPRUN=',PPRUN , ' sample=',sample , ' sample_size=',sample_size
+    db2,c = connect_except()
+
+    command="SELECT * from " + test + "fit_db where FILTER='" + FILTER + "' and OBJNAME='" + OBJNAME + "' and PPRUN='" + PPRUN + "'"
+    #print 'get_fits| command=',command
+    c.execute(command)
+    results=c.fetchall()
+    db_keys = describe_db(c,'' + test + 'fit_db')
+    dtop = {}
+    line0=results[0]
+    for i in xrange(len(db_keys)):
+        dtop[db_keys[i]] = [str(line0[i])]
+    for line in results[1:]:
+        for i in xrange(len(db_keys)):
+            dtop[db_keys[i]].append(str(line[i]))
+
+    db2.close()
+    #print "get_fits| DONE with func"
+    return dtop
+
 #adam-note# modified from calc_test_save
 def get_cats_ready(SUPA,FLAT_TYPE,starcat): #step3_run_fit
     '''inputs:SUPA,FLAT_TYPE, starcat=data_path+'PHOTOMETRY/panstarrsstar.cat'
@@ -3499,6 +3490,7 @@ def get_cats_ready(SUPA,FLAT_TYPE,starcat): #step3_run_fit
         #print 'get_cats_ready| ',hdulist1["STDTAB"].columns
         table = hdulist1["STDTAB"].data
         #adam-ask# Is there a good place to get this info for W-S-G+? Or should I just use the fit from another filter, since W-S-G+ doesn't have rotations anyway
+	#adam-SHNT# this is 
         other_info = config_bonn.info[dict_cats['FILTER']] #add W-S-G+ info if I ever use that filter again
         filters_info = utilities.make_filters_info([dict_cats['FILTER']]) #add W-S-G+ info if I ever use that filter again
         compband = filters_info[0][1] ## use the panstarrs/other comparison band
@@ -3558,7 +3550,8 @@ def get_cats_ready(SUPA,FLAT_TYPE,starcat): #step3_run_fit
 
         #this outcat2 is like: panstarrsmatch__SUPA0121585_star.txt (not starpanstarrsmatch__SUPA0121585_star.txt) like in the loop
         outcat2 = data_path + 'PHOTOMETRY/ILLUMINATION_PANSTARRS/panstarrsmatch__' + search_params['SUPA'] + '_' +  type_stargal + '.cat'
-        os.system('rm ' + outcat2)
+	if os.path.isfile(outcat2):
+        	os.system('rm ' + outcat2)
         #this saves the stuff in starpanstarrsmatch__SUPA0121585_star.txt to the name panstarrsmatch__SUPA0121585_star.txt starting the seqNr at 2 instead of 1
         paste_cats([tmp[type_stargal + 'panstarrsmatch']],outcat2,index=1)
 
@@ -3578,12 +3571,10 @@ def get_panstarrs_cats(OBJNAME,illum_cat): #step3_run_fit
 
     if OBJNAME is not None:
         command="SELECT * from "+illum_db+" LEFT OUTER JOIN panstarrs_db on panstarrs_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".SUPA like 'SUPA%' and "+illum_db+".OBJNAME like '%" + OBJNAME + "%' and "+illum_db+".pasted_cat is not null GROUP BY "+illum_db+".OBJNAME"
-	# LEFT OUTER JOIN panstarrs_db on panstarrs_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".OBJNAME is not null  GROUP BY "+illum_db+".OBJNAME" #and panstarrs_db.cov is not NULL
-	#command="SELECT * from "+illum_db+" where "+illum_db+".SUPA like 'SUPA%' and "+illum_db+".OBJNAME like '%" + OBJNAME + "%' and "+illum_db+".pasted_cat is not null GROUP BY "+illum_db+".OBJNAME"
+        # LEFT OUTER JOIN panstarrs_db on panstarrs_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".OBJNAME is not null  GROUP BY "+illum_db+".OBJNAME" #and panstarrs_db.cov is not NULL
     else:
         command="SELECT * from "+illum_db+" LEFT OUTER JOIN panstarrs_db on panstarrs_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".SUPA like 'SUPA%' and "+illum_db+".pasted_cat is not null GROUP BY "+illum_db+".OBJNAME"
 
-    #command="SELECT * from "+illum_db+" LEFT OUTER JOIN 
     print 'get_panstarrs_cats| command=',command
     c.execute(command)
     results=c.fetchall()
@@ -3848,7 +3839,7 @@ def sort_results(results2,db_keys): #step4_test_fit #intermediate
         print 'sort_results| (adam-look) stats: PPRUN',"var_correction" , "mean" , "std" , "panstarrs_imp_all" , "match_stars" , "panstarrs_imp"
         for y in rotation_runs.keys():
 
-	    db2,c = connect_except()
+            db2,c = connect_except()
 
             ''' figure out what the sample is '''
             command_sort_results1="SELECT todo from " + test + "try_db where OBJNAME='" + rotation_runs[y]['OBJNAME'] + "' and PPRUN='" + rotation_runs[y]['PPRUN'] + "'"
@@ -4073,7 +4064,7 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
         results1=c.fetchall()
         print "calc_good| len(results1)=",len(results1)
 
-	### LOOP0: loop over try_db matches with this PPRUN (should only be one)
+        ### LOOP0: loop over try_db matches with this PPRUN (should only be one)
         for line in results1:
             dtop = {}
             for i in range(len(db_keys_try)):
@@ -4109,7 +4100,7 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                 save_fit({'PPRUN':dtop['PPRUN'],'OBJNAME':dtop['OBJNAME'],'FILTER':dtop['FILTER'],'stats':'no fits', 'sample':'record','sample_size':'record',},db='' + test + 'try_db')
             print 'calc_good| fit_samples=',fit_samples
 
-	    ### LOOP1: loop over panstarrs/None/bootstrap fits
+            ### LOOP1: loop over panstarrs/None/bootstrap fits
             for sample in fit_samples:
                 '''PART4| get 1 sample_size="all" fits in fit_db and CALCULATE/SAVE zpstd = std(zp_images) (for this type of sample in ["panstarrs","None","bootstrap"])'''
                 command_calc_good4="SELECT * from " + test + "fit_db where OBJNAME='" + dtop['OBJNAME'] + "' and PPRUN='" + dtop['PPRUN'] + "' and sample_size='all' and sample='" + sample + "' limit 1"
@@ -4144,8 +4135,8 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                             rots.append(rot)
                     save_fit({'PPRUN':dtop['PPRUN'],'OBJNAME':dtop['OBJNAME'],'FILTER':dtop['FILTER'],'rots': int(len(rots)), 'sample':'record','sample_size':'record',},db='' + test + 'try_db')
                 '''PART6| get collection of sample_size="rand%" fits in fit_db CALCULATE/SAVE: (for this type of sample in ["panstarrs","None","bootstrap"])
-			corr/uncorr: rejectedreducedchi
-			original: var_correction (from test_correction results), mean(chi_diffs), and std(chi_diffs) | chi_diffs=reducedchi_uncorr/reducedchi_corr'''
+                        corr/uncorr: rejectedreducedchi
+                        original: var_correction (from test_correction results), mean(chi_diffs), and std(chi_diffs) | chi_diffs=reducedchi_uncorr/reducedchi_corr'''
                 command_calc_good6="SELECT * from " + test + "fit_db where OBJNAME='" + dtop['OBJNAME'] + "' and PPRUN='" + dtop['PPRUN'] + "' and sample_size like 'rand%' and positioncolumns is not null  and sample='" + sample + "'" # and CHIPS is not null"
                 print 'calc_good| command_calc_good6=',command_calc_good6
                 c.execute(command_calc_good6)
@@ -4214,12 +4205,12 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                     for rot in ['0','1','2','3']:
                         if not o.has_key(rot):
                             o[rot] = {}
-			    if drand.has_key('panstarrsredchinocorr$' + rot):
+                            if drand.has_key('panstarrsredchinocorr$' + rot):
                                 if drand['panstarrsredchinocorr$' + rot] != 'None':
                                     o[rot]['corr'] = drand['panstarrsredchicorr$' + rot]
                                     o[rot]['uncorr'] = drand['panstarrsredchinocorr$' + rot]
-			    else:
-				print 'calc_good| adam-look: potentially a problem here, `drand` doesnt have the key panstarrsredchinocorr$' + rot
+                            else:
+                                print 'calc_good| potentially a problem here, `drand` doesnt have the key panstarrsredchinocorr$' + rot
                     num = 0;factor = 0
                     for rot in ['0','1','2','3']:
                         #adam-old# if 'corr' in o[rot] and 'uncorr' in o[rot]:
@@ -4256,7 +4247,7 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                                     if string.find(drand['sample_size'],'uncorr') != -1:
                                         o[rot]['uncorr'] = drand['panstarrsredchinocorr$' + rot]
                             else:
-				print 'calc_good| adam-look: potentially a problem here, `drand` doesnt have the key panstarrsredchinocorr$' + rot
+                                print 'calc_good| potentially a problem here, `drand` doesnt have the key panstarrsredchinocorr$' + rot
                     num = 0;factor = 0
                     for rot in ['0','1','2','3']:
                         #adam-old# if 'corr' in o[rot] and 'uncorr' in o[rot]:
@@ -4384,7 +4375,8 @@ def test_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,paper_stat=False): #
         #os.system('rm ' + tmpdir + 'correction' + ROT + filter + sample_size + '.fits')
         #hdu.writeto(tmpdir + '/correction' + ROT + filter + sample_size + '.fits')
         im = '/scratch/pkelly/test.fits'
-        os.system('rm ' + im)
+	if os.path.isfile(im):
+        	os.system('rm ' + im)
         hdu.writeto(im)
         print 'test_correction| im =',im, 'finished'
     return epsilon, diff_bool
@@ -4495,8 +4487,6 @@ def find_nearby(OBJNAME,FILTER,PPRUN): #step5_correct_ims #intermediate
 
     if dtop['CONFIG'] == '10_3':  # or (dtop['CONFIG'] == '9.0' and dtop['FILTER'] == 'W-J-B'):
 
-        ''' '''
-
         for i in range(len(config_bonn.wavelength_groups)):
             for filt in config_bonn.wavelength_groups[i]:
                 if filt == dtop['FILTER']:
@@ -4574,31 +4564,14 @@ def find_nearby(OBJNAME,FILTER,PPRUN): #step5_correct_ims #intermediate
 
         use.sort(use_comp)
 
-    #for k in use:
-    #        print k['objname'],k['pprun'], PPRUN
     if len(use) > 0:
         print use[0]['OBJNAME'], use[0]['PPRUN'], PPRUN
 
         sample = 'not set'
 
         ''' make sure that the illumination correction is in place '''
-
-
-        #if float(use[0]['bootstrap_zpstd']) < 0.01 and string.find(use[0]['bootstrapstatus'],'finished') != -1:
-        #    sample = 'bootstrap'
-        if False:
-            if str(use[0]['None_zpstd']) != 'None':
-                if float(use[0]['None_zpstd']) < 0.01 and string.find(use[0]['Nonestatus'],'finished') != -1:
-                    sample = 'None'
-            if str(use[0]['panstarrs_zpstd']) != 'None':
-                if float(use[0]['panstarrs_zpstd']) < 0.01 and string.find(use[0]['panstarrsstatus'],'finished') != -1:
-                    sample = 'panstarrs'
-
         sample = use[0]['sample_current']
 
-        #print use[0]['panstarrsstatus'], use[0]['Nonestatus'], use[0]['bootstrapstatus']
-
-        #print use[0:2]
         if sample != 'not set':
             return (use[0]['OBJNAME'],use[0]['FILTER'],use[0]['PPRUN'],sample)
         else: return(None,None,None,None)
@@ -4690,7 +4663,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
         print 'construct_correction| dt.keys()=',dt.keys()
         LENGTH1, LENGTH2 = dt['LENGTH1'], dt['LENGTH2']
 
-	#adam-watch# had `per_chip = True` here before. I hope this isn't setup to run that way, since `per_chip=False` in linear_fit
+        #adam-watch# had `per_chip = True` here before. I hope this isn't setup to run that way, since `per_chip=False` in linear_fit
 
         coord_conv_x = lambda x:((2.*x)-LENGTH1)/LENGTH1
         coord_conv_y = lambda x:((2.*x)-LENGTH2)/LENGTH2
@@ -4698,7 +4671,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
         ''' make images of illumination corrections '''
 
         for ROT in ROTS:
-	    print 'construct_correction| for ROT in ROTS: ROT=', ROT
+            print 'construct_correction| for ROT in ROTS: ROT=', ROT
             size_x=LENGTH1
             size_y=LENGTH2
             bin=100
@@ -4730,8 +4703,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
             hdu.writeto(im,overwrite=True)
 
             ''' save pattern w/ chip zps '''
-
-	    #adam-note# I'm going to simplify this whole process a lot and shorten this code by a few hundred lines by perminantly setting trial = True. If I want the whole thing with forking/etc. then I can get it from calc_test_save.py's version of construct_correction
+            #adam-note# I'm going to simplify this whole process a lot and shorten this code by a few hundred lines by perminantly setting trial = True. If I want the whole thing with forking/etc. then I can get it from calc_test_save.py's version of construct_correction
             for CHIP in CHIPS:
 
                 if str(dt['CRPIX1_' + str(CHIP)]) != 'None' and fitvars.has_key('zp_' + str(CHIP)):
@@ -4821,7 +4793,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                             raise TryDb('missing file ')
 
                     ooo,info = commands.getstatusoutput('dfits ' + file_chip + ' | fitsort -d ROTATION')
-		    if ooo!=0: raise Exception('ERROR WITH: dfits ' + file_chip + ' | fitsort -d ROTATION')
+                    if ooo!=0: raise Exception('ERROR WITH: dfits ' + file_chip + ' | fitsort -d ROTATION')
                     print 'construct_correction| info=',info , ' file_chip=',file_chip
                     #CHIP_ROT = str(int(re.split('\s+',info)[1]))
 
@@ -4837,16 +4809,20 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                     else:
                         use_run_dir = run_dir
 
-                    os.system('rm ' + data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/*II.fits')
-                    os.system('rm ' + data_root + '/' + OBJNAME + '/' + use_run_dir + '/WEIGHTS/*II.weight.fits')
+                    scifls2rm=glob(data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/*II.fits')
+                    wtfls2rm=glob(data_root + '/' + OBJNAME + '/' + use_run_dir + '/WEIGHTS/*II.weight.fits')
+                    for flrm in scifls2rm+wtfls2rm:
+                            os.system('rm ' + flrm)
 
                     ''' get rid of zero-size files '''
                     print 'construct_correction| use_run_dir=',use_run_dir , ' run_dir=',run_dir , ' string.find(run_dir,"CALIB")=',string.find(run_dir,"CALIB")
                     if string.find(run_dir,'CALIB') != -1:
                         out_file =  data_root + '/' + OBJNAME + '/' + FILTER + '/SCIENCE/' +  file_short.replace('.fits','I.fits')
-                        os.system('rm ' + out_file)
+                        if os.path.isfile(out_file):
+                                os.system('rm ' + out_file)
                         out_weight_file =  data_root + '/' + OBJNAME + '/' + FILTER + '/WEIGHTS/' +  file_short.replace('.fits','I.weight.fits')
-                        os.system('rm ' + out_weight_file)
+                        if os.path.isfile(out_weight_file):
+                                os.system('rm ' + out_weight_file)
                     ''' see if there are different extensions '''
                     out_file =  data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/' +  file_short.replace('.fits','I.fits')
                     print 'construct_correction| out_file=',out_file
@@ -4870,15 +4846,18 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                     flag_file = file_chip.replace('SCIENCE','WEIGHTS').replace('.fits','.flag.fits')
                     out_flag_file = data_root + '/' + OBJNAME + '/' + use_run_dir + '/WEIGHTS/' +  file_short.replace('.fits','I.flag.fits')
                     bad_out_weight_file =  data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/' +  file_short.replace('.fits','I.weight.fits')
-                    os.system('rm ' + out_flag_file)
+                    if os.path.isfile(out_flag_file):
+                            os.system('rm ' + out_flag_file)
                     command_ln = 'ln -s  ' + flag_file + ' ' + out_flag_file
                     print 'construct_correction| command_ln=',command_ln
                     ooo=os.system(command_ln)
-                    if ooo!=0: raise Exception("os.system==0")
+                    if ooo!=0: raise Exception("os.system!=0")
 
                     if str(dt['CRPIX1_' + str(CHIP)]) == 'None':
-                        os.system('rm ' + out_file)
-                        os.system('rm ' + out_weight_file)
+                        if os.path.isfile(out_weight_file):
+                            os.system('rm ' + out_weight_file)
+                        if os.path.isfile(out_file):
+                            os.system('rm ' + out_file)
                     else:
                         CHIP_ROT = int(rot_dat)
                         print 'construct_correction| CHIP_ROT=',CHIP_ROT , ' ROT=',ROT,' int(CHIP_ROT)==int(ROT)=',int(CHIP_ROT) == int(ROT)
@@ -4905,7 +4884,8 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                             elif 0.98 < os.path.getsize(file_chip) / os.path.getsize(out_file) < 1.02: go = True
                             go = True
                             if go:
-                                os.system('rm ' + out_file)
+                                if os.path.isfile(out_file):
+                                    os.system('rm ' + out_file)
 
                                 tried = 0
                                 while 1:
@@ -4922,25 +4902,25 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                                 if code != 0:
                                     raise TryDb('failed ic' + file_chip)
 
-                                command_sethead1 = 'sethead ' + out_file + ' PPRUN_USE=' + PPRUN_use
+                                command_sethead1 = '/afs/slac/g/ki/software/wcstools/current/amd64_rhel60/bin/sethead ' + out_file + ' PP_USE="' + PPRUN_use+'"'
                                 print 'construct_correction| command_sethead1=',command_sethead1
                                 ooo=os.system(command_sethead1)
-                                if ooo!=0: raise Exception("os.system==0")
-                                command_sethead2 = 'sethead ' + out_file + ' OBJNAME_USE=' + OBJNAME_use
+                                if ooo!=0: raise Exception("os.system!=0")
+                                command_sethead2 = '/afs/slac/g/ki/software/wcstools/current/amd64_rhel60/bin/sethead ' + out_file + ' OBJ_USE="' + OBJNAME_use+'"'
                                 print 'construct_correction| command_sethead2=',command_sethead2
                                 ooo=os.system(command_sethead2)
-                                if ooo!=0: raise Exception("os.system==0")
+				#if ooo!=0: raise Exception("os.system!=0")
 
                                 if BADCCD:
                                     command_sethead3 = 'sethead ' + out_file + ' BADCCD=1'
                                     print 'construct_correction| command_sethead3=',command_sethead3
                                     ooo=os.system(command_sethead3)
-                                    if ooo!=0: raise Exception("os.system==0")
+                                    if ooo!=0: raise Exception("os.system!=0")
                                 else:
                                     command_delhead = 'delhead ' + out_file + ' BADCCD'
                                     print 'construct_correction| command_delhead=',command_delhead
                                     ooo=os.system(command_delhead)
-                                    if ooo!=0: raise Exception("os.system==0")
+                                    if ooo!=0: raise Exception("os.system!=0")
                                 print 'construct_correction| BADCCD=',BADCCD
 
                                 save_exposure({'illumination_match':sample,'time':str(time.localtime())},dt['SUPA'],dt['FLAT_TYPE'])
@@ -4954,7 +4934,8 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                             elif 0.98 < os.path.getsize(out_weight_file) / os.path.getsize(weight_file) < 1.02: go = True
                             go = True
                             if go:
-                                os.system('rm ' + out_weight_file)
+                                if os.path.isfile(out_weight_file):
+                                    os.system('rm ' + out_weight_file)
                                 tried = 0
                                 while True:
                                     if hasCHIP:
@@ -4972,20 +4953,20 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
 
                                 if code != 0:
                                     raise TryDb('failed ic' + weight_file)
-                                command_sethead1wt = 'sethead ' + out_weight_file + ' PPRUN_USE=' + PPRUN_use
+                                command_sethead1wt = 'sethead ' + out_weight_file + ' PP_USE=' + PPRUN_use
                                 print 'construct_correction| command_sethead1wt=',command_sethead1wt
                                 ooo=os.system(command_sethead1wt)
-                                if ooo!=0: raise Exception("os.system==0")
-                                command_sethead2wt = 'sethead ' + out_weight_file + ' OBJNAME_USE=' + OBJNAME_use
+                                if ooo!=0: raise Exception("os.system!=0\ncommand_sethead1wt="+command_sethead1wt)
+                                command_sethead2wt = '/afs/slac/g/ki/software/wcstools/current/amd64_rhel60/bin/sethead ' + out_weight_file + ' OBJ_USE="' + OBJNAME_use+'"'
                                 print 'construct_correction| command_sethead2wt=',command_sethead2wt
                                 ooo=os.system(command_sethead2wt)
-                                if ooo!=0: raise Exception("os.system==0")
+				#if ooo!=0: raise Exception("os.system!=0\ncommand_sethead2wt="+command_sethead2wt)
 
                                 if BADCCD:
                                     command_sethead3wt = 'sethead ' + out_file + ' BADCCD=1'
                                     print 'construct_correction| command_sethead3wt=',command_sethead3wt
                                     ooo=os.system(command_sethead3wt)
-                                    if ooo!=0: raise Exception("os.system==0")
+                                    if ooo!=0: raise Exception("os.system!=0\ncommand_sethead3wt="+command_sethead3wt)
                                 print 'construct_correction| BADCCD=',BADCCD
 
                             ''' now do a file integrity check '''
@@ -4996,97 +4977,234 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
         save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'sample':'record','sample_size':'record','correction_applied':'finished','OBJNAME_use':OBJNAME_use,'FILTER_use':FILTER_use,'PPRUN_use':PPRUN_use,'sample_use':sample,'time':str(time.localtime())},db='' + test + 'try_db')
     except:
         ns.update(locals()) 
-	raise
+        raise
 
     print "construct_correction| DONE with func\n"
     return
 
+def adam_test_correction2(OBJNAME,FILTER,PPRUN,sample="panstarrs",sample_size='all'): #step4_test_fit #intermediate
+    '''inputs: OBJNAME,FILTER,PPRUN,sample,sample_size
+    returns:  epsilon, diff_bool
+    calls: get_a_file,get_fits
+    called_by: calc_good'''
+    import matplotlib.pyplot as plt
+    try:
+        ''' create chebychev polynomials '''
+        cheby_x = [{'n':'0x','f':lambda x,y:1.},{'n':'1x','f':lambda x,y:x},{'n':'2x','f':lambda x,y:2*x**2-1},{'n':'3x','f':lambda x,y:4*x**3.-3*x}]
+        cheby_y = [{'n':'0y','f':lambda x,y:1.},{'n':'1y','f':lambda x,y:y},{'n':'2y','f':lambda x,y:2*y**2-1},{'n':'3y','f':lambda x,y:4*y**3.-3*y}]
+        cheby_terms = [];cheby_terms_no_linear = []
+        for tx in cheby_x:
+            for ty in cheby_y:
+                if not ((tx['n'] == '0x' and ty['n'] == '0y')):
+                    cheby_terms.append({'n':tx['n'] + ty['n'],'fx':tx['f'],'fy':ty['f']})
+                if not ((tx['n'] == '0x' and ty['n'] == '0y') or (tx['n'] == '0x' and ty['n'] == '1y') or (tx['n'] == '1x' and ty['n'] == '0y')) :
+                    cheby_terms_no_linear.append({'n':tx['n'] + ty['n'],'fx':tx['f'],'fy':ty['f']})
+    
+        dt = get_a_file(OBJNAME,FILTER,PPRUN)
+        d = get_fits(OBJNAME,FILTER,PPRUN, sample, sample_size)
+    
+        column_prefix = ''
+        position_columns_names = re.split('\,',d['positioncolumns'])
+        print 'test_correction| column_prefix=',column_prefix , ' position_columns_names=',position_columns_names
+        fitvars = {} ; cheby_terms_dict = {} ; ROTS_dict = {}
+        for ele in position_columns_names:
+            #print ele
+            if type(ele) != type({}):
+                ele = {'name':ele}
+            res = re.split('\$',ele['name'])
+            if len(res) > 1:
+                ROTS_dict[res[0]] = ''
+                #print res
+            if string.find(ele['name'],'zp_image') == -1:
+                #print sample, sample_size, ele['name']
+                fitvars[ele['name']] = float(d[ele['name']])
+                for term in cheby_terms:
+                    if len(res) > 1:
+                        if term['n'] == res[1]:
+                            cheby_terms_dict[term['n']] = term
+    
+        ROTS = ROTS_dict.keys()
+        print 'test_correction| ROTS=',ROTS
+        zp_images = re.split(',',d['zp_images'])
+        zp_images_names = re.split(',',d['zp_images_names'])
+        for i in range(len(zp_images)):
+            fitvars[zp_images_names[i]] = float(zp_images[i])
+    
+        cheby_terms_use =  [cheby_terms_dict[k] for k in cheby_terms_dict.keys()]
+        CHIPS = [int(x) for x in re.split(',',dt['CHIPS'])]
+        LENGTH1, LENGTH2 = dt['LENGTH1'], dt['LENGTH2']
+        coord_conv_x = lambda x:(2.*x-0-LENGTH1)/(LENGTH1-0)
+        coord_conv_y = lambda x:(2.*x-0-LENGTH2)/(LENGTH2-0)
+        print 'test_correction| dt["CHIPS"]=',dt["CHIPS"] ,' CHIPS=',CHIPS
+    
+        bin = 100
+        x,y = numpy.meshgrid(numpy.arange(0,LENGTH1,bin),numpy.arange(0,LENGTH2,bin))
+        x_conv = coord_conv_x(x)
+        y_conv = coord_conv_y(y)
+    
+        epsilon = 0
+        index = 0
+        ROT=ROTS[0]
+        for term in cheby_terms_use:
+            index += 1
+            #print index, ROT, term, fitvars[str(ROT)+'$'+term['n']]
+            epsilon += fitvars[str(ROT)+'$'+term['n']]*term['fx'](x_conv,y_conv)*term['fy'](x_conv,y_conv)
+    
+        diff = ((x-LENGTH1/2.)**2.+(y-LENGTH2/2.)**2.) - (LENGTH1/2.)**2.
+        diff_bool = diff[diff<0]
+        diff[diff>0] = 0
+        diff[diff<0] = 1
+        diff2 = copy(diff)
+        diff2[diff2==0] = -999 #adam-watch# somehow I get arrays that are almost entirely epsilon=[...,-999,...]
+        diff2[diff2==1] = 0
+    
+        flat = epsilon.flatten().compress(epsilon.flatten()[epsilon.flatten()!=0])
+        print 'test_correction| numpy.median(flat)=',numpy.median(flat) , ' len(epsilon.flatten())=',len(epsilon.flatten()) , ' len(flat)=',len(flat)
+        epsilon_sub_flat = epsilon - numpy.median(flat)
+        #return epsilon_sub_flat, diff_bool
+        f=plt.figure()
+        plt.imshow(epsilon,interpolation='nearest',origin='lower left')
+        plt.colorbar()
+        plt.title("%s sample=%s sample_size=%s" % (PPRUN,sample,sample_size))
+        ns.update(locals())
+    except:
+        print 'hit exception'
+        ns.update(locals())
+
+#adam-note# step5: below here is my attempt to apply the correction and make *I.fits files!
 #adam-fragments_removed#
 #r29:def calcBinStats(output_files_nametag, LENGTH1, LENGTH2, data,magErr, X, Y, pth,  limits=[-0.4,0.4], data_label='SUBARU-panstarrs'):
 #r29:adam_tmp_plots(*args):
 
-import time
+#adam-Warning# set FILTERs/PPRUNs for each cluster!
+from my_cluster_params import ic_cldata,clusters_refcats
+if username!="awright":
+        #adam-Warning# set the needed info here regarding target, paths to data, and SQL db stuff
+        ## get/set env variables
+        if not 'bonn' in os.environ.keys(): raise Exception("Must have environment variable 'bonn' set to wtgpipeline path")
+        if 'SUBARUDIR' in os.environ.keys():
+                data_root=os.environ['SUBARUDIR']
+        else:
+                data_root="SET PATH to DATA DIRECTORY HERE" #adam-Warning#
+
+        if 'cluster' in os.environ.keys():
+                cluster=os.environ['cluster']
+        else:
+                cluster="SET CLUSTER NAME HERE" #adam-Warning#
+
+        ## set data_path and tmpdir
+        data_path = data_root + cluster+'/'
+        tmpdir=data_path+"tmp_simple_ic_PANSTARRS/"
+        if not os.path.isdir(tmpdir):
+                os.mkdir(tmpdir)
+
+        #adam-Warning# either handle SQL tables here or at the end!
+        #sql databases used by pat which you could copy the structure of: illumination_db, test_try_db, test_fit_db, sdss_db (see mysqldb_params below)
+        test = 'name_' #this takes care of test_try_db, test_fit_db #name-Warning# change from generic "name" to username or something
+        illum_db=test+"illumination_db"
+
+supas2exclude={}
+supas2exclude['W-C-RC_2012-07-23']=array(["SUPA0135162","SUPA0135167","SUPA0135168","SUPA0135169","SUPA0135170","SUPA0135171"])
+supas2exclude['W-S-Z+_2010-11-04']=array(["SUPA0126014","SUPA0126016","SUPA0126017","SUPA0126018","SUPA0126019","SUPA0126020","SUPA0126021","SUPA0126022","SUPA0126023","SUPA0126024","SUPA0126025","SUPA0126026","SUPA0126027","SUPA0126028","SUPA0126029","SUPA0126030"])
 if __name__=="__main__" and username=="awright":
-	#FILTERs=["W-J-B","W-J-V","W-C-RC","W-C-IC","W-S-Z+"]
-	#PPRUNs=["W-C-IC_2010-02-12", "W-C-IC_2011-01-06","W-C-RC_2010-02-12", "W-J-B_2010-02-12", "W-J-V_2010-02-12", "W-S-Z+_2011-01-06"]
-	#FILTERs_matching_PPRUNs=["W-C-IC", "W-C-IC","W-C-RC", "W-J-B", "W-J-V", "W-S-Z+"] 
-	#FILTERs=["W-J-B","W-C-RC","W-S-Z+"] 
-	#PPRUNs=["W-S-Z+_2009-04-29","W-J-B_2009-04-29","W-J-B_2010-03-12","W-S-Z+_2010-03-12","W-C-RC_2010-03-12"]
-	#FILTERs_matching_PPRUNs=["W-S-Z+","W-J-B","W-J-B","W-S-Z+","W-C-RC"]
-	FILTERs=["W-J-B","W-C-RC","W-S-Z+"] #adam-Warning#
-	FILTERs_matching_PPRUNs=["W-J-B","W-C-RC","W-S-Z+"]
-	PPRUNs=["W-J-B_2010-11-04","W-C-RC_2012-07-23","W-S-Z+_2010-11-04"]
-	OBJNAME=cluster #adam-Warning#
+        ## get/set env variables (#adam-Warning# cluster name here )
+        os.environ['bonn']='/u/ki/awright/wtgpipeline/'
+        data_root = '/gpfs/slac/kipac/fs1/u/awright/SUBARU/' #adam-Warning#
+        if 'SUBARUDIR' in os.environ.keys():
+                data_root=os.environ['SUBARUDIR']
+        else:
+                os.environ['SUBARUDIR']=data_root
+        if 'cluster' in os.environ.keys():
+                cluster=os.environ['cluster']
+        else:
+                #cluster="MACS0429-02"
+                cluster="RXJ2129" #adam-Warning#
+		#raise Exception("you're supposted to set value 'export cluster=...'")
 
-	#adam-Warning# either handle SQL tables here or at the beginning!
-        #This will drop tables and re-run everything. just comment out anything above here and run :%s///g
-	db2,c = connect_except()
-	#adam-tmp# good_tracker={}
-	#adam-tmp# for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
-	#adam-tmp# 	good_tracker[FILTER]=testgood(OBJNAME,FILTER,PPRUN)
-	c.execute(" DROP TABLE adamPAN2_illumination_db ; ")
-	c.execute(" DROP TABLE adamPAN2_try_db ; ")
-	c.execute(" DROP TABLE adamPAN2_fit_db ; ")
-	#adam-tmp# c.execute(" CREATE TABLE adamPAN_illumination_db LIKE illumination_db; ")
-	#adam-tmp# c.execute(" CREATE TABLE adamPAN_try_db LIKE test_try_db; ")
-	#adam-tmp# c.execute(" CREATE TABLE adamPAN_fit_db LIKE test_fit_db; ")
-	c.execute(" DROP TABLE panstarrs_db ; ")
-	c.execute(" CREATE TABLE panstarrs_db LIKE sdss_db; ")
-	c.execute(" CREATE TABLE adamPAN2_illumination_db LIKE illumination_db; ")
-	c.execute(" CREATE TABLE adamPAN2_try_db LIKE test_try_db; ")
-	c.execute(" CREATE TABLE adamPAN2_fit_db LIKE test_fit_db; ")
+        ## set data_path and tmpdir(#adam-Warning# make tmpdir and set path to data)
+        data_path = data_root + cluster+'/'
+        tmpdir=data_path+"tmp_simple_ic_PANSTARRS/"
+        if not os.path.isdir(tmpdir):
+                os.mkdir(tmpdir)
 
-	times=[0,0,0,0,0,0,0]
-	times[0]=time.time()
-	print "adam-look: gather_exposures(cluster,filters=FILTERs)"
-	gather_exposures(cluster,filters=FILTERs)
-	times[1]=time.time()
-	print "adam-look: get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)"
-	get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)
-	times[2]=time.time()
-	print "adam-look: get_panstarrs_cats(OBJNAME)"
-	#adam-SHNT# I'll have to come up with a PANSTARRS replacement for `get_panstarrs_cats`
-	#	use catalog written out by adam_illumcorr_panstarrs_catalog.py
-	#	illum_cat='/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/PHOTOMETRY/%s' % (cluster,'panstarrs_stars_illumcorr.csv')
-	illum_cat='/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/PHOTOMETRY/%s' % (cluster,'panstarrs_stars_illumcorr.csv')
-	get_panstarrs_cats(OBJNAME,illum_cat)
-	times[3]=time.time()
-	#db_cluster_logfile(db=test+'try_db',cluster='RXJ2129')
-	
-	### which dbs do these functions use?
-	# gather_exposures ['i']
-	# get_astrom_run_sextract ['i']
-	# get_panstarrs_cats ['i', 'p']
-	# match_OBJNAME ['i', 'p', 't', 'f']
-	# calc_good ['t', 'f']
-	# testgood ['i', 't', 'f']
-	# construct_correction ['i', 't', 'f']
+        ## SQL databases (#adam-Warning# handle SQL tables here)
+        #sql databases used by pat: illumination_db, test_try_db, test_fit_db, sdss_db
+        #sql databases used by adam: adam_illumination_db, adam_try_db, adam_fit_db, sdss_db
+        test = 'adamPAN3_' #this takes care of test_try_db, test_fit_db #adam-Warning#
+        illum_db=test+"illumination_db"
+        #c.execute(" DROP TABLE adam_illumination_db ; ")
+        #c.execute(" DROP TABLE adam_try_db ; ")
+        #c.execute(" DROP TABLE adam_fit_db ; ")
+        #c.execute(" CREATE TABLE adamPAN3_illumination_db LIKE illumination_db; ")
+        #c.execute(" CREATE TABLE adamPAN3_try_db LIKE test_try_db; ")
+        #c.execute(" CREATE TABLE adamPAN3_fit_db LIKE test_fit_db; ")
 
-	extra_nametag=""
-	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
-	 	print "\n\nadam-look: match_OBJNAME starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-	 	match_OBJNAME(OBJNAME,FILTER,PPRUN)
-		print "\n\nadam-look: calc_good starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-		calc_good(OBJNAME,FILTER,PPRUN)
-	times[4]=time.time()
-	good_tracker={}
-	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
-		print "\n\nadam-look: testgood starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-	 	good_tracker[FILTER]=testgood(OBJNAME,FILTER,PPRUN)
-	times[5]=time.time()
-	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
-		print "\n\nadam-look: construct_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-		#adam-Warning# r_ext=True if you've already done the stellar halo rings, otherwise r_ext=False. So for MACS0416 I'll sure r_ext=True
-		r_ext=False
-		construct_correction(OBJNAME,FILTER,PPRUN,"panstarrs","all",OBJNAME,FILTER,PPRUN,r_ext=False)
-	times[6]=time.time()
-	times=numpy.array(times)
-	timediffs=times[1:]-times[0:-1]
-	print ' timediffs=',timediffs
-	print "adam-look: each step took this much time: %.1f %.1f %.1f %.1f %.1f %.1f " % tuple(times[1:]-times[0:-1])
-	#print "\n\nadam-look: run_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-	#run_correction(OBJNAME,FILTER,PPRUN)
-	#Note: run_correction and find_nearby are not necessary if you know which OBJECT/PPRUN you want to fit, the fit was successful, it's in panstarrs, and you don't want to bootstrap/etc.
-	#adam-Warning# run_correction and find_nearby will need to be fixed in order to work properly under the conditions described above 
+        OBJNAME=cluster #adam-Warning#
+        # Adam: if you have to delete a row
+        db2,c = connect_except()
+        c.execute("DELETE from panstarrs_db where OBJNAME='%s' ;" % (OBJNAME))
+	#c.execute("DELETE from adamPAN3_illumination_db where OBJNAME='%s' ;" % (OBJNAME))
+        c.execute("DELETE from adamPAN3_fit_db where OBJNAME='%s' ;" % (OBJNAME))
+        c.execute("DELETE from adamPAN3_try_db where OBJNAME='%s' ;" % (OBJNAME))
+
+        ### which dbs do these functions use?
+        # gather_exposures ['i']
+        # get_astrom_run_sextract ['i']
+        # get_panstarrs_cats ['i', 'p']
+        # match_OBJNAME ['i', 'p', 't', 'f']
+        # calc_good ['t', 'f']
+        # testgood ['i', 't', 'f']
+        # construct_correction ['i', 't', 'f']
+
+        FILTERs,FILTERs_matching_PPRUNs,PPRUNs=ic_cldata[OBJNAME]['FILTERs'],ic_cldata[OBJNAME]['FILTERs_matching_PPRUNs'],ic_cldata[OBJNAME]['PPRUNs']
+
+        times=[0,0,0,0,0,0,0]
+        times[0]=time.time()
+	if 0:
+		print "adam-look: gather_exposures(cluster,filters=FILTERs)"
+		gather_exposures(cluster,filters=FILTERs)
+        times[1]=time.time()
+	if 0:
+		print "adam-look: get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)"
+		get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)
+        times[2]=time.time()
+        illum_cat='/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/PHOTOMETRY/%s' % (cluster,'panstarrs_stars_illumcorr.csv')
+	if 1:
+        	print "adam-look: get_panstarrs_cats(OBJNAME)" # use catalog written out by adam_illumcorr_panstarrs_catalog.py
+        	get_panstarrs_cats(OBJNAME,illum_cat)
+
+        times[3]=time.time()
+        extra_nametag=""
+	if 1:
+        	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
+        	        print "\n\nadam-look: match_OBJNAME starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+        	        match_OBJNAME(OBJNAME,FILTER,PPRUN)
+        	        print "\n\nadam-look: calc_good starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+        	        calc_good(OBJNAME,FILTER,PPRUN)
+        times[4]=time.time()
+        good_tracker={}
+        for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
+                print "\n\nadam-look: testgood starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+                good_tracker[PPRUN]=testgood(OBJNAME,FILTER,PPRUN)
+        times[5]=time.time()
+        if clusters_refcats[OBJNAME]=='PANSTARRS':
+            for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
+                print "\n\nadam-look: construct_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+                #adam-Warning# r_ext=True if you've already done the stellar halo rings, otherwise r_ext=False. So for MACS0416 I'll sure r_ext=True
+                r_ext=False
+                construct_correction(OBJNAME,FILTER,PPRUN,"panstarrs","all",OBJNAME,FILTER,PPRUN,r_ext=False)
+        times[6]=time.time()
+        times=numpy.array(times)
+        timediffs=times[1:]-times[0:-1]
+        print ' timediffs=',timediffs
+        dbtab=db_cluster_logfile(db=test+'try_db',cluster=cluster)
+        print dbtab
+        print "adam-look: each step took this much time: %.1f %.1f %.1f %.1f %.1f %.1f " % tuple(times[1:]-times[0:-1])
+        #print "\n\nadam-look: run_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+        #run_correction(OBJNAME,FILTER,PPRUN)
+        #Note: run_correction and find_nearby are not necessary if you know which OBJECT/PPRUN you want to fit, the fit was successful, it's in panstarrs, and you don't want to bootstrap/etc.
+        #adam-Warning# run_correction and find_nearby will need to be fixed in order to work properly under the conditions described above 
 #ADVICE: when starting fresh with a new cluster. first search for #adam-Warning# in this code and change stuff whereever there is a #adam-Warning
 #ADVICE: ## before running simple_ic.py, I need to have OBJNAME in all images (and consistent in all images). Might as well do the same for OBJECT and MYOBJ too.  I also should rename PPRUN to PPRUN0 and have filter_run be the pattern for PPRUN
+# adam_illumination_correction_quality_check.sh
+#this can be helpful: s/panstarrs\|sdss/"external ref cat"/g

@@ -1,17 +1,24 @@
 #! /usr/bin/env python
 #ADVICE: when starting fresh with a new cluster. first search for #adam-Warning# in this code and change stuff whereever there is a #adam-Warning
+import commands
+import matplotlib
+host=commands.getoutput('hostname')
+if not host.startswith('ki-ls'):
+    matplotlib.use('Agg')
+import matplotlib.pylab as pylab
+
 import pickle, sys, os, re, time, string, math
-import random, tempfile, traceback, commands
+import random, tempfile, traceback
 import MySQLdb
 import time
 
 from copy import copy
 from glob import glob
-import astropy, astropy.io.fits as pyfits, scipy, pylab, numpy
+import astropy, astropy.io.fits as pyfits, scipy, numpy
 import config_bonn #only need "wavelength_groups"
 import utilities
 import bashreader #only need "parseFile"
-global data_path, tmpdir, test
+global data_path, tmpdir, test, OBJNAME
 username = os.environ['USER']
 
 #adam-note# the program paths used in simple_ic.py should be taken from progs.ini for the sake of consistency, since os.system kinda uses whatever paths it wants!
@@ -481,24 +488,35 @@ def get_astrom_run_sextract(OBJNAME,PPRUNs): #main #step2_sextract
 		first = True
 		while len(results) > 0 or first:
 		    first = False
-		    #command = 'SELECT * from '+illum_db+' where  pasted_cat is null and OBJNAME like "MACS1226%" and PPRUN="W-C-RC_2006-03-04"' #  order by rand()' #fwhm!=-999 and objname not like "%ki06%" order by rand()'
-
-		    command = 'SELECT * from '+illum_db+' where  pasted_cat is null and OBJNAME like "'+OBJNAME+'%" and PPRUN="'+PPRUN+'"' #  order by rand()' #fwhm!=-999 and objname not like "%ki06%" order by rand()'
+		    # command = 'SELECT * from '+illum_db+' where pasted_cat is null and OBJNAME like "'+OBJNAME+'%" and PPRUN="'+PPRUN+'"' #  order by rand()' #fwhm!=-999 and objname not like "%ki06%" order by rand()'
+		    #adam-new# OK, I'm putting the BADCCD part in there to make sure I don't get stuck again
+		    command = 'SELECT * from '+illum_db+' where pasted_cat is null and (BADCCD is null or BADCCD not like "1%") and OBJNAME like "'+OBJNAME+'%" and PPRUN="'+PPRUN+'"'
 		    print 'get_astrom_run_sextract| command=',command
+		    Nresults = c.execute(command)
+		    if Nresults == 0:
+			    print 'get_astrom_run_sextract| PPRUN='+PPRUN+' is already done'
 		    c.execute(command)
 		    results = c.fetchall()
 		    print 'get_astrom_run_sextract| len(results)=',len(results)
 		    print 'get_astrom_run_sextract| results[0]=',results[0]
 
-		    dict_astrom = {}
-		    for i in xrange(len(results[0])): dict_astrom[keys[i]] = results[0][i]
+		    dict_astrom_before = {}
+		    for i in xrange(len(results[0])): dict_astrom_before[keys[i]] = results[0][i]
 
-		    print 'get_astrom_run_sextract| dict_astrom["SUPA"]=',dict_astrom["SUPA"] , 'dict_astrom["FLAT_TYPE"]=',dict_astrom["FLAT_TYPE"]
+		    print 'get_astrom_run_sextract| dict_astrom_before["SUPA"]=',dict_astrom_before["SUPA"] , 'dict_astrom_before["FLAT_TYPE"]=',dict_astrom_before["FLAT_TYPE"]
 		    #fix_radec uses the SCAMP solution
-		    fix_radec(dict_astrom['SUPA'],dict_astrom['FLAT_TYPE'])
+		    fix_radec(dict_astrom_before['SUPA'],dict_astrom_before['FLAT_TYPE'])
 
 		    c.execute(command)
 		    results = c.fetchall()
+
+		    #adam-new# OK, I'm putting this test in there to make sure this doesn't happen again!
+		    #dict_astrom_after = {}
+		    #for i in xrange(len(results[0])): dict_astrom_after[keys[i]] = results[0][i]
+		    #stuck_test=dict_astrom_after==dict_astrom_before
+		    #print 'get_astrom_run_sextract| dict_astrom_after==dict_astrom_before=',stuck_test
+		    #if stuck_test:
+		    #	raise Exception('This test is true: dict_astrom_after==dict_astrom_before\nWhich means were stuck in a recursive loop again! For some reason "pasted_cat" is staying null every time! Fix this!')
 		    ### used to run construct_correction here before, will have to run this in some other function later on
 		print 'done: PPRUN=',PPRUN
 	    print "get_astrom_run_sextract| DONE with func"
@@ -575,7 +593,6 @@ def gather_exposures(OBJNAME,filters=None): #main #step1_add_database
                     file = open('' + search_params['TEMPDIR'] + '/header','r').readlines()
 
                     for line in file:
-                        print "gather_exposures| ",'line=',line
                         if string.find(line,'Flat frame:') != -1 and string.find(line,'illum') != -1:
                             res = re.split('SET',line)
                             if len(res) > 1:
@@ -767,11 +784,18 @@ def db_cluster_logfile(db=None,cluster='RXJ2129'):
         allnames=trytab.colnames
         t=trytab.copy()
         tfl=trytab['logfile'][0].split('ILLUMINATION_SDSS')[0]+'logfile'
-        keepnames=['OBJNAME',"PPRUN","var_correction","mean","std","match_stars","sdss_imp","sdss_imp_all","sdss_imp","sdss_imp_all","todo"]
+        keepnames=['OBJNAME',"PPRUN","sdss_var_correction","sdss_mean","sdss_std","match_stars","sdss_imp","sdss_imp_all","todo"]
         for name in allnames:
             if not name in keepnames:
                 t.remove_column(name)
         t.write(tfl+'_'+db,format='ascii.fixed_width')
+
+	if db==test+'try_db':
+		fl_table_basename='table_zps_runs_sdss_%s_%s.txt' % (OBJNAME,PPRUN)
+		if os.path.isfile('/u/ki/awright/wtgpipeline/'+fl_table_basename):
+			os.system('mv /u/ki/awright/wtgpipeline/%s /u/ki/awright/wtgpipeline/%s.tmp' % (fl_table_basename,fl_table_basename))
+			os.system('cat /u/ki/awright/wtgpipeline/%s.tmp %s > /u/ki/awright/wtgpipeline/%s' % (fl_table_basename, tfl+'_'+db,fl_table_basename))
+			os.system('rm /u/ki/awright/wtgpipeline/%s.tmp' % (fl_table_basename) )
         return t
 
 ''' find full set of files corresponding to all '''
@@ -816,7 +840,7 @@ def combine_cats(cats,outfile,search_params): #step2_sextract
     #outfile = '' + search_params['TEMPDIR'] + 'stub'
     #cats = [{'im_type': 'MAIN', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS..fixwcs.rawconv'}, {'im_type': 'D', 'cat': '' + search_params['TEMPDIR'] + '/SUPA0005188_3OCFS.D.fixwcs.rawconv'}]
     try:
-	    print 'combine_cats| START the func. inputs: cats=',cats , ' outfile=',outfile , ' search_params=',search_params
+	    print 'combine_cats| START the func. inputs: cats=',cats , ' outfile=',outfile #, ' search_params=',search_params
 	    ppid = str(os.getppid())
 	    tables = {}
 	    colset = 0
@@ -1236,11 +1260,11 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
             print 'fix_radec| SExtractor catalog found'
         except:
             print 'fix_radec| SExtractor catalog not found. So go ahead and run sextractor'
-            if string.find(str(params['fwhm']),'None') != -1 or str(params['fwhm'])=='0.3':
+            if string.find(str(params['fwhm']),'None') != -1 or str(params['fwhm'])=='0.3' or str(params['fwhm'])=='0.0':
 		    #adam-SHNT# now I'll skip find_seeing and use MYSEEING from header instead
 		    dd=utilities.get_header_kw(params['file'],['MYSEEING'])
 		    fwhm=dd['MYSEEING']
-		    print 'fix_radec| (adam-look) NOW FROM MYSEEING: fwhm=',fwhm
+		    print 'fix_radec| NOW FROM MYSEEING: fwhm=',fwhm
 		    save_exposure({'fwhm':fwhm},search_params['SUPA'],search_params['FLAT_TYPE'])
 		    #adam-old# find_seeing(search_params['SUPA'],search_params['FLAT_TYPE'])
 
@@ -1330,7 +1354,7 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
 
                 ra = a*180.0/math.pi
                 dec = d*180.0/math.pi
-                if i % 100== 0:
+                if i % 1000== 0:
                     print 'fix_radec| ra_cat','dec_cat',ra,ra_cat[i], dec, dec_cat[i]
                     print 'fix_radec| (ra-ra_cat[i])*3600.=',(ra-ra_cat[i])*3600. , ' (dec-dec_cat[i])*3600.=',(dec-dec_cat[i])*3600.
                 ''' if no solution, give a -999 value '''
@@ -1351,7 +1375,6 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
             hdu[2].data.field('DELTA_J2000')[:] = scipy.array(dec_out)
             table = hdu[2].data
 
-            print 'fix_radec| BREAK'
             print 'fix_radec| ra_out[0:10]=',ra_out[0:10] , ' table.field("ALPHA_J2000")[0:10]=',table.field("ALPHA_J2000")[0:10]
             print 'fix_radec| dec_out[0:10]=',dec_out[0:10] , ' table.field("DELTA_J2000")[0:10]=',table.field("DELTA_J2000")[0:10]
             print 'fix_radec| SUPA=',SUPA , ' search_params["pasted_cat"]=',search_params["pasted_cat"]
@@ -1373,322 +1396,327 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
     calls: describe_db,describe_db,describe_db,save_fit,describe_db,describe_db,analyze,fix_radec,sdss_coverage,get_files,match_many,getTableInfo,get_files,find_config,selectGoodStars,starStats,save_fit,find_config,linear_fit,save_fit,save_fit
     called_by: test_1226'''
     print 'match_OBJNAME| START the func. inputs: OBJNAME=',OBJNAME , ' FILTER=',FILTER , ' PPRUN=',PPRUN , ' todo=',todo
-    #match_many,getTableInfo,get_files,find_config,selectGoodStars,starStats,save_fit,find_config,linear_fit
-    if OBJNAME is None:
-        batchmode = True
-    else: batchmode = False
-
-    ppid = str(os.getppid())
-    trial = True #adam-tmp: this implies DONT FORK!
-    #if __name__ == '__main__':
-    #    trial = False #adam-tmp
-
-    start = 1
-    loop = False
-    go = True
-
-    while go:
-        db2,c = connect_except()
-        illum_db_keys = describe_db(c,[illum_db])
-
-        if loop or OBJNAME is None: # or start == 0:
-            loop=True
-
-            try_db_keys = describe_db(c,['' + test + 'try_db'])
+    try:
+        #match_many,getTableInfo,get_files,find_config,selectGoodStars,starStats,save_fit,find_config,linear_fit
+        if OBJNAME is None:
+            batchmode = True
+        else: batchmode = False
+    
+        ppid = str(os.getppid())
+        trial = True #adam-tmp: this implies DONT FORK!
+        #if __name__ == '__main__':
+        #    trial = False #adam-tmp
+    
+        start = 1
+        loop = False
+        go = True
+    
+        while go:
+            db2,c = connect_except()
             illum_db_keys = describe_db(c,[illum_db])
-
-            command = "select * from " + test + "try_db t where t.sdssstatus is null and t.Nonestatus is null and (config='8.0' or config='9.0') group by t.objname, t.pprun order by rand()"
-            print 'match_OBJNAME| command=',command
-            c.execute(command)
-            results=c.fetchall()
-
-            if len(results) > 0:
-                for line in results:
-                    dtop = {}
-                    for i in xrange(len(try_db_keys)):
-                        dtop[try_db_keys[i]] = str(line[i])
-                    command = "select i.* from "+illum_db+" i where i.OBJNAME='" + dtop['OBJNAME'] + "' and i.PPRUN = '" + dtop['PPRUN'] + "' and i.pasted_cat is not null  GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND() limit 1 " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
-                    c.execute(command)
-                    results_b=c.fetchall()
-                    print 'match_OBJNAME| results_b=',results_b
-                    if len(results_b) > 0:
-                        for i in xrange(len(illum_db_keys)):
-                            dtop[illum_db_keys[i]] = str(results_b[0][i])
-                        print 'match_OBJNAME| dtop["PPRUN"]=',dtop["PPRUN"] , ' dtop["OBJNAME"]=',dtop["OBJNAME"]
-                        break
-                else:
-                    dtop= {}
-
-        else:
-            go = False
-            command=" drop temporary table if exists temp  "
-            c.execute(command)
-            command = "create temporary table temp as select * from "+illum_db+" group by objname, pprun "
-            print 'match_OBJNAME| command=',command
-            c.execute(command)
-
-            #command="SELECT * from temp i left join " + test + "fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where i.SUPA not like '%I' and i.objname='"+OBJNAME+"' and i.pprun='"+PPRUN+"' and i.filter='" + FILTER + "' GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND() " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
-            command="SELECT * from "+illum_db+" where  file not like '%CALIB%' and  PPRUN !='KEY_N/A'  and OBJNAME like '" + OBJNAME + "' and FILTER like '" + FILTER + "' and PPRUN='" + PPRUN + "' GROUP BY pprun,filter,OBJNAME" # ORDER BY RAND()" # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
-
-            start = 0
-            print 'match_OBJNAME| command=',command
-            c.execute(command)
-            results=c.fetchall()
-            print 'match_OBJNAME| len(results)=',len(results)
-            print 'match_OBJNAME| results[0]=',results[0]
-            ppid = str(os.getppid())
-
-            print 'match_OBJNAME| hey'
-            if len(results) == 0:
-                print 'match_OBJNAME| breaking!'
-                break
-
-            if len(results) > 0:
-                print 'match_OBJNAME| start next'
-                line = results[0]
-                dtop = {}
-                for i in xrange(len(illum_db_keys)):
-                    dtop[illum_db_keys[i]] = str(line[i])
-
-        if len(results) ==0: return
-        if len(results) > 0:
-            FILTER = dtop['FILTER']
-            PPRUN = dtop['PPRUN']
-            OBJNAME = dtop['OBJNAME']
-
-            print 'match_OBJNAME| now running save_fit',({"PPRUN":PPRUN,"OBJNAME":OBJNAME,"FILTER":FILTER,"sample":"record","sample_size":"record"},"db="+""+test+"try_db")
-            save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'sample':'record','sample_size':'record'},db='' + test + 'try_db')
-            illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/'
-	    if not os.path.isdir(illum_dir+'/other_runs_plots/'):
-		    os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
-            logfile  = open(illum_dir + 'logfile','w')
-            print 'match_OBJNAME| illum_dir+"logfile"=',illum_dir+"logfile"
-            print 'match_OBJNAME| dtop["FILTER"]=',dtop["FILTER"] , 'dtop["PPRUN"]=',dtop["PPRUN"] , 'dtop["OBJNAME"]=',dtop["OBJNAME"]
-            #keys = ['SUPA','OBJNAME','ROTATION','PPRUN','pasted_cat','FILTER','ROTATION','files']
-
-            try_db_keys = describe_db(c,['' + test + 'try_db'])
-            #command="SELECT * from "+illum_db+" where  OBJNAME='" + dtop['OBJNAME'] + "' and PPRUN='" + dtop['PPRUN'] + "' and filter like '" + dtop['FILTER'] + "' and pasted_cat is not NULL"
-            command="SELECT * from " + test + "try_db f  where f.OBJNAME='" + dtop['OBJNAME'] + "' and f.PPRUN='" + dtop['PPRUN'] + "' limit 1"
-            print 'match_OBJNAME| command=',command
-            c.execute(command)
-            results2=c.fetchall()
-            #sort_results(results,try_db_keys)
-
-            for line in results2:
-                dict_temp = {}
-                for i in xrange(len(try_db_keys)):
-                    dict_temp[try_db_keys[i]] = str(line[i])
-
-            primary = dict_temp['primary_filt']
-            primary_catalog = dict_temp['primary_catalog']
-            secondary = dict_temp['secondary_filt']
-            secondary_catalog = dict_temp['secondary_catalog']
-            if todo is None:
-                match = dict_temp['todo']
-            else: match= todo
-
-            print 'match_OBJNAME| primary=',primary , ' secondary=',secondary
-
-            ''' now run with PPRUN '''
-            command_supa="SELECT * from "+illum_db+" i left join " + test + "fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where i.OBJNAME='" + dtop['OBJNAME'] + "' and i.pasted_cat is not NULL and i.PPRUN='" + dtop['PPRUN'] + "' and badccd!=1 group by i.supa"
-
-            print 'match_OBJNAME| command_supa=',command_supa
-            c.execute(command_supa)
-            results_supa=c.fetchall()
-            print 'match_OBJNAME| matching len(results_supa)=', len(results_supa)
-
-            field = []
-            info = []
-            if len(results_supa) > 0: #  and (len(results_try) == 0 or trial):
-                ''' only redirect stdout if actually running on a pprun '''
-                if not trial:
-                    print "match_OBJNAME| not trial"
-                    stderr_orig = sys.stderr
-                    stdout_orig = sys.stdout
-                    sys.stdout = logfile
-                    sys.stderr = logfile
-                try:
-
-                    for line in results_supa:
-                        print 'match_OBJNAME| line=', line
-                        d = {}
-                        for i in xrange(len(illum_db_keys)):
-                            d[illum_db_keys[i]] = str(line[i])
-                        #ana = '' #raw_input('analyze ' + d['SUPA'] + '?')
-                        #if len(ana) > 0:
-                        #    if ana[0] == 'y':
-                        #        analyze(d['SUPA'],d['FLAT_TYPE'])
-                        ''' use SCAMP CRVAL, etc. '''
-
-                        a=1
-                        print 'match_OBJNAME| d["CHIPS"]=',d["CHIPS"] , ' d["fixradecCR"]=',d["fixradecCR"]
-                        ooo=os.system('cd ' + tmpdir)
-                        if ooo!=0: raise Exception("the line os.system('cd ' + tmpdir) failed\n'cd ' + tmpdir="+'cd ' + tmpdir)
-                        print 'match_OBJNAME| tmpdir=',tmpdir
-                        if str(d['CHIPS'])=='None' or str(d['fixradecCR']) != str(1.0): # or str(d['fixradecCR']) == '-1':
-                            a = fix_radec(d['SUPA'],d['FLAT_TYPE'])
-
-                        if a==1:
-                            key = str(int(float(d['ROTATION']))) + '$' + d['SUPA'] + '$'
-                            field.append({'key':key,'pasted_cat':d['pasted_cat'],'ROT':d['ROTATION'],'file':d['file']})
-                            info.append([d['ROTATION'],d['SUPA'],d['OBJNAME']])
-                            print 'match_OBJNAME| d["file"]=',d["file"]
-                        if d['CRVAL1'] == 'None':
-                            length(d['SUPA'],d['FLAT_TYPE'])
-                        print 'match_OBJNAME| d["SUPA"]=',d["SUPA"]
-
-                    #The output catalogs are named in a confusing way. Each PPRUN is supposed to have a sdssmatch*.cat.assoc1 file, but it's only run on the last SUPA, because it assumes you'll get the same things from all of the SUPAs. So this stuff doesn't need to be indented, it's not supposed to be part of the loop over the results_supa (line)
-                    #adam-watch# maybe it's best to pick the image with the best image quality instead of just the last one in the list?
-
-                    #adam-note# match == 'bootstrap': then you apply the catalog from a previous successful fit (from a different filter )
-                    if match == 'bootstrap':
-                        print 'match_OBJNAME| primary=', primary, ' secondary=', secondary
-                        ''' match images '''
-                        finalcat = match_many_multi_band([[dict_temp['primary_catalog'],'primary'],[dict_temp['secondary_catalog'],'secondary']])
-                        print 'match_OBJNAME| finalcat=',finalcat
+    
+            if loop or OBJNAME is None: # or start == 0:
+                loop=True
+    
+                try_db_keys = describe_db(c,['' + test + 'try_db'])
+                illum_db_keys = describe_db(c,[illum_db])
+    
+                command = "select * from " + test + "try_db t where t.sdssstatus is null and t.Nonestatus is null and (config='8.0' or config='9.0') group by t.objname, t.pprun order by rand()"
+                print 'match_OBJNAME| command=',command
+                c.execute(command)
+                results=c.fetchall()
+    
+                if len(results) > 0:
+                    for line in results:
+                        dtop = {}
+                        for i in xrange(len(try_db_keys)):
+                            dtop[try_db_keys[i]] = str(line[i])
+                        command = "select i.* from "+illum_db+" i where i.OBJNAME='" + dtop['OBJNAME'] + "' and i.PPRUN = '" + dtop['PPRUN'] + "' and i.pasted_cat is not null  GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND() limit 1 " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
+                        c.execute(command)
+                        results_b=c.fetchall()
+                        print 'match_OBJNAME| results_b=',results_b
+                        if len(results_b) > 0:
+                            for i in xrange(len(illum_db_keys)):
+                                dtop[illum_db_keys[i]] = str(results_b[0][i])
+                            print 'match_OBJNAME| dtop["PPRUN"]=',dtop["PPRUN"] , ' dtop["OBJNAME"]=',dtop["OBJNAME"]
+                            break
                     else:
-                        ''' now check to see if there is SDSS '''
-                        sdss_cov,starcat = sdss_coverage(d['SUPA'],d['FLAT_TYPE'])
-                        ''' get SDSS matched stars, use photometric calibration to remove color term '''
-                        #adam-watch# make sure the rest of this code actually uses `sdss_coverage` output and `get_cats_ready` output, rather than just appearing to use it. Remember that at first it was claiming to use SDSS info even when there weren't any SDSS catalogs
-                        if sdss_cov:
-                            ''' retrieve SDSS catalog '''
-                            match = 'sdss'
-                            sdssmatch = get_cats_ready(d['SUPA'],d['FLAT_TYPE'],starcat)
-                            print 'match_OBJNAME| d["SUPA"]=',d["SUPA"] , ' d["FLAT_TYPE"]=',d["FLAT_TYPE"] , ' d["OBJECT"]=',d["OBJECT"] , ' d["CRVAL1"]=',d["CRVAL1"] , ' d["CRVAL2"]=',d["CRVAL2"]
-                            print 'match_OBJNAME| d["pasted_cat"]=',d["pasted_cat"] , ' sdss_cov=',sdss_cov
-                            print 'match_OBJNAME| calibration done'
+                        dtop= {}
+    
+            else:
+                go = False
+                command=" drop temporary table if exists temp  "
+                c.execute(command)
+                command = "create temporary table temp as select * from "+illum_db+" group by objname, pprun "
+                print 'match_OBJNAME| command=',command
+                c.execute(command)
+    
+                #command="SELECT * from temp i left join " + test + "fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where i.SUPA not like '%I' and i.objname='"+OBJNAME+"' and i.pprun='"+PPRUN+"' and i.filter='" + FILTER + "' GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND() " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
+                command="SELECT * from "+illum_db+" where  file not like '%CALIB%' and  PPRUN !='KEY_N/A'  and OBJNAME like '" + OBJNAME + "' and FILTER like '" + FILTER + "' and PPRUN='" + PPRUN + "' GROUP BY pprun,filter,OBJNAME" # ORDER BY RAND()" # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
+    
+                start = 0
+                print 'match_OBJNAME| command=',command
+                c.execute(command)
+                results=c.fetchall()
+                print 'match_OBJNAME| len(results)=',len(results)
+                print 'match_OBJNAME| results[0]=',results[0]
+                ppid = str(os.getppid())
+    
+                print 'match_OBJNAME| hey'
+                if len(results) == 0:
+                    print 'match_OBJNAME| breaking!'
+                    break
+    
+                if len(results) > 0:
+                    print 'match_OBJNAME| start next'
+                    line = results[0]
+                    dtop = {}
+                    for i in xrange(len(illum_db_keys)):
+                        dtop[illum_db_keys[i]] = str(line[i])
+    
+            if len(results) ==0: return
+            if len(results) > 0:
+                FILTER = dtop['FILTER']
+                PPRUN = dtop['PPRUN']
+                OBJNAME = dtop['OBJNAME']
+    
+                print 'match_OBJNAME| now running save_fit',({"PPRUN":PPRUN,"OBJNAME":OBJNAME,"FILTER":FILTER,"sample":"record","sample_size":"record"},"db="+""+test+"try_db")
+                save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'sample':'record','sample_size':'record'},db='' + test + 'try_db')
+                illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/'
+                if not os.path.isdir(illum_dir+'/other_runs_plots/'):
+                        os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
+                logfile  = open(illum_dir + 'logfile','w')
+                print 'match_OBJNAME| illum_dir+"logfile"=',illum_dir+"logfile"
+                print 'match_OBJNAME| dtop["FILTER"]=',dtop["FILTER"] , 'dtop["PPRUN"]=',dtop["PPRUN"] , 'dtop["OBJNAME"]=',dtop["OBJNAME"]
+                #keys = ['SUPA','OBJNAME','ROTATION','PPRUN','pasted_cat','FILTER','ROTATION','files']
+    
+                try_db_keys = describe_db(c,['' + test + 'try_db'])
+                #command="SELECT * from "+illum_db+" where  OBJNAME='" + dtop['OBJNAME'] + "' and PPRUN='" + dtop['PPRUN'] + "' and filter like '" + dtop['FILTER'] + "' and pasted_cat is not NULL"
+                command="SELECT * from " + test + "try_db f  where f.OBJNAME='" + dtop['OBJNAME'] + "' and f.PPRUN='" + dtop['PPRUN'] + "' limit 1"
+                print 'match_OBJNAME| command=',command
+                c.execute(command)
+                results2=c.fetchall()
+                #sort_results(results,try_db_keys)
+    
+                for line in results2:
+                    dict_temp = {}
+                    for i in xrange(len(try_db_keys)):
+                        dict_temp[try_db_keys[i]] = str(line[i])
+    
+                primary = dict_temp['primary_filt']
+                primary_catalog = dict_temp['primary_catalog']
+                secondary = dict_temp['secondary_filt']
+                secondary_catalog = dict_temp['secondary_catalog']
+                if todo is None:
+                    match = dict_temp['todo']
+                else: match= todo
+    
+                print 'match_OBJNAME| primary=',primary , ' secondary=',secondary
+    
+                ''' now run with PPRUN '''
+                command_supa="SELECT * from "+illum_db+" i left join " + test + "fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where i.OBJNAME='" + dtop['OBJNAME'] + "' and i.pasted_cat is not NULL and i.PPRUN='" + dtop['PPRUN'] + "' and badccd!=1 group by i.supa"
+    
+                print 'match_OBJNAME| command_supa=',command_supa
+                c.execute(command_supa)
+                results_supa=c.fetchall()
+                print 'match_OBJNAME| matching len(results_supa)=', len(results_supa)
+    
+                field = []
+                info = []
+                if len(results_supa) > 0: #  and (len(results_try) == 0 or trial):
+                    ''' only redirect stdout if actually running on a pprun '''
+                    if not trial:
+                        print "match_OBJNAME| not trial"
+                        stderr_orig = sys.stderr
+                        stdout_orig = sys.stdout
+                        sys.stdout = logfile
+                        sys.stderr = logfile
+                    try:
+    
+                        for line in results_supa:
+                            print 'match_OBJNAME| line=', line
+                            d = {}
+                            for i in xrange(len(illum_db_keys)):
+                                d[illum_db_keys[i]] = str(line[i])
+                            #ana = '' #raw_input('analyze ' + d['SUPA'] + '?')
+                            #if len(ana) > 0:
+                            #    if ana[0] == 'y':
+                            #        analyze(d['SUPA'],d['FLAT_TYPE'])
+                            ''' use SCAMP CRVAL, etc. '''
+    
+                            a=1
+                            print 'match_OBJNAME| d["CHIPS"]=',d["CHIPS"] , ' d["fixradecCR"]=',d["fixradecCR"]
+                            ooo=os.system('cd ' + tmpdir)
+                            if ooo!=0: raise Exception("the line os.system('cd ' + tmpdir) failed\n'cd ' + tmpdir="+'cd ' + tmpdir)
+                            print 'match_OBJNAME| tmpdir=',tmpdir
+                            if str(d['CHIPS'])=='None' or str(d['fixradecCR']) != str(1.0): # or str(d['fixradecCR']) == '-1':
+                                a = fix_radec(d['SUPA'],d['FLAT_TYPE'])
+    
+                            if a==1:
+                                key = str(int(float(d['ROTATION']))) + '$' + d['SUPA'] + '$'
+                                field.append({'key':key,'pasted_cat':d['pasted_cat'],'ROT':d['ROTATION'],'file':d['file']})
+                                info.append([d['ROTATION'],d['SUPA'],d['OBJNAME']])
+                                print 'match_OBJNAME| d["file"]=',d["file"]
+                            if d['CRVAL1'] == 'None':
+                                length(d['SUPA'],d['FLAT_TYPE'])
+                            print 'match_OBJNAME| d["SUPA"]=',d["SUPA"]
+    
+                        #The output catalogs are named in a confusing way. Each PPRUN is supposed to have a sdssmatch*.cat.assoc1 file, but it's only run on the last SUPA, because it assumes you'll get the same things from all of the SUPAs. So this stuff doesn't need to be indented, it's not supposed to be part of the loop over the results_supa (line)
+                        #adam-watch# maybe it's best to pick the image with the best image quality instead of just the last one in the list?
+    
+                        #adam-note# match == 'bootstrap': then you apply the catalog from a previous successful fit (from a different filter )
+                        if match == 'bootstrap':
+                            print 'match_OBJNAME| primary=', primary, ' secondary=', secondary
+                            ''' match images '''
+                            finalcat = match_many_multi_band([[dict_temp['primary_catalog'],'primary'],[dict_temp['secondary_catalog'],'secondary']])
+                            print 'match_OBJNAME| finalcat=',finalcat
                         else:
-                            match=None
-
-                    print 'match_OBJNAME| match=',match
-
-                    #save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record','status':'started','time':str(time.localtime())},db='' + test + 'try_db')
-
-                    d = get_files(d['SUPA'],d['FLAT_TYPE'])
-                    print 'match_OBJNAME| field=',field
-                    input = [[x['pasted_cat'],x['key'],x['ROT']] for x in field]
-                    #input_files = [[x['pasted_cat']] for x in field]
-                    #print 'match_OBJNAME| input_files=',input_files
-
-                    input_filt = []
-                    print 'match_OBJNAME| input=',input
-                    for f in input:
-                        ''' may need fainter objects for bootstrap '''
-                        if match=='bootstrap':
-                            Ns = ['MAGERR_AUTO < 0.1)','Flag = 0)','IMAFLAGS_ISO = 0)']
-                        else:
-                            Ns = ['MAGERR_AUTO < 0.05)','Flag = 0)','IMAFLAGS_ISO = 0)']
-                        filt= '(' + reduce(lambda x,y: '(' + x + '  AND (' + y + ')',Ns)
-                        print 'match_OBJNAME| filt=',filt , ' f=',f
-                        filtered = f[0].replace('.cat','.filt.cat')
-                        print 'match_OBJNAME| filtered=',filtered
-                        command_ldacfilter = progs_path['p_ldacfilter']+' -i ' + f[0] + ' -t OBJECTS -o ' + filtered + ' -c "' + filt + ';" '
-                        print 'match_OBJNAME| command_ldacfilter=',command_ldacfilter
-                        ooo=utilities.run(command_ldacfilter,[filtered])
-                        if ooo!=0: raise Exception("the line utilities.run(command_ldacfilter,[filtered]) failed\ncommand_ldacfilter="+command_ldacfilter)
-                        input_filt.append([filtered,f[1],f[2]])
-
-                    print 'match_OBJNAME| input=',input
-                    input = input_filt
-                    print 'match_OBJNAME| input_filt=',input_filt
-
-                    if match=='sdss':
-                        input.append([sdssmatch,'SDSS',None])
-                    elif match=='bootstrap':
-                        input.append([finalcat,'SDSS',None])
-
-                    if len(input) < 3:
-                        raise TryDb('too few images')
-
-                    print 'match_OBJNAME| input=',input
-                    print 'match_OBJNAME| now running match_many(input)'
-                    match_many(input)
-
-                    start_EXPS = getTableInfo()
-                    print 'match_OBJNAME| start_EXPS=',start_EXPS
-
-                    dt = get_files(start_EXPS[start_EXPS.keys()[0]][0])
-                    CHIPS = [int(x) for x in re.split(',',dt['CHIPS'])]
-                    LENGTH1, LENGTH2 = dt['LENGTH1'], dt['LENGTH2']
-                    CONFIG = find_config(dt['GABODSID'])
-                    print 'match_OBJNAME| CONFIG=',CONFIG , ' dt["PPRUN"]=',dt["PPRUN"] , ' dt["OBJNAME"]=',dt["OBJNAME"]
-
-	            #adam-SHNT# this most certainly is not the actual value of the background!
-                    EXPS, star_good,supas, totalstars, mdn_background = selectGoodStars(start_EXPS,match,LENGTH1,LENGTH2,CONFIG)
-                    print 'match_OBJNAME| totalstars=',totalstars
-                    info = starStats(supas)
-                    print 'match_OBJNAME| info=',info
-                    print 'match_OBJNAME| match=',match
-                    print 'match_OBJNAME| mdn_background=',mdn_background , ' len(supas)=',len(supas)
-
-                    if len(supas) < 300 and mdn_background > 26000:
-                        raise TryDb('high background:'+ str(mdn_background))
-
-                    start_ims = (reduce(lambda x,y: x + y, [len(start_EXPS[x]) for x in start_EXPS.keys()]))
-                    final_ims = (reduce(lambda x,y: x + y, [len(EXPS[x]) for x in EXPS.keys()]))
-                    print 'match_OBJNAME| start_ims=', start_ims
-                    print 'match_OBJNAME| final_ims=', final_ims
-                    if final_ims < 3:
-                        raise TryDb('start:'+str(start_ims)+',end:'+str(final_ims))
-
-                    uu = open(tmpdir + '/selectGoodStars','w')
-                    pickle.dump({'info':info,'EXPS':EXPS,'star_good':star_good,'supas':supas,'totalstars':totalstars},uu)
-                    uu.close()
-
-                    ''' if there are too few matches with SDSS stars, dont use them '''
-                    if match == 'sdss' and info['match'] < 100:
-                        match = None
-
-                    save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'started','fit_time':str(time.localtime())},db='' + test + 'try_db')
-                    print 'match_OBJNAME| ',{'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'started','fit_time':str(time.localtime())}
-
-                    if match == 'bootstrap' and info['match'] < 200:
-                        print 'match_OBJNAME| info["match"]=',info["match"]
-                        raise TryDb('too few objects/bootstrap:' + str(info['match']))
-
-                    print 'match_OBJNAME| match=',match , ' info=',info
-                    command="SELECT * from " + test + "fit_db i  where i.OBJNAME='" + dtop['OBJNAME'] + "' and (i.sample_size='all' and i.sample='" + str(match) + "' and i.positioncolumns is not null) and i.PPRUN='" + dtop['PPRUN'] + "'"
-                    print 'match_OBJNAME| command=',command
-                    c.execute(command)
-                    results_try=c.fetchall()
-                    print 'match_OBJNAME| len(results_try)=',len(results_try)
-                    print 'match_OBJNAME| OBJNAME=',OBJNAME , ' FILTER=',FILTER , ' PPRUN=',PPRUN , ' match=',match
-
-                    print 'match_OBJNAME| matched'
-		    run_these=["all","rand1","rand2","rand3","rand4","rand5","rand6","rand7","rand8","rand9","rand10"]
-                    #adam-no_more# run_these=["all"] 
-                    linear_fit(OBJNAME,FILTER,PPRUN,run_these,match,CONFIG,primary=primary,secondary=secondary)
-                    ''' now records the current sample used in the fit '''
-                    save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':str(illum_dir)+'logfile','sample':str('record'),'sample_size':'record',str(match)+'status':'fitfinished','test_check':'yes','sample_current':str(match),'fit_time':str(time.localtime())},db='' + str(test) + 'try_db')
-                    #save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'sample_size':'record','sample':'record','sample_current':str(match)},db='' + test + 'try_db')
-
-                    ### used to run construct_correction here before, now I run this separate from any other function (could be run in run_correction later  )
-                    print 'match_OBJNAME| ','DONE '*100
-                    if batchmode:
-                        os.system('rm -rf ' + tmpdir +"/*")
-                except KeyboardInterrupt:
-                    print 'match_OBJNAME| HIT EXCEPTION!'
-                    raise
-                except:
-                    print 'match_OBJNAME| HIT EXCEPTION!'
-                    ppid_loc = str(os.getppid())
-                    print 'match_OBJNAME| traceback.print_exc(file=sys.stdout)=',traceback.print_exc(file=sys.stdout)
-                    ''' if a child process fails, just exit '''
-                    if ppid_loc != ppid: sys.exit(0)
-                    print 'match_OBJNAME| fail'
-                    print 'match_OBJNAME| trial=', trial
-                    save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'failed','fit_time':str(time.localtime()),'exception':'no information'},db='' + test + 'try_db')
-                    if batchmode:
-                        os.system('rm -rf ' + tmpdir +"/*")
-                    if trial:
-                        print 'match_OBJNAME| raising exception'
+                            ''' now check to see if there is SDSS '''
+                            sdss_cov,starcat = sdss_coverage(d['SUPA'],d['FLAT_TYPE'])
+                            ''' get SDSS matched stars, use photometric calibration to remove color term '''
+                            #adam-watch# make sure the rest of this code actually uses `sdss_coverage` output and `get_cats_ready` output, rather than just appearing to use it. Remember that at first it was claiming to use SDSS info even when there weren't any SDSS catalogs
+                            if sdss_cov:
+                                ''' retrieve SDSS catalog '''
+                                match = 'sdss'
+                                sdssmatch = get_cats_ready(d['SUPA'],d['FLAT_TYPE'],starcat)
+                                print 'match_OBJNAME| d["SUPA"]=',d["SUPA"] , ' d["FLAT_TYPE"]=',d["FLAT_TYPE"] , ' d["OBJECT"]=',d["OBJECT"] , ' d["CRVAL1"]=',d["CRVAL1"] , ' d["CRVAL2"]=',d["CRVAL2"]
+                                print 'match_OBJNAME| d["pasted_cat"]=',d["pasted_cat"] , ' sdss_cov=',sdss_cov
+                                print 'match_OBJNAME| calibration done'
+                            else:
+                                match=None
+    
+                        print 'match_OBJNAME| match=',match
+    
+                        #save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record','status':'started','time':str(time.localtime())},db='' + test + 'try_db')
+    
+                        d = get_files(d['SUPA'],d['FLAT_TYPE'])
+                        print 'match_OBJNAME| field=',field
+                        input = [[x['pasted_cat'],x['key'],x['ROT']] for x in field]
+                        #input_files = [[x['pasted_cat']] for x in field]
+                        #print 'match_OBJNAME| input_files=',input_files
+    
+                        input_filt = []
+                        print 'match_OBJNAME| input=',input
+                        for f in input:
+                            ''' may need fainter objects for bootstrap '''
+                            if match=='bootstrap':
+                                Ns = ['MAGERR_AUTO < 0.1)','Flag = 0)','IMAFLAGS_ISO = 0)']
+                            else:
+                                #adam-SHNT# is 'MAGERR_AUTO < 0.05)' this too restrictive? (it's 0.1 in the paper!) #adam-try
+                                Ns = ['MAGERR_AUTO < 0.05)','Flag = 0)','IMAFLAGS_ISO = 0)']
+                                #adam-SHNT# also, are IMAFLAGS filtering things out?
+                            filt= '(' + reduce(lambda x,y: '(' + x + '  AND (' + y + ')',Ns)
+                            print 'match_OBJNAME| filt=',filt , ' f=',f
+                            filtered = f[0].replace('.cat','.filt.cat')
+                            print 'match_OBJNAME| filtered=',filtered
+                            command_ldacfilter = progs_path['p_ldacfilter']+' -i ' + f[0] + ' -t OBJECTS -o ' + filtered + ' -c "' + filt + ';" '
+                            print 'match_OBJNAME| command_ldacfilter=',command_ldacfilter
+                            ooo=utilities.run(command_ldacfilter,[filtered])
+                            if ooo!=0: raise Exception("the line utilities.run(command_ldacfilter,[filtered]) failed\ncommand_ldacfilter="+command_ldacfilter)
+                            input_filt.append([filtered,f[1],f[2]])
+    
+                        input = input_filt
+                        print 'match_OBJNAME| input_filt=',input_filt
+    
+                        if match=='sdss':
+                            input.append([sdssmatch,'SDSS',None])
+                        elif match=='bootstrap':
+                            input.append([finalcat,'SDSS',None])
+    
+                        if len(input) < 3:
+                            raise TryDb('too few images')
+    
+                        print 'match_OBJNAME| input=',input
+                        print 'match_OBJNAME| now running match_many(input)'
+                        match_many(input,PPRUN)
+    
+                        start_EXPS = getTableInfo(PPRUN)
+                        print 'match_OBJNAME| start_EXPS=',start_EXPS
+    
+                        dt = get_files(start_EXPS[start_EXPS.keys()[0]][0])
+                        CHIPS = [int(x) for x in re.split(',',dt['CHIPS'])]
+                        LENGTH1, LENGTH2 = dt['LENGTH1'], dt['LENGTH2']
+                        CONFIG = find_config(dt['GABODSID'])
+                        print 'match_OBJNAME| CONFIG=',CONFIG , ' dt["PPRUN"]=',dt["PPRUN"] , ' dt["OBJNAME"]=',dt["OBJNAME"]
+    
+                        #adam-SHNT# this most certainly is not the actual value of the background!
+                        EXPS, star_good,supas, totalstars, mdn_background = selectGoodStars(start_EXPS,match,LENGTH1,LENGTH2,CONFIG,PPRUN)
+                        print 'match_OBJNAME| totalstars=',totalstars
+                        info = starStats(supas)
+                        print 'match_OBJNAME| info=',info
+                        print 'match_OBJNAME| match=',match
+                        print 'match_OBJNAME| mdn_background=',mdn_background , ' len(supas)=',len(supas)
+    
+                        if len(supas) < 300 and mdn_background > 26000:
+                            raise TryDb('high background:'+ str(mdn_background))
+    
+                        start_ims = (reduce(lambda x,y: x + y, [len(start_EXPS[x]) for x in start_EXPS.keys()]))
+                        final_ims = (reduce(lambda x,y: x + y, [len(EXPS[x]) for x in EXPS.keys()]))
+			#adam-SHNT# I believe I get an error iff start_ims!=final_ims
+                        print 'match_OBJNAME| start_ims=', start_ims
+                        print 'match_OBJNAME| final_ims=', final_ims
+                        if final_ims < 3:
+                            raise TryDb('start:'+str(start_ims)+',end:'+str(final_ims))
+    
+                        uu = open(tmpdir + '/selectGoodStars_'+PPRUN,'w')
+                        pickle.dump({'info':info,'EXPS':EXPS,'star_good':star_good,'supas':supas,'totalstars':totalstars},uu)
+                        uu.close()
+    
+                        ''' if there are too few matches with SDSS stars, dont use them '''
+                        if match == 'sdss' and info['match'] < 100:
+                            match = None
+    
+                        save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'started','fit_time':str(time.localtime())},db='' + test + 'try_db')
+                        print 'match_OBJNAME| ',{'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'started','fit_time':str(time.localtime())}
+    
+                        if match == 'bootstrap' and info['match'] < 200:
+                            print 'match_OBJNAME| info["match"]=',info["match"]
+                            raise TryDb('too few objects/bootstrap:' + str(info['match']))
+    
+                        print 'match_OBJNAME| match=',match , ' info=',info
+                        command="SELECT * from " + test + "fit_db i  where i.OBJNAME='" + dtop['OBJNAME'] + "' and (i.sample_size='all' and i.sample='" + str(match) + "' and i.positioncolumns is not null) and i.PPRUN='" + dtop['PPRUN'] + "'"
+                        print 'match_OBJNAME| command=',command
+                        c.execute(command)
+                        results_try=c.fetchall()
+                        print 'match_OBJNAME| len(results_try)=',len(results_try)
+                        print 'match_OBJNAME| OBJNAME=',OBJNAME , ' FILTER=',FILTER , ' PPRUN=',PPRUN , ' match=',match
+    
+                        print 'match_OBJNAME| matched'
+                        run_these=["all","rand1","rand2","rand3","rand4","rand5","rand6","rand7","rand8","rand9","rand10"]
+                        #adam-no_more# run_these=["all"] 
+                        linear_fit(OBJNAME,FILTER,PPRUN,run_these,match,CONFIG,primary=primary,secondary=secondary)
+                        ''' now records the current sample used in the fit '''
+                        save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':str(illum_dir)+'logfile','sample':str('record'),'sample_size':'record',str(match)+'status':'fitfinished','test_check':'yes','sample_current':str(match),'fit_time':str(time.localtime())},db='' + str(test) + 'try_db')
+    
+                        ### used to run construct_correction here before, now I run this separate from any other function (could be run in run_correction later  )
+                        print 'match_OBJNAME| ','DONE '*100
+                        if batchmode:
+                            os.system('rm -rf ' + tmpdir +"/*")
+                    except KeyboardInterrupt:
+                        print 'match_OBJNAME| HIT EXCEPTION!'
                         raise
-                    raise
-                if not trial:
-                    sys.stderr = stderr_orig
-                    sys.stdout = stdout_orig
-                    logfile.close()
+                    except:
+                        print 'match_OBJNAME| HIT EXCEPTION!'
+                        ppid_loc = str(os.getppid())
+                        print 'match_OBJNAME| traceback.print_exc(file=sys.stdout)=',traceback.print_exc(file=sys.stdout)
+                        ''' if a child process fails, just exit '''
+                        if ppid_loc != ppid: sys.exit(0)
+                        print 'match_OBJNAME| fail'
+                        print 'match_OBJNAME| trial=', trial
+                        save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'logfile':illum_dir+'logfile','sample':'record','sample_size':'record',str(match)+'status':'failed','fit_time':str(time.localtime()),'exception':'no information'},db='' + test + 'try_db')
+                        if batchmode:
+                            os.system('rm -rf ' + tmpdir +"/*")
+                        if trial:
+                            print 'match_OBJNAME| raising exception'
+                            raise
+                        raise
+                    if not trial:
+                        sys.stderr = stderr_orig
+                        sys.stdout = stdout_orig
+                        logfile.close()
+    except:
+        ns.update(locals())
+        raise
     print "match_OBJNAME| DONE with func"
 
 def describe_db(c,db=[None]):
@@ -1876,8 +1904,7 @@ def sdss_coverage(SUPA,FLAT_TYPE):  #intermediate #step3_run_fit
     print "sdss_coverage| DONE with func"
     return cov, starcat
 
-#adam-watch# checkout what's going on with `match_many` func and associate command
-def match_many(input_list,color=False):
+def match_many(input_list,PPRUN,color=False):
     '''inputs: input_list,color=False
     purpose: runs ldacaddkey, associate, and make_ssc commands which do all of the matching among all of my catalogs and the sdss catalog.
 	 IMPORTANT: final cat output is saved in: /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/tmp_simple_ic_SDSS/final.cat
@@ -1919,17 +1946,18 @@ def match_many(input_list,color=False):
     if ooo!=0: raise Exception("the line os.system(command_associate) failed\ncommand_associate="+command_associate)
     print 'match_many| associated'
 
-    outputcat = tmpdir + '/final.cat'
+    outputcat = tmpdir + '/final_'+PPRUN+'.cat'
     command_make_ssc = '%(p_make_ssc)s -i %(inputcats)s -o %(outputcat)s -t OBJECTS -c %(tmpdir)s/tmp.ssc ' % {'p_make_ssc':progs_path['p_makessc'],'tmpdir': tmpdir, 'inputcats':files_output,'outputcat':outputcat}
     print 'match_many| command_make_ssc=',command_make_ssc
     ooo=os.system(command_make_ssc)
+    print 'match_many| adam-look program=%(p_make_ssc)s wrote outputcat=%(outputcat)s' % {'p_make_ssc':progs_path['p_makessc'],'outputcat':outputcat}
     if ooo!=0: raise Exception("the line os.system(command_make_ssc) failed\ncommand_make_ssc="+command_make_ssc)
     print 'match_many| DONE with func'
 
 #adam-watch# checkout what's going on with `make_ssc_config_few` func and make_ssc  command
 def make_ssc_config_few(input_list):
     '''inputs: input_list
-    returns:
+    purpose: writes key values to the file `tmpdir + '/tmp.ssc'`
     calls:
     called_by: match_many'''
 
@@ -1959,14 +1987,14 @@ def make_ssc_config_few(input_list):
     out.close()
     print "make_ssc_config_few| DONE with func"
 
-def getTableInfo(): #simple #step3
-    '''inputs:
+def getTableInfo(PPRUN): #simple #step3
+    '''purpose: returns a dict with keys=rotations, and values=images corresponding to those rotations
     returns:  ROTS
     calls:
     called_by: match_OBJNAME,linear_fit'''
 
     print '\ngetTableInfo| START the func. No inputs for this func!'
-    p = pyfits.open(tmpdir + '/final.cat') #final.cat is the output from match_many func
+    p = pyfits.open(tmpdir + '/final_'+PPRUN+'.cat') #final_'+PPRUN+'.cat is the output from match_many func
     #tbdata = p[1].data ; types = [] ; KEYS = {}
     ROTS = {}
     for column in p[1].columns:
@@ -1990,7 +2018,7 @@ def find_config(GID): #simple
     calls:
     called_by: match_OBJNAME,match_OBJNAME'''
     #print 'find_config| START the func. inputs: GID=',GID
-    config_list = [[575,691,'8'],[691,871,'9'],[817,1309,'10_1'],[1309,3470,'10_2'],[3470,5000,'10_3']]
+    config_list = [[575,691,'8'],[691,871,'9'],[817,1309,'10_1'],[1309,3470,'10_2'],[3470,7000,'10_3']]
     CONFIG_IM = None
     for config in config_list:
         if config[0] < GID < config[1]:
@@ -2002,20 +2030,22 @@ def find_config(GID): #simple
     #print "find_config| DONE with func"
     return CONFIG_IM
 
-def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
+def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG,PPRUN): #intermediate #step3
     '''inputs: EXPS,match,LENGTH1,LENGTH2,CONFIG
     returns:  EXPS, star_good(=list of indicies of "good stars"), supas(=list of "good star" info dicts), totalstars(=# of "good stars"), mdn_background(=median background of exposures)
-    purpose: find the quality detections in "final.cat". I exclude exposures with <300 good stars and ROTations with <2 exposures. calculate the "mag"(mag=zp-magnitude ; w/ zp=median({magnitudes in exposure}) for each star. quality stars identified by:
-    (1) in at least two exposures w/ consistent magnitudes
-    (2) in proper flux/magnitude range
-    (3) within the center of the RADIAL ring portion of the image and without any flags at that point
-    (4) with fairly certain magnitudes (Mag_err<.1)
-    if match==True: see if there is an SDSS match and if it's a good match (i.e. match_good==1 if:CLASS_STAR>.65 and SDSSstdMagClean_corr==1 and 40>SDSSstdMag_corr>0 and 5>SDSSstdMagColor_corr>-5)
+    purpose: find the quality detections in "final_'+PPRUN+'.cat". Here are some filtering things that happen:
+	1.) I exclude exposures with <300 good stars and ROTations with <2 exposures
+	2.) calculate the "mag"(mag=zp-magnitude ; w/ zp=median({magnitudes in exposure}) for each star
+	3.) quality stars identified by:
+	    (1) in at least two exposures w/ consistent magnitudes
+	    (2) in proper flux/magnitude range
+	    (3) within the center of the RADIAL ring portion of the image and without any flags at that point
+	    (4) with fairly certain magnitudes (Mag_err<.1)
+    if match==True: see if there is an "external ref cat" match and if it's a good match (i.e. match_good==1 if:CLASS_STAR>.65 and "external ref cat"stdMagClean_corr==1 and 40>"external ref cat"stdMag_corr>0 and 5>"external ref cat"stdMagColor_corr>-5)
     calls:
     called_by: match_OBJNAME,linear_fit'''
 
     print '\nselectGoodStars| START the func. inputs: EXPS=',EXPS , ' match=',match , ' LENGTH1=',LENGTH1 , ' LENGTH2=',LENGTH2 , ' CONFIG=',CONFIG
-    ''' the top two most star-like objects have CLASS_STAR>0.9 and, for each rotation, their magnitudes differ by less than 0.01 '''
 
     ''' remove a rotation if it has no or one exposure '''
     EXPS_new = {}
@@ -2028,8 +2058,8 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
         print 'selectGoodStars| EXPS_new=',EXPS_new
     EXPS = EXPS_new
 
-    p = pyfits.open(tmpdir + '/final.cat') #final.cat is the output from match_many func
-    print 'selectGoodStars| tmpdir+"/final.cat"=',tmpdir+"/final.cat"
+    p = pyfits.open(tmpdir + '/final_'+PPRUN+'.cat') #final_'+PPRUN+'.cat is the output from match_many func
+    print 'selectGoodStars| ',tmpdir+'/final_'+PPRUN+'.cat'
     #print 'selectGoodStars| p[1].columns=',p[1].columns
     table = p[1].data
     star_good = []
@@ -2051,7 +2081,9 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
                 tlist.append([y,ROT])
         print 'selectGoodStars| tlist=',tlist
 
+	good_number=0
         for y,ROT in tlist:
+            print 'selectGoodStars| START: ROT=',ROT , ' y=',y , ' good_number=',good_number
             mask = temp.field(ROT+'$'+y+'$MAG_AUTO') != 0.0
             good_entries = temp[mask] ; temp = good_entries
             print 'selectGoodStars| ',len(good_entries.field(ROT+'$'+y+'$MAG_AUTO')), ' | not 0.0'
@@ -2064,9 +2096,11 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
             mask = (temp.field(ROT+'$'+y+'$MaxVal') + temp.field(ROT+'$'+y+'$BackGr')) < flux_cut1
             good_entries = temp[mask] ; temp = good_entries
             good_number = len(good_entries.field(ROT+'$'+y+'$MAG_AUTO'))
-            print 'selectGoodStars| ROT=',ROT , ' y=',y , ' good_number=',good_number, ' | flux<flux_cut1=',flux_cut1
-            if good_number < 300:
-                print 'selectGoodStars| DROPPING!'
+            exposure_stars= (((table.field(ROT+'$'+y+'$MaxVal') + table.field(ROT+'$'+y+'$BackGr')) < flux_cut1)*(table.field(ROT+'$'+y+'$MAG_AUTO') < 30)*(0<table.field(ROT+'$'+y+'$MAG_AUTO'))).sum()
+            print 'selectGoodStars|  END : ROT=',ROT , ' y=',y , ' good_number=',good_number,'exposure_stars=',exposure_stars
+	    min_good_stars=230 #adam-tmp# was 300
+            if good_number < min_good_stars:
+                print 'selectGoodStars| (adam-look) DROPPING! too few stars! good_number < ',min_good_stars,':',good_number < min_good_stars
                 TEMP = {}
                 for ROTTEMP in EXPS.keys():
                     TEMP[ROTTEMP] = []
@@ -2075,11 +2109,16 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
                             TEMP[ROTTEMP].append(z)
                 EXPS = TEMP
                 Finished = False
+		good_number=0
                 break
         if good_number > 0:
             Finished = True
         print 'selectGoodStars| Finished=',Finished
     print 'selectGoodStars| len(temp)=',len(temp)
+    #adam-SHNT# OK, now I've made this slightly better, but I still need to exclude 3sec and 30sec images! (maybe search for CALIB?)
+    #adam-SHNT# ALSO, I"ve got to get a handle on the colors
+    #adam-SHNT# then do: vimdiff simple_ic_SDSS.py simple_ic_PANSTARRS.py
+    #adam-SHNT# then I can re-run everything from the start
 
     '''now get the zp of each of the different exposures: eventually I'm after "mag"(mag=zp-magnitude ; w/ zp=median({magnitudes in exposure}) for each star.'''
     zps = {}
@@ -2098,11 +2137,11 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
             keys = [ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos_ABS',ROT+'$'+y+'$Ypos_ABS',ROT+'$'+y+'$MAG_AUTO',ROT+'$'+y+'$MAGERR_AUTO',ROT+'$'+y+'$MaxVal',ROT+'$'+y+'$BackGr',ROT+'$'+y+'$CLASS_STAR',ROT+'$'+y+'$Flag',ROT+'$'+y+'$ALPHA_J2000',ROT+'$'+y+'$DELTA_J2000']
             if match:
                 keys = [ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos_ABS',ROT+'$'+y+'$Ypos_ABS',ROT+'$'+y+'$MAG_AUTO',ROT+'$'+y+'$MAGERR_AUTO',ROT+'$'+y+'$MaxVal',ROT+'$'+y+'$BackGr',ROT+'$'+y+'$CLASS_STAR',ROT+'$'+y+'$Flag' ,'SDSSstdMag_corr','SDSSstdMagErr_corr','SDSSstdMagColor_corr','SDSSstdMagClean_corr','SDSSStar_corr',ROT+'$'+y+'$ALPHA_J2000',ROT+'$'+y+'$DELTA_J2000']
-                #print 'SDSS', table.field('SDSSstdMag_corr')[-1000:]
             for key in keys:
                 tab[key] = copy(table.field(key))
     print 'selectGoodStars| len(table)=',len(table)
     backgrounds = []
+    #adam-SHNT# adam_star_checkup={'match_exists':0,'match_good':0,'star_good':0,'star_bad':0}
     for i in xrange(len(table)):
         class_star_array = [] ; include_star = []  ; name = [] ; mags_diff_array = [] ; mags_good_array = [] ; mags_array = [] #; in_box = []
         for ROT in EXPS.keys():
@@ -2118,13 +2157,11 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
             elif string.find(str(CONFIG),'9') != -1:
                 ''' config 9 throw out chips 1,5,6,10 '''
                 include_star += [(tab[ROT+'$'+y+'$CHIP'][i]!=1 and tab[ROT+'$'+y+'$CHIP'][i]!=5 and tab[ROT+'$'+y+'$CHIP'][i]!=6 and tab[ROT+'$'+y+'$CHIP'][i]!=10) and ( 0<(tab[ROT+'$'+y+'$MaxVal'][i] + tab[ROT+'$'+y+'$BackGr'][i])<flux_cut2  and  tab[ROT+'$'+y+'$Flag'][i]==0 and tab[ROT+'$'+y+'$MAG_AUTO'][i]<30 and tab[ROT+'$'+y+'$MAG_AUTO'][i]!=0.0 and tab[ROT+'$'+y+'$MAGERR_AUTO'][i]<0.1 and ((tab[ROT+'$'+y+'$Xpos_ABS'][i]-LENGTH1/2.)**2.+(tab[ROT+'$'+y+'$Ypos_ABS'][i]-LENGTH2/2.)**2.)<(LENGTH1/2.)**2  )  for y in EXPS[ROT]]
-            else: include_star += [( 0<(tab[ROT+'$'+y+'$MaxVal'][i] + tab[ROT+'$'+y+'$BackGr'][i])<flux_cut2  and  tab[ROT+'$'+y+'$Flag'][i]==0 and tab[ROT+'$'+y+'$MAG_AUTO'][i]<30 and tab[ROT+'$'+y+'$MAG_AUTO'][i]!=0.0 and tab[ROT+'$'+y+'$MAGERR_AUTO'][i]<0.1 and ((tab[ROT+'$'+y+'$Xpos_ABS'][i]-LENGTH1/2.)**2.+(tab[ROT+'$'+y+'$Ypos_ABS'][i]-LENGTH2/2.)**2.)<(LENGTH1/2.)**2  )  for y in EXPS[ROT]]
+            else: ## for 10_2 and 10_3 configs
+                  #include_star += [(7) 0<MaxVal+BackGr<SATURATION-2000 and (3,4,5,6) Flag==0 and MAG_AUTO<30 and MAG_AUTO!=0 and (2) MAGERR_AUTO<0.1 and (8) within ring ]
+    
+                  include_star += [( 0<(tab[ROT+'$'+y+'$MaxVal'][i] + tab[ROT+'$'+y+'$BackGr'][i])<flux_cut2  and  tab[ROT+'$'+y+'$Flag'][i]==0 and tab[ROT+'$'+y+'$MAG_AUTO'][i]<30 and tab[ROT+'$'+y+'$MAG_AUTO'][i]!=0.0 and tab[ROT+'$'+y+'$MAGERR_AUTO'][i]<0.1 and ((tab[ROT+'$'+y+'$Xpos_ABS'][i]-LENGTH1/2.)**2.+(tab[ROT+'$'+y+'$Ypos_ABS'][i]-LENGTH2/2.)**2.)<(LENGTH1/2.)**2  )  for y in EXPS[ROT]]
 
-            #include_star += [( 0<(tab[ROT+'$'+y+'$MaxVal'][i] + tab[ROT+'$'+y+'$BackGr'][i])<25000 and tab[ROT+'$'+y+'$Flag'][i]==0 and tab[ROT+'$'+y+'$MAG_AUTO'][i]<30 and tab[ROT+'$'+y+'$MAG_AUTO'][i]!=0.0 and tab[ROT+'$'+y+'$MAGERR_AUTO'][i]<0.05) for y in EXPS[ROT]]
-            #include_star += [((tab[ROT+'$'+y+'$MaxVal'][i] + tab[ROT+'$'+y+'$BackGr'][i])<25000 and tab[ROT+'$'+y+'$Flag'][i]==0 and tab[ROT+'$'+y+'$MAG_AUTO'][i]<30 and tab[ROT+'$'+y+'$MAG_AUTO'][i]!=0.0 and tab[ROT+'$'+y+'$MAGERR_AUTO'][i]<0.05) for y in EXPS[ROT]]
-            #in_circ = lambda x,y,r: (x**2.+y**2.)<r**2.
-            #include_star += [((tab[ROT+'$'+y+'$MaxVal'][i] + tab[ROT+'$'+y+'$BackGr'][i])<25000 and tab[ROT+'$'+y+'$Flag'][i]==0 and tab[ROT+'$'+y+'$MAG_AUTO'][i]<30 and tab[ROT+'$'+y+'$MAG_AUTO'][i]!=0.0 and tab[ROT+'$'+y+'$MAGERR_AUTO'][i]<0.05 and in_circ(tab[ROT+'$'+y+'$Xpos_ABS'][i]-LENGTH1/2.,tab[ROT+'$'+y+'$Ypos_ABS'][i]-LENGTH2/2,LENGTH) for y in EXPS[ROT]]
-            #include_star += [((tab[ROT+'$'+y+'$MaxVal'][i]+tab[ROT+'$'+y+'$BackGr'][i])<25000 and tab[ROT+'$'+y+'$Flag'][i]==0 and tab[ROT+'$'+y+'$MAG_AUTO'][i]<30 and tab[ROT+'$'+y+'$MAG_AUTO'][i]!=0.0 and tab[ROT+'$'+y+'$MAGERR_AUTO'][i]<0.05) for y in EXPS[ROT]]
             name += [{'name':EXPS[ROT][z],'rotation':ROT} for z in xrange(len(EXPS[ROT]))]
             class_star_array += [tab[ROT+'$'+y+'$CLASS_STAR'][i] for y in EXPS[ROT]]
         class_star_max=scipy.nanmax(class_star_array)
@@ -2138,7 +2175,7 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG): #intermediate #step3
             file_list=[];mag_list=[] #adam-watch# I'm adding in the mag_list object because I'm changing "mag" so that it isn't a random thing anymore, but it really shouldn't matter anyway.
             for j in xrange(len(include_star)):
                 if include_star[j] and abs(mags_diff_array[j] - median_mag_diff) < 1.:  # MAIN PARAMETER!
-                    file_list.append(name[j])
+                    file_list.append(name[j]) #ok, we only put it in file_list if 
                     mag = mags_diff_array[j] #adam-watch# I was assigning a random `mag` of the ones within 1 mag of the median, but now I'm making a list of these and picking the median of that list. That seems less arbitrary
                     mag_list.append(mag) #adam-watch# I'm adding in the mag_list object because I'm changing "mag" so that it isn't a random thing anymore, but it really shouldn't matter anyway.
             if match:
@@ -2176,7 +2213,7 @@ def sort_supas(x,y): #simple
 def starStats(supas): #simple #step3
     '''inputs: supas
     returns:  stats
-    purpose: print stats based on how many SDSS matches, good SDSS matches, rotations, and stars in each supa you have in this `supas` dict
+    purpose: print stats based on how many "external ref cat" matches, good "external ref cat" matches, rotations, and stars in each supa you have in this `supas` dict
     calls:
     called_by: match_OBJNAME,linear_fit,linear_fit'''
 
@@ -2215,952 +2252,949 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
     purpose: creates the matricies and performs a sparse fit. Does some diagnostic plotting. Writes out the catalogs: data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + 'catalog_' + PPRUN + '.cat'
     calls: getTableInfo,get_files,selectGoodStars,starStats,describe_db,save_fit,starStats,calcDataIllum,save_fit,save_fit,save_fit,save_fit,get_fits,save_fit,save_fit,calcDataIllum,calcDataIllum,calcDataIllum,save_fit
     called_by: match_OBJNAME'''
-
-    print '\nlinear_fit| START the func. inputs: OBJNAME=',OBJNAME , ' FILTER=',FILTER , ' PPRUN=',PPRUN , ' run_these=',run_these , ' match=',match , ' CONFIG=',CONFIG , ' primary=',primary , ' secondary=',secondary
-    redoselect = False #if True will redo selectGoodStars and starStats. `redoselect = False` is appropriate since match_OBJNAME already takes care of making these catalogs
-
-    ''' create chebychev polynomials '''
-    if CONFIG == '10_3' or string.find(CONFIG,'8')!=-1 or string.find(CONFIG,'9')!=-1:
-        cheby_x = [{'n':'0x','f':lambda x,y:1.,'order':0},{'n':'1x','f':lambda x,y:x,'order':1},{'n':'2x','f':lambda x,y:2*x**2-1,'order':2}] #,{'n':'3x','f':lambda x,y:4*x**3.-3*x,'order':3},{'n':'4x','f':lambda x,y:8*x**4.-8*x**2.+1,'order':4}]#,{'n':'5x','f':lambda x,y:16*x**5.-20*x**3.+5*x,'order':5}]
-        cheby_y = [{'n':'0y','f':lambda x,y:1.,'order':0},{'n':'1y','f':lambda x,y:y,'order':1},{'n':'2y','f':lambda x,y:2*y**2-1,'order':2}] #,{'n':'3y','f':lambda x,y:4*y**3.-3*y,'order':3},{'n':'4y','f':lambda x,y:8*y**4.-8*y**2.+1,'order':4}] #,{'n':'5y','f':lambda x,y:16*y**5.-20*y**3.+5*y,'order':5}]
-    else:
-        cheby_x = [{'n':'0x','f':lambda x,y:1.,'order':0},{'n':'1x','f':lambda x,y:x,'order':1},{'n':'2x','f':lambda x,y:2*x**2-1,'order':2},{'n':'3x','f':lambda x,y:4*x**3.-3*x,'order':3}] #,{'n':'4x','f':lambda x,y:8*x**4.-8*x**2.+1,'order':4},{'n':'5x','f':lambda x,y:16*x**5.-20*x**3.+5*x,'order':5}]
-        cheby_y = [{'n':'0y','f':lambda x,y:1.,'order':0},{'n':'1y','f':lambda x,y:y,'order':1},{'n':'2y','f':lambda x,y:2*y**2-1,'order':2},{'n':'3y','f':lambda x,y:4*y**3.-3*y,'order':3}] #,{'n':'4y','f':lambda x,y:8*y**4.-8*y**2.+1,'order':4},{'n':'5y','f':lambda x,y:16*y**5.-20*y**3.+5*y,'order':5}]
-    cheby_terms = []
-    cheby_terms_no_linear = []
-    for tx in cheby_x:
-        for ty in cheby_y:
-            if 1: #tx['order'] + ty['order'] <=3:
-                if not ((tx['n'] == '0x' and ty['n'] == '0y')): # or (tx['n'] == '0x' and ty['n'] == '1y') or (tx['n'] == '1x' and ty['n'] == '0y')) :
-                    cheby_terms.append({'n':tx['n'] + ty['n'],'fx':tx['f'],'fy':ty['f']})
-                if not ((tx['n'] == '0x' and ty['n'] == '0y') or (tx['n'] == '0x' and ty['n'] == '1y') or (tx['n'] == '1x' and ty['n'] == '0y')) :
-                    cheby_terms_no_linear.append({'n':tx['n'] + ty['n'],'fx':tx['f'],'fy':ty['f']})
-    print 'linear_fit| cheby_terms=',cheby_terms , ' CONFIG=',CONFIG , ' cheby_terms_no_linear=',cheby_terms_no_linear
-    #adam-fragments_removed# linear_fit-store_and_model
-
-    ''' EXPS has all of the image information for different rotations '''
-    start_EXPS = getTableInfo()
-    print 'linear_fit| start_EXPS=',start_EXPS
-
-    dt = get_files(start_EXPS[start_EXPS.keys()[0]][0])
-    print 'linear_fit| dt["CHIPS"]=',dt["CHIPS"]
-    CHIPS = [int(x) for x in re.split(',',dt['CHIPS'])]
-    if string.find(CONFIG,'8')!=-1:
-        CHIPS = [2,3,4,6,7,8]
-    elif string.find(CONFIG,'9')!=-1:
-        CHIPS = [2,3,4,7,8,9]
-
-    #''' see if linear or not '''
-    LENGTH1, LENGTH2 = dt['LENGTH1'], dt['LENGTH2']
-    print 'linear_fit| LENGTH1=',LENGTH1 , ' LENGTH2=',LENGTH2
-
-    ''' get stars from the selectGoodStars func '''
-    if redoselect:
-        EXPS, star_good,supas, totalstars, mdn_background = selectGoodStars(start_EXPS,match,LENGTH1,LENGTH2,CONFIG)
-        uu = open(tmpdir + '/selectGoodStars','w')
-        info = starStats(supas)
-        pickle.dump({'info':info,'EXPS':EXPS,'star_good':star_good,'supas':supas,'totalstars':totalstars},uu)
-        uu.close()
-    f=open(tmpdir + '/selectGoodStars','r')
-    m=pickle.Unpickler(f)
-    d=m.load()
-    f.close()
-
-    ''' if early chip configuration, use chip color terms '''
-    if (CONFIG=='8' or CONFIG=='9'): relative_colors = True
-    else: relative_colors = False
-
-    ''' read out of pickled dictionary '''
-    info = d['info'];EXPS = d['EXPS'];star_good = d['star_good'];supas = d['supas'];totalstars = d['totalstars']
-    print 'linear_fit| EXPS=',EXPS
-    print 'linear_fit| len(star_good)=',len(star_good)
-
-    #fitvars_fiducial = False
-    p = pyfits.open(tmpdir + '/final.cat') #final.cat is the output from match_many func
-    table = p[1].data
-    p.close()
-
-    #adam-note# `table` and `supas` have closely related data. supas[#]['table index'] will give you the index of `table` that this "#" in `supas` corresponds to
-    tab = {}
-    for ROT in EXPS.keys():
-        for y in EXPS[ROT]:
-            keys = [ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos',ROT+'$'+y+'$Ypos',ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos_ABS',ROT+'$'+y+'$Ypos_ABS',ROT+'$'+y+'$MAG_AUTO',ROT+'$'+y+'$MAGERR_AUTO',ROT+'$'+y+'$MaxVal',ROT+'$'+y+'$BackGr',ROT+'$'+y+'$CLASS_STAR',ROT+'$'+y+'$Flag',ROT+'$'+y+'$ALPHA_J2000',ROT+'$'+y+'$DELTA_J2000']
-            if match:
-                keys = [ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos',ROT+'$'+y+'$Ypos',ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos_ABS',ROT+'$'+y+'$Ypos_ABS',ROT+'$'+y+'$MAG_AUTO',ROT+'$'+y+'$MAGERR_AUTO',ROT+'$'+y+'$MaxVal',ROT+'$'+y+'$BackGr',ROT+'$'+y+'$CLASS_STAR',ROT+'$'+y+'$Flag' ,'SDSSstdMag_corr','SDSSstdMagErr_corr','SDSSstdMagColor_corr','SDSSstdMagClean_corr','SDSSStar_corr',ROT+'$'+y+'$ALPHA_J2000',ROT+'$'+y+'$DELTA_J2000']
-            for key in keys:
-                tab[key] = copy(table.field(key))
-    del table
-
-    supas_copy = copy(supas)
-    coord_conv_x = lambda x:((2.*x)-LENGTH1)/LENGTH1
-    coord_conv_y = lambda x:((2.*x)-LENGTH2)/LENGTH2
-    #adam-fragments_removed# linear_fit-find_the_color_term
-
-    sample = str(match)
-    sample_copy = copy(sample)
-    print 'linear_fit| sample=',sample
-    db2,c = connect_except()
-
-    ## back to using run_these from input!
-    #run_these=["all","rand1","rand2","rand3","rand4","rand5","rand6","rand7","rand8","rand9","rand10"] #,"rand11","rand12","rand13","rand14","rand15","rand16","rand17","rand18","rand19","rand20"]
-    #adam-fragments_removed# linear_fit-rands_and_run_these (RERPLACED)
-    for original_sample_size in run_these:
-        print 'linear_fit| loop0: for original_sample_size in run_these: (run_these=["all","rand1","rand2","rand3","rand4","rand5","rand6","rand7","rand8","rand9","rand10"])'
-        print 'linear_fit| loop0: original_sample_size='+original_sample_size
-
-        save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':original_sample_size,'primary_filt':primary,'secondary_filt':secondary,'coverage':str(match),'relative_colors':relative_colors,'catalog':str(match),'CONFIG':CONFIG,'supas':len(supas),'match_stars':len(filter(lambda x:x['match'],supas))})
-        print 'linear_fit| totalstars=',totalstars , ' len(supas)=',len(supas)
-	if original_sample_size == 'all':
-            #adam-ask# Is this shortening of `supas` if there are more than 30000 stars just to make it so that the fit runs quickly? If that's the case I can probably just continue to leave this out.
-            if totalstars > 30000:
-                ''' shorten star_good, supas '''
-                supas = []
-                ''' include bright stars and matched stars '''
-                for supa in supas_copy:
-                    if len(supas) < int(float(30000)/float(totalstars)*len(supas_copy))  or supa['match']:
-                        supas.append(supa)
-            else:
-                supas = copy(supas_copy)
-            ''' if sdss comparison exists, run twice to see how statistics are improved '''
-            if sample == 'sdss':
-                ''' first all info, then w/o sdss, then fit for zps w/ sdss but not position terms, then run fit for zps w/o position terms '''
-                runs = [[original_sample_size,True,supas,'sdss',True],[original_sample_size + 'None',True,supas,'None', False],[original_sample_size + 'sdsscorr',False,supas,'sdss',False],[original_sample_size + 'sdssuncorr',False,supas,'sdss',False]]
-                #adam-no_more# adding another run to `runs`, the first one will be like the original first, but with try_linear=False, just to see if I get a better fit that way
-                #adam-no_more# runs = [[original_sample_size,True,supas,'sdss',False],[original_sample_size,True,supas,'sdss',True],[original_sample_size + 'None',True,supas,'None', False],[original_sample_size + 'sdsscorr',False,supas,'sdss',False],[original_sample_size + 'sdssuncorr',False,supas,'sdss',False]]
-            else:
-                runs = [[original_sample_size,True,supas,sample_copy,True],[original_sample_size + 'corr',False,supas,sample_copy,True],[original_sample_size + 'uncorr',False,supas,sample_copy,True]]
+    try:
+    
+        print '\nlinear_fit| START the func. inputs: OBJNAME=',OBJNAME , ' FILTER=',FILTER , ' PPRUN=',PPRUN , ' run_these=',run_these , ' match=',match , ' CONFIG=',CONFIG , ' primary=',primary , ' secondary=',secondary
+        redoselect = False #if True will redo selectGoodStars and starStats. `redoselect = False` is appropriate since match_OBJNAME already takes care of making these catalogs
+    
+        ''' create chebychev polynomials '''
+        if CONFIG == '10_3' or string.find(CONFIG,'8')!=-1 or string.find(CONFIG,'9')!=-1:
+            cheby_x = [{'n':'0x','f':lambda x,y:1.,'order':0},{'n':'1x','f':lambda x,y:x,'order':1},{'n':'2x','f':lambda x,y:2*x**2-1,'order':2}] #,{'n':'3x','f':lambda x,y:4*x**3.-3*x,'order':3},{'n':'4x','f':lambda x,y:8*x**4.-8*x**2.+1,'order':4}]#,{'n':'5x','f':lambda x,y:16*x**5.-20*x**3.+5*x,'order':5}]
+            cheby_y = [{'n':'0y','f':lambda x,y:1.,'order':0},{'n':'1y','f':lambda x,y:y,'order':1},{'n':'2y','f':lambda x,y:2*y**2-1,'order':2}] #,{'n':'3y','f':lambda x,y:4*y**3.-3*y,'order':3},{'n':'4y','f':lambda x,y:8*y**4.-8*y**2.+1,'order':4}] #,{'n':'5y','f':lambda x,y:16*y**5.-20*y**3.+5*y,'order':5}]
         else:
-            if totalstars > 60000:
+            cheby_x = [{'n':'0x','f':lambda x,y:1.,'order':0},{'n':'1x','f':lambda x,y:x,'order':1},{'n':'2x','f':lambda x,y:2*x**2-1,'order':2},{'n':'3x','f':lambda x,y:4*x**3.-3*x,'order':3}] #,{'n':'4x','f':lambda x,y:8*x**4.-8*x**2.+1,'order':4},{'n':'5x','f':lambda x,y:16*x**5.-20*x**3.+5*x,'order':5}]
+            cheby_y = [{'n':'0y','f':lambda x,y:1.,'order':0},{'n':'1y','f':lambda x,y:y,'order':1},{'n':'2y','f':lambda x,y:2*y**2-1,'order':2},{'n':'3y','f':lambda x,y:4*y**3.-3*y,'order':3}] #,{'n':'4y','f':lambda x,y:8*y**4.-8*y**2.+1,'order':4},{'n':'5y','f':lambda x,y:16*y**5.-20*y**3.+5*y,'order':5}]
+        cheby_terms = []
+        cheby_terms_no_linear = []
+        for tx in cheby_x:
+            for ty in cheby_y:
+                if 1: #tx['order'] + ty['order'] <=3:
+                    if not ((tx['n'] == '0x' and ty['n'] == '0y')): # or (tx['n'] == '0x' and ty['n'] == '1y') or (tx['n'] == '1x' and ty['n'] == '0y')) :
+                        cheby_terms.append({'n':tx['n'] + ty['n'],'fx':tx['f'],'fy':ty['f']})
+                    if not ((tx['n'] == '0x' and ty['n'] == '0y') or (tx['n'] == '0x' and ty['n'] == '1y') or (tx['n'] == '1x' and ty['n'] == '0y')) :
+                        cheby_terms_no_linear.append({'n':tx['n'] + ty['n'],'fx':tx['f'],'fy':ty['f']})
+        print 'linear_fit| cheby_terms=',cheby_terms , ' cheby_terms_no_linear=',cheby_terms_no_linear
+        #adam-fragments_removed# linear_fit-store_and_model
+    
+        ''' EXPS has all of the image information for different rotations '''
+        start_EXPS = getTableInfo(PPRUN)
+        print 'linear_fit| start_EXPS=',start_EXPS
+    
+        dt = get_files(start_EXPS[start_EXPS.keys()[0]][0])
+        print 'linear_fit| dt["CHIPS"]=',dt["CHIPS"]
+        CHIPS = [int(x) for x in re.split(',',dt['CHIPS'])]
+        if string.find(CONFIG,'8')!=-1:
+            CHIPS = [2,3,4,6,7,8]
+        elif string.find(CONFIG,'9')!=-1:
+            CHIPS = [2,3,4,7,8,9]
+    
+        #''' see if linear or not '''
+        LENGTH1, LENGTH2 = dt['LENGTH1'], dt['LENGTH2']
+        print 'linear_fit| LENGTH1=',LENGTH1 , ' LENGTH2=',LENGTH2
+    
+        ''' get stars from the selectGoodStars func '''
+        if redoselect:
+            EXPS, star_good,supas, totalstars, mdn_background = selectGoodStars(start_EXPS,match,LENGTH1,LENGTH2,CONFIG,PPRUN)
+            uu = open(tmpdir + '/selectGoodStars_'+PPRUN,'w')
+            info = starStats(supas)
+            pickle.dump({'info':info,'EXPS':EXPS,'star_good':star_good,'supas':supas,'totalstars':totalstars},uu)
+            uu.close()
+        f=open(tmpdir + '/selectGoodStars_'+PPRUN,'r')
+        m=pickle.Unpickler(f)
+        d=m.load()
+        f.close()
+    
+        ''' if early chip configuration, use chip color terms '''
+        if (CONFIG=='8' or CONFIG=='9'): relative_colors = True
+        else: relative_colors = False
+    
+        ''' read out of pickled dictionary '''
+        info = d['info'];EXPS = d['EXPS'];star_good = d['star_good'];supas = d['supas'];totalstars = d['totalstars']
+        print 'linear_fit| EXPS=',EXPS
+        print 'linear_fit| len(star_good)=',len(star_good)
+    
+        #fitvars_fiducial = False
+        p = pyfits.open(tmpdir + '/final_'+PPRUN+'.cat') #final_'+PPRUN+'.cat is the output from match_many func
+        table = p[1].data
+        p.close()
+    
+        #adam-note# `table` and `supas` have closely related data. supas[#]['table index'] will give you the index of `table` that this "#" in `supas` corresponds to
+        tab = {}
+        for ROT in EXPS.keys():
+            for y in EXPS[ROT]:
+                keys = [ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos',ROT+'$'+y+'$Ypos',ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos_ABS',ROT+'$'+y+'$Ypos_ABS',ROT+'$'+y+'$MAG_AUTO',ROT+'$'+y+'$MAGERR_AUTO',ROT+'$'+y+'$MaxVal',ROT+'$'+y+'$BackGr',ROT+'$'+y+'$CLASS_STAR',ROT+'$'+y+'$Flag',ROT+'$'+y+'$ALPHA_J2000',ROT+'$'+y+'$DELTA_J2000']
+                if match:
+                    keys = [ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos',ROT+'$'+y+'$Ypos',ROT+'$'+y+'$CHIP',ROT+'$'+y+'$Xpos_ABS',ROT+'$'+y+'$Ypos_ABS',ROT+'$'+y+'$MAG_AUTO',ROT+'$'+y+'$MAGERR_AUTO',ROT+'$'+y+'$MaxVal',ROT+'$'+y+'$BackGr',ROT+'$'+y+'$CLASS_STAR',ROT+'$'+y+'$Flag' ,'SDSSstdMag_corr','SDSSstdMagErr_corr','SDSSstdMagColor_corr','SDSSstdMagClean_corr','SDSSStar_corr',ROT+'$'+y+'$ALPHA_J2000',ROT+'$'+y+'$DELTA_J2000']
+                for key in keys:
+                    tab[key] = copy(table.field(key))
+        del table
+    
+        supas_copy = copy(supas)
+        coord_conv_x = lambda x:((2.*x)-LENGTH1)/LENGTH1
+        coord_conv_y = lambda x:((2.*x)-LENGTH2)/LENGTH2
+        #adam-fragments_removed# linear_fit-find_the_color_term
+    
+        sample = str(match)
+        sample_copy = copy(sample)
+        print 'linear_fit| sample=',sample
+        db2,c = connect_except()
+    
+        ## back to using run_these from input!
+        #run_these=["all","rand1","rand2","rand3","rand4","rand5","rand6","rand7","rand8","rand9","rand10"] #,"rand11","rand12","rand13","rand14","rand15","rand16","rand17","rand18","rand19","rand20"]
+        #adam-fragments_removed# linear_fit-rands_and_run_these (RERPLACED)
+        for original_sample_size in run_these:
+            print 'linear_fit| loop0: for original_sample_size in run_these: (run_these=["all","rand1","rand2","rand3","rand4","rand5","rand6","rand7","rand8","rand9","rand10"])'
+            print 'linear_fit| loop0: original_sample_size='+original_sample_size
+    
+            save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':original_sample_size,'primary_filt':primary,'secondary_filt':secondary,'coverage':str(match),'relative_colors':relative_colors,'catalog':str(match),'CONFIG':CONFIG,'supas':len(supas),'match_stars':len(filter(lambda x:x['match'],supas))})
+            print 'linear_fit| totalstars=',totalstars , ' len(supas)=',len(supas)
+            if original_sample_size == 'all':
+                #adam-ask# Is this shortening of `supas` if there are more than 30000 stars just to make it so that the fit runs quickly? If that's the case I can probably just continue to leave this out.
+                if totalstars > 30000:
+                    ''' shorten star_good, supas '''
+                    supas = []
+                    ''' include bright stars and matched stars '''
+                    for supa in supas_copy:
+                        if len(supas) < int(float(30000)/float(totalstars)*len(supas_copy))  or supa['match']:
+                            supas.append(supa)
+                else:
+                    supas = copy(supas_copy)
+                ''' if sdss comparison exists, run twice to see how statistics are improved '''
+                if sample == 'sdss':
+                    ''' first all info, then w/o sdss, then fit for zps w/ sdss but not position terms, then run fit for zps w/o position terms '''
+                    runs = [[original_sample_size,True,supas,'sdss',True],[original_sample_size + 'None',True,supas,'None', False],[original_sample_size + 'sdsscorr',False,supas,'sdss',False],[original_sample_size + 'sdssuncorr',False,supas,'sdss',False]]
+                    #adam-no_more# adding another run to `runs`, the first one will be like the original first, but with try_linear=False, just to see if I get a better fit that way
+                    #adam-no_more# runs = [[original_sample_size,True,supas,'sdss',False],[original_sample_size,True,supas,'sdss',True],[original_sample_size + 'None',True,supas,'None', False],[original_sample_size + 'sdsscorr',False,supas,'sdss',False],[original_sample_size + 'sdssuncorr',False,supas,'sdss',False]]
+                else:
+                    runs = [[original_sample_size,True,supas,sample_copy,True],[original_sample_size + 'corr',False,supas,sample_copy,True],[original_sample_size + 'uncorr',False,supas,sample_copy,True]]
+            else:
+                if totalstars > 60000:
+                    ''' shorten star_good, supas '''
+                    supas_short = copy(supas_copy[0:int(float(60000)/float(totalstars)*len(supas_copy))])
+                else:
+                    supas_short = copy(supas_copy)
+    
+                ''' take a random sample of half '''
+                ## changing the CLASS_STAR criterion upwards helps as does increasing the sigma on the SDSS stars
+                print 'linear_fit| len(supas_short)=',len(supas_short)
+                star_nums = range(len(supas_short))
+                random.shuffle(star_nums) #this shuffles star_nums in place
+                star_nums_sample = star_nums[:len(supas_short)/2]
+                star_nums_complement = star_nums[len(supas_short)/2:]
+    
                 ''' shorten star_good, supas '''
-                supas_short = copy(supas_copy[0:int(float(60000)/float(totalstars)*len(supas_copy))])
-            else:
-                supas_short = copy(supas_copy)
-
-            ''' take a random sample of half '''
-            ## changing the CLASS_STAR criterion upwards helps as does increasing the sigma on the SDSS stars
-            print 'linear_fit| len(supas_short)=',len(supas_short)
-            star_nums = range(len(supas_short))
-	    random.shuffle(star_nums) #this shuffles star_nums in place
-	    star_nums_sample = star_nums[:len(supas_short)/2]
-	    star_nums_complement = star_nums[len(supas_short)/2:]
-
-            ''' shorten star_good, supas '''
-            supas = [supas_short[i] for i in star_nums_sample]
-            supas_complement = [supas_short[i] for i in star_nums_complement]
-            ''' make the complement '''
-            runs = [[original_sample_size,True,supas,sample_copy,True],[original_sample_size + 'corr',False,supas_complement,sample_copy,True],[original_sample_size + 'uncorr',False,supas_complement,sample_copy,True]]
-
-        print 'linear_fit| len(supas)=',len(supas), ' info["rot"]=',info["rot"]
-        print 'linear_fit| original_sample_size=',original_sample_size , ' match=',match , ' sample=',sample,' info["match"]=',info["match"]
-
-        '''
-        first all info                                  : sample_size= "all"            calc_illum= True  sample= "sdss"  try_linear= True
-        then w/o sdss                                   : sample_size= "allNone"        calc_illum= True  sample= "None"  try_linear= False
-        then fit for zps w/ sdss but not position terms : sample_size= "allsdsscorr"    calc_illum= False sample= "sdss"  try_linear= False
-        then run fit for zps w/o position terms         : sample_size= "allsdssuncorr"  calc_illum= False sample= "sdss"  try_linear= False
-        '''
-        # sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True             : first w/ sdss, fit for position, sdss, & exp terms
-        # sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False        : then w/o sdss, fit for position & exp terms (*lone_position_corr*)
-        # sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False   : then  w/ sdss, fit for sdss, & exp terms (but not position terms) using data pre-corrected by *lone_position_corr*
-        # sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : then  w/ sdss, fit for sdss, & exp terms (but not position terms) using normal data
-        fitvars_runs={}
-        run_goodness_info={};run_infos=[]
-        run_goodness_info["stars"]='\n# stars detected: total=%s , found match in SDSS =%s found in both rotations=%s ' % (len(supas), info['match'],info['rot'])+'\n# mag^exp_star values totalstars='+str(totalstars)
-        print run_goodness_info["stars"]
-        for sample_size, calc_illum, supas,  sample , try_linear in runs:
-            print '\nlinear_fit| loop1-(1/1) loops over `runs` to do different types of fits | for sample_size, calc_illum, supas,  sample , try_linear in runs: (runs = [[sample_size,True,supas,"sdss",True],[sample_size + "None",True,supas,"None", False],[sample_size + "sdsscorr",False,supas,"sdss",False],[sample_size + "sdssuncorr",False,supas,"sdss",False]]) since (sample == "sdss" and sample_size == "all")'
-            print 'linear_fit| loop1-(1/1) loops over `runs` to do different types of fits | sample_size=',sample_size , ' calc_illum=',calc_illum , 'sample=', sample , ' try_linear=',try_linear
-
-            run_info=extra_nametag+'__sample_size-is-'+str(sample_size)+'__calc_illum-is-'+str(calc_illum)+'__sample-is-'+str(sample)+'__try_linear-is-'+str(try_linear)
-            print "linear_fit| run_info=",run_info
-            run_goodness_info[run_info]= '';run_infos.append(run_info)
-
-            '''### MAIN1-START ### SETUP THE MATRIX place all free parameters in columns for this particular run.'''
-            print 'linear_fit| ....determine matrix structure/setup....'
-            #adam-note#(in wtg2 paper) we only include the linear terms in the fit if there are a sufficient number of stars (600 here, but it's 400 in the paper)
-            if try_linear and info['match'] > 600: #adam-ask# 600 here, but it's 400 in the paper!
-                print 'linear_fit| try_linear and info["match"] > 600  ==> use all cheby terms in fit'
-                cheby_terms_use = cheby_terms
-            else:
-                print 'linear_fit| dont use linear cheby terms in fit'
-                cheby_terms_use = cheby_terms_no_linear
-            #adam-fragments_removed# linear_fit-loop_over_samples
-
-            #adam-note#(in wtg2 paper) `columns` contains all of the entries that will be included in the fit
-            #adam-note#(in wtg2 paper) columns= position_columns + zp_columns + color_columns + mag_columns
-            #adam-note#(in wtg2 paper) position_columns: f(x,y)_rot [ {'name':name,'fx':term['fx'],'fy':term['fy'],'rotation':ROT,'index':index} ]
-            #adam-note#(in wtg2 paper) zp_columns: O_chip, ZP_exp and O_cat [ {'name':'zp_'+str(chip)} and {'name':'zp_image_'+exp} and {'name':'zp_SDSS','image':'match','index':index} ]
-            #adam-note#(in wtg2 paper) color_columns: handles S_cat*c^cat_star [ color_columns=[{'name':'SDSS_color','image':'match_color_term','index':index, 'chip_group':[]}]]
-            #adam-note#(in wtg2 paper) mag_columns:m^model_star [ mag_columns=[{'name':'mag_' + str(star['table index'])} for star in supas]]
-            ''' if random, run first with one half, then the other half, applying the correction '''
-            columns = []
-            ''' position-dependent terms in design matrix '''
-            position_columns = []
-            index = -1
-            if calc_illum:
-                for ROT in EXPS.keys():
-                    for term in cheby_terms_use:
-                        index += 1
-                        name = str(ROT) + '$' + term['n'] # + reduce(lambda x,y: x + 'T' + y,term)
-                        position_columns.append({'name':name,'fx':term['fx'],'fy':term['fy'],'rotation':ROT,'index':index})
-                columns += position_columns
-
-            ''' zero point terms in design matrix '''
-            #adam-ask: It seems to me that `per_chip` and `same_chips` need not be options, but that the code should be written as if these things were set in stone, leaving no option for future users to make worse fits
-            per_chip = False  # have a different zp for each chip on each exposures
-            same_chips =True  # have a different zp for each chip but constant across exposures
-
-            print 'linear_fit| T/F of these determine "columns" structure: calc_illum=',calc_illum , ' per_chip=',per_chip , ' same_chips=',same_chips , ' match=',match , ' relative_colors=',relative_colors,' try_linear=',try_linear
-            zp_columns = []
-            if not per_chip:
-                for ROT in EXPS.keys():
-                    for exp in EXPS[ROT]:
-                        index += 1
-                        zp_columns.append({'name':'zp_image_'+exp,'image':exp,'im_rotation':ROT,'index':index})
-            else:
-                for ROT in EXPS.keys():
-                    for exp in EXPS[ROT]:
-                        for chip in CHIPS:
+                supas = [supas_short[i] for i in star_nums_sample]
+                supas_complement = [supas_short[i] for i in star_nums_complement]
+                ''' make the complement '''
+                runs = [[original_sample_size,True,supas,sample_copy,True],[original_sample_size + 'corr',False,supas_complement,sample_copy,True],[original_sample_size + 'uncorr',False,supas_complement,sample_copy,True]]
+    
+            print 'linear_fit| len(supas)=',len(supas), ' info["rot"]=',info["rot"]
+            print 'linear_fit| original_sample_size=',original_sample_size , ' match=',match , ' sample=',sample,' info["match"]=',info["match"]
+    
+            '''
+            first all info                                  : sample_size= "all"            calc_illum= True  sample= "sdss"  try_linear= True
+            then w/o sdss                                   : sample_size= "allNone"        calc_illum= True  sample= "None"  try_linear= False
+            then fit for zps w/ sdss but not position terms : sample_size= "allsdsscorr"    calc_illum= False sample= "sdss"  try_linear= False
+            then run fit for zps w/o position terms         : sample_size= "allsdssuncorr"  calc_illum= False sample= "sdss"  try_linear= False
+            '''
+            # sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True             : first w/ sdss, fit for position, sdss, & exp terms
+            # sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False        : then w/o sdss, fit for position & exp terms (*lone_position_corr*)
+            # sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False   : then  w/ sdss, fit for sdss, & exp terms (but not position terms) using data pre-corrected by *lone_position_corr*
+            # sample_size-is-allsdssuncorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False : then  w/ sdss, fit for sdss, & exp terms (but not position terms) using normal data
+            fitvars_runs={}
+            run_goodness_info={};run_infos=[]
+            run_goodness_info["stars"]='\n# stars detected: total=%s , found match in SDSS =%s found in both rotations=%s ' % (len(supas), info['match'],info['rot'])+'\n# mag^exp_star values totalstars='+str(totalstars)
+            print run_goodness_info["stars"]
+            for sample_size, calc_illum, supas,  sample , try_linear in runs:
+                print '\nlinear_fit| loop1-(1/1) loops over `runs` to do different types of fits | for sample_size, calc_illum, supas,  sample , try_linear in runs: (runs = [[sample_size,True,supas,"sdss",True],[sample_size + "None",True,supas,"None", False],[sample_size + "sdsscorr",False,supas,"sdss",False],[sample_size + "sdssuncorr",False,supas,"sdss",False]]) since (sample == "sdss" and sample_size == "all")'
+                print 'linear_fit| loop1-(1/1) loops over `runs` to do different types of fits | sample_size=',sample_size , ' calc_illum=',calc_illum , 'sample=', sample , ' try_linear=',try_linear
+    
+                run_info=extra_nametag+'__sample_size-is-'+str(sample_size)+'__calc_illum-is-'+str(calc_illum)+'__sample-is-'+str(sample)+'__try_linear-is-'+str(try_linear)
+                print "linear_fit| run_info=",run_info
+                run_goodness_info[run_info]= '';run_infos.append(run_info)
+    
+                '''### MAIN1-START ### SETUP THE MATRIX place all free parameters in columns for this particular run.'''
+                print 'linear_fit| ....determine matrix structure/setup....'
+                #adam-note#(in wtg2 paper) we only include the linear terms in the fit if there are a sufficient number of stars (600 here, but it's 400 in the paper)
+                if try_linear and info['match'] > 600: #adam-ask# 600 here, but it's 400 in the paper!
+                    print 'linear_fit| try_linear and info["match"] > 600  ==> use all cheby terms in fit'
+                    cheby_terms_use = cheby_terms
+                else:
+                    print 'linear_fit| dont use linear cheby terms in fit'
+                    cheby_terms_use = cheby_terms_no_linear
+                #adam-fragments_removed# linear_fit-loop_over_samples
+    
+                #adam-note#(in wtg2 paper) `columns` contains all of the entries that will be included in the fit
+                #adam-note#(in wtg2 paper) columns= position_columns + zp_columns + color_columns + mag_columns
+                #adam-note#(in wtg2 paper) position_columns: f(x,y)_rot [ {'name':name,'fx':term['fx'],'fy':term['fy'],'rotation':ROT,'index':index} ]
+                #adam-note#(in wtg2 paper) zp_columns: O_chip, ZP_exp and O_cat [ {'name':'zp_'+str(chip)} and {'name':'zp_image_'+exp} and {'name':'zp_SDSS','image':'match','index':index} ]
+                #adam-note#(in wtg2 paper) color_columns: handles S_cat*c^cat_star [ color_columns=[{'name':'SDSS_color','image':'match_color_term','index':index, 'chip_group':[]}]]
+                #adam-note#(in wtg2 paper) mag_columns:m^model_star [ mag_columns=[{'name':'mag_' + str(star['table index'])} for star in supas]]
+                ''' if random, run first with one half, then the other half, applying the correction '''
+                columns = []
+                ''' position-dependent terms in design matrix '''
+                position_columns = []
+                index = -1
+                if calc_illum:
+                    for ROT in EXPS.keys():
+                        for term in cheby_terms_use:
                             index += 1
-                            zp_columns.append({'name':'zp_image_'+exp + '_' + chip,'image':exp,'im_rotation':ROT, 'chip':chip,'index':index})
-
-            if calc_illum and not per_chip and same_chips:
-                for chip in CHIPS:
+                            name = str(ROT) + '$' + term['n'] # + reduce(lambda x,y: x + 'T' + y,term)
+                            position_columns.append({'name':name,'fx':term['fx'],'fy':term['fy'],'rotation':ROT,'index':index})
+                    columns += position_columns
+    
+                ''' zero point terms in design matrix '''
+                #adam-ask: It seems to me that `per_chip` and `same_chips` need not be options, but that the code should be written as if these things were set in stone, leaving no option for future users to make worse fits
+                per_chip = False  # have a different zp for each chip on each exposures
+                same_chips =True  # have a different zp for each chip but constant across exposures
+    
+                print 'linear_fit| T/F of these determine "columns" structure: calc_illum=',calc_illum , ' per_chip=',per_chip , ' same_chips=',same_chips , ' match=',match , ' relative_colors=',relative_colors,' try_linear=',try_linear
+                zp_columns = []
+                if not per_chip:
+                    for ROT in EXPS.keys():
+                        for exp in EXPS[ROT]:
+                            index += 1
+                            zp_columns.append({'name':'zp_image_'+exp,'image':exp,'im_rotation':ROT,'index':index})
+                else:
+                    for ROT in EXPS.keys():
+                        for exp in EXPS[ROT]:
+                            for chip in CHIPS:
+                                index += 1
+                                zp_columns.append({'name':'zp_image_'+exp + '_' + chip,'image':exp,'im_rotation':ROT, 'chip':chip,'index':index})
+    
+                if calc_illum and not per_chip and same_chips:
+                    for chip in CHIPS:
+                        index += 1
+                        zp_columns.append({'name':'zp_'+str(chip),'image':'chip_zp','chip':chip,'index':index})
+    
+                if match:
                     index += 1
-                    zp_columns.append({'name':'zp_'+str(chip),'image':'chip_zp','chip':chip,'index':index})
-
-            if match:
-                index += 1
-                zp_columns.append({'name':'zp_SDSS','image':'match','index':index})
-            columns += zp_columns
-
-            color_columns = []
-            if match:
-                if relative_colors:# CONFIG == '10_3' => relative_colors==False
-                    ''' add chip dependent color terms'''
-                    for group in config_bonn.chip_groups[str(CONFIG)].keys():
-                        ''' this is the relative color term, so leave out the first group '''
-                        if float(group) != 1:
-                            index += 1
-                            color_columns.append({'name':'color_group_'+str(group),'image':'chip_color','chip_group':group,'index':index})
-                ''' add a color term for the catalog '''
-                index += 1
-                color_columns+=[{'name':'SDSS_color','image':'match_color_term','index':index, 'chip_group':[]}]
-            columns += color_columns
-            print 'linear_fit| color_columns=',color_columns
-
-            mag_columns = []
-            for star in supas:
-                mag_columns.append({'name':'mag_' + str(star['table index'])})
-            columns += mag_columns
-
-            column_names = [x['name'] for x in columns] #reduce(lambda x,y: x+y,columns)]
-            print 'linear_fit| column_names[0:20]=',column_names[0:20]
-
-            print 'linear_fit| len(position_columns)=',len(position_columns) , ' len(zp_columns)=',len(zp_columns) , ' len(color_columns)=',len(color_columns) , ' len(mag_columns)=',len(mag_columns)
-            run_goodness_info[run_info]+= '\nlen(position_columns)='+str(len(position_columns))+' len(zp_columns)='+str(len(zp_columns))+' len(color_columns)='+str(len(color_columns))+' len(mag_columns)='+str(len(mag_columns))
-            for col,colname in zip([position_columns , zp_columns , color_columns , mag_columns], ["position_columns","zp_columns","color_columns","mag_columns"]):
-                print 'linear_fit| ',colname,': ',scipy.array([c['name'] for c in col])
-            x_length = len(position_columns) + len(zp_columns) + len(color_columns) + len(mag_columns)
-            if not len(columns)==x_length: raise Exception('linear_fit: COLUMN LENGTH DISAGREEMENT: len(columns)='+str(len(columns))+' != x_length='+str(x_length))
-            #adam-old# x_length = len(columns)
-            #adam-watch# what if it's not sdss? then not multiply by 2 in y_length? I think it won't effect the solution that you get, but I'm not too sure.
-            y_length = reduce(lambda x,y: x + y,[len(star['supa files'])*2 for star in supas]) # double number of rows for SDSS
-            print 'linear_fit| x_length=',x_length , ' y_length=',y_length
-            '''### MAIN1-END ### SETUP THE MATRIX place all free parameters in columns for this particular run.'''
-
-            '''### MAIN2-START ### FILL THE MATRIX WITH INFORMATION'''
-            #adam-note# let M = # of mag^exp_star and mag^sdss_star values (M=y_length, this is the number of equations, except not all of the elements of "star['supa files'] for star in supas" will have an sdss match, so these ones will get a row of zeros)
-            #adam-note# let N = # of free parameters in the fit. (N=x_length == len(columns), this is the number of unknowns )
-            #adam-note# we're going to solve A * x = B ; where A is (M,N) matrix, B is (M,1) vector, we solve for the (N,1) vector of free parameters x
-            #adam-note# so we loop over the M star mags (exp and sdss):
-            #adam-note#    loop over the N values corresponding to free parameter things: (ex. for cheby poly coeffs, we put the value of cheby_nth_degree(x,y) into A, in order to fit for the coefficient in x)
-            #adam-note#        star_A.append([row_num,col_num+supa_num,value]) #happens multiple times. goes through each of the "columns" for each row
-            #adam-note#    star_B.append([row_num,value]) #happens once. value = MAG_AUTO for exposures and SDSSstdMag_corr for SDSS match
-            #adam-note#    sigmas.append([row_num,sigma]) #happens once (unrelated to fit)
-
-            print 'linear_fit| ....creating matrix....'
-            #adam-del# Bstr = ''
-            row_num = -1;supa_num = -1
-            ''' each star '''
-            inst = [];data = {} ; magErr = {} ; whichimage = {} ; X = {} ; Y = {} ; color = {} ; chipnums = {} ; Star = {} ; catalog_values = {}
-            for ROT in EXPS.keys():
-                data[ROT] = [] ; magErr[ROT] = [] ; X[ROT] = [] ; Y[ROT] = [] ; color[ROT] = [] ; whichimage[ROT] = [] ; chipnums[ROT] = [] ; Star[ROT] = []
-            x_positions = {} ; y_positions = {}
-            #adam-del#chip_dict = {}
-            '''### MAIN2a-START ### put M^exp_star info in MATRIX'''
-            print "linear_fit| loop2-(1/3) sets up the matrix | for star in supas: NOT GOING TO PRINT DURRING EVERY LOOP THIS TIME"
-            for star in supas:
-                supa_num += 1
-                ''' each exp of each star '''
-                #adam-del# star_A = [] ; star_B = [] ; star_B_cat = [] ; sigmas = []
-                star_A = [] ; star_B = [] ; sigmas = []
-                for exp in star['supa files']:
-                    row_num += 1
-                    col_num = -1
-                    rotation = exp['rotation']
-                    chip = int(tab[str(rotation) + '$' + exp['name'] + '$CHIP'][star['table index']] )
-                    x = tab[str(rotation) + '$' + exp['name'] + '$Xpos_ABS'][star['table index']]
-                    y = tab[str(rotation) + '$' + exp['name'] + '$Ypos_ABS'][star['table index']]
-                    #adam-del# x_rel = tab[str(rotation) + '$' + exp['name'] + '$Xpos'][star['table index']]
-                    #adam-del# y_rel = tab[str(rotation) + '$' + exp['name'] + '$Ypos'][star['table index']]
-                    x_positions[row_num] = x
-                    y_positions[row_num] = y
-                    x = coord_conv_x(x)
-                    y = coord_conv_y(y)
-
-                    #adam-fragments_removed# linear_fit-10_3_subchips
-                    sigma = tab[str(rotation) + '$' + exp['name'] + '$MAGERR_AUTO'][star['table index']]
-		    if sigma < 0.001: sigma = 0.001 #adam-ask# sigma lower limit: here if sigma < 0.001: sigma = 0.001 (MAGERR_AUTO)
-
-                    #adam-START#UNCERTAINTY_CHANGE# weight by 1/sigma**2, not 1/sigma
-                    if calc_illum:
-                        for c in position_columns:
+                    zp_columns.append({'name':'zp_SDSS','image':'match','index':index})
+                columns += zp_columns
+    
+                color_columns = []
+                if match:
+                    if relative_colors:# CONFIG == '10_3' => relative_colors==False
+                        ''' add chip dependent color terms'''
+                        for group in config_bonn.chip_groups[str(CONFIG)].keys():
+                            ''' this is the relative color term, so leave out the first group '''
+                            if float(group) != 1:
+                                index += 1
+                                color_columns.append({'name':'color_group_'+str(group),'image':'chip_color','chip_group':group,'index':index})
+                    ''' add a color term for the catalog '''
+                    index += 1
+                    color_columns+=[{'name':'SDSS_color','image':'match_color_term','index':index, 'chip_group':[]}]
+                columns += color_columns
+                print 'linear_fit| color_columns=',color_columns
+    
+                mag_columns = []
+                for star in supas:
+                    mag_columns.append({'name':'mag_' + str(star['table index'])})
+                columns += mag_columns
+    
+                column_names = [x['name'] for x in columns] #reduce(lambda x,y: x+y,columns)]
+                print 'linear_fit| column_names[0:20]=',column_names[0:20]
+    
+                print 'linear_fit| len(position_columns)=',len(position_columns) , ' len(zp_columns)=',len(zp_columns) , ' len(color_columns)=',len(color_columns) , ' len(mag_columns)=',len(mag_columns)
+                run_goodness_info[run_info]+= '\nlen(position_columns)='+str(len(position_columns))+' len(zp_columns)='+str(len(zp_columns))+' len(color_columns)='+str(len(color_columns))+' len(mag_columns)='+str(len(mag_columns))
+                for col,colname in zip([position_columns , zp_columns , color_columns , mag_columns], ["position_columns","zp_columns","color_columns","mag_columns"]):
+                    print 'linear_fit| ',colname,': ',scipy.array([c['name'] for c in col])
+                x_length = len(position_columns) + len(zp_columns) + len(color_columns) + len(mag_columns)
+                if not len(columns)==x_length: raise Exception('linear_fit: COLUMN LENGTH DISAGREEMENT: len(columns)='+str(len(columns))+' != x_length='+str(x_length))
+                #adam-old# x_length = len(columns)
+                #adam-watch# what if it's not external ref cat? then not multiply by 2 in y_length? I think it won't effect the solution that you get, but I'm not too sure.
+                y_length = reduce(lambda x,y: x + y,[len(star['supa files'])*2 for star in supas]) # double number of rows for external ref cat
+                print 'linear_fit| x_length=',x_length , ' y_length=',y_length
+                '''### MAIN1-END ### SETUP THE MATRIX place all free parameters in columns for this particular run.'''
+    
+                '''### MAIN2-START ### FILL THE MATRIX WITH INFORMATION'''
+                #adam-note# let M = # of mag^exp_star and mag^sdss_star values (M=y_length, this is the number of equations, except not all of the elements of "star['supa files'] for star in supas" will have an sdss match, so these ones will get a row of zeros)
+                #adam-note# let N = # of free parameters in the fit. (N=x_length == len(columns), this is the number of unknowns )
+                #adam-note# we're going to solve A * x = B ; where A is (M,N) matrix, B is (M,1) vector, we solve for the (N,1) vector of free parameters x
+                #adam-note# so we loop over the M star mags (exp and sdss):
+                #adam-note#    loop over the N values corresponding to free parameter things: (ex. for cheby poly coeffs, we put the value of cheby_nth_degree(x,y) into A, in order to fit for the coefficient in x)
+                #adam-note#        star_A.append([row_num,col_num+supa_num,value]) #happens multiple times. goes through each of the "columns" for each row
+                #adam-note#    star_B.append([row_num,value]) #happens once. value = MAG_AUTO for exposures and SDSSstdMag_corr for SDSS match
+                #adam-note#    sigmas.append([row_num,sigma]) #happens once (unrelated to fit)
+    
+                print 'linear_fit| ....creating matrix....'
+                #adam-del# Bstr = ''
+                row_num = -1;supa_num = -1
+                ''' each star '''
+                inst = [];data = {} ; magErr = {} ; whichimage = {} ; X = {} ; Y = {} ; color = {} ; chipnums = {} ; Star = {} ; catalog_values = {}
+                for ROT in EXPS.keys():
+                    data[ROT] = [] ; magErr[ROT] = [] ; X[ROT] = [] ; Y[ROT] = [] ; color[ROT] = [] ; whichimage[ROT] = [] ; chipnums[ROT] = [] ; Star[ROT] = []
+                x_positions = {} ; y_positions = {}
+                #adam-del#chip_dict = {}
+                '''### MAIN2a-START ### put M^exp_star info in MATRIX'''
+                print "linear_fit| loop2-(1/3) sets up the matrix | for star in supas: NOT GOING TO PRINT DURRING EVERY LOOP THIS TIME"
+                for star in supas:
+                    supa_num += 1
+                    ''' each exp of each star '''
+                    #adam-del# star_A = [] ; star_B = [] ; star_B_cat = [] ; sigmas = []
+                    star_A = [] ; star_B = [] ; sigmas = []
+                    for exp in star['supa files']:
+                        row_num += 1
+                        col_num = -1
+                        rotation = exp['rotation']
+                        chip = int(tab[str(rotation) + '$' + exp['name'] + '$CHIP'][star['table index']] )
+                        x = tab[str(rotation) + '$' + exp['name'] + '$Xpos_ABS'][star['table index']]
+                        y = tab[str(rotation) + '$' + exp['name'] + '$Ypos_ABS'][star['table index']]
+                        #adam-del# x_rel = tab[str(rotation) + '$' + exp['name'] + '$Xpos'][star['table index']]
+                        #adam-del# y_rel = tab[str(rotation) + '$' + exp['name'] + '$Ypos'][star['table index']]
+                        x_positions[row_num] = x
+                        y_positions[row_num] = y
+                        x = coord_conv_x(x)
+                        y = coord_conv_y(y)
+    
+                        #adam-fragments_removed# linear_fit-10_3_subchips
+                        sigma = tab[str(rotation) + '$' + exp['name'] + '$MAGERR_AUTO'][star['table index']]
+                        if sigma < 0.001: sigma = 0.001 #adam-ask# sigma lower limit: here if sigma < 0.001: sigma = 0.001 (MAGERR_AUTO)
+    
+                        #adam-START#UNCERTAINTY_CHANGE# weight by 1/sigma**2, not 1/sigma
+                        if calc_illum:
+                            for c in position_columns:
+                                col_num += 1
+                                if c['rotation'] == rotation:
+                                    #adam-tmp# value = c['fx'](x,y)*c['fy'](x,y)/sigma**2 #UNCERTAINTY_CHANGE#
+                                    value = c['fx'](x,y)*c['fy'](x,y)/sigma
+                                    star_A.append([row_num,col_num,value])
+    
+                        first_exposure = True
+                        for c in zp_columns:
                             col_num += 1
-                            if c['rotation'] == rotation:
-                                #adam-tmp# value = c['fx'](x,y)*c['fy'](x,y)/sigma**2 #UNCERTAINTY_CHANGE#
-                                value = c['fx'](x,y)*c['fy'](x,y)/sigma
-                                star_A.append([row_num,col_num,value])
-
-                    first_exposure = True
-                    for c in zp_columns:
-                        col_num += 1
-                        #if not degeneracy_break[c['im_rotation']] and c['image'] == exp['name']:
-                        if not per_chip:
-                            if (first_exposure is not True  and c['image'] == exp['name']):
-                                #adam-tmp# value = 1./sigma**2 #UNCERTAINTY_CHANGE#
-                                value = 1./sigma
-                                star_A.append([row_num,col_num,value])
-                            if calc_illum and same_chips and c.has_key('chip'):
-                                if (c['chip'] == chip) and chip != CHIPS[0]:
+                            #if not degeneracy_break[c['im_rotation']] and c['image'] == exp['name']:
+                            if not per_chip:
+                                if (first_exposure is not True  and c['image'] == exp['name']):
                                     #adam-tmp# value = 1./sigma**2 #UNCERTAINTY_CHANGE#
                                     value = 1./sigma
                                     star_A.append([row_num,col_num,value])
-                            first_exposure = False
-                        #if per_chip:
-                        #    if (first_column is not True and c['image'] == exp['name'] and c['chip'] == chip):
-                        #        #adam-tmp# value = 1./sigma**2 #UNCERTAINTY_CHANGE#
-                        #        value = 1./sigma
-                        #        star_A.append([row_num,col_num,value])
-
-
-                    ''' fit for the color term dependence for SDSS comparison '''
-                    if match:
-                        ''' this is if there are different color terms for EACH CHIP!'''
-                        if relative_colors:
-                            for c in color_columns:
-                                col_num += 1
-                                for chip_num in c['chip_group']:
-                                    if float(chip_num) == float(chip):
-                                        #adam-tmp# value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma**2 #UNCERTAINTY_CHANGE#
-                                        value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma
+                                if calc_illum and same_chips and c.has_key('chip'):
+                                    if (c['chip'] == chip) and chip != CHIPS[0]:
+                                        #adam-tmp# value = 1./sigma**2 #UNCERTAINTY_CHANGE#
+                                        value = 1./sigma
                                         star_A.append([row_num,col_num,value])
-                        else:
-                            col_num += 1 #adam-watch# this seems a little strange. Is it ever appropriate to have `col_num+=1` lines back-to-back without ever adding something to the table in between?
-
-                    ''' magnitude column -- include the correct/common magnitude '''
-                    col_num += 1 #adam-watch# this seems a little strange. Is it ever appropriate to have `col_num+=1` lines back-to-back without ever adding something to the table in between?
-                    #adam-tmp# value = 1./sigma**2 #UNCERTAINTY_CHANGE#
-                    value = 1./sigma
-                    star_A.append([row_num,col_num+supa_num,value])
-                    ra = tab[str(rotation) + '$' + exp['name'] + '$ALPHA_J2000'][star['table index']]
-                    dec = tab[str(rotation) + '$' + exp['name'] + '$DELTA_J2000'][star['table index']]
-
-                    if calc_illum or string.find(sample_size,'uncorr') != -1: #if calc_illum or if 'uncorr' in sample_size
-                        #adam-tmp# value = tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']]/sigma**2 #UNCERTAINTY_CHANGE#
-                        value = tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']]/sigma
-                    elif not calc_illum: #only hit this for run=sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
-                        ''' correct the input magnitudes using the previously fitted correction '''
-                        epsilon_cheby_chip=0 #(epsilon_cheby_chip=C(x,y,chip,rot) in paper)
-                        #adam-watch# fitvars_use= fitvars_runs["sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True"]
-                        #adam-watch# instead it's using the fitvars from sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False right now, which is maybe not ideal, but at least the try_linear is consistent, which is necessary!
-                        for term in cheby_terms_use:
-                            epsilon_cheby_chip += fitvars[str(rotation)+'$'+term['n']]*term['fx'](x,y)*term['fy'](x,y)
-                        epsilon_cheby_chip += float(fitvars['zp_' + str(chip)])
-                        #adam-tmp# value = (tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']] - epsilon_cheby_chip)/sigma**2 #UNCERTAINTY_CHANGE#
-                        value = (tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']] - epsilon_cheby_chip)/sigma
-                        #print 'linear_fit| epsilon_cheby_chip=',epsilon_cheby_chip , ' value=',value
-
-                    star_B.append([row_num,value])
-                    sigmas.append([row_num,sigma])
-		    #adam: 1/sigma -> 1/sigma**2 requires value*sigma -> value*sigma**2 below
-                    catalog_values[col_num+supa_num] = {'inst_value':value*sigma,'ra':ra,'dec':dec,'sigma':sigma} # these values are written into 'catalog_' + PPRUN + '.cat'
-                    #adam-tmp# catalog_values[col_num+supa_num] = {'inst_value':value*sigma**2,'ra':ra,'dec':dec,'sigma':sigma} #UNCERTAINTY_CHANGE#
-
-                    #x_long = tab[str(rotation) + '$' + exp['name'] + '$Xpos_ABS'][star['table index']]
-                    #y_long = tab[str(rotation) + '$' + exp['name'] + '$Ypos_ABS'][star['table index']]
-                    #x = coord_conv_x(x_long)
-                    #y = coord_conv_y(y_long)
-                    #if fitvars_fiducial:
-                    #    value += add_single_correction(x,y,fitvars_fiducial)
-
-                '''end loop over exposures that the star was found in'''
-                inst.append({'type':'match','A_array':star_A, 'B_array':star_B, 'sigma_array': sigmas})
-                #'''### MAIN2a-END ### put M^exp_star info in MATRIX'''
-
-                ''' only include one SDSS observation per star '''
-                #print sample , star["match"] , star["match"] and (sample=="all" or sample=="sdss" or sample=="bootstrap") # and tab["SDSSStar_corr"][star["table index"]] == 1
-                if star['match'] and (sample=='sdss' or sample=='bootstrap'): # and tab['SDSSStar_corr'][star['table index']] == 1:
-                    '''### MAIN2b-START ### put SDSS match information in MATRIX (if sample=='sdss' or sample=='bootstrap')'''
-
-                    star_A = [] ; star_B = [] ; sigmas = []
-                    ''' need to filter out bad colored-stars '''
-                    row_num += 1;col_num = -1
-                    sigma = tab['SDSSstdMagErr_corr'][star['table index']]
-		    if sigma < 0.03: sigma = 0.03 #adam-ask# sigma lower limit: here if sigma < 0.03: sigma = 0.03 (SDSSstdMagErr_corr)
-
-                    for c in position_columns:
-                        col_num += 1
-                    #adam-del# first_column = True
-                    for c in zp_columns:
-                        col_num += 1
-                        ''' remember that the good magnitude does not have any zp dependence!!! '''
-                        if c['image'] == 'match':
-                            #adam-tmp# value = 1./sigma**2 #UNCERTAINTY_CHANGE#
-                            value = 1./sigma
-                            star_A.append([row_num,col_num,value])
-                            x_positions[row_num] = x
-                            y_positions[row_num] = y
-                        #adam-del# first_column = False
-
-                    ''' fit for the color term dependence for SDSS comparison -- '''
-                    if relative_colors:
-                        ''' this is if there are different color terms for EACH CHIP!'''
-                        for c in color_columns:
-                            col_num += 1
-                            if c['name'] == 'SDSS_color':
-                                #adam-tmp# value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma**2 #UNCERTAINTY_CHANGE#
-                                value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma
-                                star_A.append([row_num,col_num,value])
-                    else:
-                        col_num += 1
-                        #adam-tmp# value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma**2 #UNCERTAINTY_CHANGE#
-                        value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma
-                        star_A.append([row_num,col_num,value])
-
-                    #adam-watch# I don't understand why this part is necessary!
-                    col_num += 1
-                    ''' magnitude column -- include the correct/common magnitude '''
-                    #adam-tmp# value = 1./sigma**2 #UNCERTAINTY_CHANGE#
-                    value = 1./sigma
-                    star_A.append([row_num,col_num+supa_num,value])
-
-                    #adam-tmp# value = tab['SDSSstdMag_corr'][star['table index']]/sigma**2 #UNCERTAINTY_CHANGE# 
-                    value = tab['SDSSstdMag_corr'][star['table index']]/sigma
-                    star_B.append([row_num,value])
-                    sigmas.append([row_num,sigma])
-                    inst.append({'type':'sdss','A_array':star_A, 'B_array':star_B, 'sigma_array': sigmas})
-
-                    ''' record star MAG_SDSS-MAG_EXP offsets for each star matched in multiple exposures and in SDSS '''
-                    for exp in star['supa files']:
-                        rotation = exp['rotation']
-                        x = tab[str(rotation) + '$' + exp['name'] + '$Xpos_ABS'][star['table index']]
-                        y = tab[str(rotation) + '$' + exp['name'] + '$Ypos_ABS'][star['table index']]
-                        x = coord_conv_x(x)
-                        y = coord_conv_y(y)
+                                first_exposure = False
+                            #if per_chip:
+                            #    if (first_column is not True and c['image'] == exp['name'] and c['chip'] == chip):
+                            #        #adam-tmp# value = 1./sigma**2 #UNCERTAINTY_CHANGE#
+                            #        value = 1./sigma
+                            #        star_A.append([row_num,col_num,value])
+    
+    
+                        ''' fit for the color term dependence for "external ref cat" comparison '''
+                        if match:
+                            ''' this is if there are different color terms for EACH CHIP!'''
+                            if relative_colors:
+                                for c in color_columns:
+                                    col_num += 1
+                                    for chip_num in c['chip_group']:
+                                        if float(chip_num) == float(chip):
+                                            #adam-tmp# value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma**2 #UNCERTAINTY_CHANGE#
+                                            value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma
+                                            star_A.append([row_num,col_num,value])
+                            else:
+                                col_num += 1 #adam-watch# this seems a little strange. Is it ever appropriate to have `col_num+=1` lines back-to-back without ever adding something to the table in between?
+    
+                        ''' magnitude column -- include the correct/common magnitude '''
+                        col_num += 1 #adam-watch# this seems a little strange. Is it ever appropriate to have `col_num+=1` lines back-to-back without ever adding something to the table in between?
+                        #adam-tmp# value = 1./sigma**2 #UNCERTAINTY_CHANGE#
+                        value = 1./sigma
+                        star_A.append([row_num,col_num+supa_num,value])
+                        ra = tab[str(rotation) + '$' + exp['name'] + '$ALPHA_J2000'][star['table index']]
+                        dec = tab[str(rotation) + '$' + exp['name'] + '$DELTA_J2000'][star['table index']]
+    
                         if calc_illum or string.find(sample_size,'uncorr') != -1: #if calc_illum or if 'uncorr' in sample_size
-                            value = tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']]
+                            #adam-tmp# value = tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']]/sigma**2 #UNCERTAINTY_CHANGE#
+                            value = tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']]/sigma
                         elif not calc_illum: #only hit this for run=sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
                             ''' correct the input magnitudes using the previously fitted correction '''
-                            epsilon_cheby_chip=0  #(epsilon_cheby_chip=C(x,y,chip,rot) in paper)
+                            epsilon_cheby_chip=0 #(epsilon_cheby_chip=C(x,y,chip,rot) in paper)
                             #adam-watch# fitvars_use= fitvars_runs["sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True"]
                             #adam-watch# instead it's using the fitvars from sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False right now, which is maybe not ideal, but at least the try_linear is consistent, which is necessary!
                             for term in cheby_terms_use:
                                 epsilon_cheby_chip += fitvars[str(rotation)+'$'+term['n']]*term['fx'](x,y)*term['fy'](x,y)
                             epsilon_cheby_chip += float(fitvars['zp_' + str(chip)])
-                            value = (tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']] - epsilon_cheby_chip)
-                        data[str(rotation)].append(value - tab['SDSSstdMag_corr'][star['table index']])
-                        Star[str(rotation)].append(tab['SDSSStar_corr'][star['table index']])
-                        magErr[str(rotation)].append(tab['SDSSstdMagErr_corr'][star['table index']])
-                        whichimage[str(rotation)].append(exp['name'])
-                        X[str(rotation)].append(tab[str(rotation) + '$' + exp['name'] + '$Xpos_ABS'][star['table index']])
-                        Y[str(rotation)].append(tab[str(rotation) + '$' + exp['name'] + '$Ypos_ABS'][star['table index']])
-                        color[str(rotation)].append(tab['SDSSstdMagColor_corr'][star['table index']])
-                        chipnums[str(rotation)].append(tab[str(rotation) + '$' + exp['name'] + '$CHIP'][star['table index']])
-                    '''### MAIN2b-END ### put SDSS match information in MATRIX (if sample=='sdss' or sample=='bootstrap')'''
-            '''end loop over stars'''
-            '''### MAIN2-END ### FILL THE MATRIX WITH INFORMATION'''
-
-            ''' save the SDSS matches '''
-            matches = {'data':data,'magErr':magErr,'whichimage':whichimage,'X':X,'Y':Y,'color':color ,'chipnums':chipnums ,'Star':Star}
-            uu = open(tmpdir + '/sdss','w')
-            pickle.dump(matches,uu)
-            uu.close()
-            #print 'linear_fit| EXPS=',EXPS
-            for rot in EXPS.keys():
-                if run_info==run_infos[0]:
-                    run_goodness_info["stars"]+='\n# mag^exp_star values with SDSS match for rot='+str(rot)+ ': '+str(len(data[str(rot)]))
-                    print 'linear_fit| rot=',rot , ' len(data[str(rot)])=',len(data[str(rot)])
-
-            '''### MAIN3-START ### DO FITTING'''
-            ''' do fitting '''#not quick!
-            for attempt in ['first','rejected']:
-                print "linear_fit| loop2-(2/3) performs the fit | for attempt in ['first','rejected']:"
-                print 'linear_fit| loop2-(2/3) performs the fit | attempt=',attempt
-                ''' make matrices/vectors '''
-                Ainst_expand = []; Binst_expand = [];sigmas_expand = []
-                for z in inst: #this is just adding in the previous values
-                    for y in z['A_array']:Ainst_expand.append(y)
-                    for y in z['B_array']:Binst_expand.append(y)
-                    for y in z['sigma_array']:sigmas_expand.append(y)
-                ''' this gives the total number of rows added '''
-                print 'linear_fit| len(Ainst_expand)=',len(Ainst_expand) , ' len(Binst_expand)=',len(Binst_expand), 'len(sigmas_expand)=',len(sigmas_expand)
-
-                #adam-old# ylength = len(Binst_expand)
-                print 'linear_fit| x_length=',x_length , ' y_length=',y_length
-                A = scipy.zeros([y_length,x_length])
-                B = scipy.zeros(y_length)
-                S = scipy.zeros(y_length)
-
-                if attempt == 'first': rejectlist = 0*copy(B)
-
-		#adam-SHNT# I'll have to place these in another folder to get this to work
-                Af = open(tmpdir+'/A','w')
-                Bf = open(tmpdir+'/b','w')
-
-                rejected_x = [] ; rejected_y = [] ; all_x = [] ; all_y = [] ; all_resids = []
-                if attempt == 'rejected':
-                    for ele in Ainst_expand:
-                        if rejectlist[ele[0]] == 0:
-                            if x_positions.has_key(ele[0]) and y_positions.has_key(ele[0]):
-                                all_x.append(float(str(x_positions[ele[0]])))
-                                all_y.append(float(str(y_positions[ele[0]])))
-                                all_resids.append(float(str(resids_sign[ele[0]])))
+                            #adam-tmp# value = (tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']] - epsilon_cheby_chip)/sigma**2 #UNCERTAINTY_CHANGE#
+                            value = (tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']] - epsilon_cheby_chip)/sigma
+                            #print 'linear_fit| epsilon_cheby_chip=',epsilon_cheby_chip , ' value=',value
+    
+                        star_B.append([row_num,value])
+                        sigmas.append([row_num,sigma])
+                        #adam: 1/sigma -> 1/sigma**2 requires value*sigma -> value*sigma**2 below
+                        catalog_values[col_num+supa_num] = {'inst_value':value*sigma,'ra':ra,'dec':dec,'sigma':sigma} # these values are written into 'catalog_' + PPRUN + '.cat'
+                        #adam-tmp# catalog_values[col_num+supa_num] = {'inst_value':value*sigma**2,'ra':ra,'dec':dec,'sigma':sigma} #UNCERTAINTY_CHANGE#
+    
+                    '''end loop over exposures that the star was found in'''
+                    inst.append({'type':'match','A_array':star_A, 'B_array':star_B, 'sigma_array': sigmas})
+                    #'''### MAIN2a-END ### put M^exp_star info in MATRIX'''
+    
+                    ''' only include one "external ref cat" observation per star '''
+                    #print sample , star["match"] , star["match"] and (sample=="all" or sample=="sdss" or sample=="bootstrap") # and tab["SDSSStar_corr"][star["table index"]] == 1
+                    if star['match'] and (sample=='sdss' or sample=='bootstrap'): # and tab['SDSSStar_corr'][star['table index']] == 1:
+                        '''### MAIN2b-START ### put SDSS match information in MATRIX (if sample=='sdss' or sample=='bootstrap')'''
+    
+                        star_A = [] ; star_B = [] ; sigmas = []
+                        ''' need to filter out bad colored-stars '''
+                        row_num += 1;col_num = -1
+                        sigma = tab['SDSSstdMagErr_corr'][star['table index']]
+                        if sigma < 0.03: sigma = 0.03 #adam-ask# sigma lower limit: here if sigma < 0.03: sigma = 0.03 (SDSSstdMagErr_corr)
+    
+                        for c in position_columns:
+                            col_num += 1
+                        #adam-del# first_column = True
+                        for c in zp_columns:
+                            col_num += 1
+                            ''' remember that the good magnitude does not have any zp dependence!!! '''
+                            if c['image'] == 'match':
+                                #adam-tmp# value = 1./sigma**2 #UNCERTAINTY_CHANGE#
+                                value = 1./sigma
+                                star_A.append([row_num,col_num,value])
+                                x_positions[row_num] = x
+                                y_positions[row_num] = y
+                            #adam-del# first_column = False
+    
+                        ''' fit for the color term dependence for "external ref cat" comparison -- '''
+                        if relative_colors:
+                            ''' this is if there are different color terms for EACH CHIP!'''
+                            for c in color_columns:
+                                col_num += 1
+                                if c['name'] == 'SDSS_color':
+                                    #adam-tmp# value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma**2 #UNCERTAINTY_CHANGE#
+                                    value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma
+                                    star_A.append([row_num,col_num,value])
+                        else:
+                            col_num += 1
+                            #adam-tmp# value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma**2 #UNCERTAINTY_CHANGE#
+                            value = tab['SDSSstdMagColor_corr'][star['table index']]/sigma
+                            star_A.append([row_num,col_num,value])
+    
+                        #adam-watch# I don't understand why this part is necessary!
+                        col_num += 1
+                        ''' magnitude column -- include the correct/common magnitude '''
+                        #adam-tmp# value = 1./sigma**2 #UNCERTAINTY_CHANGE#
+                        value = 1./sigma
+                        star_A.append([row_num,col_num+supa_num,value])
+    
+                        #adam-tmp# value = tab['SDSSstdMag_corr'][star['table index']]/sigma**2 #UNCERTAINTY_CHANGE# 
+                        value = tab['SDSSstdMag_corr'][star['table index']]/sigma
+                        star_B.append([row_num,value])
+                        sigmas.append([row_num,sigma])
+                        inst.append({'type':'sdss','A_array':star_A, 'B_array':star_B, 'sigma_array': sigmas})
+    
+                        ''' record star MAG_"external ref cat"-MAG_EXP offsets for each star matched in multiple exposures and in "external ref cat" '''
+                        for exp in star['supa files']:
+                            rotation = exp['rotation']
+                            x = tab[str(rotation) + '$' + exp['name'] + '$Xpos_ABS'][star['table index']]
+                            y = tab[str(rotation) + '$' + exp['name'] + '$Ypos_ABS'][star['table index']]
+                            x = coord_conv_x(x)
+                            y = coord_conv_y(y)
+                            if calc_illum or string.find(sample_size,'uncorr') != -1: #if calc_illum or if 'uncorr' in sample_size
+                                value = tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']]
+                            elif not calc_illum: #only hit this for run=sample_size-is-allsdsscorr__calc_illum-is-False__sample-is-sdss__try_linear-is-False
+                                ''' correct the input magnitudes using the previously fitted correction '''
+                                epsilon_cheby_chip=0  #(epsilon_cheby_chip=C(x,y,chip,rot) in paper)
+                                #adam-watch# fitvars_use= fitvars_runs["sample_size-is-all__calc_illum-is-True__sample-is-sdss__try_linear-is-True"]
+                                #adam-watch# instead it's using the fitvars from sample_size-is-allNone__calc_illum-is-True__sample-is-None__try_linear-is-False right now, which is maybe not ideal, but at least the try_linear is consistent, which is necessary!
+                                for term in cheby_terms_use:
+                                    epsilon_cheby_chip += fitvars[str(rotation)+'$'+term['n']]*term['fx'](x,y)*term['fy'](x,y)
+                                epsilon_cheby_chip += float(fitvars['zp_' + str(chip)])
+                                value = (tab[str(rotation) + '$' + exp['name'] + '$MAG_AUTO'][star['table index']] - epsilon_cheby_chip)
+                            data[str(rotation)].append(value - tab['SDSSstdMag_corr'][star['table index']])
+                            Star[str(rotation)].append(tab['SDSSStar_corr'][star['table index']])
+                            magErr[str(rotation)].append(tab['SDSSstdMagErr_corr'][star['table index']])
+                            whichimage[str(rotation)].append(exp['name'])
+                            X[str(rotation)].append(tab[str(rotation) + '$' + exp['name'] + '$Xpos_ABS'][star['table index']])
+                            Y[str(rotation)].append(tab[str(rotation) + '$' + exp['name'] + '$Ypos_ABS'][star['table index']])
+                            color[str(rotation)].append(tab['SDSSstdMagColor_corr'][star['table index']])
+                            chipnums[str(rotation)].append(tab[str(rotation) + '$' + exp['name'] + '$CHIP'][star['table index']])
+                        '''### MAIN2b-END ### put SDSS match information in MATRIX (if sample=='sdss' or sample=='bootstrap')'''
+                '''end loop over stars'''
+                '''### MAIN2-END ### FILL THE MATRIX WITH INFORMATION'''
+    
+                ''' save the SDSS matches '''
+                matches = {'data':data,'magErr':magErr,'whichimage':whichimage,'X':X,'Y':Y,'color':color ,'chipnums':chipnums ,'Star':Star}
+                uu = open(tmpdir + '/sdss','w')
+                pickle.dump(matches,uu)
+                uu.close()
+                #print 'linear_fit| EXPS=',EXPS
+                for rot in EXPS.keys():
+                    if run_info==run_infos[0]:
+                        run_goodness_info["stars"]+='\n# mag^exp_star values with SDSS match for rot='+str(rot)+ ': '+str(len(data[str(rot)]))
+                        print 'linear_fit| rot=',rot , ' len(data[str(rot)])=',len(data[str(rot)])
+    
+                '''### MAIN3-START ### DO FITTING'''
+                ''' do fitting '''#not quick!
+                for attempt in ['first','rejected']:
+                    print "linear_fit| loop2-(2/3) performs the fit | for attempt in ['first','rejected']:"
+                    print 'linear_fit| loop2-(2/3) performs the fit | attempt=',attempt
+                    ''' make matrices/vectors '''
+                    Ainst_expand = []; Binst_expand = [];sigmas_expand = []
+                    for z in inst: #this is just adding in the previous values
+                        for y in z['A_array']:Ainst_expand.append(y)
+                        for y in z['B_array']:Binst_expand.append(y)
+                        for y in z['sigma_array']:sigmas_expand.append(y)
+                    ''' this gives the total number of rows added '''
+                    print 'linear_fit| len(Ainst_expand)=',len(Ainst_expand) , ' len(Binst_expand)=',len(Binst_expand), 'len(sigmas_expand)=',len(sigmas_expand)
+    
+                    #adam-old# ylength = len(Binst_expand)
+                    print 'linear_fit| x_length=',x_length , ' y_length=',y_length
+                    A = scipy.zeros([y_length,x_length])
+                    B = scipy.zeros(y_length)
+                    S = scipy.zeros(y_length)
+    
+                    if attempt == 'first': rejectlist = 0*copy(B)
+    
+                    #adam-SHNT# I'll have to place these in another folder to get this to work
+                    Af = open(tmpdir+'/A','w')
+                    Bf = open(tmpdir+'/b','w')
+    
+                    rejected_x = [] ; rejected_y = [] ; all_x = [] ; all_y = [] ; all_resids = []
+                    if attempt == 'rejected':
+                        for ele in Ainst_expand:
+                            if rejectlist[ele[0]] == 0:
+                                if x_positions.has_key(ele[0]) and y_positions.has_key(ele[0]):
+                                    all_x.append(float(str(x_positions[ele[0]])))
+                                    all_y.append(float(str(y_positions[ele[0]])))
+                                    all_resids.append(float(str(resids_sign[ele[0]])))
+                                Af.write(str(ele[0]) + ' ' + str(ele[1]) + ' ' + str(ele[2]) + '\n')
+                                A[ele[0],ele[1]] = ele[2]
+                            else:
+                                if x_positions.has_key(ele[0]) and y_positions.has_key(ele[0]):
+                                    rejected_x.append(float(str(x_positions[ele[0]])))
+                                    rejected_y.append(float(str(y_positions[ele[0]])))
+                    else:
+                        for ele in Ainst_expand:
                             Af.write(str(ele[0]) + ' ' + str(ele[1]) + ' ' + str(ele[2]) + '\n')
                             A[ele[0],ele[1]] = ele[2]
+    
+                    for ele in Binst_expand:
+                        if rejectlist[ele[0]] == 0:
+                            B[ele[0]] = ele[1]
+    
+                    for ele in sigmas_expand:
+                        if rejectlist[ele[0]] == 0:
+                            S[ele[0]] = ele[1]
+    
+                    if attempt == 'rejected':
+                        print 'linear_fit| num_rejected=',num_rejected
+                        illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/'
+                        print 'linear_fit| all_resids[0:20]=',all_resids[0:20]
+                        if not os.path.isdir(illum_dir+'/other_runs_plots/'):
+                            os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
+                        #adam-old# calcDataIllum(sample + 'reducedchi'+str(ROT)+FILTER,LENGTH1,LENGTH2,scipy.array(all_resids),scipy.ones(len(all_resids)),scipy.array(all_x),scipy.array(all_y),pth=illum_dir,rot=0,limits=[-10,10],ylab='Residual/Error')
+                        plot_name='_'.join(['reducedchi',run_info,PPRUN])
+                        print 'linear_fit| running calcDataIllum plot_name=',plot_name
+                        fit_redchisq_clipped=calcDataIllum(plot_name,LENGTH1,LENGTH2,scipy.array(all_resids),scipy.ones(len(all_resids)),scipy.array(all_x),scipy.array(all_y),pth=illum_dir,limits=[-5,5],data_label='Fit Residual',make_pickle=True) #magErr is ones here. that just ignores the errors (fine)
+                        run_goodness_info[run_info]+='\nattempt='+str(attempt)+': redchisq=%.3f' % fit_redchisq_clipped
+                        if num_rejected > 0:
+                            dtmp = {}
+                            if "try_linear-is-False" in run_info:
+                                reject_plot =illum_dir + "other_runs_plots/" + '_'.join(['rejects',run_info,"pos",test.replace('_','')])+ '.png'
+                            else:
+                                reject_plot =illum_dir + '_'.join(['rejects',run_info,"pos",test.replace('_','')])+ '.png'
+                            print "linear_fit| reject_plot=",reject_plot
+                            dtmp['reject_plot']=reject_plot
+                            dtmp['rejected']=num_rejected
+                            dtmp['totalmeasurements']=num_rejected
+                            dtmp.update({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,'linearfit':'1'})
+                            save_fit(dtmp)
+    
+                            x_p = scipy.array(rejected_x)
+                            y_p = scipy.array(rejected_y)
+                            pylab.figure(figsize=(22,13.625))
+                            pylab.title('Location of all of the rejected stars. Of a possible '+str(len(rejectlist))+' only '+str(num_rejected)+ ' were rejected.\n'+r'(rejected if $m_{exp}$ and $m_{model}$ differ by $>5 \sigma$ after initial starflat fit)')
+                            pylab.scatter(x_p,y_p,linewidth=None)
+                            pylab.xlabel('X axis')
+                            pylab.ylabel('Y axis')     # label the plot
+                            pylab.ylim(y_p.min(),y_p.max())
+                            pylab.xlim(x_p.min(),x_p.max())
+                            pylab.savefig(reject_plot)
+                            pylab.clf()
+    
+                    Bstr = reduce(lambda x,y:x+' '+y,[str(z[1]) for z in Binst_expand])
+                    Bf.write(Bstr)
+                    Bf.close()
+                    Af.close()
+    
+                    print 'linear_fit| ...finished matrix...'
+                    print 'linear_fit| len(position_columns)=',len(position_columns) , ' len(zp_columns)=',len(zp_columns)
+                    print 'linear_fit|  B[0:10]=',B[0:10] , ' scipy.shape(A)=',scipy.shape(A) , ' scipy.shape(B)=',scipy.shape(B)
+                    print 'linear_fit|  A[0,0:10]=',A[0,0:10] , ' A[1,0:10]=',A[1,0:10]
+    
+                    Bf = open(tmpdir + '/B_other','w')
+                    for i in xrange(len(B)):
+                        Bf.write(str(B[i]) + '\n')
+                    Bf.close()
+    
+                    #adam-SHNT# I'll have to place these in another folder to get this to work
+                    print 'linear_fit| ...solving matrix...'
+                    os.chdir(tmpdir)
+                    if os.path.isfile(tmpdir+'/x'):
+                            os.system('rm -f '+tmpdir+'/x')
+                    ooo=os.system('/u/ki/awright/wtgpipeline/sparse < A')
+                    if ooo!=0: raise Exception("the line os.system('/u/ki/awright/wtgpipeline/sparse < A') failed\n'/u/ki/awright/wtgpipeline/sparse < A'")
+                    os.chdir('/u/ki/awright/wtgpipeline/')
+    
+                    read_x_soln = open(tmpdir+'/x','r').read()
+                    print 'linear_fit| len(read_x_soln)=',len(read_x_soln),' x_length=',x_length
+                    res_x_soln = re.split('\s+',read_x_soln[:-1])
+                    Traw = [float(x) for x in res_x_soln][:x_length]
+                    res_x_soln = re.split('\s+',read_x_soln[:-1].replace('nan','0').replace('inf','0'))
+                    T = [float(x) for x in res_x_soln][:x_length]
+                    for i in xrange(len(T)):
+                        if i < len(column_names):
+                            if string.find(column_names[i],'mag') == -1:
+                                print 'linear_fit| column_names[i]=',column_names[i] , ' T[i]=',T[i], ' Traw[i]=',Traw[i]
+                            if T[i] == -99:
+                               print 'linear_fit| column_names[i]=',column_names[i] , ' T[i]=',T[i]
+                        if catalog_values.has_key(i): # these values are written into 'catalog_' + PPRUN + '.cat'
+                            catalog_values[i]['mag'] = T[i] # these values are written into 'catalog_' + PPRUN + '.cat'
+                    x_soln = scipy.array([float(x) for x in res_x_soln][:x_length])
+    
+                    print 'linear_fit| ...finished solving...'
+    
+                    ''' calculate reduced chi-squared value'''
+                    print 'linear_fit| scipy.shape(A)=',scipy.shape(A) , ' len(x_soln)=',len(x_soln) , ' x_length=',x_length , ' len(res_x_soln)=',len(res_x_soln)
+                    Bprime = scipy.dot(A,x_soln)
+                    print 'linear_fit| scipy.shape(Bprime)=',scipy.shape(Bprime) , ' scipy.shape(B)=',scipy.shape(B)
+    
+                    ''' number of free parameters is the length of x_soln , number of data points is B '''
+                    #adam-tmp# resids_sign = (B-Bprime)*S #UNCERTAINTY_CHANGE#
+                    resids_sign = B-Bprime
+                    #adam: 1/S -> 1/S**2 requires resids in units of sigmas to change: (B-Bprime) -> (B-Bprime)*S
+                    resids = abs(resids_sign)
+                    chisq = (resids**2.).sum()
+                    parameters = len(B) - len(x_soln)
+                    reducedchi = chisq/parameters
+                    difference = (resids*S).sum()/len(B)
+    
+                    if attempt == 'first': #rejectlist = zeros already
+                        sig5_outliers= resids > 5
+                        rejectlist[sig5_outliers]=1
+                        num_rejected = rejectlist.sum()
+    
+                    fit_str='\nSTART attempt='+attempt+' run_info='+run_info+' FIT INFO '
+                    fit_str+='\n'+attempt+' FIT INFO: x_soln = [float(x) for x in res_x_soln][:x_length] || Bprime = scipy.dot(A,x_soln) || resids = abs(B-Bprime)'
+                    fit_str+='\n'+attempt+' FIT INFO: (resids==0).sum()=%s' % ((resids==0).sum())
+                    fit_str+='\n'+attempt+' FIT INFO: (resids!=0).sum()=%s' % ((resids!=0).sum())
+                    fit_str+='\n'+attempt+' FIT INFO: resids.mean()=%.3f' % (resids.mean())
+                    fit_str+='\n'+attempt+' FIT INFO: len(resids)=%s num_rejected=%s' % (len(resids),num_rejected)
+                    fit_str+='\n'+attempt+' FIT INFO: sample_size=%s try_linear=%s' % (sample_size , try_linear)
+                    fit_str+='\n'+attempt+' FIT INFO: (B-Bprime)[:20]=%s' % (resids_sign[:20])
+                    fit_str+='\n'+attempt+' FIT INFO: x_soln[0:20]=%s' % (x_soln[0:20])
+                    fit_str+='\n'+attempt+' FIT INFO: read_x_soln[0:20]=%s' % (read_x_soln[0:20])
+                    fit_str+='\n'+attempt+' FIT INFO: chisq=%s %s' % (chisq,' (= ((B-Bprime)**2.).sum() )')
+                    fit_str+='\n'+attempt+' FIT INFO: parameters=%s %s' % (parameters , " (= len(B) - len(x_soln) )")
+                    fit_str+='\n'+attempt+' FIT INFO: difference=%s %s' % (difference," (= abs((B-Bprime)*S).sum()/len(B)")#adam: 1/S -> 1/S**2 requires resids*S -> resids*S**2 below
+                    fit_str+='\n'+attempt+' FIT INFO: reducedchi=%s %s' % ( reducedchi, ' (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared)')
+                    fit_str+='\nEND   attempt='+attempt+' run_info=%s' % (run_info,)+' FIT INFO '
+                    print fit_str
+                    if attempt!='first':
+                            run_goodness_info[run_info]+='\n'+attempt+' FIT INFO: (resids==0).sum()=%s' % ((resids==0).sum()) +' len(resids)=%s num_rejected=%s' % (len(resids),num_rejected)
+                            run_goodness_info[run_info]+='\n'+attempt+' FIT INFO: resids.mean()=%.3f' % (resids.mean())
+                            run_goodness_info[run_info]+='\n'+attempt+' FIT INFO: reducedchi=%s %s' % ( reducedchi, ' (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared)')
+                            run_goodness_info[run_info]+='\n'+attempt+' FIT INFO: parameters=%s %s' % (parameters , " (= len(B) - len(x_soln) )")
+                    #save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'reducedchi$'+sample+'$'+sample_size:reducedchi})
+                    #adam-END#UNCERTAINTY_CHANGE# weight by 1/sigma**2, not 1/sigma
+    
+                    #adam-del#position_fit = [['Xpos_ABS','Xpos_ABS'],['Xpos_ABS','Ypos_ABS'],['Ypos_ABS','Ypos_ABS'],['Xpos_ABS'],['Ypos_ABS']]
+                    ''' save fit information '''
+                    if match: save_columns = position_columns + zp_columns + color_columns
+                    else: save_columns = position_columns + zp_columns
+    
+                    fitvars = {} ;dtmp = {}
+                    zp_images = ''
+                    zp_images_names = ''
+                    for ele in save_columns:
+                        #adam-del# res = re.split('$',ele['name'])
+                        ''' save to own column if not an image zeropoint '''
+                        if string.find(ele['name'],'zp_image') == -1:
+                            fitvars[ele['name']] = x_soln[ele['index']]
+                            term_name = ele['name']
+                            dtmp[term_name]=fitvars[ele['name']]
                         else:
-                            if x_positions.has_key(ele[0]) and y_positions.has_key(ele[0]):
-                                rejected_x.append(float(str(x_positions[ele[0]])))
-                                rejected_y.append(float(str(y_positions[ele[0]])))
-                else:
-                    for ele in Ainst_expand:
-                        Af.write(str(ele[0]) + ' ' + str(ele[1]) + ' ' + str(ele[2]) + '\n')
-                        A[ele[0],ele[1]] = ele[2]
-
-                for ele in Binst_expand:
-                    if rejectlist[ele[0]] == 0:
-                        B[ele[0]] = ele[1]
-
-                for ele in sigmas_expand:
-                    if rejectlist[ele[0]] == 0:
-                        S[ele[0]] = ele[1]
-
-                if attempt == 'rejected':
-                    print 'linear_fit| num_rejected=',num_rejected
-                    illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/'
-                    print 'linear_fit| all_resids[0:20]=',all_resids[0:20]
-	            if not os.path.isdir(illum_dir+'/other_runs_plots/'):
-		        os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
-                    #adam-old# calcDataIllum(sample + 'reducedchi'+str(ROT)+FILTER,LENGTH1,LENGTH2,scipy.array(all_resids),scipy.ones(len(all_resids)),scipy.array(all_x),scipy.array(all_y),pth=illum_dir,rot=0,limits=[-10,10],ylab='Residual/Error')
-                    plot_name='_'.join(['reducedchi',run_info,PPRUN])
-                    print 'linear_fit| running calcDataIllum plot_name=',plot_name
-                    fit_redchisq_clipped=calcDataIllum(plot_name,LENGTH1,LENGTH2,scipy.array(all_resids),scipy.ones(len(all_resids)),scipy.array(all_x),scipy.array(all_y),pth=illum_dir,limits=[-5,5],data_label='Fit Residual/Error') #magErr is ones here. that just ignores the errors (fine)
-                    run_goodness_info[run_info]+='\nattempt='+str(attempt)+': redchisq=%.3f' % fit_redchisq_clipped
-                    if num_rejected > 0:
-                        dtmp = {}
-                        if "try_linear-is-False" in run_info:
-                            reject_plot =illum_dir + "other_runs_plots/" + '_'.join(['rejects',run_info,"pos",test.replace('_','')])+ '.png'
-                        else:
-                            reject_plot =illum_dir + '_'.join(['rejects',run_info,"pos",test.replace('_','')])+ '.png'
-                        print "linear_fit| reject_plot=",reject_plot
-                        dtmp['reject_plot']=reject_plot
-                        dtmp['rejected']=num_rejected
-                        dtmp['totalmeasurements']=num_rejected
-                        dtmp.update({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,'linearfit':'1'})
-                        save_fit(dtmp)
-
-                        x_p = scipy.array(rejected_x)
-                        y_p = scipy.array(rejected_y)
-                        pylab.figure(figsize=(22,13.625))
-                        pylab.title('Location of all of the rejected stars. Of a possible '+str(len(rejectlist))+' only '+str(num_rejected)+ ' were rejected.\n'+r'(rejected if $m_{exp}$ and $m_{model}$ differ by $>5 \sigma$ after initial starflat fit)')
-                        pylab.scatter(x_p,y_p,linewidth=None)
-                        pylab.xlabel('X axis')
-                        pylab.ylabel('Y axis')     # label the plot
-                        pylab.ylim(y_p.min(),y_p.max())
-                        pylab.xlim(x_p.min(),x_p.max())
-                        pylab.savefig(reject_plot)
-                        pylab.clf()
-
-                Bstr = reduce(lambda x,y:x+' '+y,[str(z[1]) for z in Binst_expand])
-                Bf.write(Bstr)
-                Bf.close()
-                Af.close()
-
-                print 'linear_fit| ...finished matrix...'
-                print 'linear_fit| len(position_columns)=',len(position_columns) , ' len(zp_columns)=',len(zp_columns)
-                print 'linear_fit|  B[0:10]=',B[0:10] , ' scipy.shape(A)=',scipy.shape(A) , ' scipy.shape(B)=',scipy.shape(B)
-                print 'linear_fit|  A[0,0:10]=',A[0,0:10] , ' A[1,0:10]=',A[1,0:10]
-
-                Bf = open(tmpdir + '/B_other','w')
-                for i in xrange(len(B)):
-                    Bf.write(str(B[i]) + '\n')
-                Bf.close()
-
-		#adam-SHNT# I'll have to place these in another folder to get this to work
-                print 'linear_fit| ...solving matrix...'
-		os.chdir(tmpdir)
-		if os.path.isfile(tmpdir+'/x'):
-			os.system('rm -f '+tmpdir+'/x')
-                ooo=os.system('/u/ki/awright/wtgpipeline/sparse < A')
-                if ooo!=0: raise Exception("the line os.system('/u/ki/awright/wtgpipeline/sparse < A') failed\n'/u/ki/awright/wtgpipeline/sparse < A'")
-		os.chdir('/u/ki/awright/wtgpipeline/')
-
-                read_x_soln = open(tmpdir+'/x','r').read()
-                print 'linear_fit| len(read_x_soln)=',len(read_x_soln),' x_length=',x_length
-                res_x_soln = re.split('\s+',read_x_soln[:-1])
-                Traw = [float(x) for x in res_x_soln][:x_length]
-                res_x_soln = re.split('\s+',read_x_soln[:-1].replace('nan','0').replace('inf','0'))
-                T = [float(x) for x in res_x_soln][:x_length]
-                for i in xrange(len(T)):
-                    if i < len(column_names):
-                        if string.find(column_names[i],'mag') == -1:
-                            print 'linear_fit| column_names[i]=',column_names[i] , ' T[i]=',T[i], ' Traw[i]=',Traw[i]
-                        if T[i] == -99:
-                           print 'linear_fit| column_names[i]=',column_names[i] , ' T[i]=',T[i]
-                    if catalog_values.has_key(i): # these values are written into 'catalog_' + PPRUN + '.cat'
-                        catalog_values[i]['mag'] = T[i] # these values are written into 'catalog_' + PPRUN + '.cat'
-                x_soln = scipy.array([float(x) for x in res_x_soln][:x_length])
-
-                print 'linear_fit| ...finished solving...'
-
-                ''' calculate reduced chi-squared value'''
-                print 'linear_fit| scipy.shape(A)=',scipy.shape(A) , ' len(x_soln)=',len(x_soln) , ' x_length=',x_length , ' len(res_x_soln)=',len(res_x_soln)
-                Bprime = scipy.dot(A,x_soln)
-                print 'linear_fit| scipy.shape(Bprime)=',scipy.shape(Bprime) , ' scipy.shape(B)=',scipy.shape(B)
-
-                ''' number of free parameters is the length of x_soln , number of data points is B '''
-                #adam-tmp# resids_sign = (B-Bprime)*S #UNCERTAINTY_CHANGE#
-                resids_sign = B-Bprime
-		#adam: 1/S -> 1/S**2 requires resids in units of sigmas to change: (B-Bprime) -> (B-Bprime)*S
-                resids = abs(resids_sign)
-                chisq = (resids**2.).sum()
-                parameters = len(B) - len(x_soln)
-                reducedchi = chisq/parameters
-                difference = (resids*S).sum()/len(B)
-
-                if attempt == 'first': #rejectlist = zeros already
-                    sig5_outliers= resids > 5
-                    rejectlist[sig5_outliers]=1
-                    num_rejected = rejectlist.sum()
-
-                fit_str='\nSTART attempt='+attempt+' run_info='+run_info+' FIT INFO '
-                fit_str+='\n'+attempt+' FIT INFO: x_soln = [float(x) for x in res_x_soln][:x_length] || Bprime = scipy.dot(A,x_soln) || resids = abs(B-Bprime)'
-                fit_str+='\n'+attempt+' FIT INFO: (resids==0).sum()=%s' % ((resids==0).sum())
-                fit_str+='\n'+attempt+' FIT INFO: (resids!=0).sum()=%s' % ((resids!=0).sum())
-                fit_str+='\n'+attempt+' FIT INFO: resids.mean()=%.3f' % (resids.mean())
-                fit_str+='\n'+attempt+' FIT INFO: len(resids)=%s num_rejected=%s' % (len(resids),num_rejected)
-                fit_str+='\n'+attempt+' FIT INFO: sample_size=%s try_linear=%s' % (sample_size , try_linear)
-                fit_str+='\n'+attempt+' FIT INFO: (B-Bprime)[:20]=%s' % (resids_sign[:20])
-                fit_str+='\n'+attempt+' FIT INFO: x_soln[0:20]=%s' % (x_soln[0:20])
-                fit_str+='\n'+attempt+' FIT INFO: read_x_soln[0:20]=%s' % (read_x_soln[0:20])
-                fit_str+='\n'+attempt+' FIT INFO: chisq=%s %s' % (chisq,' (= ((B-Bprime)**2.).sum() )')
-                fit_str+='\n'+attempt+' FIT INFO: parameters=%s %s' % (parameters , " (= len(B) - len(x_soln) )")
-                fit_str+='\n'+attempt+' FIT INFO: difference=%s %s' % (difference," (= abs((B-Bprime)*S).sum()/len(B)")#adam: 1/S -> 1/S**2 requires resids*S -> resids*S**2 below
-                fit_str+='\n'+attempt+' FIT INFO: reducedchi=%s %s' % ( reducedchi, ' (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared)')
-                fit_str+='\nEND   attempt='+attempt+' run_info=%s' % (run_info,)+' FIT INFO '
-                print fit_str
-                if attempt!='first':
-                        run_goodness_info[run_info]+='\n'+attempt+' FIT INFO: (resids==0).sum()=%s' % ((resids==0).sum()) +' len(resids)=%s num_rejected=%s' % (len(resids),num_rejected)
-                        run_goodness_info[run_info]+='\n'+attempt+' FIT INFO: resids.mean()=%.3f' % (resids.mean())
-                        run_goodness_info[run_info]+='\n'+attempt+' FIT INFO: reducedchi=%s %s' % ( reducedchi, ' (= ((B-Bprime)**2.).sum()/(len(B) - len(x_soln)) = reduced chi-squared)')
-                        run_goodness_info[run_info]+='\n'+attempt+' FIT INFO: parameters=%s %s' % (parameters , " (= len(B) - len(x_soln) )")
-                #save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'reducedchi$'+sample+'$'+sample_size:reducedchi})
-                #adam-END#UNCERTAINTY_CHANGE# weight by 1/sigma**2, not 1/sigma
-
-                #adam-del#position_fit = [['Xpos_ABS','Xpos_ABS'],['Xpos_ABS','Ypos_ABS'],['Ypos_ABS','Ypos_ABS'],['Xpos_ABS'],['Ypos_ABS']]
-                ''' save fit information '''
-                if match: save_columns = position_columns + zp_columns + color_columns
-                else: save_columns = position_columns + zp_columns
-
-                fitvars = {} ;dtmp = {}
-                zp_images = ''
-                zp_images_names = ''
-                for ele in save_columns:
-                    #adam-del# res = re.split('$',ele['name'])
-                    ''' save to own column if not an image zeropoint '''
-                    if string.find(ele['name'],'zp_image') == -1:
-                        fitvars[ele['name']] = x_soln[ele['index']]
-                        term_name = ele['name']
-                        dtmp[term_name]=fitvars[ele['name']]
-                    else:
-                        zp_images += str(x_soln[ele['index']]) + ','
-                        zp_images_names += ele['name'] + ','
-
-                zp_images = zp_images[:-1] ; zp_images_names = zp_images_names[:-1]
-                dtmp["zp_images"]=zp_images
-                dtmp["zp_images_names"]=zp_images_names
-                print 'linear_fit| save_columns=', save_columns,
-                print 'linear_fit| zp_columns=', zp_columns
-                print 'linear_fit| dtmp[zp_images]=',dtmp["zp_images"]
-                print 'linear_fit| dtmp[zp_images_names]=',dtmp["zp_images_names"]
-                use_columns = filter(lambda x: string.find(x,'zp_image') == -1,[z['name'] for z in save_columns] ) + ['zp_images','zp_images_names']
-
-                positioncolumns = reduce(lambda x,y: x+','+y,use_columns)
-                print 'linear_fit| positioncolumns=',positioncolumns
-                #save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,sample+'$'+sample_size+'$positioncolumns':positioncolumns})
-                dtmp['positioncolumns'] = positioncolumns
-                dtmp[attempt + 'reducedchi']=reducedchi
-                dtmp[attempt + 'difference']=difference
-                dtmp[attempt + 'chisq']= chisq
-                dtmp[attempt + 'parameters']= parameters
-                #adam-fragments_removed# linear_fit-term_name (this was commented out to begin with)
-
-                print 'linear_fit| dtmp.keys()=',dtmp.keys()
-                print 'linear_fit| PPRUN=',PPRUN , ' FILTER=',FILTER , ' OBJNAME=',OBJNAME , ' dtmp["positioncolumns"]=',dtmp["positioncolumns"]
-                dtmp.update({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,'linearfit':'1'})
-                save_fit(dtmp)
-                print 'linear_fit| ...done with attempt=',attempt,'...'
-            ''' end loop over attempt=['first','reject'] '''
-            '''### MAIN3-END ### DO FITTING'''
-
-            '''### MAIN4-START ### SAVE CATALOGS/FITS/PLOTS'''
-            ''' save the corrected catalog '''
-            cols = [] ; stdMag_corr = [] ; stdMagErr_corr = [] ; stdMagColor_corr = [] ; stdMagClean_corr = [] ; ALPHA_J2000 = [] ; DELTA_J2000 = [] ; SeqNr = [] ; Star_corr = []
-            sn = -1
-            for i in catalog_values.keys():
-                entr = catalog_values[i]
-                sn += 1
-                SeqNr.append(sn)
-                stdMag_corr.append(entr['mag'])
-                ALPHA_J2000.append(entr['ra'])
-                DELTA_J2000.append(entr['dec'])
-                stdMagErr_corr.append(entr['sigma'])
-                stdMagColor_corr.append(0)
-                stdMagClean_corr.append(1)
-                Star_corr.append(1)
-
-            cols.append(pyfits.Column(name='stdMag_corr', format='D',array=scipy.array(stdMag_corr)))
-            cols.append(pyfits.Column(name='stdMagErr_corr', format='D',array=scipy.array(stdMagErr_corr)))
-            cols.append(pyfits.Column(name='stdMagColor_corr', format='D',array=scipy.array(stdMagColor_corr)))
-            cols.append(pyfits.Column(name='stdMagClean_corr', format='D',array=scipy.array(stdMagClean_corr)))
-            cols.append(pyfits.Column(name='ALPHA_J2000', format='D',array=scipy.array(ALPHA_J2000)))
-            cols.append(pyfits.Column(name='DELTA_J2000', format='D',array=scipy.array(DELTA_J2000)))
-            cols.append(pyfits.Column(name='SeqNr', format='E',array=scipy.array(SeqNr)))
-            cols.append(pyfits.Column(name='Star_corr', format='E',array=scipy.array(Star_corr)))
-
-            outcat = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + 'catalog_' + PPRUN + '.cat'
-            #adam-watch# do these catalogs get used anywhere else?
-            hdu = pyfits.PrimaryHDU()
-            hdulist = pyfits.HDUList([hdu])
-            tbhu = pyfits.BinTableHDU.from_columns(cols)
-            hdulist.append(tbhu)
-            hdulist[1].header["EXTNAME"]='OBJECTS'
-            hdulist.writeto( outcat ,overwrite=True)
-            catalog_save_name=data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/'+'_'.join(['catalog',run_info,PPRUN]) + '.cat'
-            os.system('cp %s %s' % ( outcat , catalog_save_name))
-            print 'linear_fit| wrote out new cat! outcat=',outcat
-            print 'linear_fit| wrote out new cat! catalog_save_name=',catalog_save_name
-
-            save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'format':'good','sample':'record','sample_size':'record'},db='' + test + 'try_db')
-
-            save_fit({'FILTER':FILTER,'OBJNAME':OBJNAME,'PPRUN':PPRUN,'sample':sample,'sample_size':sample_size,'catalog':outcat})
-
-            ''' make diagnostic IC fits images'''
-            if string.find(sample_size,'rand') == -1:
-                d = get_fits(OBJNAME,FILTER,PPRUN, sample, sample_size)
-                print 'linear_fit| d.keys()=',d.keys()
-                column_prefix = '' #sample+'$'+sample_size+'$'
-                position_columns_names = re.split('\,',d[column_prefix + 'positioncolumns'])
-                print 'linear_fit| position_columns_names=',position_columns_names
-                fitvars = {}
-                #adam-ask# why is there a need to mess with the cheby_terms_use dict here? Is it to keep a consistent match btwn what goes in fitvars and is used for calc_illum=False runs?
-                cheby_terms_dict = {}
-                for ele in position_columns_names:
-                    if type(ele) != type({}):
-                        ele = {'name':ele}
-                    #adam-del#res = re.split('$',ele['name'])
-                    if string.find(ele['name'],'zp_image') == -1:
-                        fitvars[ele['name']] = float(d[ele['name']])
-                        for term in cheby_terms:
-                            if term['n'] == ele['name'][2:]:
-                                cheby_terms_dict[term['n']] = term
-
-                zp_images = re.split(',',d['zp_images'])
-                zp_images_names = re.split(',',d['zp_images_names'])
-
-                for i in xrange(len(zp_images)): fitvars[zp_images_names[i]] = float(zp_images[i])
-
-                print 'linear_fit| fitvars=',fitvars
-                fitvars_runs[run_info]=fitvars
-
-                cheby_terms_use =  [cheby_terms_dict[k] for k in cheby_terms_dict.keys()]
-                print 'linear_fit| cheby_terms_use=',cheby_terms_use
-
-                ''' make images of illumination corrections '''
-                if calc_illum:
-                    '''### MAIN4a-START ### MAKE FITS FILES of IC and IC_no_chip_zp and save fits (if calc_illum and "rand" not in sample_size)'''
-                    size_x=LENGTH1;size_y=LENGTH2
-                    bin=100
-                    xA,yA = numpy.meshgrid(numpy.arange(0,size_x,bin),numpy.arange(0,size_y,bin),indexing='ij')
-                    xA = coord_conv_x(xA);yA = coord_conv_y(yA)
-                    for ROT in EXPS.keys():
-                        print "linear_fit| loop2-(3/3) plots the fit | for ROT =",ROT, " in EXPS.keys()=",EXPS.keys()
-                        illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/' + str(ROT) + '/'
-			if not os.path.isdir(illum_dir+'/other_runs_plots/'):
-				os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
-
-                        epsilonA = 0
-                        for term in cheby_terms_use:
-                            print 'linear_fit| ROT=',ROT , ' term["n"]=',term["n"] , ' fitvars[str(ROT)+"$"+term["n"]]=',fitvars[str(ROT)+"$"+term["n"]]
-                            epsilonA += fitvars[str(ROT)+'$'+term['n']]*term['fx'](xA,yA)*term['fy'](xA,yA) #this part makes `epsilonA` a grid
-
-                        ''' save pattern w/o chip zps '''
-                        #adam-old#im = illum_dir + '/nochipzps' + sample + sample_size +  test + '.fits'
-                        im = illum_dir + '_'.join([ '/nochipzps' , run_info,'ROT'+str(ROT),  test.replace('_','')]) + '.fits'
-                        print "linear_fit| ...writing...im=",im
-                        hdu = pyfits.PrimaryHDU(epsilonA.T)
-                        save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,str(ROT)+'$im':im})
-                        hdu.writeto(im,overwrite=True)
-
-                        print 'linear_fit| scipy.shape(epsilonA)=',scipy.shape(epsilonA), ' bin=',bin
-                        ''' save pattern w/ chip zps '''
-                        if per_chip or same_chips:
-                            print 'linear_fit| CHIPS=',CHIPS
-                            for CHIP in CHIPS:
-                                if str(dt['CRPIX1_' + str(CHIP)]) != 'None':
-                                    #adam-fragments_removed# linear_fit-fit_readout_ports #this would be usefull if you wanted to have the IC treat each individual readout port in each CCD (unnecessary)
-                                    #pp='CRPIX1ZERO'+'=%s\t'+'CRPIX1_'+str(CHIP)+'=%s\t'+'NAXIS1_'+str(CHIP)+'=%s\t'+'CRPIX2ZERO'+'=%s\t'+'CRPIX2_'+str(CHIP)+'=%s\t'+'NAXIS2_'+str(CHIP)+'=%s'
-                                    #print pp % (float(dt['CRPIX1ZERO']) , float(dt['CRPIX1_' + str(CHIP)]) ,float(dt['NAXIS1_' + str(CHIP)]) , float(dt['CRPIX2ZERO']) , float(dt['CRPIX2_' + str(CHIP)]) ,float(dt['NAXIS2_' + str(CHIP)]))
-                                    xmin = float(dt['CRPIX1ZERO']) - float(dt['CRPIX1_' + str(CHIP)])
-                                    xmax = xmin + float(dt['NAXIS1_' + str(CHIP)])
-                                    ymin = float(dt['CRPIX2ZERO']) - float(dt['CRPIX2_' + str(CHIP)])
-                                    ymax = ymin + float(dt['NAXIS2_' + str(CHIP)])
-                                    X0,X1,Y0,Y1=int(xmin/bin),int(xmax/bin) ,int(ymin/bin) ,int(ymax/bin)
-                                    print 'linear_fit|CHIP=',CHIP,' xmin=',xmin , ' xmax=',xmax , ' ymin=',ymin , ' ymax=',ymax
-                                    print 'linear_fit|CHIP=%s [X0:X1,Y0:Y1]=[%s:%s,%s:%s] epsilonA[X0:X1,Y0:Y1].shape=%s' % (CHIP,X0,X1,Y0,Y1,epsilonA[X0:X1,Y0:Y1].shape)
-				    print 'linear_fit|CHIP=',CHIP,' zp:', fitvars['zp_' + str(CHIP)]
-                                    epsilonA[X0:X1,Y0:Y1]+= float(fitvars['zp_' + str(CHIP)])
-
-                        #adam-old#im = illum_dir + '/correction' + sample + sample_size +  test + '.fits'
-                        im = illum_dir + '_'.join([ '/correction' , run_info,'ROT'+str(ROT),  test.replace('_','')]) + '.fits'
-                        print 'linear_fit| ...writing...im=',im
-                        hdu = pyfits.PrimaryHDU(epsilonA.T) #the transpose makes it consistent with the old versions shape, but I prefer this way of indexing so that you don't have to flip X and Y around and other confusing stuff
-                        save_fit({'linearplot':1,'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,str(ROT)+'$im':im})
-                        hdu.writeto(im,overwrite=True)
-                        print 'linear_fit| done'
-                    '''### MAIN4a-END ### MAKE FITS FILES of IC and IC_no_chip_zp and save fits (if calc_illum and "rand" not in sample_size)'''
-
-            ''' don't make these plots if it's a random run '''
-            if match and sample != 'None' and string.find(sample_size,'rand') == -1:
-                '''### MAIN4b-START ### MAKE nocorrected_data PLOTS with calcDataIllum (if sample != 'None' and "rand" not in sample_size)'''
-                ''' calculate matched plot differences, before and after '''
-                for ROT in EXPS.keys():
-                    data[ROT] = scipy.array(data[ROT]) # value - tab['SDSSstdMag_corr'] (  if calc_illum or ('uncorr' in sample_size): value = MAG_AUTO     elif not calc_illum: value = MAG_AUTO - epsilon_cheby_chip  )
-                    Star[ROT] = scipy.array(Star[ROT]) # tab['SDSSStar_corr']
-                    magErr[ROT] = scipy.array(magErr[ROT]) # tab['SDSSstdMagErr_corr']
-                    X[ROT] = scipy.array(X[ROT]) # tab[str(rotation) + '$' + exp['name'] + '$Xpos_ABS']
-                    Y[ROT] = scipy.array(Y[ROT]) # tab[str(rotation) + '$' + exp['name'] + '$Ypos_ABS']
-                    color[ROT] = scipy.array(color[ROT]) # tab['SDSSstdMagColor_corr']
-                    print 'linear_fit| ROT=',ROT, ' data[ROT]=',data[ROT]
-
-                    #adam-note# Properly apply corrections with: diff_Pcat_Pcolor_Mexp_Mchip_Mcheby
-                    ''' apply the color term measured from the data '''
-                    print 'linear_fit| fitvars["SDSS_color"]=',fitvars["SDSS_color"] , ' color[ROT]=',color[ROT]
-                    #adam-old# data1 = data[ROT] + fitvars['SDSS_color']*color[ROT] - zp_image_correction # Definitely Pcolor that's right!
-
-                    ''' correct using the SDSS magnitudes from SDSS_color and zp_SDSS '''
-                    data1 = data[ROT] + fitvars['SDSS_color']*color[ROT] # Definitely Pcolor that's right!
-                    if fitvars.has_key('zp_SDSS'):
-                            data1+=fitvars['zp_SDSS']
-
-                    print 'linear_fit| len(data1)=',len(data1) , ' len(data[ROT])=',len(data[ROT]) , ' match=',match , ' sample=',sample
-                    illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/' + str(ROT) + '/'
-                    for kind,keyvalue in [['star',1]]:
-
-                        #adam-old# data2 = data1 - scipy.median(data1)
-                        #adam-old#calcim=sample + kind + 'nocorr'+str(ROT)+FILTER
-                        calcim = '_'.join([sample,kind,'nocorrected_data','ROT'+str(ROT),FILTER,run_info])
-                        #adam-ask# WHY aren't we using the true values of LENGTH1 and LENGTH2 here instead of 10000,8000? (p.s. I changed how the array is setup (x_val and y_val) in calcDataIllum! I think this is right now, shouldn't hit that except anymore)
-                        #adam-old# calcDataIllum(calcim,10000,8000,data2,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,rot=ROT,good=[Star[ROT],keyvalue])
-                        #adam-watch#if not calc_illum:                        data1 = MAG_AUTO + fitvars['SDSS_color']*color[ROT] - tab['SDSSstdMag_corr'] - epsilon_cheby_chip  #(epsilon_cheby_chip=C(x,y,chip,rot) in paper)
-                        #adam-watch#if not calc_illum: (maybe should be:      data1 = MAG_AUTO + fitvars['SDSS_color']*color[ROT] - zp_image_correction - tab['SDSSstdMag_corr'] - epsilon_cheby_chip ) #(epsilon_cheby_chip=C(x,y,chip,rot) in paper)
-                        calcDataIllum(calcim,LENGTH1,LENGTH2,data1,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,good=[Star[ROT],keyvalue],limits=[-0.5,0.5],data_label="(Raw Measured Mag) - (Corrected SDSS Mag)" )
-                        #adam-note# Mexp: subtract the zp_exp for each exposure
-                        zp_image_correction = scipy.array([float(fitvars['zp_image_'+thisimage]) for thisimage in whichimage[ROT]])
-                        data2=data1-zp_image_correction
-                        calcim = '_'.join([sample,kind,'no_pos-corrected_data','ROT'+str(ROT),FILTER,run_info])
-                        calcDataIllum(calcim,LENGTH1,LENGTH2,data2,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,good=[Star[ROT],keyvalue],limits=[-0.5,0.5],data_label="(Raw Measured Mag) - (Corrected SDSS Mag)" )
-                        dtmp = {}
-                        var = variance(data2,magErr[ROT])
-                        print 'linear_fit| var=',var
-                        dtmp[sample + 'stdnocorr$' + str(ROT)] = var[1]**0.5
-                        dtmp[sample + 'redchinocorr$' + str(ROT)] = var[2]
-                        dtmp[sample + 'pointsnocorr$' + str(ROT)] = len(data2)
-                        print 'linear_fit| sample+"redchinocorr$"+str(ROT)=',sample+"redchinocorr$"+str(ROT)
-
-                        if calc_illum:
-                            '''### MAIN4c-START ### MAKE corrected_data AND correction PLOTS with calcDataIllum (if calcIllum and sample != 'None' and "rand" not in sample_size)'''
-                            #plot_color(color[ROT], data2)
-                            x = coord_conv_x(X[ROT])
-                            y = coord_conv_y(Y[ROT])
-
-                            epsilonB=scipy.zeros(data1.shape) #adam-note# epsilonB is the Mexp_Mchip_Mcheby part
-                            epsilonB += zp_image_correction
-
-                            #adam-note# Mchip: subtract the zp_chip for the proper chip number that each star was identified with
-                            zp_chip_correction = []
-                            for chip in chipnums[ROT]:
-                                zp_chip_correction.append(fitvars['zp_' + str(int(float(chip)))])
-                            zp_chip_correction = scipy.array(zp_chip_correction)
-                            epsilonB += zp_chip_correction
-
-                            #adam-note# Mcheby: subtract the f(x,y)_rot poly based on the (x,y) position where each star was located
+                            zp_images += str(x_soln[ele['index']]) + ','
+                            zp_images_names += ele['name'] + ','
+    
+                    zp_images = zp_images[:-1] ; zp_images_names = zp_images_names[:-1]
+                    dtmp["zp_images"]=zp_images
+                    dtmp["zp_images_names"]=zp_images_names
+                    print 'linear_fit| save_columns=', save_columns,
+                    print 'linear_fit| zp_columns=', zp_columns
+                    print 'linear_fit| dtmp[zp_images]=',dtmp["zp_images"]
+                    print 'linear_fit| dtmp[zp_images_names]=',dtmp["zp_images_names"]
+                    use_columns = filter(lambda x: string.find(x,'zp_image') == -1,[z['name'] for z in save_columns] ) + ['zp_images','zp_images_names']
+    
+                    positioncolumns = reduce(lambda x,y: x+','+y,use_columns)
+                    print 'linear_fit| positioncolumns=',positioncolumns
+                    #save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,sample+'$'+sample_size+'$positioncolumns':positioncolumns})
+                    dtmp['positioncolumns'] = positioncolumns
+                    dtmp[attempt + 'reducedchi']=reducedchi
+                    dtmp[attempt + 'difference']=difference
+                    dtmp[attempt + 'chisq']= chisq
+                    dtmp[attempt + 'parameters']= parameters
+                    #adam-fragments_removed# linear_fit-term_name (this was commented out to begin with)
+    
+                    print 'linear_fit| dtmp.keys()=',dtmp.keys()
+                    print 'linear_fit| PPRUN=',PPRUN , ' FILTER=',FILTER , ' OBJNAME=',OBJNAME , ' dtmp["positioncolumns"]=',dtmp["positioncolumns"]
+                    dtmp.update({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,'linearfit':'1'})
+                    save_fit(dtmp)
+                    print 'linear_fit| ...done with attempt=',attempt,'...'
+                ''' end loop over attempt=['first','reject'] '''
+                '''### MAIN3-END ### DO FITTING'''
+    
+                '''### MAIN4-START ### SAVE CATALOGS/FITS/PLOTS'''
+                ''' save the corrected catalog '''
+                cols = [] ; stdMag_corr = [] ; stdMagErr_corr = [] ; stdMagColor_corr = [] ; stdMagClean_corr = [] ; ALPHA_J2000 = [] ; DELTA_J2000 = [] ; SeqNr = [] ; Star_corr = []
+                sn = -1
+                for i in catalog_values.keys():
+                    entr = catalog_values[i]
+                    sn += 1
+                    SeqNr.append(sn)
+                    stdMag_corr.append(entr['mag'])
+                    ALPHA_J2000.append(entr['ra'])
+                    DELTA_J2000.append(entr['dec'])
+                    stdMagErr_corr.append(entr['sigma'])
+                    stdMagColor_corr.append(0)
+                    stdMagClean_corr.append(1)
+                    Star_corr.append(1)
+    
+                cols.append(pyfits.Column(name='stdMag_corr', format='D',array=scipy.array(stdMag_corr)))
+                cols.append(pyfits.Column(name='stdMagErr_corr', format='D',array=scipy.array(stdMagErr_corr)))
+                cols.append(pyfits.Column(name='stdMagColor_corr', format='D',array=scipy.array(stdMagColor_corr)))
+                cols.append(pyfits.Column(name='stdMagClean_corr', format='D',array=scipy.array(stdMagClean_corr)))
+                cols.append(pyfits.Column(name='ALPHA_J2000', format='D',array=scipy.array(ALPHA_J2000)))
+                cols.append(pyfits.Column(name='DELTA_J2000', format='D',array=scipy.array(DELTA_J2000)))
+                cols.append(pyfits.Column(name='SeqNr', format='E',array=scipy.array(SeqNr)))
+                cols.append(pyfits.Column(name='Star_corr', format='E',array=scipy.array(Star_corr)))
+    
+                outcat = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + 'catalog_' + PPRUN + '.cat'
+                #adam-watch# do these catalogs get used anywhere else?
+                hdu = pyfits.PrimaryHDU()
+                hdulist = pyfits.HDUList([hdu])
+                tbhu = pyfits.BinTableHDU.from_columns(cols)
+                hdulist.append(tbhu)
+                hdulist[1].header["EXTNAME"]='OBJECTS'
+                hdulist.writeto( outcat ,overwrite=True)
+                catalog_save_name=data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/'+'_'.join(['catalog',run_info,PPRUN]) + '.cat'
+                os.system('cp %s %s' % ( outcat , catalog_save_name))
+                print 'linear_fit| wrote out new cat! outcat=',outcat
+                print 'linear_fit| wrote out new cat! catalog_save_name=',catalog_save_name
+    
+                save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'format':'good','sample':'record','sample_size':'record'},db='' + test + 'try_db')
+    
+                save_fit({'FILTER':FILTER,'OBJNAME':OBJNAME,'PPRUN':PPRUN,'sample':sample,'sample_size':sample_size,'catalog':outcat})
+    
+                ''' make diagnostic IC fits images'''
+                if string.find(sample_size,'rand') == -1:
+                    d = get_fits(OBJNAME,FILTER,PPRUN, sample, sample_size)
+                    print 'linear_fit| d.keys()=',d.keys()
+                    column_prefix = '' #sample+'$'+sample_size+'$'
+                    position_columns_names = re.split('\,',d[column_prefix + 'positioncolumns'])
+                    print 'linear_fit| position_columns_names=',position_columns_names
+                    fitvars = {}
+                    #adam-ask# why is there a need to mess with the cheby_terms_use dict here? Is it to keep a consistent match btwn what goes in fitvars and is used for calc_illum=False runs?
+                    cheby_terms_dict = {}
+                    for ele in position_columns_names:
+                        if type(ele) != type({}):
+                            ele = {'name':ele}
+                        #adam-del#res = re.split('$',ele['name'])
+                        if string.find(ele['name'],'zp_image') == -1:
+                            fitvars[ele['name']] = float(d[ele['name']])
+                            for term in cheby_terms:
+                                if term['n'] == ele['name'][2:]:
+                                    cheby_terms_dict[term['n']] = term
+    
+                    zp_images = re.split(',',d['zp_images'])
+                    zp_images_names = re.split(',',d['zp_images_names'])
+    
+                    for i in xrange(len(zp_images)): fitvars[zp_images_names[i]] = float(zp_images[i])
+    
+                    print 'linear_fit| fitvars=',fitvars
+                    fitvars_runs[run_info]=fitvars
+    
+                    cheby_terms_use =  [cheby_terms_dict[k] for k in cheby_terms_dict.keys()]
+                    print 'linear_fit| cheby_terms_use=',cheby_terms_use
+    
+                    ''' make images of illumination corrections '''
+                    if calc_illum:
+                        '''### MAIN4a-START ### MAKE FITS FILES of IC and IC_no_chip_zp and save fits (if calc_illum and "rand" not in sample_size)'''
+                        size_x=LENGTH1;size_y=LENGTH2
+                        bin=100
+                        xA,yA = numpy.meshgrid(numpy.arange(0,size_x,bin),numpy.arange(0,size_y,bin),indexing='ij')
+                        xA = coord_conv_x(xA);yA = coord_conv_y(yA)
+                        for ROT in EXPS.keys():
+                            print "linear_fit| loop2-(3/3) plots the fit | for ROT =",ROT, " in EXPS.keys()=",EXPS.keys()
+                            illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/' + str(ROT) + '/'
+                            if not os.path.isdir(illum_dir+'/other_runs_plots/'):
+                                    os.system('mkdir -p ' + illum_dir+'/other_runs_plots/')
+    
+                            epsilonA = 0
                             for term in cheby_terms_use:
-                                epsilonB += fitvars[str(ROT)+'$'+term['n']]*term['fx'](x,y)*term['fy'](x,y)
-
-                            #adam-fragments_removed# try_linear-config_based_zp_chip_correct
-
-                            data1 -= epsilonB
-                            #adam-note# data1 = MAG_AUTO - tab['SDSSstdMag_corr'] + fitvars['SDSS_color']*color[ROT] + fitvars['zp_SDSS'] - zp_image_correction - zp_chip_correction - fitvars[str(ROT)+'$'+cheby_term['n']]*cheby_term['fx'](x,y)*cheby_term['fy'](x,y)
-
-                            '''plot the epsilonB=Mexp_Mchip_Mcheby correction'''
-                            #adam-old#calcim = sample+kind+'correction'+str(ROT)+FILTER
-                            calcim1 = '_'.join([sample,kind,'correction','ROT'+str(ROT),FILTER,run_info]) #adam-possible problem
-                            #adam-old# WHY aren't we using the true values of LENGTH1 and LENGTH2 here instead of 10000,8000? (p.s. I changed how the array is setup (x_val and y_val) in calcDataIllum! I think this is right now, shouldn't hit that except anymore)
-                            #adam-old# calcDataIllum(calcim1,10000,8000,epsilonB,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,rot=ROT,good=[Star[ROT],keyvalue])
-                            calcDataIllum(calcim1,LENGTH1,LENGTH2,epsilonB,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,good=[Star[ROT],keyvalue],limits=[-0.5,0.5],data_label="epsilon: (IC-corrected Measured Mag) - (Measured Mag)" )
-
-                            #adam-old# #plot_color(color[ROT], data2)
-                            #adam-old#data2 -= epsilonB
-
-                            '''plot the corrected magnitudes data1=diff_Pcat_Pcolor_Mexp_Mchip_Mcheby correction'''
-                            #adam-old#calcim = sample+kind+'rot'+str(ROT)+FILTER
-                            calcim2 = '_'.join([sample,kind,'corrected_data','ROT'+str(ROT),FILTER,run_info])
-                            #adam-old# WHY aren't we using the true values of LENGTH1 and LENGTH2 here instead of 10000,8000? (p.s. I changed how the array is setup (x_val and y_val) in calcDataIllum! I think this is right now, shouldn't hit that except anymore)
-                            #adam-old# calcDataIllum(calcim2,10000,8000,data2,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,rot=ROT,good=[Star[ROT],keyvalue])
-                            fit_redchisq_clipped=calcDataIllum(calcim2,LENGTH1,LENGTH2,data1,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,good=[Star[ROT],keyvalue],limits=[-0.5,0.5],data_label="(IC-corrected Measured Mag) - (SDSS Mag)" )
-                            run_goodness_info[run_info]+='\nROT='+str(ROT)+': redchisq=%.3f' % fit_redchisq_clipped
-
-                            var = variance(data1,magErr[ROT])
-                            print 'linear_fit| second: var=' , var
-                            dtmp[sample + 'stdcorr$' + str(ROT)] = var[1]**0.5
-                            dtmp[sample + 'redchicorr$' + str(ROT)] = var[2]
-                            dtmp[sample + 'pointsnocorr$' + str(ROT)] = len(data1)
-                            #adam-no_more# ns.update(locals())
-                            #adam-no_more# adam_tmp_plots(*ns)
-                            run_goodness_info[run_info]+= '\nROT='+str(ROT)+': variance=%.2f weight_variance=%.2f redchi=%.3f' % var
-                            '''### MAIN4c-END   ### MAKE corrected_data AND correction PLOTS with calcDataIllum (if calcIllum and sample != 'None' and "rand" not in sample_size)'''
-
-                        dtmp.update({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size})
-                        save_fit(dtmp)
-                '''### MAIN4b-END  ### MAKE nocorrected_data PLOTS with calcDataIllum (if sample != 'None' and "rand" not in sample_size)'''
-
-            '''### MAIN4-END ### SAVE CATALOGS/FITS/PLOTS'''
-            #run_goodness_info[run_info]= run_goodness_info[run_info].replace('\n',' (adam-look)\nlinear_fit| run_info=%86s ' % (run_info))+ " (adam-look)"
-            #run_goodness_info[run_info]= run_goodness_info[run_info].replace('\n',' (adam-look)\n%86s : ' % (run_info))+ " (adam-look)"
-            run_goodness_info[run_info]= run_goodness_info[run_info].replace('\n',' \n%86s : ' % (run_info))+ " "
-
-            #adam-no_more# ns.update(locals())
-            #adam-no_more# break
-	if original_sample_size=="all":
-            #for run_info in run_infos: print '\n\n'+run_goodness_info[run_info]
-            goodness_runs_info_str='\n\n### How good are the stars and the matching with SDSS/rotations? ### PPRUN: %s\n\n' % (PPRUN)
-            goodness_runs_info_str+=run_goodness_info["stars"]
-            goodness_runs_info_str+='\n\n### How good did the fits perform? How was the chi-squared for each run? ### PPRUN: %s\n\n' % (PPRUN)
-            for run_info in run_infos: goodness_runs_info_str+='\n\n'+run_goodness_info[run_info]
-            adam_str=adam_fit_goodness(fitvars_runs,run_infos,data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/',PPRUN,goodness_runs_info_str)
-            adam_str= adam_str.replace('\n',' (adam-look)\n')+ " (adam-look)\n"
-            print adam_str
+                                print 'linear_fit| ROT=',ROT , ' term["n"]=',term["n"] , ' fitvars[str(ROT)+"$"+term["n"]]=',fitvars[str(ROT)+"$"+term["n"]]
+                                epsilonA += fitvars[str(ROT)+'$'+term['n']]*term['fx'](xA,yA)*term['fy'](xA,yA) #this part makes `epsilonA` a grid
+    
+                            ''' save pattern w/o chip zps '''
+                            #adam-old#im = illum_dir + '/nochipzps' + sample + sample_size +  test + '.fits'
+                            im = illum_dir + '_'.join([ '/nochipzps' , run_info,'ROT'+str(ROT),  test.replace('_','')]) + '.fits'
+                            print "linear_fit| ...writing...im=",im
+                            hdu = pyfits.PrimaryHDU(epsilonA.T)
+                            save_fit({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,str(ROT)+'$im':im})
+                            hdu.writeto(im,overwrite=True)
+    
+                            print 'linear_fit| scipy.shape(epsilonA)=',scipy.shape(epsilonA), ' bin=',bin
+                            ''' save pattern w/ chip zps '''
+                            if per_chip or same_chips:
+                                print 'linear_fit| CHIPS=',CHIPS
+                                for CHIP in CHIPS:
+                                    if str(dt['CRPIX1_' + str(CHIP)]) != 'None':
+                                        #adam-fragments_removed# linear_fit-fit_readout_ports #this would be usefull if you wanted to have the IC treat each individual readout port in each CCD (unnecessary)
+                                        #pp='CRPIX1ZERO'+'=%s\t'+'CRPIX1_'+str(CHIP)+'=%s\t'+'NAXIS1_'+str(CHIP)+'=%s\t'+'CRPIX2ZERO'+'=%s\t'+'CRPIX2_'+str(CHIP)+'=%s\t'+'NAXIS2_'+str(CHIP)+'=%s'
+                                        #print pp % (float(dt['CRPIX1ZERO']) , float(dt['CRPIX1_' + str(CHIP)]) ,float(dt['NAXIS1_' + str(CHIP)]) , float(dt['CRPIX2ZERO']) , float(dt['CRPIX2_' + str(CHIP)]) ,float(dt['NAXIS2_' + str(CHIP)]))
+                                        xmin = float(dt['CRPIX1ZERO']) - float(dt['CRPIX1_' + str(CHIP)])
+                                        xmax = xmin + float(dt['NAXIS1_' + str(CHIP)])
+                                        ymin = float(dt['CRPIX2ZERO']) - float(dt['CRPIX2_' + str(CHIP)])
+                                        ymax = ymin + float(dt['NAXIS2_' + str(CHIP)])
+                                        X0,X1,Y0,Y1=int(xmin/bin),int(xmax/bin) ,int(ymin/bin) ,int(ymax/bin)
+                                        print 'linear_fit|CHIP=',CHIP,' xmin=',xmin , ' xmax=',xmax , ' ymin=',ymin , ' ymax=',ymax
+                                        print 'linear_fit|CHIP=%s [X0:X1,Y0:Y1]=[%s:%s,%s:%s] epsilonA[X0:X1,Y0:Y1].shape=%s' % (CHIP,X0,X1,Y0,Y1,epsilonA[X0:X1,Y0:Y1].shape)
+                                        print 'linear_fit|CHIP=',CHIP,' zp:', fitvars['zp_' + str(CHIP)]
+                                        epsilonA[X0:X1,Y0:Y1]+= float(fitvars['zp_' + str(CHIP)])
+    
+                            #adam-old#im = illum_dir + '/correction' + sample + sample_size +  test + '.fits'
+                            im = illum_dir + '_'.join([ '/correction' , run_info,'ROT'+str(ROT),  test.replace('_','')]) + '.fits'
+                            print 'linear_fit| ...writing...im=',im
+                            hdu = pyfits.PrimaryHDU(epsilonA.T) #the transpose makes it consistent with the old versions shape, but I prefer this way of indexing so that you don't have to flip X and Y around and other confusing stuff
+                            save_fit({'linearplot':1,'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size,str(ROT)+'$im':im})
+                            hdu.writeto(im,overwrite=True)
+                            print 'linear_fit| done'
+                        '''### MAIN4a-END ### MAKE FITS FILES of IC and IC_no_chip_zp and save fits (if calc_illum and "rand" not in sample_size)'''
+    
+                ''' don't make these plots if it's a random run '''
+                if match and sample != 'None' and string.find(sample_size,'rand') == -1:
+                    '''### MAIN4b-START ### MAKE nocorrected_data PLOTS with calcDataIllum (if sample != 'None' and "rand" not in sample_size)'''
+                    ''' calculate matched plot differences, before and after '''
+                    for ROT in EXPS.keys():
+                        data[ROT] = scipy.array(data[ROT]) # value - tab['SDSSstdMag_corr'] (  if calc_illum or ('uncorr' in sample_size): value = MAG_AUTO     elif not calc_illum: value = MAG_AUTO - epsilon_cheby_chip  )
+                        Star[ROT] = scipy.array(Star[ROT]) # tab['SDSSStar_corr']
+                        magErr[ROT] = scipy.array(magErr[ROT]) # tab['SDSSstdMagErr_corr']
+                        X[ROT] = scipy.array(X[ROT]) # tab[str(rotation) + '$' + exp['name'] + '$Xpos_ABS']
+                        Y[ROT] = scipy.array(Y[ROT]) # tab[str(rotation) + '$' + exp['name'] + '$Ypos_ABS']
+                        color[ROT] = scipy.array(color[ROT]) # tab['SDSSstdMagColor_corr']
+                        print 'linear_fit| ROT=',ROT, ' data[ROT]=',data[ROT]
+    
+                        #adam-note# Properly apply corrections with: diff_Pcat_Pcolor_Mexp_Mchip_Mcheby
+                        ''' apply the color term measured from the data '''
+                        print 'linear_fit| fitvars["SDSS_color"]=',fitvars["SDSS_color"] , ' color[ROT]=',color[ROT]
+                        #adam-old# data1 = data[ROT] + fitvars['SDSS_color']*color[ROT] - zp_image_correction # Definitely Pcolor that's right!
+    
+                        ''' correct using the SDSS magnitudes from SDSS_color and zp_SDSS '''
+                        data1 = data[ROT] + fitvars['SDSS_color']*color[ROT] # Definitely Pcolor that's right!
+                        if fitvars.has_key('zp_SDSS'):
+                                data1+=fitvars['zp_SDSS']
+    
+                        print 'linear_fit| len(data1)=',len(data1) , ' len(data[ROT])=',len(data[ROT]) , ' match=',match , ' sample=',sample
+                        illum_dir = data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/' + str(ROT) + '/'
+                        for kind,keyvalue in [['star',1]]:
+    
+                            #adam-old# data2 = data1 - scipy.median(data1)
+                            #adam-old#calcim=sample + kind + 'nocorr'+str(ROT)+FILTER
+                            calcim = '_'.join([sample,kind,'nocorrected_data','ROT'+str(ROT),FILTER,run_info])
+                            #adam-ask# WHY aren't we using the true values of LENGTH1 and LENGTH2 here instead of 10000,8000? (p.s. I changed how the array is setup (x_val and y_val) in calcDataIllum! I think this is right now, shouldn't hit that except anymore)
+                            #adam-old# calcDataIllum(calcim,10000,8000,data2,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,rot=ROT,good=[Star[ROT],keyvalue])
+                            #adam-watch#if not calc_illum:                        data1 = MAG_AUTO + fitvars['SDSS_color']*color[ROT] - tab['SDSSstdMag_corr'] - epsilon_cheby_chip  #(epsilon_cheby_chip=C(x,y,chip,rot) in paper)
+                            #adam-watch#if not calc_illum: (maybe should be:      data1 = MAG_AUTO + fitvars['SDSS_color']*color[ROT] - zp_image_correction - tab['SDSSstdMag_corr'] - epsilon_cheby_chip ) #(epsilon_cheby_chip=C(x,y,chip,rot) in paper)
+                            calcDataIllum(calcim,LENGTH1,LENGTH2,data1,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,good=[Star[ROT],keyvalue],limits=[-0.5,0.5],data_label="(Raw Measured Mag) - (Corrected SDSS Mag)" )
+                            #adam-note# Mexp: subtract the zp_exp for each exposure
+                            zp_image_correction = scipy.array([float(fitvars['zp_image_'+thisimage]) for thisimage in whichimage[ROT]])
+                            data2=data1-zp_image_correction
+                            calcim = '_'.join([sample,kind,'no_pos-corrected_data','ROT'+str(ROT),FILTER,run_info])
+                            calcDataIllum(calcim,LENGTH1,LENGTH2,data2,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,good=[Star[ROT],keyvalue],limits=[-0.5,0.5],data_label="(Raw Measured Mag) - (Corrected SDSS Mag)" )
+                            dtmp = {}
+                            var = variance(data2,magErr[ROT])
+                            print 'linear_fit| var=',var
+                            dtmp[sample + 'stdnocorr$' + str(ROT)] = var[1]**0.5
+                            dtmp[sample + 'redchinocorr$' + str(ROT)] = var[2]
+                            dtmp[sample + 'pointsnocorr$' + str(ROT)] = len(data2)
+                            print 'linear_fit| sample+"redchinocorr$"+str(ROT)=',sample+"redchinocorr$"+str(ROT)
+    
+                            if calc_illum:
+                                '''### MAIN4c-START ### MAKE corrected_data AND correction PLOTS with calcDataIllum (if calcIllum and sample != 'None' and "rand" not in sample_size)'''
+                                #plot_color(color[ROT], data2)
+                                x = coord_conv_x(X[ROT])
+                                y = coord_conv_y(Y[ROT])
+    
+                                epsilonB=scipy.zeros(data1.shape) #adam-note# epsilonB is the Mexp_Mchip_Mcheby part
+                                epsilonB += zp_image_correction
+    
+                                #adam-note# Mchip: subtract the zp_chip for the proper chip number that each star was identified with
+                                zp_chip_correction = []
+                                for chip in chipnums[ROT]:
+                                    zp_chip_correction.append(fitvars['zp_' + str(int(float(chip)))])
+                                zp_chip_correction = scipy.array(zp_chip_correction)
+                                epsilonB += zp_chip_correction
+    
+                                #adam-note# Mcheby: subtract the f(x,y)_rot poly based on the (x,y) position where each star was located
+                                for term in cheby_terms_use:
+                                    epsilonB += fitvars[str(ROT)+'$'+term['n']]*term['fx'](x,y)*term['fy'](x,y)
+    
+                                #adam-fragments_removed# try_linear-config_based_zp_chip_correct
+    
+                                data1 -= epsilonB
+                                #adam-note# data1 = MAG_AUTO - tab['SDSSstdMag_corr'] + fitvars['SDSS_color']*color[ROT] + fitvars['zp_SDSS'] - zp_image_correction - zp_chip_correction - fitvars[str(ROT)+'$'+cheby_term['n']]*cheby_term['fx'](x,y)*cheby_term['fy'](x,y)
+    
+                                '''plot the epsilonB=Mexp_Mchip_Mcheby correction'''
+                                #adam-old#calcim = sample+kind+'correction'+str(ROT)+FILTER
+                                calcim1 = '_'.join([sample,kind,'correction','ROT'+str(ROT),FILTER,run_info]) #adam-possible problem
+                                #adam-old# WHY aren't we using the true values of LENGTH1 and LENGTH2 here instead of 10000,8000? (p.s. I changed how the array is setup (x_val and y_val) in calcDataIllum! I think this is right now, shouldn't hit that except anymore)
+                                #adam-old# calcDataIllum(calcim1,10000,8000,epsilonB,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,rot=ROT,good=[Star[ROT],keyvalue])
+                                calcDataIllum(calcim1,LENGTH1,LENGTH2,epsilonB,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,good=[Star[ROT],keyvalue],limits=[-0.5,0.5],data_label="epsilon: (IC-corrected Measured Mag) - (Measured Mag)" )
+    
+                                #adam-old# #plot_color(color[ROT], data2)
+                                #adam-old#data2 -= epsilonB
+    
+                                '''plot the corrected magnitudes data1=diff_Pcat_Pcolor_Mexp_Mchip_Mcheby correction'''
+                                #adam-old#calcim = sample+kind+'rot'+str(ROT)+FILTER
+                                calcim2 = '_'.join([sample,kind,'corrected_data','ROT'+str(ROT),FILTER,run_info])
+                                #adam-old# WHY aren't we using the true values of LENGTH1 and LENGTH2 here instead of 10000,8000? (p.s. I changed how the array is setup (x_val and y_val) in calcDataIllum! I think this is right now, shouldn't hit that except anymore)
+                                #adam-old# calcDataIllum(calcim2,10000,8000,data2,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,rot=ROT,good=[Star[ROT],keyvalue])
+                                fit_redchisq_clipped=calcDataIllum(calcim2,LENGTH1,LENGTH2,data1,magErr[ROT],X[ROT],Y[ROT],pth=illum_dir,good=[Star[ROT],keyvalue],limits=[-0.5,0.5],data_label="(IC-corrected Measured Mag) - (SDSS Mag)" )
+                                run_goodness_info[run_info]+='\nROT='+str(ROT)+': redchisq=%.3f' % fit_redchisq_clipped
+    
+                                var = variance(data1,magErr[ROT])
+                                print 'linear_fit| second: var=' , var
+                                dtmp[sample + 'stdcorr$' + str(ROT)] = var[1]**0.5
+                                dtmp[sample + 'redchicorr$' + str(ROT)] = var[2]
+                                dtmp[sample + 'pointsnocorr$' + str(ROT)] = len(data1)
+                                #adam-no_more# ns.update(locals())
+                                #adam-no_more# adam_tmp_plots(*ns)
+                                run_goodness_info[run_info]+= '\nROT='+str(ROT)+': variance=%.2f weight_variance=%.2f redchi=%.3f' % var
+                                '''### MAIN4c-END   ### MAKE corrected_data AND correction PLOTS with calcDataIllum (if calcIllum and sample != 'None' and "rand" not in sample_size)'''
+    
+                            dtmp.update({'PPRUN':PPRUN,'FILTER':FILTER,'OBJNAME':OBJNAME,'sample':sample,'sample_size':sample_size})
+                            save_fit(dtmp)
+                    '''### MAIN4b-END  ### MAKE nocorrected_data PLOTS with calcDataIllum (if sample != 'None' and "rand" not in sample_size)'''
+    
+                '''### MAIN4-END ### SAVE CATALOGS/FITS/PLOTS'''
+                #run_goodness_info[run_info]= run_goodness_info[run_info].replace('\n',' (adam-look)\nlinear_fit| run_info=%86s ' % (run_info))+ " (adam-look)"
+                #run_goodness_info[run_info]= run_goodness_info[run_info].replace('\n',' (adam-look)\n%86s : ' % (run_info))+ " (adam-look)"
+                run_goodness_info[run_info]= run_goodness_info[run_info].replace('\n',' \n%86s : ' % (run_info))+ " "
+    
+                #adam-no_more# ns.update(locals())
+                #adam-no_more# break
+            if original_sample_size=="all":
+                #for run_info in run_infos: print '\n\n'+run_goodness_info[run_info]
+                goodness_runs_info_str='\n\n### How good are the stars and the matching with SDSS/rotations? ### PPRUN: %s\n\n' % (PPRUN)
+                goodness_runs_info_str+=run_goodness_info["stars"]
+                goodness_runs_info_str+='\n\n### How good did the fits perform? How was the chi-squared for each run? ### PPRUN: %s\n\n' % (PPRUN)
+                for run_info in run_infos: goodness_runs_info_str+='\n\n'+run_goodness_info[run_info]
+                adam_str=adam_fit_goodness(fitvars_runs,run_infos,data_path + 'PHOTOMETRY/ILLUMINATION_SDSS/' + FILTER + '/' + PPRUN + '/',PPRUN,goodness_runs_info_str)
+                adam_str= adam_str.replace('\n',' (adam-look)\n')+ " (adam-look)\n"
+                print adam_str
+    except:
+        ns.update(locals())
+        raise
 
     #adam-no_more# ns.update(locals())
     print "linear_fit| DONE with func\n"
@@ -3205,17 +3239,18 @@ def adam_fit_goodness(fitvars_runs,run_infos,illum_dir,PPRUN,extra_str=''):
     table_str+=extra_str
     #print table_str
     global table_zps_runs_new
+    fl_table_basename='table_zps_runs_sdss_%s_%s.txt' % (OBJNAME,PPRUN)
     if table_zps_runs_new==1:
-        fl_table_zps_runs=open('table_zps_runs_sdss.txt','w')
+        fl_table_zps_runs=open(fl_table_basename,'w')
         fl_table_zps_runs.write(table_str)
         table_zps_runs_new=0
         fl_table_zps_runs.close()
     else:
-        fl_table_zps_runs=open('table_zps_runs_sdss.txt','a+')
+        fl_table_zps_runs=open(fl_table_basename,'a+')
         fl_table_zps_runs.write('\n##### NEW PPRUN ##### PPRUN=%s ##### NEW PPRUN #####\n')
         fl_table_zps_runs.write(table_str)
         fl_table_zps_runs.close()
-    fl=open(illum_dir+'table_zps_runs_sdss.txt','w')
+    fl=open(illum_dir+fl_table_basename,'w')
     fl.write(table_str)
     fl.close()
     return table_str
@@ -3522,7 +3557,6 @@ def get_sdss_cats(OBJNAME=None): #step3_run_fit
     else:
         command="SELECT * from "+illum_db+" LEFT OUTER JOIN sdss_db on sdss_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".SUPA like 'SUPA%' and "+illum_db+".pasted_cat is not null GROUP BY "+illum_db+".OBJNAME" # LEFT OUTER JOIN sdss_db on sdss_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".OBJNAME is not null  GROUP BY "+illum_db+".OBJNAME" #and sdss_db.cov is not NULL
 
-    #command="SELECT * from "+illum_db+" LEFT OUTER JOIN sdss_db on sdss_db.OBJNAME="+illum_db+".OBJNAME GROUP BY "+illum_db+".OBJNAME" # LEFT OUTER JOIN sdss_db on sdss_db.OBJNAME="+illum_db+".OBJNAME where "+illum_db+".OBJNAME is not null  GROUP BY "+illum_db+".OBJNAME" #and sdss_db.cov is not NULL
     print 'get_sdss_cats| command=',command
     c.execute(command)
     results=c.fetchall()
@@ -3786,7 +3820,7 @@ def sort_results(results2,db_keys): #step4_test_fit #intermediate
         print 'sort_results| (adam-look) stats: PPRUN',"var_correction" , "mean" , "std" , "sdss_imp_all" , "match_stars" , "sdss_imp"
         for y in rotation_runs.keys():
 
-	    db2,c = connect_except()
+            db2,c = connect_except()
 
             ''' figure out what the sample is '''
             command_sort_results1="SELECT todo from " + test + "try_db where OBJNAME='" + rotation_runs[y]['OBJNAME'] + "' and PPRUN='" + rotation_runs[y]['PPRUN'] + "'"
@@ -3840,6 +3874,11 @@ def sort_results(results2,db_keys): #step4_test_fit #intermediate
                         good = float(rotation_runs[y][sl + 'var_correction']) < 0.03 and (float(rotation_runs[y][sl+ 'mean']) - 1.*float(rotation_runs[y][sl + 'std']) > 0.995) and ( (float(rotation_runs[y]['sdss_imp_all'])>1.00 and float(rotation_runs[y]['match_stars'])>400) or float(rotation_runs[y]['match_stars'])<400)
                     else:
                         good = float(rotation_runs[y][sl + 'var_correction']) < 0.01 and (float(rotation_runs[y][sl+ 'mean']) - 1.5*float(rotation_runs[y][sl + 'std']) > 1.00) and ( (float(rotation_runs[y]['sdss_imp_all'])>1.00 and float(rotation_runs[y]['match_stars'])>400) or float(rotation_runs[y]['match_stars'])<400)
+                        #adam-SHNT# this is how we determine if it's "good" or not: 
+			#	sdss_var_correction < 0.01 
+			#	sdss_mean - 1.5*sdss_std > 1.00
+			#	( sdss_imp_all>1.00 and match_stars>400 ) or (match_stars<400)
+			# float(rotation_runs[y]['match_stars'])>400) or float(rotation_runs[y]['match_stars'])<400)
                 else:
                     if rotation_runs[y]['CONFIG'] == str(8.0) or rotation_runs[y]['CONFIG'] == str(9.0):
                         good = float(rotation_runs[y][sl + 'var_correction']) < 0.03 and (float(rotation_runs[y][sl + 'mean']) - 1.*float(rotation_runs[y][sl + 'std']) > 0.99)
@@ -4147,7 +4186,6 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                         drand[db_keys_fit[i]] = str(line[i])
 
                     save_fit({'PPRUN':dtop['PPRUN'],'OBJNAME':dtop['OBJNAME'],'FILTER':dtop['FILTER'],sample + '_match_stars':drand['match_stars'],'sample':'record','sample_size':'record',},db='' + test + 'try_db')
-                    name = drand['sample_size'].replace('corr','').replace('un','')
 
                     for rot in ['0','1','2','3']:
                         if not o.has_key(rot):
@@ -4177,7 +4215,6 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                         drand = {}
                         for i in range(len(db_keys_fit)):
                             drand[db_keys_fit[i]] = str(line[i])
-                        name = drand['sample_size'].replace('corr','').replace('un','')
 
                         for rot in ['0','1','2','3']:
                             if not o.has_key(rot):
@@ -4428,8 +4465,6 @@ def find_nearby(OBJNAME,FILTER,PPRUN): #step5_correct_ims #intermediate
 
     if dtop['CONFIG'] == '10_3':  # or (dtop['CONFIG'] == '9.0' and dtop['FILTER'] == 'W-J-B'):
 
-        ''' '''
-
         for i in range(len(config_bonn.wavelength_groups)):
             for filt in config_bonn.wavelength_groups[i]:
                 if filt == dtop['FILTER']:
@@ -4507,31 +4542,14 @@ def find_nearby(OBJNAME,FILTER,PPRUN): #step5_correct_ims #intermediate
 
         use.sort(use_comp)
 
-    #for k in use:
-    #        print k['objname'],k['pprun'], PPRUN
     if len(use) > 0:
         print use[0]['OBJNAME'], use[0]['PPRUN'], PPRUN
 
         sample = 'not set'
 
         ''' make sure that the illumination correction is in place '''
-
-
-        #if float(use[0]['bootstrap_zpstd']) < 0.01 and string.find(use[0]['bootstrapstatus'],'finished') != -1:
-        #    sample = 'bootstrap'
-        if False:
-            if str(use[0]['None_zpstd']) != 'None':
-                if float(use[0]['None_zpstd']) < 0.01 and string.find(use[0]['Nonestatus'],'finished') != -1:
-                    sample = 'None'
-            if str(use[0]['sdss_zpstd']) != 'None':
-                if float(use[0]['sdss_zpstd']) < 0.01 and string.find(use[0]['sdssstatus'],'finished') != -1:
-                    sample = 'sdss'
-
         sample = use[0]['sample_current']
 
-        #print use[0]['sdssstatus'], use[0]['Nonestatus'], use[0]['bootstrapstatus']
-
-        #print use[0:2]
         if sample != 'not set':
             return (use[0]['OBJNAME'],use[0]['FILTER'],use[0]['PPRUN'],sample)
         else: return(None,None,None,None)
@@ -4623,7 +4641,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
         print 'construct_correction| dt.keys()=',dt.keys()
         LENGTH1, LENGTH2 = dt['LENGTH1'], dt['LENGTH2']
 
-	#adam-watch# had `per_chip = True` here before. I hope this isn't setup to run that way, since `per_chip=False` in linear_fit
+        #adam-watch# had `per_chip = True` here before. I hope this isn't setup to run that way, since `per_chip=False` in linear_fit
 
         coord_conv_x = lambda x:((2.*x)-LENGTH1)/LENGTH1
         coord_conv_y = lambda x:((2.*x)-LENGTH2)/LENGTH2
@@ -4631,7 +4649,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
         ''' make images of illumination corrections '''
 
         for ROT in ROTS:
-	    print 'construct_correction| for ROT in ROTS: ROT=', ROT
+            print 'construct_correction| for ROT in ROTS: ROT=', ROT
             size_x=LENGTH1
             size_y=LENGTH2
             bin=100
@@ -4663,8 +4681,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
             hdu.writeto(im,overwrite=True)
 
             ''' save pattern w/ chip zps '''
-
-	    #adam-note# I'm going to simplify this whole process a lot and shorten this code by a few hundred lines by perminantly setting trial = True. If I want the whole thing with forking/etc. then I can get it from calc_test_save.py's version of construct_correction
+            #adam-note# I'm going to simplify this whole process a lot and shorten this code by a few hundred lines by perminantly setting trial = True. If I want the whole thing with forking/etc. then I can get it from calc_test_save.py's version of construct_correction
             for CHIP in CHIPS:
 
                 if str(dt['CRPIX1_' + str(CHIP)]) != 'None' and fitvars.has_key('zp_' + str(CHIP)):
@@ -4754,7 +4771,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                             raise TryDb('missing file ')
 
                     ooo,info = commands.getstatusoutput('dfits ' + file_chip + ' | fitsort -d ROTATION')
-		    if ooo!=0: raise Exception('ERROR WITH: dfits ' + file_chip + ' | fitsort -d ROTATION')
+                    if ooo!=0: raise Exception('ERROR WITH: dfits ' + file_chip + ' | fitsort -d ROTATION')
                     print 'construct_correction| info=',info , ' file_chip=',file_chip
                     #CHIP_ROT = str(int(re.split('\s+',info)[1]))
 
@@ -4770,22 +4787,20 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                     else:
                         use_run_dir = run_dir
 
-		    #os.system('rm ' + data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/*II.fits')
-		    #os.system('rm ' + data_root + '/' + OBJNAME + '/' + use_run_dir + '/WEIGHTS/*II.weight.fits')
                     scifls2rm=glob(data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/*II.fits')
                     wtfls2rm=glob(data_root + '/' + OBJNAME + '/' + use_run_dir + '/WEIGHTS/*II.weight.fits')
-		    for flrm in scifls2rm+wtfls2rm:
-			    os.system('rm ' + flrm)
+                    for flrm in scifls2rm+wtfls2rm:
+                            os.system('rm ' + flrm)
 
                     ''' get rid of zero-size files '''
                     print 'construct_correction| use_run_dir=',use_run_dir , ' run_dir=',run_dir , ' string.find(run_dir,"CALIB")=',string.find(run_dir,"CALIB")
                     if string.find(run_dir,'CALIB') != -1:
                         out_file =  data_root + '/' + OBJNAME + '/' + FILTER + '/SCIENCE/' +  file_short.replace('.fits','I.fits')
-			if os.path.isfile(out_file):
-				os.system('rm ' + out_file)
+                        if os.path.isfile(out_file):
+                                os.system('rm ' + out_file)
                         out_weight_file =  data_root + '/' + OBJNAME + '/' + FILTER + '/WEIGHTS/' +  file_short.replace('.fits','I.weight.fits')
-			if os.path.isfile(out_weight_file):
-				os.system('rm ' + out_weight_file)
+                        if os.path.isfile(out_weight_file):
+                                os.system('rm ' + out_weight_file)
                     ''' see if there are different extensions '''
                     out_file =  data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/' +  file_short.replace('.fits','I.fits')
                     print 'construct_correction| out_file=',out_file
@@ -4810,16 +4825,16 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                     out_flag_file = data_root + '/' + OBJNAME + '/' + use_run_dir + '/WEIGHTS/' +  file_short.replace('.fits','I.flag.fits')
                     bad_out_weight_file =  data_root + '/' + OBJNAME + '/' + use_run_dir + '/SCIENCE/' +  file_short.replace('.fits','I.weight.fits')
                     if os.path.isfile(out_flag_file):
-			    os.system('rm ' + out_flag_file)
+                            os.system('rm ' + out_flag_file)
                     command_ln = 'ln -s  ' + flag_file + ' ' + out_flag_file
                     print 'construct_correction| command_ln=',command_ln
                     ooo=os.system(command_ln)
-                    if ooo!=0: raise Exception("os.system==0")
+                    if ooo!=0: raise Exception("os.system!=0")
 
                     if str(dt['CRPIX1_' + str(CHIP)]) == 'None':
-			if os.path.isfile(out_weight_file):
+                        if os.path.isfile(out_weight_file):
                             os.system('rm ' + out_weight_file)
-			if os.path.isfile(out_file):
+                        if os.path.isfile(out_file):
                             os.system('rm ' + out_file)
                     else:
                         CHIP_ROT = int(rot_dat)
@@ -4847,7 +4862,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                             elif 0.98 < os.path.getsize(file_chip) / os.path.getsize(out_file) < 1.02: go = True
                             go = True
                             if go:
-			        if os.path.isfile(out_file):
+                                if os.path.isfile(out_file):
                                     os.system('rm ' + out_file)
 
                                 tried = 0
@@ -4865,25 +4880,25 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                                 if code != 0:
                                     raise TryDb('failed ic' + file_chip)
 
-                                command_sethead1 = 'sethead ' + out_file + ' PPRUN_USE=' + PPRUN_use
+                                command_sethead1 = '/afs/slac/g/ki/software/wcstools/current/amd64_rhel60/bin/sethead ' + out_file + ' PP_USE="' + PPRUN_use+'"'
                                 print 'construct_correction| command_sethead1=',command_sethead1
                                 ooo=os.system(command_sethead1)
-                                if ooo!=0: raise Exception("os.system==0")
-                                command_sethead2 = 'sethead ' + out_file + ' OBJNAME_USE=' + OBJNAME_use
+                                if ooo!=0: raise Exception("os.system!=0")
+                                command_sethead2 = '/afs/slac/g/ki/software/wcstools/current/amd64_rhel60/bin/sethead ' + out_file + ' OBJ_USE="' + OBJNAME_use+'"'
                                 print 'construct_correction| command_sethead2=',command_sethead2
                                 ooo=os.system(command_sethead2)
-                                if ooo!=0: raise Exception("os.system==0")
+				#if ooo!=0: raise Exception("os.system!=0")
 
                                 if BADCCD:
                                     command_sethead3 = 'sethead ' + out_file + ' BADCCD=1'
                                     print 'construct_correction| command_sethead3=',command_sethead3
                                     ooo=os.system(command_sethead3)
-                                    if ooo!=0: raise Exception("os.system==0")
+                                    if ooo!=0: raise Exception("os.system!=0")
                                 else:
                                     command_delhead = 'delhead ' + out_file + ' BADCCD'
                                     print 'construct_correction| command_delhead=',command_delhead
                                     ooo=os.system(command_delhead)
-                                    if ooo!=0: raise Exception("os.system==0")
+                                    if ooo!=0: raise Exception("os.system!=0")
                                 print 'construct_correction| BADCCD=',BADCCD
 
                                 save_exposure({'illumination_match':sample,'time':str(time.localtime())},dt['SUPA'],dt['FLAT_TYPE'])
@@ -4897,7 +4912,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                             elif 0.98 < os.path.getsize(out_weight_file) / os.path.getsize(weight_file) < 1.02: go = True
                             go = True
                             if go:
-			        if os.path.isfile(out_weight_file):
+                                if os.path.isfile(out_weight_file):
                                     os.system('rm ' + out_weight_file)
                                 tried = 0
                                 while True:
@@ -4916,20 +4931,20 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
 
                                 if code != 0:
                                     raise TryDb('failed ic' + weight_file)
-                                command_sethead1wt = 'sethead ' + out_weight_file + ' PPRUN_USE=' + PPRUN_use
+                                command_sethead1wt = 'sethead ' + out_weight_file + ' PP_USE=' + PPRUN_use
                                 print 'construct_correction| command_sethead1wt=',command_sethead1wt
                                 ooo=os.system(command_sethead1wt)
-                                if ooo!=0: raise Exception("os.system==0")
-                                command_sethead2wt = 'sethead ' + out_weight_file + ' OBJNAME_USE=' + OBJNAME_use
+                                if ooo!=0: raise Exception("os.system!=0\ncommand_sethead1wt="+command_sethead1wt)
+                                command_sethead2wt = '/afs/slac/g/ki/software/wcstools/current/amd64_rhel60/bin/sethead ' + out_weight_file + ' OBJ_USE="' + OBJNAME_use+'"'
                                 print 'construct_correction| command_sethead2wt=',command_sethead2wt
                                 ooo=os.system(command_sethead2wt)
-                                if ooo!=0: raise Exception("os.system==0")
+				#if ooo!=0: raise Exception("os.system!=0\ncommand_sethead2wt="+command_sethead2wt)
 
                                 if BADCCD:
                                     command_sethead3wt = 'sethead ' + out_file + ' BADCCD=1'
                                     print 'construct_correction| command_sethead3wt=',command_sethead3wt
                                     ooo=os.system(command_sethead3wt)
-                                    if ooo!=0: raise Exception("os.system==0")
+                                    if ooo!=0: raise Exception("os.system!=0\ncommand_sethead3wt="+command_sethead3wt)
                                 print 'construct_correction| BADCCD=',BADCCD
 
                             ''' now do a file integrity check '''
@@ -4940,7 +4955,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
         save_fit({'PPRUN':PPRUN,'OBJNAME':OBJNAME,'FILTER':FILTER,'sample':'record','sample_size':'record','correction_applied':'finished','OBJNAME_use':OBJNAME_use,'FILTER_use':FILTER_use,'PPRUN_use':PPRUN_use,'sample_use':sample,'time':str(time.localtime())},db='' + test + 'try_db')
     except:
         ns.update(locals()) 
-	raise
+        raise
 
     print "construct_correction| DONE with func\n"
     return
@@ -4950,20 +4965,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
 #r29:adam_tmp_plots(*args):
 
 #adam-Warning# set FILTERs/PPRUNs for each cluster!
-cldata={'MACS0429-02':{},'MACS1226+21':{},'RXJ2129':{},'MACS1115+01':{}}
-cldata['MACS1226+21']['FILTERs']=["W-J-B","W-J-V","W-C-RC","W-C-IC","W-S-Z+"]
-cldata['MACS1226+21']['PPRUNs']=["W-C-IC_2010-02-12", "W-C-IC_2011-01-06","W-C-RC_2010-02-12", "W-J-B_2010-02-12", "W-J-V_2010-02-12", "W-S-Z+_2011-01-06"]
-cldata['MACS1226+21']['FILTERs_matching_PPRUNs']=["W-C-IC", "W-C-IC","W-C-RC", "W-J-B", "W-J-V", "W-S-Z+"] 
-cldata['MACS0429-02']['FILTERs']=["W-J-B","W-S-Z+"]
-cldata['MACS0429-02']['FILTERs_matching_PPRUNs']=["W-S-Z+","W-J-B"]
-cldata['MACS0429-02']['PPRUNs']=["W-S-Z+_2015-12-15","W-J-B_2015-12-15"]
-cldata['RXJ2129']['FILTERs']=["W-J-B","W-C-RC","W-S-Z+"]
-cldata['RXJ2129']['FILTERs_matching_PPRUNs']=["W-J-B","W-C-RC","W-S-Z+"]
-cldata['RXJ2129']['PPRUNs']=["W-J-B_2010-11-04","W-C-RC_2012-07-23","W-S-Z+_2010-11-04"]
-cldata['MACS1115+01']['FILTERs']=["W-J-B","W-C-RC","W-S-Z+"] 
-cldata['MACS1115+01']['FILTERs_matching_PPRUNs']=["W-S-Z+","W-J-B","W-J-B","W-S-Z+","W-C-RC"]
-cldata['MACS1115+01']['PPRUNs']=["W-S-Z+_2009-04-29","W-J-B_2009-04-29","W-J-B_2010-03-12","W-S-Z+_2010-03-12","W-C-RC_2010-03-12"]
-
+from my_cluster_params import ic_cldata,clusters_refcats
 if username!="awright":
         #adam-Warning# set the needed info here regarding target, paths to data, and SQL db stuff
         ## get/set env variables
@@ -4989,8 +4991,11 @@ if username!="awright":
         test = 'name_' #this takes care of test_try_db, test_fit_db #name-Warning# change from generic "name" to username or something
         illum_db=test+"illumination_db"
 
+supas2exclude={}
+supas2exclude['W-C-RC_2012-07-23']=array(["SUPA0135162","SUPA0135167","SUPA0135168","SUPA0135169","SUPA0135170","SUPA0135171"])
+supas2exclude['W-S-Z+_2010-11-04']=array(["SUPA0126014","SUPA0126016","SUPA0126017","SUPA0126018","SUPA0126019","SUPA0126020","SUPA0126021","SUPA0126022","SUPA0126023","SUPA0126024","SUPA0126025","SUPA0126026","SUPA0126027","SUPA0126028","SUPA0126029","SUPA0126030"])
 if __name__=="__main__" and username=="awright":
-	## get/set env variables (#adam-Warning# cluster name here )
+        ## get/set env variables (#adam-Warning# cluster name here )
         os.environ['bonn']='/u/ki/awright/wtgpipeline/'
         data_root = '/gpfs/slac/kipac/fs1/u/awright/SUBARU/' #adam-Warning#
         if 'SUBARUDIR' in os.environ.keys():
@@ -5000,77 +5005,93 @@ if __name__=="__main__" and username=="awright":
         if 'cluster' in os.environ.keys():
                 cluster=os.environ['cluster']
         else:
-		#cluster="MACS0429-02"
-                cluster="RXJ2129" #adam-Warning#
+                #cluster="MACS0429-02"
+		#cluster="RXJ2129" #adam-Warning#
+                raise Exception("you're supposted to set value 'export cluster=...'")
 
         ## set data_path and tmpdir(#adam-Warning# make tmpdir and set path to data)
         data_path = data_root + cluster+'/'
         tmpdir=data_path+"tmp_simple_ic_SDSS/"
-	if not os.path.isdir(tmpdir):
-		os.mkdir(tmpdir)
+        if not os.path.isdir(tmpdir):
+                os.mkdir(tmpdir)
 
         ## SQL databases (#adam-Warning# handle SQL tables here)
         #sql databases used by pat: illumination_db, test_try_db, test_fit_db, sdss_db
         #sql databases used by adam: adam_illumination_db, adam_try_db, adam_fit_db, sdss_db
-        test = 'adam_' #this takes care of test_try_db, test_fit_db #adam-Warning#
-        illum_db="adam_illumination_db"
-	db2,c = connect_except()
-	#c.execute(" DROP TABLE adam_illumination_db ; ")
-	c.execute(" DROP TABLE adam_try_db ; ")
-	c.execute(" DROP TABLE adam_fit_db ; ")
-	#c.execute(" CREATE TABLE adam_illumination_db LIKE illumination_db; ")
-	c.execute(" CREATE TABLE adam_try_db LIKE test_try_db; ")
-	c.execute(" CREATE TABLE adam_fit_db LIKE test_fit_db; ")
-	### which dbs do these functions use?
-	# gather_exposures ['i']
-	# get_astrom_run_sextract ['i']
-	# get_sdss_cats ['i', 's']
-	# match_OBJNAME ['i', 's', 't', 'f']
-	# calc_good ['t', 'f']
-	# testgood ['i', 't', 'f']
-	# construct_correction ['i', 't', 'f']
+        test = 'adamSDSS3_' #this takes care of test_try_db, test_fit_db #adam-Warning#
+        illum_db=test+"illumination_db"
+        #c.execute(" DROP TABLE adam_illumination_db ; ")
+        #c.execute(" DROP TABLE adam_try_db ; ")
+        #c.execute(" DROP TABLE adam_fit_db ; ")
+        #c.execute(" CREATE TABLE adamSDSS3_illumination_db LIKE illumination_db; ")
+        #c.execute(" CREATE TABLE adamSDSS3_try_db LIKE test_try_db; ")
+        #c.execute(" CREATE TABLE adamSDSS3_fit_db LIKE test_fit_db; ")
 
-	OBJNAME=cluster #adam-Warning#
-	FILTERs,FILTERs_matching_PPRUNs,PPRUNs=cldata[OBJNAME]['FILTERs'],cldata[OBJNAME]['FILTERs_matching_PPRUNs'],cldata[OBJNAME]['PPRUNs']
+        OBJNAME=cluster #adam-Warning#
+        # Adam: if you have to delete a row
+        db2,c = connect_except()
+	c.execute("DELETE from sdss_db where OBJNAME='%s' ;" % (OBJNAME))
+	#c.execute("DELETE from adamSDSS3_illumination_db where OBJNAME='%s' ;" % (OBJNAME))
+	c.execute("DELETE from adamSDSS3_fit_db where OBJNAME='%s' ;" % (OBJNAME))
+	c.execute("DELETE from adamSDSS3_try_db where OBJNAME='%s' ;" % (OBJNAME))
 
-	times=[0,0,0,0,0,0,0]
-	times[0]=time.time()
-	#print "adam-look: gather_exposures(cluster,filters=FILTERs)"
-	#gather_exposures(cluster,filters=FILTERs)
-	times[1]=time.time()
-	#print "adam-look: get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)"
-	#get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)
-	times[2]=time.time()
-	print "adam-look: get_sdss_cats(OBJNAME)"
-	get_sdss_cats(OBJNAME)
+        ### which dbs do these functions use?
+        # gather_exposures ['i']
+        # get_astrom_run_sextract ['i']
+        # get_sdss_cats ['i', 's']
+        # match_OBJNAME ['i', 's', 't', 'f']
+        # calc_good ['t', 'f']
+        # testgood ['i', 't', 'f']
+        # construct_correction ['i', 't', 'f']
 
-	times[3]=time.time()
-	extra_nametag=""
-	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
-	 	print "\n\nadam-look: match_OBJNAME starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-	 	match_OBJNAME(OBJNAME,FILTER,PPRUN)
-		print "\n\nadam-look: calc_good starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-		calc_good(OBJNAME,FILTER,PPRUN)
-	times[4]=time.time()
-	good_tracker={}
-	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
-		print "\n\nadam-look: testgood starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-	 	good_tracker[FILTER]=testgood(OBJNAME,FILTER,PPRUN)
-	times[5]=time.time()
-	#adam-tmp# for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
-	#adam-tmp# 	print "\n\nadam-look: construct_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-	#adam-tmp# 	#adam-Warning# r_ext=True if you've already done the stellar halo rings, otherwise r_ext=False. So for MACS0416 I'll sure r_ext=True
-	#adam-tmp# 	r_ext=False
-	#adam-tmp# 	construct_correction(OBJNAME,FILTER,PPRUN,"sdss","all",OBJNAME,FILTER,PPRUN,r_ext=False)
-	#adam-tmp# times[6]=time.time()
-	times=numpy.array(times)
-	timediffs=times[1:]-times[0:-1]
-	print ' timediffs=',timediffs
-	print "adam-look: each step took this much time: %.1f %.1f %.1f %.1f %.1f %.1f " % tuple(times[1:]-times[0:-1])
-	db_cluster_logfile(db=test+'try_db',cluster='RXJ2129')
-	#print "\n\nadam-look: run_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-	#run_correction(OBJNAME,FILTER,PPRUN)
-	#Note: run_correction and find_nearby are not necessary if you know which OBJECT/PPRUN you want to fit, the fit was successful, it's in sdss, and you don't want to bootstrap/etc.
-	#adam-Warning# run_correction and find_nearby will need to be fixed in order to work properly under the conditions described above 
+        FILTERs,FILTERs_matching_PPRUNs,PPRUNs=ic_cldata[OBJNAME]['FILTERs'],ic_cldata[OBJNAME]['FILTERs_matching_PPRUNs'],ic_cldata[OBJNAME]['PPRUNs']
+
+        times=[0,0,0,0,0,0,0]
+        times[0]=time.time()
+	if 0:
+		print "adam-look: gather_exposures(cluster,filters=FILTERs)"
+		gather_exposures(cluster,filters=FILTERs)
+        times[1]=time.time()
+	if 0:
+		print "adam-look: get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)"
+		get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)
+        times[2]=time.time()
+	if 1:
+		print "adam-look: get_sdss_cats(OBJNAME)"
+		get_sdss_cats(OBJNAME)
+
+        times[3]=time.time()
+        extra_nametag=""
+	if 1:
+        	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
+        	        print "\n\nadam-look: match_OBJNAME starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+        	        match_OBJNAME(OBJNAME,FILTER,PPRUN)
+        	        print "\n\nadam-look: calc_good starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+        	        calc_good(OBJNAME,FILTER,PPRUN)
+        times[4]=time.time()
+        good_tracker={}
+        for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
+                print "\n\nadam-look: testgood starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+                good_tracker[PPRUN]=testgood(OBJNAME,FILTER,PPRUN)
+        times[5]=time.time()
+        if clusters_refcats[OBJNAME]=='SDSS' and not OBJNAME=="MACS1226+21":
+            for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
+                print "\n\nadam-look: construct_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+                #adam-Warning# r_ext=True if you've already done the stellar halo rings, otherwise r_ext=False. So for MACS0416 I'll sure r_ext=True
+                r_ext=False
+                construct_correction(OBJNAME,FILTER,PPRUN,"sdss","all",OBJNAME,FILTER,PPRUN,r_ext=False)
+        times[6]=time.time()
+        times=numpy.array(times)
+        timediffs=times[1:]-times[0:-1]
+        print ' timediffs=',timediffs
+        dbtab=db_cluster_logfile(db=test+'try_db',cluster=cluster)
+        print dbtab
+        print "adam-look: each step took this much time: %.1f %.1f %.1f %.1f %.1f %.1f " % tuple(times[1:]-times[0:-1])
+        #print "\n\nadam-look: run_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+        #run_correction(OBJNAME,FILTER,PPRUN)
+        #Note: run_correction and find_nearby are not necessary if you know which OBJECT/PPRUN you want to fit, the fit was successful, it's in sdss, and you don't want to bootstrap/etc.
+        #adam-Warning# run_correction and find_nearby will need to be fixed in order to work properly under the conditions described above 
 #ADVICE: when starting fresh with a new cluster. first search for #adam-Warning# in this code and change stuff whereever there is a #adam-Warning
 #ADVICE: ## before running simple_ic.py, I need to have OBJNAME in all images (and consistent in all images). Might as well do the same for OBJECT and MYOBJ too.  I also should rename PPRUN to PPRUN0 and have filter_run be the pattern for PPRUN
+# adam_illumination_correction_quality_check.sh
+#this can be helpful: s/panstarrs\|sdss/"external ref cat"/g

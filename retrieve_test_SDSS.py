@@ -1,10 +1,16 @@
 # python retrieve_test.py $subdir/MACS2243-09/W-C-RC/SCIENCE/coadd_MACS2243-09/coadd.fits $subdir/MACS2243-09/PHOTOMETRY/sdss.cat
 
-# python retrieve_test.py $subdir/MACS0911+17/W-C-RC/SCIENCE/coadd_MACS0911+17/coadd.fits $subdir/MACS0911+17/PHOTOMETRY/sdssstar.cat
+# python retrieve_test.py $subdir/MACS0911+17/W-C-RC/SCIENCE/coadd_MACS0911+17/coadd.fits $subdir/MACS0911+17/PHOTOMETRY/panstarrsstar.cat
+from math import *
+import os, sys, anydbm, time, string, commands, re
+import astropy
+import pickle
+import math
+import sqlcl
 
 
 def convert_to_pogson(magnitude,filter):
-	from math import *
+	''' converts from luptitudes to magnitudes in the traditional (i.e. pogson), sense'''
 	b_values = {'u':1.4E-10,'g':0.9E-10,'r':1.2E-10,'i':1.8E-10,'z':7.4E-10}
 	b = b_values[filter]
 	try:
@@ -47,7 +53,10 @@ def inspect_flags(flags1,flags2):
 	return good
 
 def run(img,outcat,type,limits=None):
-        import os, sys, anydbm, time
+	#example: outcat='/gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/PHOTOMETRY/sdssstar.cat'
+	startdir=os.getcwd()
+	outcatdir=os.path.dirname(outcat)
+	os.chdir(outcatdir)
        
         print img, outcat, type
 
@@ -55,9 +64,12 @@ def run(img,outcat,type,limits=None):
         if type == 'galaxy': mag_type = 'petro'
 
         print img
-        os.system("rm outim")
-        os.system('rm ' + outcat)
-        os.system('rm sdss_out')
+	if os.path.isfile("outim_sdss"):
+		os.system("rm outim_sdss")
+	if os.path.isfile(outcat):
+		os.system('rm ' + outcat)
+	if os.path.isfile("sdss_out"):
+		os.system('rm sdss_out')
        
         if limits is not None:
             ramin = limits['ramin']
@@ -65,20 +77,18 @@ def run(img,outcat,type,limits=None):
             decmin = limits['decmin']
             decmax = limits['decmax']
         else:
-            import commands, string
             command = 'dfits ' + img + ' | fitsort -d CD2_1'
             print command
             print commands.getoutput(command)
             if string.find(commands.getoutput(command),'KEY') == -1:
-            	imcom = "dfits " + img + " | fitsort CRPIX1 CRPIX2 CRVAL1 CRVAL2 CD2_1 CD1_2 CD2_2 CD1_1 > ./outim"
+            	imcom = "dfits " + img + " | fitsort CRPIX1 CRPIX2 CRVAL1 CRVAL2 CD2_1 CD1_2 CD2_2 CD1_1 > ./outim_sdss"
             else:
-            	imcom = "dfits " + img + " | fitsort CRPIX1 CRPIX2 CRVAL1 CRVAL2 CDELT1 CDELT2 > ./outim"
+            	imcom = "dfits " + img + " | fitsort CRPIX1 CRPIX2 CRVAL1 CRVAL2 CDELT1 CDELT2 > ./outim_sdss"
             
             print imcom
             os.system(imcom)
-            import re
-            print open('outim','r').readlines()
-            com = re.split('\s+',open("outim",'r').readlines()[1][:-1]  )
+            print open('outim_sdss','r').readlines()
+            com = re.split('\s+',open("outim_sdss",'r').readlines()[1][:-1]  )
             print com
             crpix1 = float(com[1])
             crpix2 = float(com[2])
@@ -116,7 +126,6 @@ def run(img,outcat,type,limits=None):
             decmin = crval2 - 9000*abs(cdelt2) 
             decmax = crval2 + 9000*abs(cdelt2)
 
-        import sqlcl
         #lines = sqlcl.query("select ra,dec,u,g,r,i,z from star").readlines()
         
         #flags =  reduce(lambda x,y: x + ' AND ' + y, ["   ((flags_" + color + " & 0x10000000) != 0) \
@@ -152,12 +161,10 @@ AND (((flags & 0x100000000000) = 0) or (flags & 0x1000) = 0) \n'
         print query
         
         lines = sqlcl.query(query).readlines()
-        uu = open('store','w')
-        import pickle
+        uu = open('store_sdss','w')
         pickle.dump(lines,uu)
         
-        #import pickle
-        #f=open('store','r')
+        #f=open('store_sdss','r')
         #m=pickle.Unpickler(f)
         #lines=m.load()
         
@@ -176,7 +183,6 @@ AND (((flags & 0x100000000000) = 0) or (flags & 0x1000) = 0) \n'
         	for j in range(len(lines[line][:-1].split(','))): 
                         dt0[columns[j]] = lines[line][:-1].split(',')[j]
         
-        	import string
         	if string.find(lines[line][:-1],'font') == -1: 
         		data.append(dt0)
         	#if string.find(lines[line][:-1],'font') != -1: 
@@ -198,7 +204,6 @@ AND (((flags & 0x100000000000) = 0) or (flags & 0x1000) = 0) \n'
         	clean = data[els]['clean']
         	if 1==1: #int(flag)==1 :# 1==1: #data[els].has_key('u'):
         
-        		import math
                         #print data[els].keys()
                         
                         ab_correction = {'u':-0.036,'g':0.012,'r':0.010,'i':0.028,'z':0.040}
@@ -215,19 +220,31 @@ AND (((flags & 0x100000000000) = 0) or (flags & 0x1000) = 0) \n'
                         ierr = float(data[els][mag_type + 'MagErr_i'])
                         zerr = float(data[els][mag_type + 'MagErr_z'])
         
-                        data[els]['Bmag'] = u - 0.8116*(u - g) + 0.1313#  sigma = 0.0095
+			if u>0 and g>0:
+                        	data[els]['Bmag'] = u - 0.8116*(u - g) + 0.1313#  sigma = 0.0095
+			else:
+                        	data[els]['Bmag'] = -999.0
         		data[els]['Berr'] = math.sqrt( (uerr*0.19)**2. + (0.8119*gerr)**2.) 
                         #B = g + 0.3130*(g - r) + 0.2271#  sigma = 0.0107
                         
                         #V = g - 0.2906*(u - g) + 0.0885#  sigma = 0.0129
-                        data[els]['Vmag'] = g - 0.5784*(g - r) - 0.0038#  sigma = 0.0054
+			if r>0 and g>0:
+				data[els]['Vmag'] = g - 0.5784*(g - r) - 0.0038#  sigma = 0.0054
+			else:
+                        	data[els]['Vmag'] = -999.0
         		data[els]['Verr'] = math.sqrt( (gerr*0.42)**2. + (0.57*rerr)**2.) 
                         
                         #R = r - 0.1837*(g - r) - 0.0971#  sigma = 0.0106
-                        data[els]['Rmag'] = r - 0.2936*(r - i) - 0.1439#  sigma = 0.0072
+			if r>0 and i>0:
+				data[els]['Rmag'] = r - 0.2936*(r - i) - 0.1439#  sigma = 0.0072
+			else:
+                        	data[els]['Rmag'] = -999.0
         		data[els]['Rerr'] = math.sqrt( (rerr*0.71)**2. + (0.29*ierr)**2.) 
                         
-                        data[els]['Imag'] = r - 1.2444*(r - i) - 0.3820#  sigma = 0.0078
+			if r>0 and i>0:
+				data[els]['Imag'] = r - 1.2444*(r - i) - 0.3820#  sigma = 0.0078
+			else:
+                        	data[els]['Imag'] = -999.0
         		data[els]['Ierr'] = math.sqrt( (rerr*0.24)**2. + (1.244*ierr)**2.) 
                         #I = i - 0.3780*(i - z)  -0.3974#  sigma = 0.0063  
                        
@@ -237,10 +254,22 @@ AND (((flags & 0x100000000000) = 0) or (flags & 0x1000) = 0) \n'
                         data[els]['imag'] = i
                         data[els]['zmag'] = z
         
-        		data[els]['umg'] = data[els]['umag'] - data[els]['gmag'] 
-                        data[els]['gmr'] = data[els]['gmag'] - data[els]['rmag'] 
-                        data[els]['rmi'] = data[els]['rmag'] - data[els]['imag'] 
-                        data[els]['imz'] = data[els]['imag'] - data[els]['zmag'] 
+        		if data[els]['umag']>0 and data[els]['gmag']>0:
+				data[els]['umg'] = data[els]['umag'] - data[els]['gmag'] 
+			else:
+				data[els]['umg'] = -999.0
+        		if data[els]['rmag']>0 and data[els]['gmag']>0:
+				data[els]['gmr'] = data[els]['gmag'] - data[els]['rmag'] 
+			else:
+				data[els]['gmr'] = -999.0
+        		if data[els]['rmag']>0 and data[els]['imag']>0:
+				data[els]['rmi'] = data[els]['rmag'] - data[els]['imag'] 
+			else:
+				data[els]['rmi'] = -999.0
+        		if data[els]['imag']>0 and data[els]['zmag']>0:
+				data[els]['imz'] = data[els]['imag'] - data[els]['zmag'] 
+			else:
+				data[els]['imz'] = -999.0
         
         	        data[els]['uerr'] = uerr	
                         data[els]['gerr'] = gerr
@@ -253,10 +282,22 @@ AND (((flags & 0x100000000000) = 0) or (flags & 0x1000) = 0) \n'
                         data[els]['rmierr'] = math.sqrt(data[els]['rerr']**2. + data[els]['ierr']**2.) 
                         data[els]['imzerr'] = math.sqrt(data[els]['ierr']**2. + data[els]['zerr']**2.) 
         
-                        data[els]['BmV'] = data[els]['Bmag'] - data[els]['Vmag'] 
-                        data[els]['VmR'] = data[els]['Vmag'] - data[els]['Rmag'] 
-                        data[els]['RmI'] = data[els]['Rmag'] - data[els]['Imag'] 
-                        data[els]['Imz'] = data[els]['Imag'] - data[els]['zmag'] 
+        		if data[els]['Bmag']>0 and data[els]['Vmag']>0:
+				data[els]['BmV'] = data[els]['Bmag'] - data[els]['Vmag'] 
+			else:
+				data[els]['BmV'] = -999.0
+        		if data[els]['Rmag']>0 and data[els]['Vmag']>0:
+				data[els]['VmR'] = data[els]['Vmag'] - data[els]['Rmag'] 
+			else:
+				data[els]['VmR'] = -999.0
+        		if data[els]['Imag']>0 and data[els]['Rmag']>0:
+				data[els]['RmI'] = data[els]['Rmag'] - data[els]['Imag'] 
+			else:
+				data[els]['RmI'] = -999.0
+        		if data[els]['zmag']>0 and data[els]['Imag']>0:
+				data[els]['Imz'] = data[els]['Imag'] - data[els]['zmag'] 
+			else:
+				data[els]['Imz'] = -999.0
         
                         data[els]['BmVerr'] = math.sqrt(data[els]['Berr']**2. + data[els]['Verr']**2.) 
                         data[els]['VmRerr'] = math.sqrt(data[els]['Verr']**2. + data[els]['Rerr']**2.) 
@@ -275,35 +316,30 @@ AND (((flags & 0x100000000000) = 0) or (flags & 0x1000) = 0) \n'
         		data[els]['SeqNr'] = seqnr
         
         	        lineh = ""	
-        	        #print data[els]
-        		if 1 == 1: # data[els]['clean'] == 0:  #inspect_flags([data[els]['flags_u'],data[els]['flags_g'],data[els]['flags_r'],data[els]['flags_i'],data[els]['flags_z']],[data[els]['flags2_u'],data[els]['flags2_g'],data[els]['flags2_r'],data[els]['flags2_i'],data[els]['flags2_z']]):
-        
-        			#print keys
-        	       		for key in keys:                                                                             
+        	       	for key in keys:                                                                             
         				
-        				if len(key) == 2:	
-        					key_dict = key[0]
-        					key  = key[1]
-        				else: 
-        					key_dict = key
-        		        	if (key == 'SeqNr' or key_dict=='ra' or key_dict=='dec' or key[0:3] == 'Fla'): 
-        		        		num = '%(s)s' % {'s' : str(data[els][key_dict])}
-        		        	else:
-        		        		num = '%(num).4f' % {'num' : float(data[els][key_dict])}
-        		        		num = '%s' % num
-        				num.strip()
-        		        	#elif key[0:2] != 'ra' and key[0:3] != 'dec': 
-        		        		#yy = ''
-        		        		#for y in range(128):
-        		        		#	if y < len(str(data[els][key])):
-        		        		#		yy = yy + str(data[els][key])[y]
-        		        		#	else:
-        		        		#		yy = yy + ' '
-        		        		#num = yy 
-        		        	#else: num = str(data[els][key])
-        	                	lineh = lineh + num  + " "
-        	                #print lineh
-        	                outwrite.write(lineh + "\n")
+        			if len(key) == 2:	
+        				key_dict = key[0]
+        				key  = key[1]
+        			else: 
+        				key_dict = key
+        		       	if (key == 'SeqNr' or key_dict=='ra' or key_dict=='dec' or key[0:3] == 'Fla'): 
+        		       		num = '%(s)s' % {'s' : str(data[els][key_dict])}
+        		       	else:
+        		       		num = '%(num).4f' % {'num' : float(data[els][key_dict])}
+        		       		num = '%s' % num
+        			num.strip()
+        		       	#elif key[0:2] != 'ra' and key[0:3] != 'dec': 
+        		       		#yy = ''
+        		       		#for y in range(128):
+        		       		#	if y < len(str(data[els][key])):
+        		       		#		yy = yy + str(data[els][key])[y]
+        		       		#	else:
+        		       		#		yy = yy + ' '
+        		       		#num = yy 
+        		       	#else: num = str(data[els][key])
+        	               	lineh = lineh + num  + " "
+                        outwrite.write(lineh + "\n")
         outwrite.close()
         
         #lineh= "lc -C -B "
@@ -340,21 +376,20 @@ AND (((flags & 0x100000000000) = 0) or (flags & 0x1000) = 0) \n'
         		htype = 'FLOAT'
         		depth = '1'
         	asc.write('#\nCOL_NAME = ' + name + '\nCOL_TTYPE= ' + type + '\nCOL_HTYPE= ' + htype + '\nCOL_COMM= ""\nCOL_UNIT= ""\nCOL_DEPTH= ' + depth + '\n')
-        
-        	
-        asc.close()	
-        
-        command = "asctoldac -i sdss_out -c asctoldac_sdss.conf -t STDTAB -o " + outcat
-        os.system(command)
-        print command
+        asc.close()
 
+        command = "asctoldac -i sdss_out -c asctoldac_sdss.conf -t STDTAB -o " + outcat
+        ooo=os.system(command)
+        print command
+	if ooo!=0: raise Exception('asctoldac command failed!')
+
+	os.chdir(startdir)
         if len(data) > 10:
             cov = True
         else: cov = False
         return cov, outcat 
 
 if __name__ == '__main__':
-        import sys 
         img = sys.argv[1]
         outcat = sys.argv[2]
         mag_type = 'star'
