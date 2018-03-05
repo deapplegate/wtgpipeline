@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+import glob,os
 from astroquery.vizier import Vizier
 import astropy.units as u 
 import astropy.coordinates as coord
@@ -50,19 +51,12 @@ def joincats(cat1, cat2, cat1id='objID', cat2id = 'objID'):
     cat2new = cat2.filter(cat2keep)                                                                                                                                                                   
     return cat1.append(cat2new)
 
-ra_cluster={}
-dec_cluster={}
-ra_cluster['MACS0429-02']=67.40041667 ; dec_cluster['MACS0429-02']=-2.88555556
-ra_cluster['RXJ2129']=322.41625000 ; dec_cluster['RXJ2129']=0.08888889
-#A2204_ra=248.19666667; A2204_dec=5.57555556
-#bigA2204_2=panstarrs_query(ra+,dec+.2,.4)
-
+from my_cluster_params import ra_cluster,dec_cluster
 from math import *
 import numpy
 import itertools
 import sys
 import ldac
-import os
 search_radius=.425
 
 grid_steps=numpy.array([-2,-1,0,1,2])
@@ -70,9 +64,8 @@ moves=[]
 for x,y in itertools.permutations(grid_steps,2):
     if abs(x)+abs(y)<4: moves.append((x,y))
 allmoves=moves+[(-1,-1),(0,0),(1,1)]
-#startMACS0429=panstarrs_query(MACS0429_ra,MACS0429_dec,.425,maxsources=50001)
-#startMACS0429.write('MACS0429_startcat_%s.txt' % (ii),format="ascii.fixed_width")
-probs=['objName', 'raStack', 'decStack', 'raStackErr', 'decStackErr', 'nStackDetections',"Ang Sep (')"]
+probs=[ 'raStack', 'decStack', 'raStackErr', 'decStackErr', 'nStackDetections']
+##adam-SHNT# how do I get "ForcedMeanObject" table objects?
 #'gQfPerfect', 'gMeanKronMag', 'gMeanKronMagErr', 'rQfPerfect', 'rMeanKronMag', 'rMeanKronMagErr', 'iQfPerfect', 'iMeanKronMag', 'iMeanKronMagErr', 'zQfPerfect', 'zMeanKronMag', 'zMeanKronMagErr', 'yQfPerfect', 'yMeanKronMag', 'yMeanKronMagErr']
 goodkeys=['objID', 'raMean', 'decMean', 'raMeanErr', 'decMeanErr', 'nDetections', 'objInfoFlag', 'qualityFlag', 'epochMean', 'ng', 'nr', 'ni', 'nz', 'gQfPerfect', 'gMeanPSFMag', 'gMeanPSFMagErr', 'gMeanKronMag', 'gMeanKronMagErr', 'gMeanApMag', 'gMeanApMagErr', 'gFlags', 'rQfPerfect', 'rMeanPSFMag', 'rMeanPSFMagErr', 'rMeanKronMag', 'rMeanKronMagErr', 'rMeanApMag', 'rMeanApMagErr', 'rFlags', 'iQfPerfect', 'iMeanPSFMag', 'iMeanPSFMagErr', 'iMeanKronMag', 'iMeanKronMagErr', 'iMeanApMag', 'iMeanApMagErr', 'iFlags', 'zQfPerfect', 'zMeanPSFMag', 'zMeanPSFMagErr', 'zMeanKronMag', 'zMeanKronMagErr', 'zMeanApMag', 'zMeanApMagErr', 'zFlags']
 goodkeys_types=[int,float,float,float,float,int,int,int,float,int,int,int,int,float,float,float,float,float,float,float,int,float,float,float,float,float,float,float,int,float,float,float,float,float,float,float,int,float,float,float,float,float,float,float,int]
@@ -83,7 +76,8 @@ for key,v in zip(goodkeys,goodkeys_types):
     if v==float: goodtypes[key]['ldac']='D'
     if v==int: goodtypes[key]['ldac']='K'
 
-cluster='RXJ2129'
+#clusters =['MACS0429-02','MACS1226+21','RXJ2129','MACS1115+01',"MACS0416-24",'MACS0159-08', 'Zw2089', 'Zw2701', 'A2204']
+cluster='A2204' #MACS0416-24
 if not os.path.isdir('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/' % (cluster)):
 	os.mkdir('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/' % (cluster))
 
@@ -124,3 +118,4 @@ for dx,dy in allmoves:
 
 mastercat.saveas('/nfs/slac/kipac/fs1/u/awright/SUBARU/%s/panstarrs_cats/new_startcat_combined.ldac' % (cluster),overwrite=True)
 print "len(mastercat)=",len(mastercat)
+os.system('rm panstarrs.xml')

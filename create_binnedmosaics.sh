@@ -1,5 +1,5 @@
 #!/bin/bash -xv
-#adam-example# ./create_binnedmosaics.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/ SCIENCE SUP 'OCF' 1 -32
+#adam-example# ./create_binnedmosaics.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-Z+/ SCIENCE SUP 'OCFSF' 1 -32
 # ----------------------------------------------------------------
 # File Name:           create_binnedmosaics.sh
 # Author:              Thomas Erben (terben@astro.uni-bonn.de)
@@ -13,6 +13,7 @@
 # 20.09.2007:
 # script written
 
+export INSTRUMENT=SUBARU
 . ${INSTRUMENT:?}.ini > /tmp/instrum.ini.out 2>&1
 
 # define THELI_DEBUG because of the '-u' script flag

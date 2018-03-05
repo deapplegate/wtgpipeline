@@ -172,6 +172,18 @@ def get_db_obj(db,cluster):
 	dbtab=Table(db_results.values(),names=db_results.keys())
 	return dbtab
 
+def db_cluster_logfile(db=test+'try_db',cluster='RXJ2129'):
+	trytab=get_db_obj(db,cluster)
+	allnames=trytab.colnames
+	t=trytab.copy()
+	tfl=trytab['logfile'][0].split('ILLUMINATION')[0]+'logfile'
+	keepnames=['OBJNAME',"PPRUN","var_correction","mean","std","match_stars","sdss_imp","sdss_imp_all","panstarrs_imp","panstarrs_imp_all","todo"]
+	for name in allnames:
+	    if not name in keepnames:
+		t.remove_column(name)
+	t.write(tfl+'_'+db,format='ascii.fixed_width')
+	return t
+
 #def get_dbs_objs(dbs=["adam_illumination_db","adam_try_db","adam_fit_db","sdss_db","adamPAN_illumination_db","adamPAN_try_db","adamPAN_fit_db","panstarrs_db","illumination_db","test_try_db","test_fit_db","try_db","fit_db"], clusters=["MACS0429-02","RXJ2129","MACS1226+21"])
 #        if type(dbs)==list:
 
@@ -250,6 +262,9 @@ good_tracker={}
 #c.execute(" CREATE TABLE adam_try_db LIKE test_try_db; ")
 #c.execute(" CREATE TABLE adam_fit_db LIKE test_fit_db; ")
 
+# Adam: if you have to delete a row
+# c.execute("DELETE from adamPAN3_fit_db where OBJNAME='%s' ;" % (OBJNAME))
+# c.execute("DELETE from adamPAN3_try_db where OBJNAME='%s' ;" % (OBJNAME))
 ## mess with SQL databases
 #sql databases used by pat: illumination_db, test_try_db, test_fit_db, sdss_db
 #sql databases used by adam: adam_illumination_db, adam_try_db, adam_fit_db, sdss_db
@@ -273,16 +288,3 @@ for cluster in clusters:
 		#results = c.fetchall()
 		#c.execute("SELECT OBJNAME from sdss_db where OBJNAME = '" + OBJNAME + "'")
 		print cluster,db,results
-
-def db_cluster_logfile(db=test+'try_db',cluster='RXJ2129'):
-	trytab=get_db_obj(db,cluster)
-	allnames=trytab.colnames
-	t=trytab.copy()
-	tfl=trytab['logfile'][0].split('ILLUMINATION')[0]+'logfile'
-	keepnames=['OBJNAME',"PPRUN","var_correction","mean","std","match_stars","sdss_imp","sdss_imp_all","panstarrs_imp","panstarrs_imp_all","todo"]
-	for name in allnames:
-	    if not name in keepnames:
-		t.remove_column(name)
-	t.write(tfl+'_'+db,format='ascii.fixed_width')
-
-	#t.write(data_path+'/PHOTOMETRY/ILLUMINATION/fit_quality_check.txt',format='ascii.fixed_width')

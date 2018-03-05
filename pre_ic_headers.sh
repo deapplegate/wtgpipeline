@@ -1,5 +1,6 @@
 #!/bin/bash
 set -xv
+#adam-does# this adds MYOBJ and OBJNAME to header so that simple_ic.py can run properly
 
 cluster="MACS0429-02"
 /u/ki/awright/InstallingSoftware/pythons/header_key_add.py /u/ki/awright/my_data/SUBARU/MACS0429-02/W-J-B/SCIENCE/SUPA0154625_1OCF.fits MYOBJ=${cluster} OBJNAME=${cluster}

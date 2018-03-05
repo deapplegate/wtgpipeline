@@ -8,20 +8,26 @@ echo "\n" ${pprun} "simple_ic.py outputs a lot of plots/images and they are all 
 #example: cd ~/data/MACS1226+21/PHOTOMETRY/ILLUMINATION/W-C-RC/W-C-RC_2010-02-12
 #adam-old# export filter_run_pairs=( W-S-Z+_2009-04-29 W-J-B_2009-04-29 W-J-B_2010-03-12 W-S-Z+_2010-03-12 W-C-RC_2010-03-12 )
 #adam-old# export cluster='MACS1115+01'
-ref='s' #ref=s: sdss OR ref=p: panstarrs
+ref='p' #ref=s: sdss OR ref=p: panstarrs
 if [ ${ref} = 'p' ]; then
 	refcatcaps="PANSTARRS"
 	refcatsmall="panstarrs"
-	extra_nametag="PANSTARRS"
-	testtag="adamPAN2"
+	extra_nametag=""
+	#extra_nametag="PANSTARRS"
+	testtag="adamPAN3"
 elif [ ${ref} = 's' ]; then
 	refcatcaps="SDSS"
 	refcatsmall="sdss"
 	extra_nametag=""
-	testtag="adam"
+	testtag="adamSDSS3"
 fi
 export cluster='RXJ2129'
 export filter_run_pairs=( W-C-RC_2012-07-23 W-J-B_2010-11-04 W-S-Z+_2010-11-04 )
+#export cluster='MACS1226+21'
+#export filter_run_pairs=( W-J-B_2010-02-12 W-J-V_2010-02-12 W-C-RC_2010-02-12 W-C-IC_2010-02-12 W-C-IC_2011-01-06 W-S-Z+_2011-01-06 )
+#export filter_run_pairs=( W-J-V_2010-02-12 W-C-RC_2010-02-12 W-C-IC_2010-02-12 W-C-IC_2011-01-06 W-S-Z+_2011-01-06 )
+#export cluster='A2204'
+#export filter_run_pairs=( W-S-I+_2009-03-28 W-J-V_2009-09-19 )
 
 for pprun in ${filter_run_pairs[@]}
 do
@@ -63,8 +69,8 @@ do
 	#example: ${refcatsmall}_star_nocorrected_data_ROT0_W-C-RC_${extra_nametag}__sample_size-is-all__calc_illum-is-True__sample-is-${refcatsmall}__try_linear-is-True_15bins_diff_mean.fits
 
 	echo "${pprun} hopefully corrected looks much flatter than nocorrected and correction looks smooth"
-	xv [0-1]/${refcatsmall}_star_correct*_ROT*_${extra_nametag}__sample_size-is-all__calc_illum-is-True__sample-is-${refcatsmall}__try_linear-is-True_15bins_diffbinned_${testtag}.png &
-	xv [0-1]/${refcatsmall}_star_nocorrected_data_ROT*_${extra_nametag}__sample_size-is-all__calc_illum-is-True__sample-is-${refcatsmall}__try_linear-is-True_15bins_diffbinned_${testtag}.png
+	display [0-1]/${refcatsmall}_star_corrected_ROT*sample_size-is-all__calc_illum-is-True__sample-is-${refcatsmall}__try_linear-is-True_15bins_diffbinned_${testtag}.png &
+	#adam-tmp# display [0-1]/${refcatsmall}_star_nocorrected_data_ROT*sample_size-is-all__calc_illum-is-True__sample-is-${refcatsmall}__try_linear-is-True_15bins_diffbinned_${testtag}.png
 	#example: ${refcatsmall}_star_nocorrected_data_ROT0_W-C-RC_${extra_nametag}__sample_size-is-all__calc_illum-is-True__sample-is-${refcatsmall}__try_linear-is-True_15bins_diffbinned_${testtag}.png
 	#example: ${refcatsmall}_star_corrected_ROT0_W-C-RC_${extra_nametag}__sample_size-is-all__calc_illum-is-True__sample-is-${refcatsmall}__try_linear-is-True_15bins_diffbinned_${testtag}.png
 	#example: ${refcatsmall}_star_correction_ROT0_W-C-RC_${extra_nametag}__sample_size-is-all__calc_illum-is-True__sample-is-${refcatsmall}__try_linear-is-True_15bins_diffbinned_${testtag}.png

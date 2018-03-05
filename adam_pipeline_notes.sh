@@ -34,12 +34,18 @@ Made batch wrapper for them using the combo of these:
 #OR if in SDSS footprint: SDSS DR10 Finding Chart Tool at skyserver.sdss.org
 ./do_Subaru_register_4batch.sh ${cluster} SDSS-R6 astrom "W-J-B W-J-V W-C-RC W-C-IC W-S-Z+" 
 #adam-CHECK# after astrometry call check the output plots in /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE/astrom_scamp_2MASS/plots
+## if using panstarrs for astrometric ref or for IC, then run this:
+./adam_download_panstarrs_catalog.py && ./adam_combine_and_fix_panstarrs_catalog.py && ./adam_illumcorr_panstarrs_catalog.py
+./do_Subaru_register_4batch.sh ${cluster} PANSTARRS astrom "W-J-B W-J-V W-C-RC W-C-IC W-S-Z+" 
 
 #6.) illumination correction ( see Evernote)
 ## before running simple_ic.py, I need to have OBJNAME in all images (and consistent in all images). Might as well do the same for OBJECT and MYOBJ too.
 vim pre_ic_headers.sh
 ## I also should rename PPRUN to PPRUN0 and have filter_run be the pattern for PPRUN
-ipython develop_simple_ic/simple_ic.py
+ipython simple_ic_SDSS.py
+ipython simple_ic_PANSTARRS.py
+## check IC results with:
+./adam_illumination_correction_quality_check.sh
 
 #7.) final astrometry
 #have `mode=photom` in do_Subaru_register_4batch.sh

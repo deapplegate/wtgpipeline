@@ -547,21 +547,26 @@ MOSAICTYPE="-MOSAIC_TYPE FIX_FOCALPLANE"
 #MOSAICTYPE="-MOSAIC_TYPE LOOSE"
 echo "MOSAICTYPE=" $MOSAICTYPE
 
+PHOTFLUXKEY="FLUX_AUTO"
+PHOTFLUXERRKEY="FLUXERR_AUTO"
+#adam-tmp# PHOTFLUXKEY="FLUX_APER1"
+#adam-tmp# PHOTFLUXERRKEY="FLUXERR_APER1"
+#adam-SHNT#	        -ASTREFMAG_KEY iMeanApMag \
+#adam-SHNT# 	        -ASTREFMAGERR_KEY iMeanApMagErr "
 ## scamp mode settings
 scamp_mode_instrum_star="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG ${STARCAT} " #default
 scamp_mode_exp_star="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG ${STARCAT} "
 if [ "${STARCAT}" == "PANSTARRS" ]; then
-	cp /nfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/panstarrs_cats/astrefcat.cat .
+	cp /nfs/slac/kipac/fs1/u/awright/SUBARU/${cluster}/panstarrs_cats/astrefcat.cat .
 	scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT \
-	        -PHOTFLUX_KEY FLUX_APER1 \
-	        -PHOTFLUXERR_KEY FLUXERR_APER1 \
 	        -ASTREF_CATALOG FILE \
 	        -ASTREFCAT_NAME astrefcat.cat \
 	        -ASTREFCENT_KEYS raMean,decMean \
 	        -ASTREFERR_KEYS raMeanErr,decMeanErr \
 	        -ASTREFMAG_LIMITS 13,30 \
-	        -ASTREFMAG_KEY iMeanApMag \
-	        -ASTREFMAGERR_KEY iMeanApMagErr "
+	        -ASTREFMAG_KEY iMeanKronMag \
+	        -ASTREFMAGERR_KEY iMeanKronMagErr "
+	#adam: "iMeanPSFMag","iMeanPSFMagErr","iMeanKronMag","iMeanKronMagErr","iMeanApMag","iMeanApMagErr"
 	scamp_mode_use=${scamp_mode_instrum_ref}
 else
 	scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
@@ -592,7 +597,7 @@ pixscale=1.003
 #adam-SHNT# early indications that FLUX_APER more reliable than FLUX_AUTO, so I'm switching to "-PHOTFLUX_KEY FLUX_APER1 -PHOTFLUXERR_KEY FLUXERR_APER1 "
 ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
            -c ${CONF}/scamp_astrom_photom.scamp \
-	   -PHOTFLUX_KEY FLUX_APER1 -PHOTFLUXERR_KEY FLUXERR_APER1 \
+	   -PHOTFLUX_KEY ${PHOTFLUXKEY} -PHOTFLUXERR_KEY ${PHOTFLUXERRKEY} \
            -ASTRINSTRU_KEY FILTER,INSTRUM,CONFIG,ROTATION,MISSCHIP,PPRUN \
            -CDSCLIENT_EXEC ${P_ACLIENT} \
            -NTHREADS ${NPARA} ${MOSAICTYPE} \
@@ -605,6 +610,8 @@ ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
            -SN_THRESHOLDS 3,100 \
            -FLAGS_MASK 0x00e0 \
            -MATCH_NMAX 10000 \
+           -MATCH Y \
+           -MATCH_RESOL 0.0 \
            -CROSSID_RADIUS 0.3 \
            -DISTORT_DEGREES 3 \
            -ASTREF_WEIGHT 1 ${scamp_mode_use} -CHECKPLOT_RES 4000,3000
@@ -847,6 +854,8 @@ done
 
 # clean up temporary files and bye
 cleanTmpFiles
+
+#adam-tmp#
 
 cd ${DIR}
 #log_status $exit_status

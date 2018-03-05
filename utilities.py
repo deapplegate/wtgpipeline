@@ -232,7 +232,8 @@ def calc_seeing(file,PIXSCALE):
 def run(command,to_delete=[]):
     import os
     for file in to_delete: 
-        os.system('rm ' + file)
+	if os.path.isfile(file):
+            os.system('rm ' + file)
     print command
     #raw_input()
     return os.system(command)
