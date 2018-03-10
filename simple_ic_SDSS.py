@@ -344,8 +344,8 @@ def sextract(SUPA,FLAT_TYPE): #intermediate #step2_sextract
         utilities.run(command)
     save_exposure({'pasted_cat':pasted_cat},SUPA,FLAT_TYPE)
 
-    #adam-tmp# command = "rm -rf " + search_params['TEMPDIR'] +"/*"
-    #adam-tmp# os.system(command)
+    command = "rm -rf " + search_params['TEMPDIR'] +"/*"
+    os.system(command)
     print "sextract| DONE with func"
     #return exposures, LENGTH1, LENGTH2
 
@@ -488,8 +488,7 @@ def get_astrom_run_sextract(OBJNAME,PPRUNs): #main #step2_sextract
 		first = True
 		while len(results) > 0 or first:
 		    first = False
-		    # command = 'SELECT * from '+illum_db+' where pasted_cat is null and OBJNAME like "'+OBJNAME+'%" and PPRUN="'+PPRUN+'"' #  order by rand()' #fwhm!=-999 and objname not like "%ki06%" order by rand()'
-		    #adam-new# OK, I'm putting the BADCCD part in there to make sure I don't get stuck again
+
 		    command = 'SELECT * from '+illum_db+' where pasted_cat is null and (BADCCD is null or BADCCD not like "1%") and OBJNAME like "'+OBJNAME+'%" and PPRUN="'+PPRUN+'"'
 		    print 'get_astrom_run_sextract| command=',command
 		    Nresults = c.execute(command)
@@ -790,12 +789,12 @@ def db_cluster_logfile(db=None,cluster='RXJ2129'):
                 t.remove_column(name)
         t.write(tfl+'_'+db,format='ascii.fixed_width')
 
-	if db==test+'try_db':
-		fl_table_basename='table_zps_runs_sdss_%s_%s.txt' % (OBJNAME,PPRUN)
-		if os.path.isfile('/u/ki/awright/wtgpipeline/'+fl_table_basename):
-			os.system('mv /u/ki/awright/wtgpipeline/%s /u/ki/awright/wtgpipeline/%s.tmp' % (fl_table_basename,fl_table_basename))
-			os.system('cat /u/ki/awright/wtgpipeline/%s.tmp %s > /u/ki/awright/wtgpipeline/%s' % (fl_table_basename, tfl+'_'+db,fl_table_basename))
-			os.system('rm /u/ki/awright/wtgpipeline/%s.tmp' % (fl_table_basename) )
+        if db==test+'try_db':
+                fl_table_basename='table_zps_runs_sdss_%s_%s.txt' % (OBJNAME,PPRUN)
+                if os.path.isfile('/u/ki/awright/wtgpipeline/'+fl_table_basename):
+                        os.system('mv /u/ki/awright/wtgpipeline/%s /u/ki/awright/wtgpipeline/%s.tmp' % (fl_table_basename,fl_table_basename))
+                        os.system('cat /u/ki/awright/wtgpipeline/%s.tmp %s > /u/ki/awright/wtgpipeline/%s' % (fl_table_basename, tfl+'_'+db,fl_table_basename))
+                        os.system('rm /u/ki/awright/wtgpipeline/%s.tmp' % (fl_table_basename) )
         return t
 
 ''' find full set of files corresponding to all '''
@@ -1390,7 +1389,7 @@ def fix_radec(SUPA,FLAT_TYPE): #intermediate #step2_sextract
         print "fix_radec| DONE with func (return -1)"
         return -1
 
-def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_run_fit
+def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None,supas2exclude=[]): #main #step3_run_fit
     '''inputs: OBJNAME=None,FILTER=None,PPRUN=None,todo=None
     returns:
     calls: describe_db,describe_db,describe_db,save_fit,describe_db,describe_db,analyze,fix_radec,sdss_coverage,get_files,match_many,getTableInfo,get_files,find_config,selectGoodStars,starStats,save_fit,find_config,linear_fit,save_fit,save_fit
@@ -1451,8 +1450,7 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
                 print 'match_OBJNAME| command=',command
                 c.execute(command)
     
-                #command="SELECT * from temp i left join " + test + "fit_db f on (i.pprun=f.pprun and i.OBJNAME=f.OBJNAME) where i.SUPA not like '%I' and i.objname='"+OBJNAME+"' and i.pprun='"+PPRUN+"' and i.filter='" + FILTER + "' GROUP BY i.pprun,i.filter,i.OBJNAME ORDER BY RAND() " # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
-                command="SELECT * from "+illum_db+" where  file not like '%CALIB%' and  PPRUN !='KEY_N/A'  and OBJNAME like '" + OBJNAME + "' and FILTER like '" + FILTER + "' and PPRUN='" + PPRUN + "' GROUP BY pprun,filter,OBJNAME" # ORDER BY RAND()" # and PPRUN='2006-12-21_W-J-B' GROUP BY OBJNAME,pprun,filter"
+                command="SELECT * from "+illum_db+" where  file not like '%CALIB%' and  PPRUN !='KEY_N/A'  and OBJNAME like '" + OBJNAME + "' and FILTER like '" + FILTER + "' and PPRUN='" + PPRUN + "' GROUP BY pprun,filter,OBJNAME"
     
                 start = 0
                 print 'match_OBJNAME| command=',command
@@ -1593,7 +1591,6 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
                         print 'match_OBJNAME| field=',field
                         input = [[x['pasted_cat'],x['key'],x['ROT']] for x in field]
                         #input_files = [[x['pasted_cat']] for x in field]
-                        #print 'match_OBJNAME| input_files=',input_files
     
                         input_filt = []
                         print 'match_OBJNAME| input=',input
@@ -1602,9 +1599,8 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
                             if match=='bootstrap':
                                 Ns = ['MAGERR_AUTO < 0.1)','Flag = 0)','IMAFLAGS_ISO = 0)']
                             else:
-                                #adam-SHNT# is 'MAGERR_AUTO < 0.05)' this too restrictive? (it's 0.1 in the paper!) #adam-try
+                                #adam-idea# is 'MAGERR_AUTO < 0.05)' this too restrictive? (it's 0.1 in the paper!) #adam-try
                                 Ns = ['MAGERR_AUTO < 0.05)','Flag = 0)','IMAFLAGS_ISO = 0)']
-                                #adam-SHNT# also, are IMAFLAGS filtering things out?
                             filt= '(' + reduce(lambda x,y: '(' + x + '  AND (' + y + ')',Ns)
                             print 'match_OBJNAME| filt=',filt , ' f=',f
                             filtered = f[0].replace('.cat','.filt.cat')
@@ -1630,7 +1626,7 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
                         print 'match_OBJNAME| now running match_many(input)'
                         match_many(input,PPRUN)
     
-                        start_EXPS = getTableInfo(PPRUN)
+                        start_EXPS = getTableInfo(PPRUN,exclude=supas2exclude)
                         print 'match_OBJNAME| start_EXPS=',start_EXPS
     
                         dt = get_files(start_EXPS[start_EXPS.keys()[0]][0])
@@ -1652,7 +1648,7 @@ def match_OBJNAME(OBJNAME=None,FILTER=None,PPRUN=None,todo=None): #main #step3_r
     
                         start_ims = (reduce(lambda x,y: x + y, [len(start_EXPS[x]) for x in start_EXPS.keys()]))
                         final_ims = (reduce(lambda x,y: x + y, [len(EXPS[x]) for x in EXPS.keys()]))
-			#adam-SHNT# I believe I get an error iff start_ims!=final_ims
+			#adam# I believe I get an error iff start_ims!=final_ims
                         print 'match_OBJNAME| start_ims=', start_ims
                         print 'match_OBJNAME| final_ims=', final_ims
                         if final_ims < 3:
@@ -1987,7 +1983,7 @@ def make_ssc_config_few(input_list):
     out.close()
     print "make_ssc_config_few| DONE with func"
 
-def getTableInfo(PPRUN): #simple #step3
+def getTableInfo(PPRUN,exclude=[]): #simple #step3
     '''purpose: returns a dict with keys=rotations, and values=images corresponding to those rotations
     returns:  ROTS
     calls:
@@ -1999,11 +1995,11 @@ def getTableInfo(PPRUN): #simple #step3
     ROTS = {}
     for column in p[1].columns:
         if string.find(column.name,'$') != -1:
-            #print 'getTableInfo| column=',column
             res = re.split('\$',column.name)
             ROT = res[0]
             IMAGE = res[1]
-            #KEY = res[2]
+            if IMAGE in exclude:
+                continue
             if not ROTS.has_key(ROT):
                 ROTS[ROT] = []
             if not len(filter(lambda x:x==IMAGE,ROTS[ROT])):
@@ -2060,7 +2056,6 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG,PPRUN): #intermediate #ste
 
     p = pyfits.open(tmpdir + '/final_'+PPRUN+'.cat') #final_'+PPRUN+'.cat is the output from match_many func
     print 'selectGoodStars| ',tmpdir+'/final_'+PPRUN+'.cat'
-    #print 'selectGoodStars| p[1].columns=',p[1].columns
     table = p[1].data
     star_good = []
     supas = []
@@ -2149,7 +2144,7 @@ def selectGoodStars(EXPS,match,LENGTH1,LENGTH2,CONFIG,PPRUN): #intermediate #ste
             mags_diff_array += [zps[y] - tab[ROT+'$'+y+'$MAG_AUTO'][i] for y in EXPS[ROT]]
             mags_good_array += [tab[ROT+'$'+y+'$MAG_AUTO'][i]!=0.0 for y in EXPS[ROT]]
             #in_box += [1000<tab[ROT+'$'+y+'$Xpos_ABS'][i]<9000 and 1000<tab[ROT+'$'+y+'$Ypos_ABS'][i]<7000  for y in EXPS[ROT]]
-            #include_star += [( tab[ROT+'$'+y+'$MAG_AUTO'][i]!=0.0  ) for y in EXPS[ROT]] # and
+	    #adam-note# this most certainly is not the actual value of the background!
             backgrounds += filter(lambda x: x!=0, [tab[ROT+'$'+y+'$MaxVal'][i] + tab[ROT+'$'+y+'$BackGr'][i] for y in EXPS[ROT]])
             if string.find(str(CONFIG),'8') != -1:
                 ''' config 8 keep outer ring stars and throw out chips 1 and 5 '''
@@ -2278,8 +2273,6 @@ def linear_fit(OBJNAME,FILTER,PPRUN,run_these,match=None,CONFIG=None,primary=Non
     
         ''' EXPS has all of the image information for different rotations '''
         start_EXPS = getTableInfo(PPRUN)
-        print 'linear_fit| start_EXPS=',start_EXPS
-    
         dt = get_files(start_EXPS[start_EXPS.keys()[0]][0])
         print 'linear_fit| dt["CHIPS"]=',dt["CHIPS"]
         CHIPS = [int(x) for x in re.split(',',dt['CHIPS'])]
@@ -4037,10 +4030,6 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
         db_keys_try = describe_db(c,['' + test + 'try_db'])
         db_keys_fit = describe_db(c,['' + test + 'fit_db'])
 
-        #command_calc_good1='SELECT * from ' + test + 'try_db i where (i.sdssstatus like "%finished" or i.Nonestatus like "%finished") and stats is null order by rand()' # and (i.objname like "MACS0744%")' # and i.pprun="2001-12-11_W-C-IC" order by rand()'
-        #command_calc_good1='SELECT * from ' + test + 'try_db i where i.bootstrapstatus="fitfinished" and bootstrap_mean is null and i.stats is null ' #and (i.sdssstatus like "%finished" or i.Nonestatus like "%finished") and (i.objname like "MACS0018%" or i.objname like "MACS0025%" or i.objname like "MACS0257%" or i.objname like "MACS0454%" or i.objname like "MACS0647%" or i.objname like "MACS0717%" or i.objname like "MACS0744%" or i.objname like "MACS0911%" or i.objname like "MACS1149%" or i.objname like "MACS1423%" or i.objname like "MACS2129%" or i.objname like "MACS2214%" or i.objname like "MACS2243%" or i.objname like "A2219" or i.objname like "A2390") order by rand()'
-        # and (i.objname like "MACS0744%")' # and i.pprun="2001-12-11_W-C-IC" order by rand()'
-
         '''PART1| get basic PPRUN/OBJNAME stuff in try_db'''
         if OBJNAME is not None:
             command_calc_good1='SELECT * from ' + test + 'try_db i where PPRUN="' + PPRUN + '" and OBJNAME="' + OBJNAME + '"'
@@ -4050,7 +4039,7 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
         results1=c.fetchall()
         print "calc_good| len(results1)=",len(results1)
 
-	### LOOP0: loop over try_db matches with this PPRUN (should only be one)
+        ### LOOP0: loop over try_db matches with this PPRUN (should only be one)
         for line in results1:
             dtop = {}
             for i in range(len(db_keys_try)):
@@ -4086,7 +4075,7 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                 save_fit({'PPRUN':dtop['PPRUN'],'OBJNAME':dtop['OBJNAME'],'FILTER':dtop['FILTER'],'stats':'no fits', 'sample':'record','sample_size':'record',},db='' + test + 'try_db')
             print 'calc_good| fit_samples=',fit_samples
 
-	    ### LOOP1: loop over sdss/None/bootstrap fits
+            ### LOOP1: loop over sdss/None/bootstrap fits
             for sample in fit_samples:
                 '''PART4| get 1 sample_size="all" fits in fit_db and CALCULATE/SAVE zpstd = std(zp_images) (for this type of sample in ["sdss","None","bootstrap"])'''
                 command_calc_good4="SELECT * from " + test + "fit_db where OBJNAME='" + dtop['OBJNAME'] + "' and PPRUN='" + dtop['PPRUN'] + "' and sample_size='all' and sample='" + sample + "' limit 1"
@@ -4121,8 +4110,8 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                             rots.append(rot)
                     save_fit({'PPRUN':dtop['PPRUN'],'OBJNAME':dtop['OBJNAME'],'FILTER':dtop['FILTER'],'rots': int(len(rots)), 'sample':'record','sample_size':'record',},db='' + test + 'try_db')
                 '''PART6| get collection of sample_size="rand%" fits in fit_db CALCULATE/SAVE: (for this type of sample in ["sdss","None","bootstrap"])
-			corr/uncorr: rejectedreducedchi
-			original: var_correction (from test_correction results), mean(chi_diffs), and std(chi_diffs) | chi_diffs=reducedchi_uncorr/reducedchi_corr'''
+                        corr/uncorr: rejectedreducedchi
+                        original: var_correction (from test_correction results), mean(chi_diffs), and std(chi_diffs) | chi_diffs=reducedchi_uncorr/reducedchi_corr'''
                 command_calc_good6="SELECT * from " + test + "fit_db where OBJNAME='" + dtop['OBJNAME'] + "' and PPRUN='" + dtop['PPRUN'] + "' and sample_size like 'rand%' and positioncolumns is not null  and sample='" + sample + "'" # and CHIPS is not null"
                 print 'calc_good| command_calc_good6=',command_calc_good6
                 c.execute(command_calc_good6)
@@ -4186,6 +4175,8 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                         drand[db_keys_fit[i]] = str(line[i])
 
                     save_fit({'PPRUN':dtop['PPRUN'],'OBJNAME':dtop['OBJNAME'],'FILTER':dtop['FILTER'],sample + '_match_stars':drand['match_stars'],'sample':'record','sample_size':'record',},db='' + test + 'try_db')
+                    name = drand['sample_size'].replace('corr','').replace('un','')
+                    if not name in random_dict: random_dict[name] = {}
 
                     for rot in ['0','1','2','3']:
                         if not o.has_key(rot):
@@ -4215,6 +4206,8 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None): #step4_test_fit #main
                         drand = {}
                         for i in range(len(db_keys_fit)):
                             drand[db_keys_fit[i]] = str(line[i])
+                        name = drand['sample_size'].replace('corr','').replace('un','')
+                        if not name in random_dict: random_dict[name] = {}
 
                         for rot in ['0','1','2','3']:
                             if not o.has_key(rot):
@@ -4353,8 +4346,8 @@ def test_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,paper_stat=False): #
         #os.system('rm ' + tmpdir + 'correction' + ROT + filter + sample_size + '.fits')
         #hdu.writeto(tmpdir + '/correction' + ROT + filter + sample_size + '.fits')
         im = '/scratch/pkelly/test.fits'
-	if os.path.isfile(im):
-		os.system('rm ' + im)
+        if os.path.isfile(im):
+                os.system('rm ' + im)
         hdu.writeto(im)
         print 'test_correction| im =',im, 'finished'
     return epsilon, diff_bool
@@ -4887,7 +4880,7 @@ def construct_correction(OBJNAME,FILTER,PPRUN,sample,sample_size,OBJNAME_use=Non
                                 command_sethead2 = '/afs/slac/g/ki/software/wcstools/current/amd64_rhel60/bin/sethead ' + out_file + ' OBJ_USE="' + OBJNAME_use+'"'
                                 print 'construct_correction| command_sethead2=',command_sethead2
                                 ooo=os.system(command_sethead2)
-				#if ooo!=0: raise Exception("os.system!=0")
+                                #if ooo!=0: raise Exception("os.system!=0")
 
                                 if BADCCD:
                                     command_sethead3 = 'sethead ' + out_file + ' BADCCD=1'
@@ -4983,17 +4976,17 @@ if username!="awright":
         ## set data_path and tmpdir
         data_path = data_root + cluster+'/'
         tmpdir=data_path+"tmp_simple_ic_SDSS/"
-	if not os.path.isdir(tmpdir):
-		os.mkdir(tmpdir)
+        if not os.path.isdir(tmpdir):
+                os.mkdir(tmpdir)
 
-	#adam-Warning# either handle SQL tables here or at the end!
+        #adam-Warning# either handle SQL tables here or at the end!
         #sql databases used by pat which you could copy the structure of: illumination_db, test_try_db, test_fit_db, sdss_db (see mysqldb_params below)
         test = 'name_' #this takes care of test_try_db, test_fit_db #name-Warning# change from generic "name" to username or something
         illum_db=test+"illumination_db"
 
 supas2exclude={}
-supas2exclude['W-C-RC_2012-07-23']=array(["SUPA0135162","SUPA0135167","SUPA0135168","SUPA0135169","SUPA0135170","SUPA0135171"])
-supas2exclude['W-S-Z+_2010-11-04']=array(["SUPA0126014","SUPA0126016","SUPA0126017","SUPA0126018","SUPA0126019","SUPA0126020","SUPA0126021","SUPA0126022","SUPA0126023","SUPA0126024","SUPA0126025","SUPA0126026","SUPA0126027","SUPA0126028","SUPA0126029","SUPA0126030"])
+supas2exclude['W-C-RC_2012-07-23']=["SUPA0135162","SUPA0135167","SUPA0135168","SUPA0135169","SUPA0135170","SUPA0135171"]
+supas2exclude['W-S-Z+_2010-11-04']=["SUPA0126014","SUPA0126016","SUPA0126017","SUPA0126018","SUPA0126019","SUPA0126020","SUPA0126021","SUPA0126022","SUPA0126023","SUPA0126024","SUPA0126025","SUPA0126026","SUPA0126027","SUPA0126028","SUPA0126029","SUPA0126030"]
 if __name__=="__main__" and username=="awright":
         ## get/set env variables (#adam-Warning# cluster name here )
         os.environ['bonn']='/u/ki/awright/wtgpipeline/'
@@ -5030,10 +5023,10 @@ if __name__=="__main__" and username=="awright":
         OBJNAME=cluster #adam-Warning#
         # Adam: if you have to delete a row
         db2,c = connect_except()
-	c.execute("DELETE from sdss_db where OBJNAME='%s' ;" % (OBJNAME))
+	#c.execute("DELETE from sdss_db where OBJNAME='%s' ;" % (OBJNAME))
 	#c.execute("DELETE from adamSDSS3_illumination_db where OBJNAME='%s' ;" % (OBJNAME))
-	c.execute("DELETE from adamSDSS3_fit_db where OBJNAME='%s' ;" % (OBJNAME))
-	c.execute("DELETE from adamSDSS3_try_db where OBJNAME='%s' ;" % (OBJNAME))
+	#c.execute("DELETE from adamSDSS3_fit_db where OBJNAME='%s' ;" % (OBJNAME))
+	#c.execute("DELETE from adamSDSS3_try_db where OBJNAME='%s' ;" % (OBJNAME))
 
         ### which dbs do these functions use?
         # gather_exposures ['i']
@@ -5048,35 +5041,51 @@ if __name__=="__main__" and username=="awright":
 
         times=[0,0,0,0,0,0,0]
         times[0]=time.time()
-	if 0:
-		print "adam-look: gather_exposures(cluster,filters=FILTERs)"
-		gather_exposures(cluster,filters=FILTERs)
+        if 0:
+                print "adam-look: gather_exposures(cluster,filters=FILTERs)"
+                gather_exposures(cluster,filters=FILTERs)
         times[1]=time.time()
-	if 0:
-		print "adam-look: get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)"
-		get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)
+        if 0:
+                print "adam-look: get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)"
+                get_astrom_run_sextract(cluster,PPRUNs=PPRUNs)
         times[2]=time.time()
-	if 1:
-		print "adam-look: get_sdss_cats(OBJNAME)"
-		get_sdss_cats(OBJNAME)
+        if 0:
+                print "adam-look: get_sdss_cats(OBJNAME)"
+                get_sdss_cats(OBJNAME)
 
         times[3]=time.time()
-        extra_nametag=""
-	if 1:
-        	for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
-        	        print "\n\nadam-look: match_OBJNAME starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-        	        match_OBJNAME(OBJNAME,FILTER,PPRUN)
-        	        print "\n\nadam-look: calc_good starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
-        	        calc_good(OBJNAME,FILTER,PPRUN)
+        if 0:
+                for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
+                        print "\n\nadam-look: match_OBJNAME starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+			if PPRUN in supas2exclude.keys():
+				excludetag='_exclude_'+'-'.join(supas2exclude[PPRUN])
+				extra_nametag="exclude"+str(len(supas2exclude[PPRUN]))
+				match_OBJNAME(OBJNAME,FILTER,PPRUN,supas2exclude=supas2exclude[PPRUN])
+			else:
+				extra_nametag=""
+				match_OBJNAME(OBJNAME,FILTER,PPRUN)
+                        print "\n\nadam-look: calc_good starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+			calc_good(OBJNAME,FILTER,PPRUN)
         times[4]=time.time()
         good_tracker={}
+	goods={}
         for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
                 print "\n\nadam-look: testgood starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
                 good_tracker[PPRUN]=testgood(OBJNAME,FILTER,PPRUN)
+                goods[PPRUN]=good_tracker[PPRUN][PPRUN]
+        print ' goods=',goods
+        dbtab=db_cluster_logfile(db=test+'try_db',cluster=cluster)
+        print dbtab
+	sys.exit()
         times[5]=time.time()
         if clusters_refcats[OBJNAME]=='SDSS' and not OBJNAME=="MACS1226+21":
             for FILTER,PPRUN in zip(FILTERs_matching_PPRUNs,PPRUNs):
                 print "\n\nadam-look: construct_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
+		if PPRUN in supas2exclude.keys():
+			excludetag='_exclude_'+'-'.join(supas2exclude[PPRUN])
+			extra_nametag="exclude"+str(len(supas2exclude[PPRUN]))
+		else:
+			extra_nametag=""
                 #adam-Warning# r_ext=True if you've already done the stellar halo rings, otherwise r_ext=False. So for MACS0416 I'll sure r_ext=True
                 r_ext=False
                 construct_correction(OBJNAME,FILTER,PPRUN,"sdss","all",OBJNAME,FILTER,PPRUN,r_ext=False)
@@ -5084,8 +5093,6 @@ if __name__=="__main__" and username=="awright":
         times=numpy.array(times)
         timediffs=times[1:]-times[0:-1]
         print ' timediffs=',timediffs
-        dbtab=db_cluster_logfile(db=test+'try_db',cluster=cluster)
-        print dbtab
         print "adam-look: each step took this much time: %.1f %.1f %.1f %.1f %.1f %.1f " % tuple(times[1:]-times[0:-1])
         #print "\n\nadam-look: run_correction starting on FILTER=%s PPRUN=%s\n" % (FILTER,PPRUN)
         #run_correction(OBJNAME,FILTER,PPRUN)
