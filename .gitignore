@@ -12,7 +12,7 @@ publication/
 simqueue/
 setup.py
 build/
-develop_simple_ic/ICstats/
+adam-simple_ic/develop_simple_ic/ICstats/
 adam-python_funcifier/
 coadd_MACS0744+39/
 hawaii_gas_preH/
@@ -25,3 +25,12 @@ adam-badcol_10_3
 adam-mytools
 adam-parse_bash_logs
 adam-run_scamp
+
+store_sdss
+sdss_out
+asctoldac_sdss.conf
+table_zps_runs_sdss.txt
+store_panstarrs
+panstarrs_out
+asctoldac_panstarrs.conf
+table_zps_runs_panstarrs.txt

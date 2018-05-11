@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+#adam-call_example# call it like: ./adam_make_backmask_ims.py ~/my_data/SUBARU/${cluster}/${filter}/SCIENCE/ ${ending}
 #adam-does# makes BACKMASK directory with images used to mask reflections, cross-talk, areas of coherent offsets in astrometry, and maybe even asteroids
 #        mask in difference coadds, but place regions in SUPA*_[0-9]OCF.fits images, so regions are placed on individual chip exposures with backmask.py
 # 	SUPAXXXXXXX-all.coadd.fits         : difference images for each exposure ("coadd_cluster_SUPAXXXXXXX"-"coadd_cluster_all")
@@ -9,7 +10,7 @@
 #BEFORE RUNNING CODE (1): set make_smoothed if you want smoothed images for all types of coadd differences (all, gabodsid, gabrot)
 #BEFORE RUNNING CODE (2): set make_gabodsid and make_gabrot to determine the types of coadd differences you want to make (makes "all" always), can make gabodsid & gabrot as well
 make_smoothed=1
-make_gabodsid=0
+make_gabodsid=1
 make_gabrot=0
 
 from numpy import *
@@ -21,7 +22,12 @@ import imagetools
 import astropy, astropy.io.fits as pyfits
 import os
 import re
-input_dir=sys.argv[1]
+from adam_quicktools_ArgCleaner import ArgCleaner
+args=ArgCleaner(sys.argv)
+
+input_dir=args[0]
+ending=args[1]
+
 input_dir=input_dir.replace('//','/')
 if not input_dir.endswith('/'):
 	input_dir+='/'
@@ -78,7 +84,8 @@ orig_dir=input_dir.replace('/SCIENCE/','')+"_*/SCIENCE/"
 for supa_fl in supa_fls:
 	supa_dir=os.path.dirname(supa_fl)
 	supa=supa_dir[-11:]
-	split_fl_str=orig_dir+supa+'_[0-9]*OCF*.fits'
+	split_fl_str=input_dir+supa+'_[0-9]*%s*.fits' % (ending)
+	#adam-old# split_fl_str=orig_dir+supa+'_[0-9]*%s*.fits' % (ending)
 	split_fls=glob.glob(split_fl_str)
 	split_fl=split_fls[0]
 	if len(split_fls)<10:

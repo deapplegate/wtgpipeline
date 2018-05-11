@@ -1,6 +1,8 @@
 #! /bin/bash
 set -xv
+#adam-example# ./do_Subaru_register_4batch.sh Zw2089 "SDSS-R6" "photom" "2006_W-J-V" 2>&1 | tee -a OUT-do_Subaru_register_4batch-Zw2089-photom_2006_W-J-V.log
 #adam-example# ./do_Subaru_register_4batch.sh ${cluster} "SDSS-R6" "astrom" "W-J-B" "W-C-RC" "W-S-Z+" 2>&1 | tee -a OUT-do_Subaru_register_4batch-${cluster}-astrom.log
+#adam-example# ./do_Subaru_register_4batch.sh ${cluster} "SDSS-R6" "photom" "W-J-B" "W-C-RC" "W-S-Z+" 2>&1 | tee -a OUT-do_Subaru_register_4batch-${cluster}-photom.log
 ### script to register image sets
 ###
 ### the astro-/photometry is via SCAMP 
@@ -227,7 +229,7 @@ if [ ${ASTROMMETHOD} != "SCAMP" ]; then
 
 else
 
-  export BONN_FILTER=${FILTERS}
+  #export BONN_FILTER=${FILTERS}
 
   #adam-BL#./BonnLogger.py clear
   #adam-BL#./BonnLogger.py config \
@@ -243,8 +245,14 @@ else
       "photom" )
 	  THRESH=$(( ${SATURATION}-4000 ))
 	  #adam-old# THRESH=${SATURATION}
-	  echo "adam: THRESH=" $THRESH
-	  ./create_scamp_photom.sh ${LINE} ${THRESH} ${ASTROMETRYCAT}
+	  echo "adam-look: export NCHIPSMAX=" ${NCHIPSMAX}
+	  echo "adam-look: LINE=" ${LINE}
+	  echo "adam-look: THRESH=" $THRESH
+	  echo "adam-look: ASTROMETRYCAT=" ${ASTROMETRYCAT}
+	  echo "adam-look: ./create_scamp_photom-end_....sh ${LINE} ${THRESH} ${ASTROMETRYCAT}"
+
+	  ./create_scamp_photom-start_combine_cats.sh ${LINE} ${THRESH} ${ASTROMETRYCAT}
+	  #adam-tmp# ./create_scamp_photom.sh ${LINE} ${THRESH} ${ASTROMETRYCAT}
 	  ;;
       * )
 	  echo "Specify astrom or photom mode."

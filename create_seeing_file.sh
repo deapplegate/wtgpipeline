@@ -8,7 +8,7 @@ set -uxv
 cluster=$1
 
 
-subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
+subarudir=/gpfs/slac/kipac/fs1/u/awright/SUBARU/
 
 special_filters="I K"
 

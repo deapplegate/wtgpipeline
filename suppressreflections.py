@@ -27,8 +27,9 @@ __cvs_id__ = "$Id: suppressreflections.py,v 1.20 2010-05-12 19:35:29 dapple Exp 
 #################################################
 ### MAIN
 #################################################
-
-def main(argv = sys.argv):
+from adam_quicktools_ArgCleaner import ArgCleaner
+argv = ArgCleaner(sys.argv)
+def main(argv = argv):
 
     parser = OptionParser()
 
@@ -36,8 +37,8 @@ def main(argv = sys.argv):
 
     options, args = parser.parse_args(argv)
 
-    regiondir = args[1]
-    images = args[2:]
+    regiondir = args[0]
+    images = args[1:]
 
     print options.mask
 
@@ -62,7 +63,9 @@ def main(argv = sys.argv):
             print 'Processing %s' % imagefile
 
             weightfile, flagfile, regionbase = findAssociatedFiles(imagefile)
+            print ' weightfile=',weightfile , ' flagfile=',flagfile , ' regionbase=',regionbase
             regionfile = os.path.join(regiondir, regionbase)
+            print ' regionfile=',regionfile
             
             outimage, outweight, outflag = findOutfiles(imagefile, 'R')
             

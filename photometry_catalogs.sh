@@ -11,7 +11,7 @@ cluster=$1
 queue=$2
 
 
-subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
+subarudir=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 
 ./create_seeing_file.sh $cluster

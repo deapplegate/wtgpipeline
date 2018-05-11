@@ -1,5 +1,6 @@
 #!/bin/bash
 set -xv
+#adam-example# ./parallel_manager.sh ./create_science_weighted.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-Z+_2010-11-04/ SCIENCE WEIGHTS OCFSF
 #. BonnLogger.sh
 #. log_start
 ##########

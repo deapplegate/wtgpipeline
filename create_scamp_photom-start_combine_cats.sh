@@ -4,104 +4,6 @@ set -xvu
 #. BonnLogger.sh
 #. log_start
 
-# CVSID: $Id: create_scamp_photom.sh,v 1.12 2010-10-05 02:29:02 anja Exp $
-
-# -----------------------------------------------------------------------
-# File Name:           create_scamp_photom.sh
-# Author:              Thomas Erben (terben@astro.uni-bonn.de)
-# Last modified on:    03.09.2015 by Adam, works when both *OCF.fits & *OCFR.fits files are present
-# Description:         Performs astrometric and relative photometric
-#                      calibration of THELI sets with scamp V1.4.0-V1.4.6
-# -----------------------------------------------------------------------
-
-# Script history information:
-# 14.09.2007:
-# Project started 
-#
-# 17.09.2007:
-# - I updated the documentation
-# - I fixed some bugs concerning the location of
-#   resulting files
-# - I appended NTHREADS to the scamp command line
-#   which uses a multi-processor architecture if available.
-#   NTHREADS is set to NPARA.
-#
-# 24.09.2007:
-# - Update of documentation text
-# - Bug fix for the location of catalogue files
-# - FITS conform output of the RZP header keyword in
-#   scamp catalogues
-#
-# 02.10.2007:
-# I made the script a bit more robust by adding more sanity
-# checks.
-#
-# 21.12.2007:
-# - I extended the script so that different mosaic configurations
-#   within one astrometric set can be handled now. To this end we
-#   create an artificial external header containing the keyword
-#   MISSCHIP listing the missing chips. This keyword is then added
-#   to the FITS cards distinguishing astrometric runs.
-# - One explicit call to 'ldactoasc' was replaced by an implicit one.
-#
-# 30.12.2007:
-# - I extended the script to treat data from different image directories
-#   simultaneously.
-# - Multiple photometric contexts are now handled correctly.
-#
-# 08.12.2008:
-# I updated the script documentation
-#
-# 11.01.2008:
-# The script now makes use of focal plane information if present!
-# If an external header with name ${INSTRUMENT}.ahead is present in
-# the reduction directory it is interpreted as containing focal plane
-# information (first order astrometric information). In this case
-# 'scamp' is run with the '-MOSAIC_TYPE FIX_FOCALPLANE' option. 
-# Otherwise (no focal plane information available) we use
-# '-MOSAIC_TYPE UNCHANGED'.
-#
-# 16.01.2008:
-# I estimate the 'THELI' relative flux scaling zeropoint. Up to
-# now I used the scamp value which is, however, scaled to a fixed
-# magnitude (scamp config file). This value is not consistent with
-# the THELI convention where the flux scale for each image is defined 
-# as flxscale=10**(-0.4*relzp)/exptime
-#
-# 18.01.2008:
-# Bug fix in the creation of individual header files; missing catalogs
-# were not taken into account properly.
-#
-# 22.07.2008:
-# The directory names where scamp performs its actions carry the name 
-# of the used standardstar catalogue now. The same applies for the
-# final header directories.
-#
-# 07.08.2008:
-# Bug Fix for the new naming convention of appending the name of the
-# reference cat to directory names
-
-# 16.08.2008: (AvdL)
-# adapted for Subaru by adding "ROTATION" to ASTRINSTRU_KEY
-# note: could also sort by config and/or run
-# right now this is done by GABODSID only
-
-# 10.08.2008: (AvdL)
-# .ahead files are now assigned based on configuration and rotation
-# still to solve:
-# why not work with config 8?
-# how to pass prober number of chips
-
-# 17.02.2008 (DA)
-# Modified to not need file extensions
-
-# 19.02.2010 (AvdL)
-# This script now also works if the photometry run has more MISSCHIPs
-# than the preceding astrometry run. This will only work for Subaru,
-# though! (Because of the ambiguous MISSCHIP definition.)
-# Previous version was 1.8
-
-# 03.09.2015 (Adam W.)
 # works when both *OCF.fits & *OCFR.fits files are present
 # ... or any other number of different ${ending} values
 ending="*I"
@@ -287,6 +189,9 @@ NDIRS=$(( ($# - 1) / 2 ))
 STARCAT=${!#}
 nTHRESHOLD=$(($# - 1))
 THRESHOLD=${!nTHRESHOLD}
+echo "adam-look: NDIRS=" $NDIRS
+echo "adam-look: THRESHOLD=" $THRESHOLD
+echo "adam-look: STARCAT=" $STARCAT
 
 # Test existence of image directory(ies) and create headers_scamp
 # directories:
@@ -428,6 +333,9 @@ do
   l=$(( ${l} + 1 ))
 done
 
+##adam: all the stuff below here is now handled in create_scamp_photom-end....sh
+exit 0;
+
 # from our single chip catalogues create merged MEF catalogues
 # for each exposure:
 # first get the basenames of all available exposures.
@@ -458,6 +366,9 @@ do
                      } 
                      name = name a[n-1]; 
                      print name;}' | sort | uniq`
+    image1=`\ls -1 ${curdir}/SUPA*_1OCF*I.fits | head -n 1`
+    path_supa_chip_ending=(`~/wtgpipeline/adam_quicktools_fast_get_path_supa_chip_ending.py ${image1}`)
+    ending=${path_supa_chip_ending[3]}
     # now the merging with a pyfits-based Python script:
     # loop over SUPAs (within this filter)
     for IMAGE in ${IMAGES}
@@ -609,8 +520,9 @@ if [ "${exit_stat}" -gt "0" ]; then
 fi
 
 # now call create_scamp_photom-middle_combine_dirs.py, then call create_scamp_photom-no_overwrite.sh
-mv create_scamp_photom-no_overwrite.sh create_scamp_photom-end_no_overwrite.sh
-./create_scamp_photom-middle_combine_dirs.py ${CATDIR_uniq} /nfs/slac/g/ki/ki05/anja/SUBARU/MACS1115+01/
+#adam-tmp# mv create_scamp_photom-no_overwrite.sh create_scamp_photom-end_no_overwrite.sh
+./create_scamp_photom-middle_combine_dirs.sh ${cluster} W-J-B W-J-B
+
 #adam-example# ./create_scamp_photom-end_no_overwrite.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-B SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-V SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-IC SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-S-Z+ SCIENCE 30000 SDSS-R6
 
 #create_scamp_photom-start_combine_cats.sh	this script runs scampcat.py on all of the new data and sets up the astrom_photom_scamp_SDSS-R6 directory properly

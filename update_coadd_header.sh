@@ -2,7 +2,8 @@
 set -xv
 #adam-example# ./update_coadd_header.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-B SCIENCE MACS1115+01_all STATS coadd -1.0 AB '((((RA>(168.96708333-0.5))AND(RA<(168.96708333+0.5)))AND((DEC>(1.49805556-0.5))AND(DEC<(1.49805556+0.5))))AND(SEEING<1.9));' 2>&1 | tee -a OUT-uch.log4
 
-source deactivate astroconda
+#adam-tmp# source deactivate astroconda
+
 #adam-BL#. BonnLogger.sh
 #adam-BL#. log_start
 # The script makes an update of headers from finally coadded
@@ -72,6 +73,7 @@ source deactivate astroconda
 #$8: coaddition condition					(ex. ${CONDITION})
 
 . ${INSTRUMENT:?}.ini > /tmp/SUBARU.out 2>&1
+. progs.ini > /tmp/SUBARU.out 2>&1
 . bash_functions.include > /tmp/bash.out 2>&1
 
 # set the coaddition condition to NONE if an empty string is
@@ -176,7 +178,7 @@ fthedit /$1/$2/coadd_$3/$5.fits DUMMY20 add 0
 if [ "${fwhm_test}" == "1" ]; then
 	MYSEEING=$fwhm
 	value ${MYSEEING}
-	writekey /$1/$2/coadd_$3/$5.fits MYSEEING "${VALUE} / my calculated seeing value MYSEEING (arcsec)" REPLACE
+	writekey /$1/$2/coadd_$3/$5.fits MYSEEING "${VALUE} / my calculated seeing value (arcsec)" REPLACE
 else
 	echo "update_coadd_header.sh: MYSEEING header keyword can not be found! calculating fwhm using get_seeing method."
 fi
@@ -299,7 +301,7 @@ EXPID=${3##${cluster}_}
 value ${EXPID}
 #adam-SHNT# check that this is the right test
 if [ -n "${EXPID}" ]; then
-	writekey /$1/$2/coadd_$3/$5.fits EXPID "${VALUE} / kind of EXPID coadd " REPLACE
+	writekey /$1/$2/coadd_$3/$5.fits EXPID "${VALUE} / kind of coadd" REPLACE
 fi
 #adam-SHNT# make a MYSEEING (with comment) and put the default get_seeing calculation in there as SEEING
 echo "EXPID=$EXPID MYSEEING=$MYSEEING SEEING=$SEEING"
@@ -314,7 +316,7 @@ writekey /$1/$2/coadd_$3/$5.fits MAGZP "${VALUE} / $7 Magnitude Zeropoint" REPLA
 
 echo  "update_coadd_header.sh: SEEING=" $SEEING
 value ${SEEING}
-writekey /$1/$2/coadd_$3/$5.fits SEEING "${VALUE} / measured image Seeing (arcsec)" REPLACE
+writekey /$1/$2/coadd_$3/$5.fits GSEEING "${VALUE} / measured image Seeing (arcsec)" REPLACE
 #adam# don't write these since they might not be the actual MYSEEING values gotten with BartStar.py
 #writekey /$1/$2/coadd_$3/$5.fits SEEINGSE "${VALUE} / measured image Seeing (arcsec)" REPLACE
 #writekey /$1/$2/coadd_$3/$5.fits MYSEEING "${VALUE} / measured image Seeing (arcsec)" REPLACE
@@ -382,6 +384,11 @@ if [ -f /$1/$2/cat/chips_phot.cat5 ]; then
 	fi
 fi
 
-
+./adam_quicktools_fix_header_verify.py /$1/$2/coadd_$3/$5.fits
+./SeeingClearly_for_coadds.py /$1/$2/coadd_$3/$5.fits
+exit_stat=$?
+if [ "${exit_stat}" -gt "0" ]; then
+	exit ${exit_stat}
+fi
 
 echo "ds9e /$1/$2/coadd_$3/$5.fits -catalog import tsv $1/$2/coadd_$3/$5.get_seeing.filtered.tsv -catalog import tsv $1/$2/coadd_$3/$5.get_seeing.unfiltered.tsv &"

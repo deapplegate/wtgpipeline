@@ -188,11 +188,10 @@ AND (((flags & 0x100000000000) = 0) or (flags & 0x1000) = 0) \n'
         	#if string.find(lines[line][:-1],'font') != -1: 
         		#print lines[line][:-1]
         
-        print len(data)
-        print len(data[0])
+        print ' len(data)=',len(data)
+        print ' len(data[0])=',len(data[0])
         
         outwrite = open('sdss_out','w')
-        print len(data)
         
         keys = ['SeqNr',['dec','Dec'],['ra','Ra'],'raErr','decErr','umag','gmag','rmag','imag','Bmag','Vmag','Rmag','Imag','zmag','uerr','gerr','rerr','ierr','Berr','Verr','Rerr','Ierr','zerr','umg','gmr','rmi','imz','BmV','VmR','RmI','Imz','umgerr','gmrerr','rmierr','imzerr','BmVerr','VmRerr','RmIerr','Imzerr','A_WCS','B_WCS','THETAWCS','Flag','Clean',['ra','ALPHA_J2000'],['dec','DELTA_J2000']]
 

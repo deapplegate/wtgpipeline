@@ -408,8 +408,8 @@ do
 	                 name = name a[n-1]; 
 	                 print name;}' | sort | uniq`
 	image1=`\ls -1 ${curdir}/SUPA*_1OCF*.fits | head -n 1`
-	num_path_supa_chip_ending=(`~/wtgpipeline/adam_quicktools_get_num_path_supa_chip_ending.py ${image1}`)
-	ending=${num_path_supa_chip_ending[4]}
+	path_supa_chip_ending=(`~/wtgpipeline/adam_quicktools_fast_get_path_supa_chip_ending.py ${image1}`)
+	ending=${path_supa_chip_ending[3]}
 	# now the merging with a pyfits-based Python script:
 	for IMAGE in ${IMAGES}
 	do
@@ -556,6 +556,8 @@ PHOTFLUXERRKEY="FLUXERR_AUTO"
 ## scamp mode settings
 scamp_mode_instrum_star="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG ${STARCAT} " #default
 scamp_mode_exp_star="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG ${STARCAT} "
+scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
+scamp_mode_exp_ref="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
 if [ "${STARCAT}" == "PANSTARRS" ]; then
 	cp /nfs/slac/kipac/fs1/u/awright/SUBARU/${cluster}/panstarrs_cats/astrefcat.cat .
 	scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT \
@@ -569,8 +571,6 @@ if [ "${STARCAT}" == "PANSTARRS" ]; then
 	#adam: "iMeanPSFMag","iMeanPSFMagErr","iMeanKronMag","iMeanKronMagErr","iMeanApMag","iMeanApMagErr"
 	scamp_mode_use=${scamp_mode_instrum_ref}
 else
-	scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
-	scamp_mode_exp_ref="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
 	# really very little difference when changing "-ASTREF_WEIGHT 1" to "-ASTREF_WEIGHT 10", so ignore this
 	scamp_mode_use=${scamp_mode_instrum_star} #default
 fi
@@ -596,25 +596,25 @@ pixscale=1.003
 
 #adam-SHNT# early indications that FLUX_APER more reliable than FLUX_AUTO, so I'm switching to "-PHOTFLUX_KEY FLUX_APER1 -PHOTFLUXERR_KEY FLUXERR_APER1 "
 ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
-           -c ${CONF}/scamp_astrom_photom.scamp \
-	   -PHOTFLUX_KEY ${PHOTFLUXKEY} -PHOTFLUXERR_KEY ${PHOTFLUXERRKEY} \
-           -ASTRINSTRU_KEY FILTER,INSTRUM,CONFIG,ROTATION,MISSCHIP,PPRUN \
-           -CDSCLIENT_EXEC ${P_ACLIENT} \
-           -NTHREADS ${NPARA} ${MOSAICTYPE} \
-           -XML_NAME ${cluster}_scamp.xml \
-           -MAGZERO_INTERR 0.1 \
-           -MAGZERO_REFERR 0.03 \
-           -POSITION_MAXERR ${position} \
-           -POSANGLE_MAXERR ${posangle} \
-           -PIXSCALE_MAXERR ${pixscale} \
-           -SN_THRESHOLDS 3,100 \
-           -FLAGS_MASK 0x00e0 \
-           -MATCH_NMAX 10000 \
-           -MATCH Y \
-           -MATCH_RESOL 0.0 \
-           -CROSSID_RADIUS 0.3 \
-           -DISTORT_DEGREES 3 \
-           -ASTREF_WEIGHT 1 ${scamp_mode_use} -CHECKPLOT_RES 4000,3000
+        -c ${CONF}/scamp_astrom_photom.scamp \
+        -ASTRINSTRU_KEY FILTER,INSTRUM,CONFIG,ROTATION,MISSCHIP,PPRUN \
+	-PHOTFLUX_KEY ${PHOTFLUXKEY} -PHOTFLUXERR_KEY ${PHOTFLUXERRKEY} \
+        -CDSCLIENT_EXEC ${P_ACLIENT} \
+        -NTHREADS ${NPARA} ${MOSAICTYPE} \
+        -XML_NAME ${cluster}_scamp.xml \
+        -MAGZERO_INTERR 0.1 \
+        -MAGZERO_REFERR 0.03 \
+        -POSITION_MAXERR ${position} \
+        -POSANGLE_MAXERR ${posangle} \
+        -PIXSCALE_MAXERR ${pixscale} \
+        -SN_THRESHOLDS 3,100 \
+        -MATCH Y \
+        -MATCH_NMAX 10000 \
+        -MATCH_RESOL 0.0 \
+        -CROSSID_RADIUS 0.3 \
+        -DISTORT_DEGREES 3 \
+        -FLAGS_MASK 0x00e0 \
+        -ASTREF_WEIGHT 1 ${scamp_mode_use} -CHECKPLOT_RES 4000,3000
 
 #-POSITION_MAXERR 1.0 -POSANGLE_MAXERR 0.05 -PIXSCALE_MAXERR 1.03
 #starcat#           -ASTREF_CATALOG ${STARCAT} \

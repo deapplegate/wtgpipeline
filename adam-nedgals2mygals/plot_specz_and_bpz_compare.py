@@ -5,7 +5,7 @@ import sys,os,inspect ; sys.path.append('/u/ki/awright/InstallingSoftware/python
 from import_tools import *
 curfile=os.path.abspath(inspect.getfile(inspect.currentframe()))
 FileString=os.path.basename(curfile)
-args=imagetools.ArgCleaner(sys.argv,FileString)
+args=imagetools.ArgCleaner(sys.argv)
 import numpy as np
 import matplotlib.pyplot as plt
 import astropy

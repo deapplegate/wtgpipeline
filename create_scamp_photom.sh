@@ -607,13 +607,33 @@ fi
 # now call scamp:
 cd ../headers_photom
 
+PHOTFLUXKEY="FLUX_AUTO"
+PHOTFLUXERRKEY="FLUXERR_AUTO"
+#adam-tmp# PHOTFLUXKEY="FLUX_APER1"
+#adam-tmp# PHOTFLUXERRKEY="FLUXERR_APER1"
+#adam-SHNT#	        -ASTREFMAG_KEY iMeanApMag \
+#adam-SHNT# 	        -ASTREFMAGERR_KEY iMeanApMagErr "
 ## scamp mode settings
 scamp_mode_instrum_star="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG ${STARCAT} " #default
 scamp_mode_exp_star="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG ${STARCAT} "
 scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
 scamp_mode_exp_ref="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
-# really very little difference when changing "-ASTREF_WEIGHT 1" to "-ASTREF_WEIGHT 10", so ignore this
-scamp_mode_use=${scamp_mode_instrum_star} #default
+if [ "${STARCAT}" == "PANSTARRS" ]; then
+	cp /nfs/slac/kipac/fs1/u/awright/SUBARU/${cluster}/panstarrs_cats/astrefcat.cat .
+	scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT \
+	        -ASTREF_CATALOG FILE \
+	        -ASTREFCAT_NAME astrefcat.cat \
+	        -ASTREFCENT_KEYS raMean,decMean \
+	        -ASTREFERR_KEYS raMeanErr,decMeanErr \
+	        -ASTREFMAG_LIMITS 13,30 \
+	        -ASTREFMAG_KEY iMeanKronMag \
+	        -ASTREFMAGERR_KEY iMeanKronMagErr "
+	#adam: "iMeanPSFMag","iMeanPSFMagErr","iMeanKronMag","iMeanKronMagErr","iMeanApMag","iMeanApMagErr"
+	scamp_mode_use=${scamp_mode_instrum_ref}
+else
+	# really very little difference when changing "-ASTREF_WEIGHT 1" to "-ASTREF_WEIGHT 10", so ignore this
+	scamp_mode_use=${scamp_mode_instrum_star} #default
+fi
 #adam-IMPORTANT# If BACKMASK images look like crap, then I should first try out scamp_mode_use=${scamp_mode_exp_star}
 #adam-IMPORTANT# If still bad, then make a coadd.fits with only the good looking exposures, make a refcat from this, and use scamp_mode_use=${scamp_mode_exp_ref}
 
@@ -630,24 +650,39 @@ echo "scamp_mode_use=" $scamp_mode_use
 
 #-POSITION_MAXERR 1.0 -POSANGLE_MAXERR 0.05 -PIXSCALE_MAXERR 1.03
 ## RUN SCAMP
+posangle=1.0
+position=1.0
+pixscale=1.003
+
+#adam-look# these keys (FLUX_APER1 FLUXERR_APER1 MAG_APER1 MAGERR_APER1) were added (among others) using ./ldac_cat_aper_splitter.py 
+#adam-look# I've changed these keys to ensure we're using APERATURE MAGS in create_scamp_astrom_photom.sh: "-PHOTFLUX_KEY FLUX_APER1 -PHOTFLUXERR_KEY FLUXERR_APER1 "
+
+#adam-SHNT# early indications that FLUX_APER more reliable than FLUX_AUTO, so I'm switching to "-PHOTFLUX_KEY FLUX_APER1 -PHOTFLUXERR_KEY FLUXERR_APER1 "
+##let's try it with MATCH N and see how that works
 ${P_SCAMP} `${P_FIND} ../cat_photom/ -name \*scamp.cat` \
         -c ${CONF}/scamp_astrom_photom.scamp \
         -PHOTINSTRU_KEY FILTER -ASTRINSTRU_KEY ASTINST,MISSCHIP \
+	-PHOTFLUX_KEY ${PHOTFLUXKEY} -PHOTFLUXERR_KEY ${PHOTFLUXERRKEY} \
         -CDSCLIENT_EXEC ${P_ACLIENT} \
         -NTHREADS ${NPARA} \
         -XML_NAME ${cluster}_scamp.xml \
         -MAGZERO_INTERR 0.1 \
         -MAGZERO_REFERR 0.03 \
-        -MATCH Y \
-	-MATCH_NMAX 10000 \
+        -POSITION_MAXERR ${position} \
+        -POSANGLE_MAXERR ${posangle} \
+        -PIXSCALE_MAXERR ${pixscale} \
         -SN_THRESHOLDS 5,50 \
-        -MOSAIC_TYPE UNCHANGED \
+        -MATCH N \
+	-MATCH_NMAX 20000 \
+        -MATCH_RESOL 0.0 \
+        -CROSSID_RADIUS 0.3 \
         -DISTORT_DEGREES 3 \
-	-POSITION_MAXERR 2.0 -POSANGLE_MAXERR 0.07 -PIXSCALE_MAXERR 1.05 \
+        -MOSAIC_TYPE UNCHANGED \
         -ASTREF_WEIGHT 1 ${scamp_mode_use} -CHECKPLOT_RES 4000,3000
+#-POSITION_MAXERR 2.0 -POSANGLE_MAXERR 0.07 -PIXSCALE_MAXERR 1.05 \
 #-CROSSID_RADIUS 0.2 \
 
-	#starcat#        -ASTREF_CATALOG ${STARCAT} \
+#starcat#        -ASTREF_CATALOG ${STARCAT} \
 #refcat#           -ASTREF_CATALOG FILE \
 #refcat#           -ASTREFCENT_KEYS X_WORLD,Y_WORLD \
 #refcat#           -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD \
@@ -859,7 +894,7 @@ do
     mv ${CATBASE[$i]}*head ${CATDIR[$i]}/headers_scamp_photom_${STARCAT}
     exit_stat=$?
     if [ "${exit_stat}" -gt "0" ]; then
-		exit ${exit_stat};
+	exit ${exit_stat};
     fi
   fi
   

@@ -555,7 +555,7 @@ def do_bpz(CLUSTER,DETECT_FILTER,AP_TYPE,filters,inputcat_alter_ascii,inputcat_a
 	    else: dict['magvar'] = 'yes'
 
 	    #if pars.d['ONLY_TYPE']=='yes': #Use only the redshift information, no priors
-	    # probably have to run it with pars.d['ONLY_TYPE']=='yes' and 'no' to see impact
+	    # 
 	    
 	    command = 'python %(BPZPATH)s/bpz.py %(incat)s \
 	    -COLUMNS %(columns)s \

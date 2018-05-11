@@ -58,7 +58,7 @@ for ((i=5;i<=$#;i=i+1)); do
 done
 
 ########################
-export subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
+export subarudir=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 #adam#photrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/photometry_2010

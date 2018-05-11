@@ -1,6 +1,6 @@
 #!/bin/bash
 
-subaru=/nfs/slac/g/ki/ki18/anja/SUBARU
+subaru=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 logdir=${subaru}/iclog
 cluster=$1
 filter=$2

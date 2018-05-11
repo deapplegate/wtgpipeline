@@ -63,7 +63,7 @@ fi
 
 ########################
 
-subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
+subarudir=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 #filters=`grep "${cluster}" cluster.status | awk -v ORS=' ' '($1 !~ /#/){print $2}'`
 filters=`grep "${cluster}" cluster_cat_filters.dat | awk -v ORS=' ' '{for(i=3;i<=NF;i++){if($i!~"CALIB" && $i!="K") print $i}}'`

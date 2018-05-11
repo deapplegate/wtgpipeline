@@ -7,7 +7,7 @@ set -uxv
 #adam-old# subarudir=$1
 #adam-old# cluster=$2
 #adam-old# filter=$3
-subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU/
+subarudir=${SUBARUDIR}
 cluster=$1
 filter=$2
 

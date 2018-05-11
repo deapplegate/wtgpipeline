@@ -1,5 +1,7 @@
 #!/bin/bash -xv
 #adam-example# ./create_binnedmosaics.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-Z+/ SCIENCE SUP 'OCFSF' 1 -32
+#adam-example# ./create_binnedmosaics.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-Z+_2010-11-04/ SCIENCE_weighted SUP 'OCFSF.weighted' 8 -32
+#adam-example# ./create_binnedmosaics.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-I+/ SCIENCE_weighted SUP 'OCFSFI.weighted' 1 -32
 # ----------------------------------------------------------------
 # File Name:           create_binnedmosaics.sh
 # Author:              Thomas Erben (terben@astro.uni-bonn.de)
