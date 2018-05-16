@@ -65,6 +65,138 @@ for supa in supa_coadds:
 
 hist(max_ratios,bins=linspace(0.1,100.0,200),log=True)
 
+## some stuff to switch from mosaic (coadd.fits) to resampled-chip images (SUPA....resamp.fits):
+
+py2ds9= lambda (x,y): (y+1,x) 
+ds92py= lambda (x,y): (y,x-1) 
+coords2ints= lambda position: tuple([int(round(x)) for x in position])
+
+def mosaic_to_resamp_chip_map(mosaic_coadd_fl):
+	''' input the coadd fits image, and you'll get a map of where the different resampled chips fall on that grid'''
+        os.path.dirname(mosaic_coadd_fl)
+	mosaic_fitsfl=astropy.io.fits.open(mosaic_coadd_fl)
+	mosaic2chip_map=zeros(mosaic_fitsfl[0].data.shape,dtype=int)
+	mosaic_header=mosaic_fitsfl[0].header
+	mosaic_fitsfl.close()
+	#resamp_chips=[]
+	for i in range(1,11):
+		#resamp_chips+=glob(os.path.dirname(mosaic_coadd_fl)+'/SUPA*_%sOCF[A-Z]*.sub.[A-Z]*.resamp.fits' % (i))
+		resamp_chip_fl=glob(os.path.dirname(mosaic_coadd_fl)+'/SUPA*_%sOCF[A-Z]*.sub.[A-Z]*.resamp.fits' % (i))[0]
+		resamp_chip_fo=astropy.io.fits.open(resamp_chip_fl)
+		resamp_chip_image=resamp_chip_fo[0].data
+		resamp_chip_header=resamp_chip_fo[0].header
+		resamp_chip_fo.close()
+		pyCOMIN1=resamp_chip_header['COMIN1']-1 #have to switch to zero indexing
+		pyCOMIN2=resamp_chip_header['COMIN2']-1 #have to switch to zero indexing
+		resamp_chip_slice=(slice(pyCOMIN2,pyCOMIN2+resamp_chip_image.shape[0]),slice(pyCOMIN1,pyCOMIN1+resamp_chip_image.shape[1]))
+		mosaic2chip_map[resamp_chip_slice]=i
+	return mosaic2chip_map
+
+def mosaic_position_to_resamp_chip(position,mosmap,mosaic_coadd_fl):
+	'''
+	INPUTS
+	position: (x,y) position in the mosaic image (in coadd.fits). Note that x and y axes are defined by python (which is probably the reverse of the coordinates ds9 uses)
+	mosmap: output from mosaic_to_resamp_chip_map, i.e. mosmap=mosaic_to_resamp_chip_map(mosaic_coadd_fl)
+
+	RETURNS
+	gives you the chip number and position within the resampled chip corresponding to the input position in the coadd mosaic'''
+	pair=tuple([int(round(x)) for x in position])
+	chipnum=mosmap[pair]
+	resamp_chip_fl=glob(os.path.dirname(mosaic_coadd_fl)+'/SUPA*_%sOCF[A-Z]*.sub.[A-Z]*.resamp.fits' % (chipnum))[0]
+	resamp_chip_fo=astropy.io.fits.open(resamp_chip_fl)
+	#resamp_chip_image=resamp_chip_fo[0].data
+	resamp_chip_header=resamp_chip_fo[0].header
+	resamp_chip_fo.close()
+	pyCOMIN1=resamp_chip_header['COMIN1']-1 #have to switch to zero indexing
+	pyCOMIN2=resamp_chip_header['COMIN2']-1 #have to switch to zero indexing
+	resamp_chip_position=(position[0]-pyCOMIN2,position[1]-pyCOMIN1)
+	return chipnum , resamp_chip_position
+
+def mosaic_position_to_resamp_chip_ds9_coords(position,mosmap,mosaic_coadd_fl):
+	'''this is `mosaic_position_to_resamp_chip`, but you can use coords from ds9/regions'''
+	pypos=ds92py(position)
+	chip_pypos=mosaic_position_to_resamp_chip(pypos,mosmap,mosaic_coadd_fl)
+	chip_ds9pos=py2ds9(chip_pypos[-1])
+	print '        mosaic position:',position
+	print 'resampled chip position:',chip_ds9pos
+	return chip_pypos[0],chip_ds9pos
+
+
+## LET'S TEST IT OUT
+
+mosaic_coadd_fl='/gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/coadd_RXJ2129_SUPA0135155/coadd.fits'
+mosmap=mosaic_to_resamp_chip_map(mosaic_coadd_fl)
+
+## test this by making a polygon and translating it over to two different places
+## input from : /u/ki/awright/wtgpipeline/ccd9_rect_small.reg
+## output went into: /u/ki/awright/wtgpipeline/ccd9_rect_resamp_chip.reg	
+polygon=(6094.7797,8877.1077,7670.9609,8886.9588,7680.8121,5645.9362,6075.0774,5616.3828)
+yy=polygon[1:-1:2]
+xx=polygon[0:-1:2]
+if len(xx)!=len(yy):
+	yy=list(polygon[1:-1:2])+[polygon[-1]]
+pairs=zip(xx,yy)
+newpairs=[]
+newpolygon=[]
+for p in pairs:
+    chip,pnew=mosaic_position_to_resamp_chip_ds9_coords(p,mosmap,mosaic_coadd_fl)
+    newpairs.append(pnew)
+    newpolygon.append(pnew[0])
+    newpolygon.append(pnew[1])
+
+print newpolygon
+## put into here: /u/ki/awright/wtgpipeline/ccd9_rect_resamp_chip.reg
+## check answer with:
+## ds9 -zscale /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/coadd_RXJ2129_all/SUPA0135155_9OCFSIR.sub.RXJ2129_all.resamp.fits -region load /u/ki/awright/wtgpipeline/ccd9_rect_resamp_chip.reg  /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/coadd_RXJ2129_SUPA0135155/coadd.fits -region load /u/ki/awright/wtgpipeline/ccd9_rect_small.reg &
+
+
+sys.exit()
+
+
+
+## some stuff used for developement, no longer needed:
+resamp_chip_fl='/gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/coadd_RXJ2129_all/SUPA0135155_9OCFSIR.sub.RXJ2129_all.resamp.fits'
+resamp_chip_fo=astropy.io.fits.open(resamp_chip_fl)
+resamp_chip_image=resamp_chip_fo[0].data
+resamp_chip_header=resamp_chip_fo[0].header
+resamp_chip_fo.close()
+COMIN1=resamp_chip_header['COMIN1']
+COMIN2=resamp_chip_header['COMIN2']
+#del# resamp_chip_chip_slice=(slice(COMIN1,resamp_chip_image.shape[0]+COMIN1,None), slice(COMIN2,resamp_chip_image.shape[1]+COMIN2,None))
+resamp_chip_slice=(slice(-1+COMIN2,-1+COMIN2+resamp_chip_image.shape[0]),slice(-1+COMIN1,-1+COMIN1+resamp_chip_image.shape[1]))
+mosaic_coadd_fl='/gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/coadd_RXJ2129_SUPA0135155/coadd.fits'
+mosaic_fitsfl=astropy.io.fits.open(mosaic_coadd_fl)
+mosaic_image=mosaic_fitsfl[0].data
+mosaic_header=mosaic_fitsfl[0].header
+mosaic_fitsfl.close()
+mosaic_selection=mosaic_image[resamp_chip_slice]
+#mask=chip_selection==0
+#resamp_chip_compare=resamp_chip_image.copy()
+#resamp_chip_compare[mask]=0
+
+
+
+## this is equivalent to /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/coadd_RXJ2129_SUPA0135155/SUPA0135155_9OCFSIR.sub.RXJ2129_SUPA0135155.resamp.fits
+## COMMENT  Axis-dependent SWarp parameters
+## COMIN1  =                 5859 / Output minimum position of image
+## COMIN2  =                 5140 / Output minimum position of image
+## COMMENT
+## COMMENT  Image-dependent SWarp parameters
+## FLXSCALE=   4.395378000000E-03 / Relative flux scaling from photometry
+## FLASCALE=   1.000000000000E+00 / Relative flux scaling from astrometry
+## BACKMEAN=   7.703595519188E-01 / Effective background level
+## BACKSIG =   3.174919056997E+01 / Effective background RMS
+
+sys.exit()
+#adam-SHNT# probably easiest to do a resamp2mosaic map (using COMIN1 and COMIN2) and just invert it
+#def resamp2mosaic():
+
+
+
+
+
+
+
 sys.exit()
 
 
