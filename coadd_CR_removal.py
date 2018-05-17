@@ -19,6 +19,84 @@ ns=globals()
 conn8=array([[1,1,1],[1,1,1],[1,1,1]])
 conn4=array([[0,1,0],[1,1,1],[0,1,0]])
 connS=array([[0,1,1,0],[1,1,1,1],[1,1,1,1],[0,1,1,0]],dtype=bool)
+
+#START: LABEL FUNCTIONS
+def plotlabels(ll,segments=None,slices=None,params=None,background=None):
+	'''plot stamps of all of the masks in the label list `ll`.
+	ll: the list of segmentation numbers you want to plot
+	segments: the segmetation map
+	slices: the slices for each segment in segmentation map
+	params: a list of properties of each segment (any segment property you want), this will show up in the title of each subplot
+	background: the image that the segmentation map was selected from
+	'''
+	try:
+		if segments is None:segments=BBCRseg
+		if slices is None: slices=BBCRslices
+		if params is None: params=ll
+		if background is None: background=image
+		patches=[]
+		for l in ll:
+			patches.append(imagetools.slice_expand(tuple(slices[l-1]),3))
+		fig=figure(figsize=(22,13.625))
+		Nlabels=len(ll)
+		if Nlabels<=4:
+			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(2,2))
+			textsize=14
+		elif Nlabels<=9:
+			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(3,3))
+			textsize=13
+		elif Nlabels<=16:
+			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(4,4))
+			textsize=12
+		elif Nlabels<=25:
+			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(5,5))
+			textsize=11
+		elif Nlabels<=6*7:
+			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(6,7))
+			textsize=10
+		elif Nlabels<=6*8:
+			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(6,8))
+			textsize=10
+		elif Nlabels<=7*8:
+			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(7,8))
+			textsize=9
+		elif Nlabels<=7*9:
+			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(7,9))
+			textsize=9
+		else:
+			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(8,10))
+			fig.subplots_adjust(top=.95)
+			textsize=8
+		if len(params)==Nlabels:
+			for ax,sl,title,l in zip(axes,patches,params,ll):
+				##spots=segments[sl]>0
+				spots=segments[sl]==l
+				yy,xx=nonzero(spots)
+				stamp=background[sl]
+				ax.imshow(stamp,interpolation='nearest',origin='lower left')
+				ax.scatter(xx,yy,marker='o',edgecolors='k',facecolors='None',label='points')
+				ax.set_title(str(title),size=10)
+		elif len(params)==len(slices):
+			for ax,sl,l in zip(axes,patches,ll):
+				title=params[l-1]
+				##spots=segments[sl]>0
+				spots=segments[sl]==l
+				yy,xx=nonzero(spots)
+				stamp=background[sl]
+				ax.imshow(stamp,interpolation='nearest',origin='lower left')
+				ax.scatter(xx,yy,marker='o',edgecolors='k',facecolors='None',label='points')
+				ax.set_title(str(title),size=10)
+		else:
+			raise Exception('gotta have len(params)==len(slices) or len(params)==len(ll)')
+		return fig
+	except:
+		ns.update(locals())
+		show()
+		raise
+
+
+
+
 plotdir='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/plot_SCIENCE_compare/'
 from glob import glob
 coadd_masterdir='/gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/'
@@ -45,6 +123,9 @@ for supa in supa_coadds:
         supa_slices=scipy.ndimage.find_objects(supa_seg)
 	## maybe something else will work better than a simple max_ratio
 	## but I'll just throw this in for now.
+	plot_ll=[]
+	plot_segments=supa_seg.copy()
+	plot_background=supa_image.copy()
 	max_ratios=[]
 	for i in range(1,supa_Nlabels+1):
 		    # filter out small masks
@@ -61,7 +142,14 @@ for supa in supa_coadds:
 		    ## here on down, you figure it out.
 
 		    #relevant_ratios.max()
-		    max_ratios.append(relevant_ratios.max())
+		    if i<=80:
+			    plot_ll.append(i)
+			    max_ratios.append(relevant_ratios.max())
+
+	fig=plotlabels(plot_ll,plot_segments,supa_slices,max_ratios,plot_background)
+	#fig.savefig('...')
+	show()
+	sys.exit()
 
 hist(max_ratios,bins=linspace(0.1,100.0,200),log=True)
 
@@ -1455,73 +1543,6 @@ def blocked_blender(bthresh,CRfiltimage,CRll,CRslices,starbools,CRseg):
 		ns.update(locals())
 		show();print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
 #END: BLENDING FUNCTIONS
-
-#START: LABEL FUNCTIONS
-def plotlabels(ll,segments=None,slices=None,params=None,background=None):
-	'''plot stamps of all of the masks in the label list `ll`.'''
-	try:
-		if segments is None:segments=BBCRseg
-		if slices is None: slices=BBCRslices
-		if params is None: params=ll
-		if background is None: background=image
-		patches=[]
-		for l in ll:
-			patches.append(imagetools.slice_expand(tuple(slices[l-1]),3))
-		fig=figure(figsize=(22,13.625))
-		Nlabels=len(ll)
-		if Nlabels<=4:
-			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(2,2))
-			textsize=14
-		elif Nlabels<=9:
-			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(3,3))
-			textsize=13
-		elif Nlabels<=16:
-			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(4,4))
-			textsize=12
-		elif Nlabels<=25:
-			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(5,5))
-			textsize=11
-		elif Nlabels<=6*7:
-			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(6,7))
-			textsize=10
-		elif Nlabels<=6*8:
-			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(6,8))
-			textsize=10
-		elif Nlabels<=7*8:
-			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(7,8))
-			textsize=9
-		elif Nlabels<=7*9:
-			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(7,9))
-			textsize=9
-		else:
-			fig,axes = imagetools.AxesList(fig=fig,compact=.02,shape=(8,10))
-			fig.subplots_adjust(top=.95)
-			textsize=8
-		if len(params)==Nlabels:
-			for ax,sl,title,l in zip(axes,patches,params,ll):
-				##spots=segments[sl]>0
-				spots=segments[sl]==l
-				yy,xx=nonzero(spots)
-				stamp=background[sl]
-				ax.imshow(stamp,interpolation='nearest',origin='lower left')
-				ax.scatter(xx,yy,marker='o',edgecolors='k',facecolors='None',label='points')
-				ax.set_title(str(title),size=10)
-		elif len(params)==len(slices):
-			for ax,sl,l in zip(axes,patches,ll):
-				title=params[l-1]
-				##spots=segments[sl]>0
-				spots=segments[sl]==l
-				yy,xx=nonzero(spots)
-				stamp=background[sl]
-				ax.imshow(stamp,interpolation='nearest',origin='lower left')
-				ax.scatter(xx,yy,marker='o',edgecolors='k',facecolors='None',label='points')
-				ax.set_title(str(title),size=10)
-		else:
-			print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise Exception('gotta have len(params)==len(slices) or len(params)==len(ll)')
-		return fig
-	except:
-		ns.update(locals())
-		show();print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
 
 def reset_labels(prob_labels,segs2reset):
 	'''take in a current image and an older image and reset the masks in `prob_labels` to how they were in the older image'''
