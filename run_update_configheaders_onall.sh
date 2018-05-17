@@ -2,7 +2,7 @@
 
 export BONN_LOG=0
 
-subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
+subarudir=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 for cluster in `cat ${subarudir}/SUBARU.list | awk '{print $1}'`; do
 

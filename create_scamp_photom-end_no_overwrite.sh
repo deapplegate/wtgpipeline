@@ -1,5 +1,7 @@
 #!/bin/bash
 set -xvu
+#adam-example# ./create_scamp_photom-end_no_overwrite.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-J-B SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-J-B_2015-12-15_CALIB SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-J-V SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-J-V_2009-01-23_CALIB SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-C-RC SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-C-RC_2009-01-23_CALIB SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-C-IC SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-C-IC_2006-12-21_CALIB SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-S-Z+ SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-S-Z+_2015-12-15_CALIB SCIENCE 30000 PANSTARRS 2>&1 | tee -a OUT-create_scamp_photom-end_no_overwrite_MACS0429-02.log
+#adam-example# ./create_scamp_photom-end_no_overwrite.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-J-B SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-J-V SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-I+ SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-Z+ SCIENCE  26000 SDSS-R6 2>&1 | tee -a OUT-create_scamp_photom-end_no_overwrite_RXJ2129.sh
 #adam-example# ./create_scamp_photom-end_no_overwrite.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-B SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-V SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-IC SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-S-Z+ SCIENCE 30000 SDSS-R6 2>&1 | tee -a OUT-create_scamp_photom-end_no_overwrite.sh
 #. BonnLogger.sh
 #. log_start
@@ -116,6 +118,9 @@ fi
 . progs.ini > /tmp/progs.out 2>&1
 
 # NCHIPSMAX needs to be set before
+if [ -z ${NCHIPSMAX} ] ;then
+	NCHIPSMAX=10
+fi
 NCHIPS=${NCHIPSMAX:-10}
 
 # define THELI_DEBUG and some other variables because of the '-u'
@@ -287,6 +292,9 @@ THRESHOLD=${!nTHRESHOLD}
 echo "adam-look: NDIRS=" $NDIRS
 echo "adam-look: THRESHOLD=" $THRESHOLD
 echo "adam-look: STARCAT=" $STARCAT
+## adam-note: I believe this could be a one-script thing if I just put this here:
+#adam-SHNT# I'd have to uncomment this line though:
+#./create_scamp_photom-middle_combine_dirs.sh ${cluster} W-J-B W-J-B
 
 # Test existence of image directory(ies) and create headers_scamp
 # directories:
@@ -324,7 +332,7 @@ DIR=`pwd`
 
 ALLMISS=""
 l=0
-while [ ${l} -le ${NCHIPSMAX} ]
+while [ ${l} -le ${NCHIPS} ]
 do
   ALLMISS="${ALLMISS}${l}"
   l=$(( ${l} + 1 ))
@@ -340,8 +348,10 @@ if [ ! -d astrom_photom_scamp_${STARCAT} ]; then
 fi
 
 test -d "astrom_photom_scamp_${STARCAT}/cat_photom" && echo "#adam-look# keeping this dir:" astrom_photom_scamp_${STARCAT}/cat_photom
-test -d "astrom_photom_scamp_${STARCAT}/headers_photom" && echo "#adam-look# keeping this dir:" astrom_photom_scamp_${STARCAT}/headers_photom
-test -d "astrom_photom_scamp_${STARCAT}/plots_photom" && echo "#adam-look# keeping this dir:" astrom_photom_scamp_${STARCAT}/plots_photom
+test -d "astrom_photom_scamp_${STARCAT}/headers_photom" && rename 's/headers_photom/headers_photom_old/g' astrom_photom_scamp_${STARCAT}/headers_photom*/
+test -d "astrom_photom_scamp_${STARCAT}/plots_photom" && rename 's/plots_photom/plots_photom_old/g' astrom_photom_scamp_${STARCAT}/plots_photom*/
+mkdir astrom_photom_scamp_${STARCAT}/headers_photom
+mkdir astrom_photom_scamp_${STARCAT}/plots_photom
 
 cd astrom_photom_scamp_${STARCAT}/cat_photom
 
@@ -447,7 +457,7 @@ do
     # the last '_' in the image names (including the underscore itself);
     # we implicitely assume that the image extension DOES NOT contain
     # '_'s.
-    IMAGES=`${P_FIND} ${curdir} -maxdepth 1 -name \*.fits -exec basename {} \; |\
+    IMAGES=`${P_FIND} ${curdir} -maxdepth 1 -name \*I.fits -exec basename {} \; |\
         ${P_GAWK} '{ n = split($1, a, "_"); 
                      name=""; 
                      for(i = 1; i < (n-1); i++) 
@@ -456,6 +466,9 @@ do
                      } 
                      name = name a[n-1]; 
                      print name;}' | sort | uniq`
+    image1=`\ls -1 ${curdir}/SUPA*_1OCF*I.fits | head -n 1`
+    path_supa_chip_ending=(`~/wtgpipeline/adam_quicktools_fast_get_path_supa_chip_ending.py ${image1}`)
+    ending=${path_supa_chip_ending[3]}
     # now the merging with a pyfits-based Python script:
     # loop over SUPAs (within this filter)
     for IMAGE in ${IMAGES}
@@ -463,7 +476,7 @@ do
         echo "IMAGE=" ${IMAGE}
         # If an old scamp catalogue exists the python call below
         # would fail!
-        #tmp#test -f "./${IMAGE}_scamp.cat" && rm -f ./${IMAGE}_scamp.cat
+        test -f "./${IMAGE}_scamp.cat" && rm -f ./${IMAGE}_scamp.cat
         i=1
         CATS=""
         MISSCHIP=0     # contains the missing chips in the form of a pasted
@@ -473,47 +486,56 @@ do
         # loop over chips (within this SUPA, within this filter)
         while [ ${i} -le ${NCHIPS} ]
         do
-            oimage=`${P_FIND} /${!j}/${!k}/ -maxdepth 1 -name ${IMAGE}_${i}[!0-9]*.fits | awk '{if($1!~"sub.fits" && $1~"I.fits") print $0}'`
+            ocat=`\ls ${IMAGE}_${i}${ending}.ldac`
+            if [ ! -f "${IMAGE}_${i}${ending}.ldac" ]; then
+                  ocat=`\ls ${IMAGE}_${i}[!0-9]*.ldac`
+            fi
+            if [ -f "${ocat}" ]; then
+                #CATS="${CATS} `echo ${IMAGE}_${i}[!0-9]*.ldac`"
+                echo "ADAMLOG: IMAGE=$IMAGE and CATS=$CATS "
+            else
+                MISSCHIP=${MISSCHIP}${i}
+                i=$(( ${i} + 1 ))
+                continue
+            fi
+            chip_ending=(`~/wtgpipeline/adam_quicktools_get_chip_ending.py ${ocat}`)
+            ocatending=${chip_ending[1]}
+            oimage=`${P_FIND} /${!j}/${!k}/ -maxdepth 1 -name ${IMAGE}_${i}${ocatending}.fits | awk '{if($1!~"sub.fits" && $1~"I.fits") print $0}'`
             ## now changing it for "photom" mode, so that it gets the one ending in I.fits
-            #adam-tmp# should make a python routine that finds the proper things (or maybe it's not THAT important)
             #adam-SHNT# this will NO LONGER WORK if *I.fits isn't there, as it WILL NOT be for MACS0416
             #adam-old# oimage=`${P_FIND} /${!j}/${!k}/ -maxdepth 1 -name ${IMAGE}_${i}[!0-9]*.fits | awk '{if($1~"I.fits") print $0}'`
+            if [ ! -f "${oimage}" ]; then
+                oimage=`${P_FIND} /${!j}/${!k}/ -maxdepth 1 -name ${IMAGE}_${i}[!0-9]*I.fits | awk '{if($1!~"sub.fits" && $1~"I.fits") print $0}'`
+	    fi
             if [ -f "${oimage}" ]; then
                 BADCCD=`dfits "${oimage}" | fitsort -d BADCCD | awk '{print $2}'`
                 INSTRUM=`dfits "${oimage}" | fitsort -d INSTRUM | awk '{print $2}'`
                 ROTATION=`dfits ${oimage} | fitsort ROTATION | awk '($1!="FILE") {print $2}'`
                 CONFIG=`dfits ${oimage} | fitsort CONFIG | awk '($1!="FILE") {print $2}'`
-		IMending=`basename ${oimage} | awk -F"_${i}" '{print $2}' | awk -F'.' '{print $1}'`
+
                 if [ "${ROTATION}" == "KEY_N/A" ]; then
                     ROTATION=0
                 fi
                 if [ "${INSTRUM}" = "KEY_N/A" ]; then
                     INSTRUM=${INSTRUMENT:?}
                 fi
+                if [ "${BADCCD}" == "1" ]; then
+                    MISSCHIP=${MISSCHIP}${i}
+		    echo "adam-look: in the BADCCD=1 case, put i=$i in MISSCHIP and include in CATS as well, since it has an ocat=${ocat}"
+		    #adam: in this case, put i in MISSCHIP and include in CATS as well, since it has a cat
+                    #adam-fix#i=$(( ${i} + 1 ))
+                    #adam-fix#continue
+                fi
             else
                 echo "no image ${oimage} for ${IMAGE}_${i} in ${curdir} !"
+                echo "adam-look: ocat=${ocat} is there, but oimage=${oimage} is not!"
+                exit 1
                 MISSCHIP=${MISSCHIP}${i}
+                i=$(( ${i} + 1 ))
+                continue
             fi
         
-            if [ -n "${oimage}" ] && [ "${BADCCD}" != "1" ]; then
-                # The following test for an image implicitely assumes that the
-                # image ending does NOT start with a number: obvious but I mention
-                # it just in case ....
-                # It is necessary as we allow for images with different endings in the 
-                # image directories:
-                ocat=`\ls ${IMAGE}_${i}${IMending}.ldac`
-                if [ ! -f "${ocat}" ]; then
-                    ocat=`\ls ${IMAGE}_${i}[!0-9]*.ldac`
-                fi
-                if [ -f "${ocat}" ]; then
-                    #adam-old# CATS="${CATS} `echo ${ocat}`"
-                    CATS="${CATS} ${ocat}"
-                else
-                    MISSCHIP=${MISSCHIP}${i}
-                fi
-            else
-                MISSCHIP=${MISSCHIP}${i}
-            fi
+            CATS="${CATS} `\ls ${ocat}`"
             i=$(( ${i} + 1 ))
         done
         
@@ -522,10 +544,86 @@ do
             continue
         fi
         ALLIMAGES="${ALLIMAGES} ${IMAGE}"
-        #python ${S_SCAMPCAT} ${CATS} ./${IMAGE}_scamp.cat
         echo "${CATS} ./${IMAGE}_scamp.cat" >> ${DIR}/catlist.txt_$$
-        #tmp#test -f "./${IMAGE}_scamp.ahead" && rm -f ./${IMAGE}_scamp.ahead
+        test -f "./${IMAGE}_scamp.ahead" && rm -f ./${IMAGE}_scamp.ahead
         
+        if [ ${INSTRUM} == "SUBARU" ]; then
+               i=1
+               MISSEDT=0
+               if [ ${NCHIPS} -eq 8 ]; then
+                   FS="910"
+               else
+                   FS="1112"
+               fi
+               while [ ${i} -le ${NCHIPS} ]
+               do
+                   if [ ${i} -eq 1 ]; then
+                       MISSED=`grep MISSCHIP ../cat/${IMAGE}_scamp.ahead | awk '{if(NR==1) print $2}' | sed "s/'//g" | awk 'BEGIN{FS="'${FS}'"}{print $1}' | awk '{if($1~/0'${i}'/) print "1"; else print "0"}'`
+                   else
+                       MISSED=`grep MISSCHIP ../cat/${IMAGE}_scamp.ahead | awk '{if(NR==1) print $2}' | sed "s/'//g" | awk 'BEGIN{FS="'${FS}'"}{print $1}' | awk '{if($1~/'${i}'/) print "1"; else print "0"}'`
+                   fi
+                   MISSEDT=`awk 'BEGIN{print '${MISSEDT}'+'${MISSED}'}'`
+                   echo "adam-look: i=${i} MISSED=${MISSED} MISSEDT=${MISSEDT} MISSCHIP=${MISSCHIP}"
+                   ocat=`\ls ${IMAGE}_${i}${ending}.ldac`
+                   if [ ! -f "${IMAGE}_${i}${ending}.ldac" ]; then
+                         ocat=`\ls ${IMAGE}_${i}[!0-9]*.ldac`
+                   fi
+                   if [ ! -f "${ocat}" ]; then
+			   echo "adam-look: skipping over ${IMAGE}_${i} (which makes sense as long as ${i} is in ${MISSCHIP})"
+                           i=$(( ${i} + 1 ))
+                           continue
+                   fi
+		   if [[ ${MISSCHIP} == *${i}* ]]; then
+			   echo "adam-look: i=${i} in MISSCHIP=${MISSCHIP} and it has ocat=${ocat}, so must be BADCCD=1 right?" #adam-SHNT#
+			   #if [[ ${MISSEDT} == 0 ]]; then
+			   #   MISSEDT=1
+			   #fi
+		   fi
+                   if [ -f ../headers/${IMAGE}_scamp.head ]; then
+                       AHEADFILE=../headers/${IMAGE}_scamp.head
+                   else
+                       echo "${IMAGE} doesn't have a preexisting header file!"
+                       if [ ${INSTRUM} == "SUBARU" ]; then
+                           AHEADFILE=${DIR}/${INSTRUM}_c${CONFIG}_r${ROTATION}.ahead
+                       else
+                           AHEADFILE=${DIR}/${INSTRUM}.ahead
+                       fi
+                   fi
+                   if [ -f "${AHEADFILE}" ]; then
+                       ${P_GAWK} 'BEGIN {ext = ('${i}'-'${MISSEDT}'); nend = 0} 
+                           {
+                             if(nend < ext) 
+                             {
+                               if($1 == "END") 
+                               {
+                                 nend++; 
+                                 next; 
+                               } 
+                               if(nend == (ext-1)) { print $0 } 
+                             } 
+                           }' ${AHEADFILE} >> ${IMAGE}_scamp.ahead
+                       echo "${IMAGE} ${AHEADFILE}" >> aheadfiles.txt
+                       AHEADLINK=`readlink ${AHEADFILE}`
+                       if [[ $AHEADLINK = *"ki05"* ]]; then
+                            echo "It's OLD"
+                            NEWOLD="OLD"
+                       else
+                            NEWOLD="NEW"
+                       fi
+                       echo "NEWOLD  = '${NEWOLD}'" >> ./${IMAGE}_scamp.ahead
+
+                   fi
+                   echo "MISSCHIP= '${MISSCHIP}'" >> ./${IMAGE}_scamp.ahead
+                   echo "END      "               >> ./${IMAGE}_scamp.ahead
+                   i=$(( ${i} + 1 ))
+               done
+               echo "adam-look: ${IMAGE} MISSCHIP=${MISSCHIP} MISSEDT=${MISSEDT} NEWOLD=${NEWOLD}"
+        elif [ -f "../headers/${IMAGE}_scamp.head" ]; then
+            echo "not SUBARU, but there is already a header file for us to use"
+            cp ../headers/${IMAGE}_scamp.head ./${IMAGE}_scamp.ahead
+        else
+            echo "adam-look (this could be problematic): ${IMAGE} doesn't have a preexisting header file!"
+        fi
     done
     j=$(( ${j} + 2 ))
     k=$(( ${k} + 2 ))
@@ -534,23 +632,52 @@ done
 
 #/nfs/slac/g/ki/ki05/anja/MEGAPRIME/software/THELI/ldacpipeline-0.12.33/scripts/Linux_64/scampcat.py: merge single frame THELI files to a scamp MEF catalogue
 #merges individual chip cats BASE_${i}${ending}.ldac to BASE_scamp.cat
-#tmp#python ${S_SCAMPCAT} ${DIR}/catlist.txt_$$
+python ${S_SCAMPCAT} ${DIR}/catlist.txt_$$
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
-	echo "adam-Error: something wrong with python scamp call. Checkout ${DIR}/catlist.txt_$$"
+        echo "adam-Error: something wrong with python scamp call. Checkout ${DIR}/catlist.txt_$$"
 	exit ${exit_stat};
 fi
 
 # now call scamp:
 cd ../headers_photom
 
+PHOTFLUXKEY="FLUX_AUTO"
+PHOTFLUXERRKEY="FLUXERR_AUTO"
+#adam-tmp# PHOTFLUXKEY="FLUX_APER1"
+#adam-tmp# PHOTFLUXERRKEY="FLUXERR_APER1"
+#adam-SHNT#	        -ASTREFMAG_KEY iMeanApMag \
+#adam-SHNT# 	        -ASTREFMAGERR_KEY iMeanApMagErr "
 ## scamp mode settings
 scamp_mode_instrum_star="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG ${STARCAT} " #default
 scamp_mode_exp_star="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG ${STARCAT} "
 scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
 scamp_mode_exp_ref="-STABILITY_TYPE EXPOSURE -ASTREF_CATALOG FILE -ASTREFCENT_KEYS X_WORLD,Y_WORLD -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD -ASTREFMAG_KEY MAG_AUTO "
-# really very little difference when changing "-ASTREF_WEIGHT 1" to "-ASTREF_WEIGHT 10", so ignore this
-scamp_mode_use=${scamp_mode_instrum_star} #default
+if [ "${STARCAT}" == "PANSTARRS" ]; then
+	cp /nfs/slac/kipac/fs1/u/awright/SUBARU/${cluster}/panstarrs_cats/astrefcat-stars_only.cat ./astrefcat.cat
+	scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT \
+	        -ASTREF_CATALOG FILE \
+	        -ASTREFCAT_NAME astrefcat.cat \
+	        -ASTREFCENT_KEYS raMean,decMean \
+	        -ASTREFERR_KEYS raMeanErr,decMeanErr \
+	        -ASTREFMAG_LIMITS 13,30 \
+	        -ASTREFMAG_KEY iMeanPSFMag \
+	        -ASTREFMAGERR_KEY iMeanPSFMagErr "
+	#cp /nfs/slac/kipac/fs1/u/awright/SUBARU/${cluster}/panstarrs_cats/astrefcat.cat ./astrefcat.cat
+	#scamp_mode_instrum_ref="-STABILITY_TYPE INSTRUMENT \
+	#        -ASTREF_CATALOG FILE \
+	#        -ASTREFCAT_NAME astrefcat.cat \
+	#        -ASTREFCENT_KEYS raMean,decMean \
+	#        -ASTREFERR_KEYS raMeanErr,decMeanErr \
+	#        -ASTREFMAG_LIMITS 13,30 \
+	#        -ASTREFMAG_KEY iMeanKronMag \
+	#        -ASTREFMAGERR_KEY iMeanKronMagErr "
+	#adam: "iMeanPSFMag","iMeanPSFMagErr","iMeanKronMag","iMeanKronMagErr","iMeanApMag","iMeanApMagErr"
+	scamp_mode_use=${scamp_mode_instrum_ref}
+else
+	# really very little difference when changing "-ASTREF_WEIGHT 1" to "-ASTREF_WEIGHT 10", so ignore this
+	scamp_mode_use=${scamp_mode_instrum_star} #default
+fi
 #adam-IMPORTANT# If BACKMASK images look like crap, then I should first try out scamp_mode_use=${scamp_mode_exp_star}
 #adam-IMPORTANT# If still bad, then make a coadd.fits with only the good looking exposures, make a refcat from this, and use scamp_mode_use=${scamp_mode_exp_ref}
 
@@ -567,24 +694,66 @@ echo "scamp_mode_use=" $scamp_mode_use
 
 #-POSITION_MAXERR 1.0 -POSANGLE_MAXERR 0.05 -PIXSCALE_MAXERR 1.03
 ## RUN SCAMP
+posangle=1.0 #used to be .05, then I put it to 1.0, which is way too large, so I put it back (e.g. for MACS0429, the most extreme values are -.007 and .003
+position=1.0
+pixscale=1.003
+if [ "${cluster}" == "MACS0429-02" ]; then
+	posangle=6.0
+	pixscale=1.2
+fi
+
+
+#adam-look# these keys (FLUX_APER1 FLUXERR_APER1 MAG_APER1 MAGERR_APER1) were added (among others) using ./ldac_cat_aper_splitter.py 
+#adam-look# I've changed these keys to ensure we're using APERATURE MAGS in create_scamp_astrom_photom.sh: "-PHOTFLUX_KEY FLUX_APER1 -PHOTFLUXERR_KEY FLUXERR_APER1 "
+
+#adam-SHNT# early indications that FLUX_APER more reliable than FLUX_AUTO, so I'm switching to "-PHOTFLUX_KEY FLUX_APER1 -PHOTFLUXERR_KEY FLUXERR_APER1 "
+##let's try it with MATCH N and see how that works
+#${P_SCAMP} `${P_FIND} ../cat_photom/ -name \*scamp.cat` \
+#        -c ${CONF}/scamp_astrom_photom.scamp \
+#        -PHOTINSTRU_KEY FILTER -ASTRINSTRU_KEY ASTINST,MISSCHIP,NEWOLD \
+#	-PHOTFLUX_KEY ${PHOTFLUXKEY} -PHOTFLUXERR_KEY ${PHOTFLUXERRKEY} \
+#        -CDSCLIENT_EXEC ${P_ACLIENT} \
+#        -NTHREADS ${NPARA} \
+#        -XML_NAME ${cluster}_scamp.xml \
+#        -MAGZERO_INTERR 0.1 \
+#        -MAGZERO_REFERR 0.1 \
+#        -POSITION_MAXERR 0.0167 \
+#        -POSANGLE_MAXERR 2.0 \
+#        -PIXSCALE_MAXERR 1.2 \
+#        -SN_THRESHOLDS 3,50 \
+#        -MATCH Y \
+#	-MATCH_NMAX 10000 \
+#        -MATCH_RESOL 0.0 \
+#        -CROSSID_RADIUS 0.1 \
+#        -DISTORT_DEGREES 3 \
+#        -MOSAIC_TYPE UNCHANGED \
+#        -ASTREF_WEIGHT 1 ${scamp_mode_use} -CHECKPLOT_RES 4000,3000
+#-POSITION_MAXERR 2.0 -POSANGLE_MAXERR 0.07 -PIXSCALE_MAXERR 1.05 \
+#-CROSSID_RADIUS 0.2 \
 ${P_SCAMP} `${P_FIND} ../cat_photom/ -name \*scamp.cat` \
-        -c ${CONF}/scamp_astrom_photom.scamp \
-        -PHOTINSTRU_KEY FILTER -ASTRINSTRU_KEY ASTINST,MISSCHIP \
-        -CDSCLIENT_EXEC ${P_ACLIENT} \
-        -NTHREADS ${NPARA} \
-        -XML_NAME ${cluster}_scamp.xml \
-        -MAGZERO_INTERR 0.1 \
-        -MAGZERO_REFERR 0.03 \
-        -MATCH Y \
-	-MATCH_NMAX 20000 \
-        -SN_THRESHOLDS 5,50 \
-        -MOSAIC_TYPE UNCHANGED \
-        -DISTORT_DEGREES 3 \
-	-POSITION_MAXERR 2.0 -POSANGLE_MAXERR 0.07 -PIXSCALE_MAXERR 1.05 \
-        -ASTREF_WEIGHT 1 ${scamp_mode_use} -CHECKPLOT_RES 4000,3000
+	-c ${CONF}/scamp_astrom_photom.scamp \
+	-PHOTINSTRU_KEY FILTER -ASTRINSTRU_KEY ASTINST,MISSCHIP,NEWOLD \
+	-PHOTFLUX_KEY ${PHOTFLUXKEY} -PHOTFLUXERR_KEY ${PHOTFLUXERRKEY} \
+	-CDSCLIENT_EXEC ${P_ACLIENT} \
+	-NTHREADS ${NPARA} \
+	-XML_NAME ${cluster}_scamp.xml \
+	-MAGZERO_INTERR 0.1 \
+	-MAGZERO_REFERR 0.03 \
+	-POSITION_MAXERR ${position} \
+	-POSANGLE_MAXERR ${posangle} \
+	-PIXSCALE_MAXERR ${pixscale} \
+	-SN_THRESHOLDS 5,50 \
+	-MATCH Y \
+	-MATCH_NMAX 10000 \
+	-MATCH_RESOL 0.0 \
+	-CROSSID_RADIUS 0.3 \
+	-DISTORT_DEGREES 3 \
+	-MOSAIC_TYPE UNCHANGED \
+	-ASTREF_WEIGHT 1 ${scamp_mode_use} -CHECKPLOT_RES 2000,1500
+#-POSITION_MAXERR 2.0 -POSANGLE_MAXERR 0.07 -PIXSCALE_MAXERR 1.05 \
 #-CROSSID_RADIUS 0.2 \
 
-	#starcat#        -ASTREF_CATALOG ${STARCAT} \
+#starcat#        -ASTREF_CATALOG ${STARCAT} \
 #refcat#           -ASTREF_CATALOG FILE \
 #refcat#           -ASTREFCENT_KEYS X_WORLD,Y_WORLD \
 #refcat#           -ASTREFERR_KEYS ERRA_WORLD,ERRB_WORLD,ERRTHETA_WORLD \
@@ -731,7 +900,7 @@ do
         # present (bad chips)!
         ocat_photom=`\ls ../cat_photom/${NAME}_${i}${ending}.ldac`
         if [ ! -f "${ocat_photom}" ]; then
-            ocat_photom=`\ls ../cat_photom/${NAME}_${i}[!0-9]*.ldac`
+            ocat_photom=`\ls ../cat_photom/${NAME}_${i}[!0-9]*I.ldac`
             ocat_photom_mode=2
         else
             ocat_photom_mode=1
@@ -740,7 +909,7 @@ do
             if [ "${ocat_photom_mode}" -eq 1 ]; then
                 headername=`basename ../cat_photom/${NAME}_${i}${ending}.ldac .ldac | perl -e '<STDIN> =~ /(.+_\d+)/; print "$1\n";'`
             elif [ "${ocat_photom_mode}" -eq 2 ]; then
-                headername=`basename ../cat_photom/${NAME}_${i}[!0-9]*.ldac .ldac | perl -e '<STDIN> =~ /(.+_\d+)/; print "$1\n";'`
+                headername=`basename ../cat_photom/${NAME}_${i}[!0-9]*I.ldac .ldac | perl -e '<STDIN> =~ /(.+_\d+)/; print "$1\n";'`
             fi
             
             if [ ${j} -eq 1 ];then

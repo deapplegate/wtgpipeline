@@ -21,7 +21,7 @@ snrcut="3.0"
 reddir=`pwd`
 export LENSCONF=${reddir}/lensconf
 
-subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
+subarudir=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 LENSDIR=$subarudir/$cluster/LENSING
 PHOTDIR=$subarudir/$cluster/PHOTOMETRY
 

@@ -28,6 +28,7 @@ Made batch wrapper for them using the combo of these:
 #./update_config_header.sh /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE SUBARU ${cluster}
 #4c.) do the cross talk correction for 10_3 ONLY!
 
+
 #5.) initial astrometry
 #have `mode=astrom` in do_Subaru_register_4batch.sh
 ./do_Subaru_register_4batch.sh ${cluster} 2MASS astrom "W-J-B W-C-RC W-S-Z+"
@@ -38,6 +39,7 @@ Made batch wrapper for them using the combo of these:
 ./adam_download_panstarrs_catalog.py && ./adam_combine_and_fix_panstarrs_catalog.py && ./adam_illumcorr_panstarrs_catalog.py
 ./do_Subaru_register_4batch.sh ${cluster} PANSTARRS astrom "W-J-B W-J-V W-C-RC W-C-IC W-S-Z+" 
 
+
 #6.) illumination correction ( see Evernote)
 ## before running simple_ic.py, I need to have OBJNAME in all images (and consistent in all images). Might as well do the same for OBJECT and MYOBJ too.
 vim pre_ic_headers.sh
@@ -47,12 +49,14 @@ ipython simple_ic_PANSTARRS.py
 ## check IC results with:
 ./adam_illumination_correction_quality_check.sh
 
+
 #7.) final astrometry
 #have `mode=photom` in do_Subaru_register_4batch.sh
 ./do_Subaru_register_4batch.sh ${cluster} 2MASS photom "W-J-B W-C-RC W-S-Z+"
 #OR if in SDSS footprint: SDSS DR10 Finding Chart Tool at skyserver.sdss.org
 ./do_Subaru_register_4batch.sh ${cluster} SDSS-R6 photom "W-J-B W-J-V W-C-RC W-C-IC W-S-Z+"
 #adam-CHECK# check the output plots in /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE/astrom_photom_scamp_2MASS/plots
+
 
 #8.) coaddition ("all" and "exposure" for all filters, also "good" for lensing filter)
 #in one code: adam_coadd_many.sh
@@ -62,6 +66,14 @@ ipython simple_ic_PANSTARRS.py
 filter=W-S-Z+
 #example: bsub -q long -W 7000 -R rhel60 -o /nfs/slac/kipac/fs1/u/awright/batch_files/bsubbable//OUT-2017-8-23-do_coadd_batch_${filter}.out  -e /nfs/slac/kipac/fs1/u/awright/batch_files/bsubbable//OUT-2017-8-23-do_coadd_batch_${filter}.err "./do_coadd_batch.sh MACS1115+01 W-S-Z+ 'all exposure good' /u/ki/awright/wtgpipeline/foo OCFSFI"
 #ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/W-S-Z+/SCIENCE/coadd_${cluster}_good/coadd.fits -green ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/coadd_${cluster}_all/coadd.fits -blue ${SUBARUDIR}/${cluster}/W-J-B/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg &
+## THESE MIGHT ALSO BE HELPFUL:
+# make coadds easy to view in ds9 together:
+# 	adam_make_coadds_dir.sh
+# 	MACS1115+01_coadd.log
+# make looping over filter and submitting coadd jobs to the cluster easier:
+# 	submit_coadd_batch3.sh
+
+
 
 #9.) backmasking and stellar rings (masking at chip-level in light of coadd-level information)
 #9a.) backmasking (see Evernote)
@@ -73,8 +85,13 @@ adam_make_backmask_ims.py
 adam_make_autosuppression_ims.py #makes autosuppression directory with images that can be used to place stellar halos
 #might help: adam_use_fix_autosuppression.sh 
 #Currently $ending would be "OCF", once the IC works, it should be "OCFR". probably $queue should be "long"
-./batch_suppress.sh MACS0416-24 W-C-RC /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/autosuppression $ending $queue
+queue=medium
+ending=OCFSI
+./batch_suppress.sh ${cluster} ${filter} /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE/autosuppression $ending $queue
+#./batch_suppress.sh ${cluster} ${filter} /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE/autosuppression/10_2/ $ending $queue
 ./move_suppression.sh MACS0416-24 W-C-RC  $ending
+## soften_rings.sh: might be helpful if the rings appear to have over-subtracted things a bit.
+
 
 
 #10.) star and asteroid coadd-level masking
@@ -85,14 +102,17 @@ ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}
 ./mask_coadd.sh ${cluster} W-C-RC coadd.asteroids.reg gabodsid1554 2>&1 | tee -a OUT-mask_coadd.asteroids.log
 
 
+
 #11.) do_photometry.sh
 export cluster=MACS0416-24; export ending="OCFR" ; export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU ; export INSTRUMENT=SUBARU
 export cluster=MACS1226+21; export ending="OCFI" ;export INSTRUMENT=SUBARU ;export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU/
 export detect_filter=W-C-RC;export lensing_filter=W-C-RC
+export cluster=Zw2089 ; export detect_filter=W-J-V;export lensing_filter=W-J-V ;export ending=OCFSIR ; export config="10_3"
 # first make sure this is right: cluster_cat_filters.dat
 ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY
 #or is it?: ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS SDSS BIGMACSCALIB BIGMACSAPPLY
 #todo# photoz's
+
 
 #12.) photo-z calculation using bpz.py
 #adam-note#  inputfile= /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat

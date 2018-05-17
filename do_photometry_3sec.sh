@@ -46,7 +46,7 @@ done
 
 ########################
 
-subarudir=/nfs/slac/g/ki/ki18/anja/SUBARU
+subarudir=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export subarudir
 SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export SUBARUDIR

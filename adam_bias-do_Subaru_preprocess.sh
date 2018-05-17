@@ -12,7 +12,7 @@
 
 export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU/ ; export INSTRUMENT=SUBARU
 export bonn=/u/ki/awright/wtgpipeline/
-export subdir=/nfs/slac/g/ki/ki18/anja/SUBARU/
+export subdir=/gpfs/slac/kipac/fs1/u/awright/SUBARU/
 
 export INSTRUMENT=SUBARU
 #./setup_SUBARU.sh ${SUBARUDIR}/${run}_${filter}/SCIENCE/ORIGINALS

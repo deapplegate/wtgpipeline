@@ -195,9 +195,7 @@ if [ -s files.flag.list_$$ ]; then
     mv coadd.flag.fix.fits coadd.flag.fits
 
 else
-    echo "adam-look perform_coadd_swarp.sh: no files in files.flag.list_$$"
-    #adam-look# exit 3
-
+    echo "adam-look perform_coadd_swarp.sh: no files in files.flag.list_$$ (FINE as long as ${PWD}/coadd.flag.fits is FINE or UNIMPORTANT)"
     ic -p 8 '16 1 %1 1e-6 < ?' coadd.weight.fits > coadd.flag.fits
 
 fi

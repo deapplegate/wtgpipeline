@@ -5,7 +5,12 @@ do
 	base=`basename ${fl}`
 	#grep -i "adam-look\|error\|exception\|^+.*exit [1-9]\|No such file or directory" ${fl} | sed '/^\s*#[^a][^d]/d;/^\s*echo/d' > err.${base}
 	#old# grep -i "adam-look\|error\|exception\|^+.*exit [1-9]\|Permission denied" ${fl} | sed '/^\s*#[^a][^d]/d;/^\s*echo/d' > err.${base}
+	
+	## for mode that picks up "cannot", use this:
 	grep -i "adam-Error\|adam-look\|error\|exception\|^+.*exit [1-9]\|Permission denied\|cannot" ${fl} | sed '/^\s*#[^a][^d]/d;/^\s*echo/d;/VerifyWarning/d;/trap/d' > err.${base}
+
+	## for mode that ignores "cannot", use this:
+	#grep -i "adam-Error\|adam-look\|error\|exception\|^+.*exit [1-9]\|Permission denied" ${fl} | sed '/^\s*#[^a][^d]/d;/^\s*echo/d;/VerifyWarning/d;/trap/d' > err.${base}
 	Nechos=`grep -i "adam-look" err.${base} | grep "^+ echo" | wc -l`
 	if [ "${Nechos}" -gt "0" ]; then
 		grep -v "^+ echo .*adam-look" err.${base} > err2well

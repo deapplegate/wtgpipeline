@@ -94,7 +94,7 @@ export BONN_FILTER=${filter}
 ########################################
 
 REDDIR=`pwd`
-HEADDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/coadd_headers/"
+HEADDIR="${SUBARUDIR}/coadd_headers/"
 export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 ##########################################
@@ -118,7 +118,8 @@ ASTROMADD="_scamp_photom_${ASTROMETRYCAT}"
 #####################################
 
 echo ${requested_coadds}
-lookupfile=/nfs/slac/g/ki/ki05/anja/SUBARU/SUBARU.list
+lookupfile=/gpfs/slac/kipac/fs1/u/awright/SUBARU/SUBARU.list
+#adam-old# lookupfile=/nfs/slac/g/ki/ki05/anja/SUBARU/SUBARU.list
 ra=`grep ${cluster} ${lookupfile} | awk '{if(cl==$1)print $3}' cl=${cluster}`
 dec=`grep ${cluster} ${lookupfile} | awk '{if(cl==$1)print $4}' cl=${cluster}`
 echo ${cluster} ${ra} ${dec}
@@ -219,6 +220,7 @@ do
           ######################
           echo "keep_cats=" $keep_cats
           if [ -z "${keep_cats}" ] || [ "${keep_cats}" != "yes" ]; then #if keep_cats is unset or not "yes"
+	    echo "adam-look: making new ${cluster}/${filter}/SCIENCE/cat"
             if [ -d "${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat" ]; then
                 rm -rf ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat
             fi
@@ -244,6 +246,7 @@ do
           #########################
           echo "keep_subs=" $keep_subs
           if [ -z "${keep_subs}" ] || [ "${keep_subs}" != "yes" ]; then
+		  echo "adam-look: making new SUPA*.sub.fits"
 		  case ${INSTRUMENT} in
 		      "SUBARU" | "'SUBARU'" )
 			./parallel_manager.sh ./create_skysub_delink_para.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE ${ending} ".sub" THREEPASS
@@ -300,15 +303,20 @@ do
         ##############################
         elif [ ${coadd} == "gabodsid" ]; then
           GABODSIDS=`${P_LDACTOASC} -i ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat/chips.cat6 -t STATS -b -k GABODSID | sort | uniq | awk '{printf "%i ", $0}'`
-          for GABODSID in ${GABODSIDS}
+	  ./adam_gabodsids_combiner.py ${GABODSIDS} > gabodsid_tmp_${cluster}_${filter}.log
+	  cat gabodsid_tmp_${cluster}_${filter}.log |\
+          {   while read GABODSID GABCOND
+
           do
             #adam-ask# I changed it to take CONFIG into account when considering the IMAGEID!=6 cut
-            if [ "${CONFIG}" == "10_3" ]; then
-                constructConditions gabodsid "(GABODSID=${GABODSID})" ""
-            else
-                constructConditions gabodsid "((IMAGEID!=6)AND(GABODSID=${GABODSID}))" ""
-            fi
-            CONDITION=${constructed_condition}
+            #if [ "${CONFIG}" == "10_3" ]; then
+            #    constructConditions gabodsid "(GABODSID=${GABODSID})" ""
+            #else
+            #    #adam-tmp# constructConditions gabodsid "((IMAGEID!=6)AND(GABODSID=${GABODSID}))" ""
+            #    constructConditions gabodsid "(GABODSID=${GABODSID})" ""
+            #fi
+            constructConditions gabodsid "${GABCOND}"
+	    CONDITION=${constructed_condition}
             #./prepare_coadd_swarp.sh -m ${SUBARUDIR}/${cluster}/${filter} \
             #                      -s SCIENCE \
             #                      -e "${ending}.sub" \
@@ -349,7 +357,7 @@ do
             ic -p 8 '16 1 %1 1e-6 < ?' ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_gabodsid${GABODSID}/coadd.weight.fits > ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_gabodsid${GABODSID}/coadd.flag.fits
 	    if [ "$?" -gt "0" ]; then exit $? ; fi
             coaddmodes="${coaddmodes} gabodsid${GABODSID}"
-          done
+          done  }
 
         ##############################
         elif [ ${coadd} == "good" ]; then
@@ -361,7 +369,10 @@ do
             else
                 #adam# constructConditions good "(IMAGEID!=6)" "((seeing_rh_al<0.8)AND(e_abs<0.08))"
                 #adam# this should only happen for MACS1226+21 10_2 "good" mode
-                constructConditions good "(IMAGEID!=6)" "((EXPOSURE!=6)AND(EXPOSURE!=7))"
+                #adam-old# constructConditions good "(IMAGEID!=6)" "((EXPOSURE!=6)AND(EXPOSURE!=7))"
+
+		constructConditions good "" "(seeing_rh_al<3.5)"
+		#adam-tmp# constructConditions good "(IMAGEID!=6)" "(seeing_rh_al<3.5)"
             fi
             CONDITION=${constructed_condition}
             echo "${CONDITION}"
@@ -416,7 +427,8 @@ do
             if [ "${CONFIG}" == "10_3" ]; then
                 constructConditions rotation "((GABODSID=${GABODSID})AND(ROTATION=${ROTATION}))" ""
             else
-                    constructConditions rotation "(((IMAGEID!=6)AND(GABODSID=${GABODSID}))AND(ROTATION=${ROTATION}))" ""
+                #adam-tmp# constructConditions rotation "(((IMAGEID!=6)AND(GABODSID=${GABODSID}))AND(ROTATION=${ROTATION}))" ""
+                constructConditions rotation "((GABODSID=${GABODSID})AND(ROTATION=${ROTATION}))" ""
             fi
             CONDITION=${constructed_condition}
             echo ${CONDITION}
@@ -452,6 +464,7 @@ do
         ###################################
         elif [ ${coadd} == "exposure" ] && [ ${filter} != "K" ] && [ ${filter} != "I" ]; then
           calib=`awk 'BEGIN{if("'${filter}'"~"CALIB") print "1"; else print "0"}'`
+          calib="0" #adam-tmp# 
           if [ ${calib} -eq 0 ]; then
           ${P_LDACTOASC} -i ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/cat/chips.cat6 -t STATS -s -b -k EXPOSURE IMAGENAME > exposures_$$.list
             while read EXPOSURE IMAGENAME
@@ -663,6 +676,9 @@ do
         #  fi
 done
 
+if [ -f gabodsid_tmp_${cluster}_${filter}.log ]; then
+	rm gabodsid_tmp_${cluster}_${filter}.log
+fi
 
 if [ ! -d ${SUBARUDIR}/${cluster}/coadds_together_${cluster} ]; then
 	mkdir ${SUBARUDIR}/${cluster}/coadds_together_${cluster}

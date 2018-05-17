@@ -3644,7 +3644,7 @@ def calc_good(OBJNAME=None,FILTER=None,PPRUN=None):
                         surfs = numpy.array(epsilons)
                         stds = numpy.std(epsilons,axis=0)               
                         var_correction = numpy.median(stds.flatten().compress(diff_bool.flatten()))
-                        print var_correction
+                        print 'var_correction', var_correction
 
                         chi_diffs = []
                         print random_dict

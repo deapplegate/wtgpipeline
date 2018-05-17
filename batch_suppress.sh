@@ -1,4 +1,5 @@
 #!/bin/bash
+#adam-example# ./batch_suppress.sh ${cluster} ${filter} ~/my_data/SUBARU/Zw2089/W-J-V/SCIENCE/autosuppression ${ending} 'medium'
 
 #######
 #
@@ -8,7 +9,8 @@
 #######
 
 #subaru=/nfs/slac/g/ki/ki05/anja/SUBARU
-subaru=/nfs/slac/g/ki/ki18/anja/SUBARU
+#subaru=/gpfs/slac/kipac/fs1/u/awright/SUBARU
+subaru=/gpfs/slac/kipac/fs1/u/awright/SUBARU/
 
 cluster=$1
 filter=$2
@@ -24,9 +26,6 @@ jobid=${cluster}.${filter}.suppress
 
     
 for i in 1 2 3 4 5 6 7 8 9 10; do
-    bsub -K -oo ${logdir}/${jobid}_${i}.log -eo ${logdir}/${jobid}_${i}.err -q ${queue} ./suppressreflections.py $regdir ${subaru}/${cluster}/${filter}/SCIENCE/*${i}${ending}.fits
+
+    bsub -m bulletfarm -W 40 -K -oo ${logdir}/${jobid}_${i}.log -eo ${logdir}/${jobid}_${i}.err -q ${queue} ./suppressreflections.py $regdir ${subaru}/${cluster}/${filter}/SCIENCE/*${i}${ending}.fits
 done
-
-
-
-

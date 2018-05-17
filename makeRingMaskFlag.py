@@ -106,9 +106,5 @@ if __name__ == '__main__':
                    '%s/PHOTOMETRY_%s_aper/%s.unstacked.cat' % (clusterdir, filter, cluster),
                    '%s/masks/InRing.%s.cat' % (clusterdir, filter),
                    '%s/masks/InRing.%s.reg' % (clusterdir, filter))
-                   
-
-
-        
-
+                  
     

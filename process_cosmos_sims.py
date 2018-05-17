@@ -174,7 +174,7 @@ def processPklDir(dir, ext='out'):
     massdists = {}
     for out in output:
 
-        print out
+        print ' out=',out
 
         base, ext = os.path.splitext(out)
 

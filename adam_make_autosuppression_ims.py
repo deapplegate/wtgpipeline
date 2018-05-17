@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 #adam-does# makes autosuppression directory with images that can be used to place stellar halos
 # 	SUPAXXXXXXX.coadd.smoothed.fits: smoothed images
-#adam-call_example# call it like: adam_make_autosuppression_ims.py /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/
+#adam-call_example# call it like: ./adam_make_autosuppression_ims.py ~/my_data/SUBARU/${cluster}/${filter}/SCIENCE/ ${ending} ${config}
 #adam-comments# not useful
 from numpy import *
 import scipy.ndimage as ndimage
@@ -11,13 +11,21 @@ import sys ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
 import imagetools
 import astropy, astropy.io.fits as pyfits
 import os
-input_dir=sys.argv[1]
-ending=sys.argv[2]
+from adam_quicktools_ArgCleaner import ArgCleaner
+args=ArgCleaner(sys.argv)
+
+input_dir=args[0]
+ending=args[1]
+if len(args)>2:
+	config=args[2]
+else:
+	config=None
+
 input_dir=input_dir.replace('//','/')
 if not input_dir.endswith('/'):
 	input_dir+='/'
 if not os.path.exists(input_dir):
-	raise Exception("input_dir=sys.argv[1]:" +input_dir+ " isn't a directory")
+	raise Exception("input_dir=args[1]:" +input_dir+ " isn't a directory")
 
 dir_splits=input_dir.split('/')
 try:
@@ -32,8 +40,13 @@ filter=dir_splits[-2]
 dir_autosuppression=input_dir+'autosuppression/'
 if not os.path.exists(dir_autosuppression):
 	os.makedirs(dir_autosuppression)
+if config==None:
+	coadd_fls=glob.glob(input_dir+'coadd_'+cluster+'_SUPA0*/coadd.fits')
+elif config=="10_3":
+	coadd_fls=glob.glob(input_dir+'coadd_'+cluster+'_SUPA01*/coadd.fits')
+elif config=="10_2":
+	coadd_fls=glob.glob(input_dir+'coadd_'+cluster+'_SUPA00*/coadd.fits')
 
-coadd_fls=glob.glob(input_dir+'coadd_'+cluster+'_SUPA01*/coadd.fits')
 orig_dir=input_dir.replace('/SCIENCE/','')+"_*/SCIENCE/"
 for coadd_fl in coadd_fls:
 	coadd_img=imagetools.GetImage(coadd_fl)
@@ -42,7 +55,8 @@ for coadd_fl in coadd_fls:
 	head=pyfits.open(coadd_fl)[0].header
 	coadd_dir=os.path.dirname(coadd_fl)
 	supa=coadd_dir[-11:]
-	split_fl=orig_dir+supa+'_[0-9]*%s.fits' % (ending)
+	#adam-old# split_fl=orig_dir+supa+'_[0-9]*%s.fits' % (ending)
+	split_fl=input_dir+supa+'_[0-9]*%s.fits' % (ending)
 	if len(glob.glob(split_fl))!=10:
 		raise Exception("split_fl: "+split_fl+" isn't returning 10 matches")
 	# make smoothed image

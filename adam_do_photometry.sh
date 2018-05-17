@@ -68,8 +68,10 @@ export subdir=${SUBARUDIR}
 
 #adam#photrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/photometry_2010
 #adam#lensingrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/lensing_2010
-photrepo=/nfs/slac/kipac/fs1/u/awright/SUBARU/photometry
-lensingrepo=/nfs/slac/kipac/fs1/u/awright/SUBARU/lensing
+#photrepo=/nfs/slac/kipac/fs1/u/awright/SUBARU/photometry
+#lensingrepo=/nfs/slac/kipac/fs1/u/awright/SUBARU/lensing
+photrepo=${SUBARUDIR}/photometry
+lensingrepo=${SUBARUDIR}/lensing
 if [ ! -d "${photrepo}/${cluster}" ]; then
     mkdir -p ${photrepo}/${cluster}
 fi
@@ -77,7 +79,8 @@ if [ ! -d "${lensingrepo}/${cluster}" ]; then
     mkdir -p ${lensingrepo}/${cluster}
 fi
 
-queue="long -W 7000 -R rhel60 "
+queue="long -W 7000 -m bulletfarm "
+#adam-old# queue="long -W 7000 -R rhel60 "
 
 #filters=`grep "${cluster}" cluster.status | awk -v ORS=' ' '($1 !~ /#/){print $2}'`
 filters=`grep "${cluster}" cluster_cat_filters.dat | awk -v ORS=' ' '{for(i=3;i<=NF;i++){if($i!~"CALIB" && $i!="K") print $i}}'`
@@ -92,7 +95,7 @@ lensingdir=${lensingrepo}/${cluster}/${lensingdirname}
 
 #adam-tmp#
 lensing_coadd_type="gabodsid1554" #adam: default is to use "good" coadd for lensing
-#adam-tmp# lensing_coadd_type="good" #adam: default is to use "good" coadd for lensing
+lensing_coadd_type="good" #adam: default is to use "good" coadd for lensing
 
 #default: lensing_image=${subarudir}/${cluster}/${lensing_filter}/SCIENCE/coadd_${cluster}_good/coadd.fits and cats go to LENSING_${detect_filter}_${lensing_filter}_${mode}/good/
 #but, for MACS1226+21 for example, used lensing_coadd_type="gab4060-rot1" 
@@ -211,6 +214,7 @@ if [ $measure_photometry -eq 1 ]; then
 	#fi
 
 	rm $subarudir/photlogs/$jobid.log $subarudir/photlogs/$jobid.err
+	## should have -K in there to keep them running and waiting their turn?
 	bsub -q ${queue} -o $subarudir/photlogs/$jobid.log -e $subarudir/photlogs/$jobid.err ./run_unstacked_photometry.sh ${subarudir}/${cluster} ${photdir} ${cluster} ${filter} ${detect_image} ${convolve}
 	#adam# How do I get the code to wait here until this job is done running on the batchq?
 
@@ -363,9 +367,10 @@ if [ $fit_calibration -eq 1 ]; then
 	mkdir ${photdir}/BIGMACS_output/
 
 	#adam-note# use -j for 2MASS and -s for SDSS
-	#2MASS# fit zps with 2MASS, bootstrap=5
+	#2MASS# no fit zps with 2MASS, bootstrap=5
 	#2MASS# python fit_locus.py --file ${photdir}/${cluster}.stars.split_apers.cat --columns ${photdir}/${cluster}.qc.columns --extension 1 --bootstrap 5 --l -j --output ${photdir}/BIGMACS_output/ 2>&1 | tee -a OUT-bigmacs-fit_locus.log
 	#SDSS# fit zps with SDSS, bootstrap=5
+	#SDSS# python fit_locus.py --file ${photdir}/${cluster}.stars.split_apers.cat --columns ${photdir}/${cluster}.qc.columns --extension 1 --bootstrap 5 --l -s -u --output ${photdir}/BIGMACS_output_unit_test/ 2>&1 | tee -a OUT-bigmacs-fit_locus.log
 	python fit_locus.py --file ${photdir}/${cluster}.stars.split_apers.cat --columns ${photdir}/${cluster}.qc.columns --extension 1 --bootstrap 5 --l -s --output ${photdir}/BIGMACS_output/ 2>&1 | tee -a OUT-bigmacs-fit_locus.log
 	exit_code=${PIPESTATUS[0]}
 	if [ "${exit_code}" != "0" ]; then
@@ -378,7 +383,8 @@ if [ $fit_calibration -eq 1 ]; then
 	cd $bonn
 	export PYTHONPATH=$PYTHONPATH_old
 	grep -v "^#\|^psfPogCorr" ${photdir}/BIGMACS_output/${cluster}.stars.split_apers.cat.offsets.list | sed 's/\ +-//g;s/\ REDDER//g' >${photdir}/${cluster}.bigmacs_cleaned_offsets.list
-	exit_code=`wc -l ${photdir}/${cluster}.bigmacs_cleaned_offsets.list`
+	#adam-note: what was I trying to do here:
+	#exit_code=`wc -l ${photdir}/${cluster}.bigmacs_cleaned_offsets.list`
 	if [ "${exit_code}" -eq  "0" ]; then
 		echo "Failure in BIGMACSCALIB"
 		exit 43

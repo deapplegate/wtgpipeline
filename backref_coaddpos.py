@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import astropy.wcs as pywcs
+#s/wcs_pix2world/wcs_pix2world/g
 import astropy, astropy.io.fits as pyfits, sys, re
 from optparse import OptionParser
 from numpy import *
@@ -27,10 +28,10 @@ class Image:
         self.wcs = pywcs.WCS(header)
 
     def pix2wcs(self, pix):
-        return self.wcs.wcs_pix2sky(pix, 1)
+        return self.wcs.wcs_pix2world(pix, 1)
 
     def wcs2pix(self, world):
-        return self.wcs.wcs_sky2pix(world, 1)
+        return self.wcs.wcs_world2pix(world, 1)
 
     def inImage(self, world):
         pix = self.wcs2pix(world)[0]

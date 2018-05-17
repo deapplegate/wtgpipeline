@@ -1,7 +1,7 @@
 #!/bin/bash
 set -xv
 #applies radial masks to the SCIENCE_weighted/ images
-#adam-example# ./science_weighted_apply_RADIAL_MASK_para.sh ${SUBARUDIR} /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC_2010-03-12/SCIENCE_weighted/ OCFS ' 1' 
+#adam-example# ./parallel_manager.sh ./science_weighted_apply_RADIAL_MASK_para.sh ${SUBARUDIR} /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE_weighted/ OCFSIR SUPA0127
 ########################
 #$Id: apply_ringmask_para.sh,v 1.5 2009-07-17 02:54:49 anja Exp $
 #######################
@@ -24,14 +24,15 @@ set -xv
 subarudir=$1
 sciencewtdir=$2
 ext=$3
-CHIPS=$4
+filestart=$4
+CHIPS=$5
 
 ###################
 # Loop over chips
 
 for chip in $CHIPS; do
 
-    filebases=`find $sciencewtdir/ -name \*_${chip}${ext}.weighted.fits -exec basename {} .fits \;`
+    filebases=`find $sciencewtdir/ -name ${filestart}\*_${chip}${ext}.weighted.fits -exec basename {} .fits \;`
 
     #adam-BL#if [ -z "${filebases}" ]; then
     #adam-BL#   ./BonnLogger.py comment "apply_ringmask_parap.sh - No Files Found: Chip ${chip}"
