@@ -2,8 +2,9 @@
 from __future__ import division #3/2=1.5 and 3//2=1
 #adam-does# blends cosmics and blocks them from being blended into stars
 #adam-use # use with CRNitschke cosmics masking pipeline
-import sys ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
-from import_tools import *
+import sys #; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
+#from import_tools import *
+import imagetools_light as imagetools
 import astropy
 from astropy.io import ascii
 from copy import deepcopy as cp
@@ -13,7 +14,8 @@ from skimage import measure
 from skimage import morphology
 from matplotlib.pyplot import *
 import numpy
-from numpy import histogram
+import scipy
+from numpy import *
 import time
 ns=globals()
 conn8=array([[1,1,1],[1,1,1],[1,1,1]])
@@ -142,7 +144,7 @@ for supa in supa_coadds:
 		    ## here on down, you figure it out.
 
 		    #relevant_ratios.max()
-		    if i<=80:
+		    if i<=90:
 			    plot_ll.append(i)
 			    max_ratios.append(relevant_ratios.max())
 
