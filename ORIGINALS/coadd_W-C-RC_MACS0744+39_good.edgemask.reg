@@ -1,5 +1,5 @@
-# # # Region file format: DS9 version 4.1
-# # # Filename: ../W-C-RC/SCIENCE/coadd_MACS0744+39_good/coadd.fits
-# # global color=green dashlist=8 3 width=1 font="helvetica 10 normal" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+# # # # Region file format: DS9 version 4.1
+# # # # Filename: ../W-C-RC/SCIENCE/coadd_MACS0744+39_good/coadd.fits
+# # # global color=green dashlist=8 3 width=1 font="helvetica 10 normal" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
 POLYGON(-28.884784,10029.885,1115.9912,10029.885,10025,10040,10025,-88,9385,-72,8245,1616,8532,1947,9252,2907,9500,4003,9388,6019,9148,6987,8796,7531,8316,8059,7380,8843,6300,9387,5340,9459,4120,9275,3700,9103,2956,8751,2332,8383,1916,8151,1596,7831,1256,7083,1132,5523,972,5171,692,4955,572,4451,692,3547,1108,2539,1568,2055,2056,1799,2644,1515,3228,1331,4144,1087,4724,835,5044,731,5548,595,6804,635,7588,1011,8092,1419,9241,-56,-20.276596,21.276596)
 POLYGON(8077,1404,8281,1656,9445,-52,9177,-56)

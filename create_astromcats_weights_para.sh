@@ -140,7 +140,7 @@ do
 
 	## append to header
 	if [ "${getfwhm_test}" == "1" ]; then
-		/u/ki/awright/InstallingSoftware/pythons/header_key_add.py ${file} "GETSEEING=${getfwhm}"
+		/u/ki/awright/InstallingSoftware/pythons/header_key_add.py ${file} "GSEEING=${getfwhm}"
 	fi
 	if [ "${fwhm_test}" == "1" ]; then
 		/u/ki/awright/InstallingSoftware/pythons/header_key_add.py ${file} "MYSEEING=${fwhm}"
@@ -149,11 +149,11 @@ do
 	## choose which fwhm to use
 	if [ "${getfwhm_test}" == "1" ]; then
 		usefwhm=${getfwhm}
-		echo "adam: using get_seeing in create_astromcats_weights_para.sh: ${usefwhm} (MYSEEING=${fwhm} and GETSEEING=${getfwhm})"
+		echo "adam: using get_seeing in create_astromcats_weights_para.sh: ${usefwhm} (MYSEEING=${fwhm} and GSEEING=${getfwhm})"
 
 	elif [ "${fwhm_test}" == "1" ]; then
 		usefwhm=${fwhm}
-		echo "adam: using MYSEEING in create_astromcats_weights_para.sh: ${usefwhm} (MYSEEING=${fwhm} and GETSEEING=${getfwhm})"
+		echo "adam: using MYSEEING in create_astromcats_weights_para.sh: ${usefwhm} (MYSEEING=${fwhm} and GSEEING=${getfwhm})"
 	else
 		echo "adam-Error: neither get_seeing or MYSEEING in create_astromcats_weights_para.sh runs properly"
 		exit 2;

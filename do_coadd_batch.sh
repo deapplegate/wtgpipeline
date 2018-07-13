@@ -95,7 +95,7 @@ export BONN_FILTER=${filter}
 
 REDDIR=`pwd`
 HEADDIR="${SUBARUDIR}/coadd_headers/"
-export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
+#export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 ##########################################
 
@@ -206,6 +206,11 @@ else
 fi
 
 #####################
+already_done=1 ##adam-change# this was already done for RXJ2129, but might not be for subsequent clusters
+#set already_done=0 if (1) this cluster has rings, and (2) ./put_suppression_rings_in_weights.py has not been run yet
+if [ "${already_done}" == "0" ]; then
+	./put_suppression_rings_in_weights.py ${SUBARUDIR}/${cluster}/${filter}/WEIGHTS/SUPA*${ending}.flag.fits
+fi
 
 for coadd in ${requested_coadds}
 do
@@ -309,6 +314,16 @@ do
 
           do
             #adam-ask# I changed it to take CONFIG into account when considering the IMAGEID!=6 cut
+	    if [ ${GABODSID} -ge 1309 ] && [ ${GABODSID} -lt 3470 ]; then
+              echo "10_2 chip configuration"  
+              CONFIG="10_2"
+            elif [ ${GABODSID} -ge 3470 ] && [ ${GABODSID} -lt 7000 ]; then                                                                                                                                                       
+              echo "10_3 chip configuration"  
+              CONFIG="10_3"
+	    else
+              echo "adam-Error: no config recognized for GABODSID=${GABODSID}"
+              exit 1;
+            fi
             #if [ "${CONFIG}" == "10_3" ]; then
             #    constructConditions gabodsid "(GABODSID=${GABODSID})" ""
             #else

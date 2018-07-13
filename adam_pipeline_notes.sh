@@ -104,6 +104,7 @@ ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}
 
 
 #11.) do_photometry.sh
+## everything together here: fgas_photometry_driver_template.sh
 export cluster=MACS0416-24; export ending="OCFR" ; export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU ; export INSTRUMENT=SUBARU
 export cluster=MACS1226+21; export ending="OCFI" ;export INSTRUMENT=SUBARU ;export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU/
 export detect_filter=W-C-RC;export lensing_filter=W-C-RC
@@ -111,7 +112,7 @@ export cluster=Zw2089 ; export detect_filter=W-J-V;export lensing_filter=W-J-V ;
 # first make sure this is right: cluster_cat_filters.dat
 ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY
 #or is it?: ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS SDSS BIGMACSCALIB BIGMACSAPPLY
-#todo# photoz's
+
 
 
 #12.) photo-z calculation using bpz.py

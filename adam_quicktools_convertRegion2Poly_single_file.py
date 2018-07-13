@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+#adam-example# ./adam_quicktools_convertRegion2Poly_single_file.py
+#adam-does# back-up all region files in this directory, then ensures proper format for weighwatchers and save output
 ############################
 # @file convertRegion2Poly.py
 # @author Douglas Applegate
@@ -79,24 +81,30 @@ def doFile(inputfile, outputfile):
 
 ##############################
 
-
+import adam_backup_regs
 if __name__ == '__main__':
 
     from adam_quicktools_ArgCleaner import ArgCleaner
     print 'len(sys.argv)=',len(sys.argv)
     args=ArgCleaner(sys.argv)
-    #if len(args)==1:
-    ####if args[0].endswith('.reg'):
-    ####    filename=args[0]
-    ####    base=os.path.basename(filename).split('.reg')[0]
-    ####    dirname=os.path.dirname(filename)
-    ####    backup_filename=dirname+'/'+base+'_before_convertRegion2Poly.reg'
-    ####    os.rename(filename, backup_filename)
-    ####    output = open(filename, 'w')
-    ####    input = open(backup_filename, 'r')
-    ####    doFile(input, output)
-    ####    output.close()
-    ####    input.close()
+    if len(args)==1:
+	if args[0].endswith('.reg'):
+	
+            filename=args[0]
+	    base=os.path.basename(filename).split('.reg')[0]
+	    dirname=os.path.dirname(filename)
+	    ## first back-up entire directory
+	    adam_backup_regs.backup_regions(dirname)
+
+	    backup_filename=dirname+'/'+base+'_before_convertRegion2Poly.reg'
+	    os.rename(filename, backup_filename)
+	    output = open(filename, 'w')
+	    input = open(backup_filename, 'r')
+	    doFile(input, output)
+	    output.close()
+	    input.close()
+
+    sys.exit()
     if len(sys.argv) == 1:
         doFile(sys.stdin, sys.stdout)
 

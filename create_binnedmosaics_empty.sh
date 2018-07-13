@@ -1,4 +1,5 @@
 #!/bin/bash -u
+#adam-example ./create_binnedmosaics_9chips.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/ SCIENCE_weighted 'SUP00' 'OCFSI.weighted' 8 -32
 # ----------------------------------------------------------------
 # File Name:           create_binnedmosaics.sh
 # Author:              Thomas Erben (terben@astro.uni-bonn.de)

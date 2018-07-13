@@ -168,10 +168,12 @@ def mosaic_to_resamp_chip_map(mosaic_coadd_fl):
 	mosaic2chip_map=zeros(mosaic_fitsfl[0].data.shape,dtype=int)
 	mosaic_header=mosaic_fitsfl[0].header
 	mosaic_fitsfl.close()
-	#resamp_chips=[]
+	resamp_wt_chips=[]
+	resamp_chip_slices=[]
 	for i in range(1,11):
 		#resamp_chips+=glob(os.path.dirname(mosaic_coadd_fl)+'/SUPA*_%sOCF[A-Z]*.sub.[A-Z]*.resamp.fits' % (i))
 		resamp_chip_fl=glob(os.path.dirname(mosaic_coadd_fl)+'/SUPA*_%sOCF[A-Z]*.sub.[A-Z]*.resamp.fits' % (i))[0]
+		resamp_chip_wt_fl=glob(os.path.dirname(mosaic_coadd_fl)+'/SUPA*_%sOCF[A-Z]*.sub.[A-Z]*.resamp.weight.fits' % (i))[0]
 		resamp_chip_fo=astropy.io.fits.open(resamp_chip_fl)
 		resamp_chip_image=resamp_chip_fo[0].data
 		resamp_chip_header=resamp_chip_fo[0].header
@@ -179,7 +181,10 @@ def mosaic_to_resamp_chip_map(mosaic_coadd_fl):
 		pyCOMIN1=resamp_chip_header['COMIN1']-1 #have to switch to zero indexing
 		pyCOMIN2=resamp_chip_header['COMIN2']-1 #have to switch to zero indexing
 		resamp_chip_slice=(slice(pyCOMIN2,pyCOMIN2+resamp_chip_image.shape[0]),slice(pyCOMIN1,pyCOMIN1+resamp_chip_image.shape[1]))
+		resamp_chip_slices.append(resamp_chip_slice)
+		resamp_wt_chips.append(resamp_chip_wt_fl)
 		mosaic2chip_map[resamp_chip_slice]=i
+	#return mosaic2chip_map,(resamp_chip_slices,resamp_wt_chips)
 	return mosaic2chip_map
 
 def mosaic_position_to_resamp_chip(position,mosmap,mosaic_coadd_fl):

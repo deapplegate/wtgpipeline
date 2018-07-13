@@ -76,8 +76,8 @@ def main(argv = sys.argv):
 
     ################
 
-
-    clusterdir = '/nfs/slac/g/ki/ki18/anja/SUBARU/%s' % cluster
+    data_root=os.environ['SUBARUDIR']
+    clusterdir = data_root+'/%s' % cluster
 
     detect_image = '%(clusterdir)s/%(detect_filter)s/SCIENCE/coadd_%(cluster)s_all/coadd.fits' % locals()
     lensing_image = '%(clusterdir)s/%(lensing_filter)s/SCIENCE/coadd_%(cluster)s_%(image)s/coadd.fits' % locals()

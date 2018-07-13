@@ -1,6 +1,8 @@
 #! /usr/bin/env python
-#adam-example# ipython -i adam_do_photometry.py
+#adam-example# ./adam_bpz_wrapper.py 2>&1 | tee -a OUT-adam_bpz_wrapper_${cluster}.log
+#adam-example# ipython -i adam_bpz_wrapper.py
 #adam-does# This code is an adaptation of do_photometry.py, which doesn't use lephare at all, but uses the properly calibrated photometry to get photoz's using the "bpz.py" package
+#ADVICE: when starting fresh with a new cluster. first search for #adam-Warning# in this code and change stuff whereever there is a #adam-Warning#
 
 ## INFO ON NEWEST BPZ WRAPPER AND HOW IT'S DIFFERENT FROM OLD ONES
 ## do_photometry.py do_multiple_photoz.py: original files that run bpz
@@ -47,7 +49,7 @@ import re, string, numpy,scipy
 from glob import glob
 import astropy.io.fits as pyfits
 
-## inputs you might want to change
+#adam-Warning### inputs you might want to change
 DETECT_FILTER="W-C-RC"
 M_0_filt="SUBARU-10_2-1-W-C-RC" #this is the filter to use for "M_0", the mag most comparable to SDSS/2MASS/etc. deepest filter
 M_0_filt2="SUBARU-10_3-1-W-C-RC" #this is the backup filter to use for "M_0" if M_0_filt isn't available
@@ -65,8 +67,9 @@ magtype = 'APER1' #magtype options are: 'ISO'; magtype = 'APER'
 print 'inputs you probably dont want to change: SPECTRA=',SPECTRA,' AP_TYPE=',AP_TYPE,' magflux=',magflux,' magtype=',magtype
 
 photdir = subarudir + '/' + cluster + '/PHOTOMETRY_' + DETECT_FILTER + AP_TYPE + '/'
-inputcat = photdir + cluster + '.calibrated.cat'
-inputcat_alter_ldac = photdir + cluster + '.calibrated.alter.cat'
+#adam-new# changed this to the PureStarCalib version, which I think should be the file type we move forward with from now on#adam-Warning#
+inputcat = photdir + cluster + '.calibrated_PureStarCalib.cat'
+inputcat_alter_ldac = photdir + cluster + '.calibrated_PureStarCalib.alter.cat'
 print ' inputcat=',inputcat , ' inputcat_alter_ldac=',inputcat_alter_ldac
 
 def parsebpz(catalog):
@@ -456,6 +459,7 @@ if M_0_key2!=None:
 	ascii_cat_keys.append("M_0")
 
 ## INCLUDE Z_S column: put spec-zs in the bpz input ascii file (should have entirely objects with Z_S)
+#adam-Warning# may want to mess with this if I've got spectra
 if spec: #adam-specz#
 	Icat=ascii.read(inputcat_alter_ascii,names=ascii_cat_keys)
 	spec_file="/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/match_specz_and_bpz_cats.txt"
@@ -618,3 +622,4 @@ print 'TO SAVE OUTPUT ZP fits: grep -A 12 "PHOTOMETRIC CALIBRATION TESTS" OUT-bp
 print "for more info, run this: python $BPZPATH/bpzfinalize.py %s" % (base)
 #Includes calculation of modified chisq (chisq2) plus different formatting #Important: Check your results including SED fits and P(z)
 print "for more info, run this: python $BPZPATH/plots/webpage.py %s i2000-2063 -DIR /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/bpz_html_sex2mag" % (base)
+print "for plots, run this: adam_plot_bpz_output.py"
