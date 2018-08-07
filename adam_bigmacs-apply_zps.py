@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#adam-use# put bigmacs zps in cats and headers of coadd.fits
+#adam-use# put bigmacs zps in cats and headers of coadd.fits and calculate NFILT
 #adam-example# ipython -i -- adam_bigmacs-apply_zps.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.split_apers.cat -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat -z /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.bigmacs_cleaned_offsets.list
 #####################
 

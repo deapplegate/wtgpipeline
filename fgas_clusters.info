@@ -1,0 +1,80 @@
+ astrom_newdir= /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6/
+ astrom_olddir= /nfs/slac/g/ki/ki05/anja/SUBARU/RXJ2129//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6/
+ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/RXJ2129//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6//cat_photom/SUPA* /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6//cat_photom/
+ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/RXJ2129//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6//cat/SUPA*.ahead /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6//cat/
+ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/RXJ2129//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6//headers/SUPA* /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6//headers/
+
+######## RXJ2129 #########
+old W-J-B {'OCFSI': 60, 'OCFS': 60} {'OCFSI': 60} W-J-B_2006-12-21 W-J-B_2006-06-25
+new W-J-B {'OCFI': 50, 'OCFSI': 60} {'OCFSI': 60, 'OCFI': 50} W-J-B_2010-11-04
+    W-J-B:  : SCIENCE in OLD : SCIENCE in NEW
+
+old W-J-V {'OCFSRI': 100, 'OCFS': 100} {'OCFSI': 100} W-J-V_2004-07-18 W-J-V_2005-11-30
+new W-J-V {'OCFSRI': 100} {'OCFSI': 100} 
+    W-J-V:  : SCIENCE in OLD : SCIENCE in NEW
+
+old W-C-RC {'OCFSI': 90, 'OCFS': 90} {'OCFSI': 90} W-C-RC_2004-07-18
+new W-C-RC {'OCFI': 170, 'OCFSI': 90} {'OCFSI': 90, 'OCFI': 170} W-C-RC_2012-07-23
+    W-C-RC:  : SCIENCE in OLD : SCIENCE in NEW
+
+old W-S-I+ {'OCFSF': 110, 'OCFSFI': 99} {'OCFSFI': 99} W-S-I+_2005-10-02
+new W-S-I+ {'OCFSFI': 99} {'OCFSFI': 99} 
+    W-S-I+:  : SCIENCE in OLD : SCIENCE in NEW
+
+    W-C-IC: 
+
+new W-S-Z+ {'OCFSFI': 320} {'OCFSFI': 320} W-S-Z+_2010-11-04
+    W-S-Z+:  : SCIENCE in NEW
+
+ astrom_newdir= /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6/
+ astrom_olddir= /nfs/slac/g/ki/ki05/anja/SUBARU/Zw2089//W-J-V/SCIENCE/astrom_photom_scamp_SDSS-R6/
+ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/Zw2089//W-J-V/SCIENCE/astrom_photom_scamp_SDSS-R6//cat_photom/SUPA* /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6//cat_photom/
+ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/Zw2089//W-J-V/SCIENCE/astrom_photom_scamp_SDSS-R6//cat/SUPA*.ahead /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6//cat/
+ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/Zw2089//W-J-V/SCIENCE/astrom_photom_scamp_SDSS-R6//headers/SUPA* /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089//W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6//headers/
+
+######## Zw2089 #########
+new W-J-B {'OCFI': 120} {} W-J-B_2015-12-15
+    W-J-B:  : SCIENCE in NEW : CALIB in NEW (W-J-B_2015-12-15_CALIB)
+
+old W-J-V {'OCFS': 50} {} W-J-V_2006-12-21
+new W-J-V {'OCFSI': 70} {} W-J-V_2010-12-05
+    W-J-V:  : SCIENCE in OLD : SCIENCE in NEW
+
+new W-C-RC {'OCFI': 150} {} W-C-RC_2015-12-15
+    W-C-RC:  : SCIENCE in NEW : CALIB in NEW (W-C-RC_2015-12-15_CALIB)
+
+new W-S-I+ {'OCFI': 80, 'OCFSI': 210} {} W-S-I+_2009-03-28 W-S-I+_2007-02-13
+    W-S-I+:  : SCIENCE in NEW
+
+    W-C-IC: 
+
+new W-S-Z+ {'OCFSFI': 120} {} W-S-Z+_2015-12-15
+    W-S-Z+:  : SCIENCE in NEW : CALIB in NEW (W-S-Z+_2015-12-15_CALIB)
+
+ astrom_newdir_candidates= ['/gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02//W-J-B/SCIENCE/astrom_photom_scamp_PANSTARRS/', '/gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02//W-J-B/SCIENCE/astrom_photom_scamp_PANSTARRS_plots_many_scamps/', '/gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02//W-J-B/SCIENCE/astrom_photom_scamp_PANSTARRS_FLUX_AUTO/', '/gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02//W-J-B/SCIENCE/astrom_photom_scamp_PANSTARRS_FLUX_APER/']
+ astrom_olddir= /nfs/slac/g/ki/ki05/anja/SUBARU/MACS0429-02//W-J-V/SCIENCE/astrom_photom_scamp_2MASS/
+ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/MACS0429-02//W-J-V/SCIENCE/astrom_photom_scamp_2MASS//cat_photom/SUPA* /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02//W-J-B/SCIENCE/astrom_photom_scamp_PANSTARRS//cat_photom/
+ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/MACS0429-02//W-J-V/SCIENCE/astrom_photom_scamp_2MASS//cat/SUPA*.ahead /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02//W-J-B/SCIENCE/astrom_photom_scamp_PANSTARRS//cat/
+ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/MACS0429-02//W-J-V/SCIENCE/astrom_photom_scamp_2MASS//headers/SUPA* /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02//W-J-B/SCIENCE/astrom_photom_scamp_PANSTARRS//headers/
+
+######## MACS0429-02 #########
+new W-J-B {'OCFI': 120} {'OCFI': 120} W-J-B_2015-12-15
+    W-J-B:  : SCIENCE in NEW : CALIB in NEW (W-J-B_2015-12-15_CALIB)
+
+old W-J-V {'OCFSI': 60, 'OCFS': 60} {'OCFSI': 60} W-J-V_2005-11-30
+new W-J-V {'OCFSI': 60} {} 
+    W-J-V:  : SCIENCE in OLD : SCIENCE in NEW : CALIB in OLD (W-J-V_2009-01-23_CALIB)
+
+old W-C-RC {'OCFSRI': 90, 'OCFS': 154} {'OCFSI': 80} W-C-RC_2005-11-30
+new W-C-RC {'OCFSRI': 90} {} 
+    W-C-RC:  : SCIENCE in OLD : SCIENCE in NEW : CALIB in OLD (W-C-RC_2009-01-23_CALIB)
+
+    W-S-I+: 
+
+old W-C-IC {'OCFSF': 70, 'OCFSFI': 63} {'OCFSFI': 63} W-C-IC_2006-12-21
+new W-C-IC {'OCFSFI': 63} {} 
+    W-C-IC:  : SCIENCE in OLD : SCIENCE in NEW : CALIB in OLD (W-C-IC_2006-12-21_CALIB)
+
+new W-S-Z+ {'OCFSFI': 160} {'OCFSFI': 160} W-S-Z+_2015-12-15
+    W-S-Z+:  : SCIENCE in NEW : CALIB in NEW (W-S-Z+_2015-12-15_CALIB)
+

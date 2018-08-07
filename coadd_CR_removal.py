@@ -381,7 +381,7 @@ def track2ring(track_spots,ring_spots):
 		return track_spots_final,included,rr
 	except:
 		ns.update(locals())
-		print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
+		print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
 
 def ringable(ra_object):
 	'''this takes an "almost ring" and makes it a true ring. it is called within `ringer`.'''
@@ -522,7 +522,7 @@ def ringer_noplot(spots_ringer,l_ringer,filtstamp_ringer,imstamp_ringer,seg0stam
                                         ringer_yy,ringer_xx=nonzero(track_spots_final)
                                         return track_spots_final, 0 #ringstat==0 implies all is well with ringer
                 except ValueError:
-                        if cosmics_lintry.any(): print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
+                        if cosmics_lintry.any(): print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
                         else: pass
                 #SIMPLE LINE: END try seeing if everything fits in a simple line really easily
                 # first doing ring segments with 1 layer outside the ring excluded (gets closer to the ring), then doing it with 2 layers excluded (has advantage of not mixing detections near the ring). then if the 1layer and 2layer thing disagree I ta
@@ -614,7 +614,7 @@ def ringer_noplot(spots_ringer,l_ringer,filtstamp_ringer,imstamp_ringer,seg0stam
                 return newring, 0 #ringstat==0 implies all is well with ringer
         except:
                 ns.update(locals())
-                print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise 
+                print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise 
 
 #RINGER
 def ringer(spots_ringer,l_ringer,filtstamp_ringer,imstamp_ringer,seg0stamp_ringer,star_stamp):
@@ -772,7 +772,7 @@ def ringer(spots_ringer,l_ringer,filtstamp_ringer,imstamp_ringer,seg0stamp_ringe
 					close(f);del f
 					return track_spots_final, 0 #ringstat==0 implies all is well with ringer
 		except ValueError:
-			if cosmics_lintry.any(): print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
+			if cosmics_lintry.any(): print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
 			else: pass
 		#SIMPLE LINE: END try seeing if everything fits in a simple line really easily
 		ax=f.add_subplot(2,6,1);ax.set_title('spots_ringer="o"\n& original mask ="x"');yy,xx=nonzero(spots_ringer);imshow(filtstamp_ringer,interpolation='nearest',origin='lower left');scatter(xx,yy,edgecolors='k',facecolors='None')
@@ -905,7 +905,7 @@ def ringer(spots_ringer,l_ringer,filtstamp_ringer,imstamp_ringer,seg0stamp_ringe
 		return newring, 0 #ringstat==0 implies all is well with ringer
 	except:
 		ns.update(locals())
-		show();print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
+		show();print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
 #END: RING FUNCTIONS define commands for fixing rings
 
 #START: HOLE FUNCTIONS define command for counting holes in objects
@@ -956,7 +956,7 @@ def polyfitter_specific(cosmics,polytype,degree=1):
 			return rr,x_of_y,'x_of_y'
 	except:
 		ns.update(locals())
-		show();print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
+		show();print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
 
 def polyfitter(cosmics,degree=1):
 	'''This fits a polynomial to the True elements in cosmics.
@@ -995,7 +995,7 @@ def polyfitter(cosmics,degree=1):
 			return rr,x_of_y,'x_of_y'
 	except:
 		ns.update(locals())
-		print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
+		print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
 
 def cosmicpoly(l,cosmics,stamp,ax,**kwargs):
 	'''cosmicpoly is like polyfitter(cosmics,degree=5)'''
@@ -1284,7 +1284,7 @@ def track_stretcher(cosmics,CRfiltstamp,thresh,star_stamp,stretchL_total,stretch
 		return cosmics_final,Linclude,Rinclude,rr
 	except:
 		ns.update(locals())
-		show();print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
+		show();print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
 
 def iter_track_stretch(cosmics, CRfiltstamp,bthresh,BASE,l,star_stamp,name_extras='',ts_rr_cut=1.8,rr_per_step=.07,track_len_cut=4):
 	'''run track_stretcher over and over until it converges'''
@@ -1548,7 +1548,7 @@ def blocked_blender(bthresh,CRfiltimage,CRll,CRslices,starbools,CRseg):
 		return blended_CRseg
 	except:
 		ns.update(locals())
-		show();print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
+		show();print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
 #END: BLENDING FUNCTIONS
 
 def reset_labels(prob_labels,segs2reset):
@@ -1571,7 +1571,7 @@ if __name__ == "__main__":
 	fl=args[-1]
 	if not os.path.isfile(fl):
 		print "sys.argv=",sys.argv
-		print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise Exception(fl+" is not a file!")
+		print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise Exception(fl+" is not a file!")
 	else:
 		print "starting file=",fl
 	#try:
@@ -1606,7 +1606,7 @@ if __name__ == "__main__":
 	bthresh1_bin=digitize([rms],rms_bins)[0] #no "-1" here because I want the top-edge of the bin, not the bottom edge
 	#adam-tmp# if bthresh1_bin==0 or bthresh1_bin>15:
 	if bthresh1_bin==0 or bthresh1_bin>17:
-		print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise Exception('this rms just is not right')
+		print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise Exception('this rms just is not right')
 	bthresh1=rms_bins[bthresh1_bin]
 	dt=CRfitsfl[0].header['CRN_DT']*rms#; ft=CRfitsfl[0].header['CRN_FT']*rms
 	dt_times_pt01=int(dt*.01+1) #this is like a ceiling function

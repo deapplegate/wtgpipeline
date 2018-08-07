@@ -1,0 +1,22 @@
+ 
+START  
+ 
+adamSep15_test_non-parallel_resamp.sh
+adam_bias-do_Subaru_preprocess.sh
+adam_notes-pick_SKYFLAT_or_DOMEFLAT.sh
+batch_ic.sh
+batch_suppress.sh
+change_headernames.sh
+do_geo_photometry.sh
+do_lensing.sh
+do_photometry.sh
+do_photometry_3sec.sh
+do_photometry_alt.sh
+full_suppression.sh
+move_suppression.sh
+photometry_catalogs.sh
+produce_3sec_cats.sh
+run_update_configheaders_onall.sh
+transfer_catbackup.sh
+ END   
+ 

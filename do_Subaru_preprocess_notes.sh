@@ -68,7 +68,7 @@ process_bias_4channels_eclipse_para.sh: correct the bias frames for overscan
 ## use the python code 1st guesses & ds9 to perfect them. The DARK limits are the same unless config changes
 
 ######################### CURRENT Limits #################################################
-#adam# to mess with limits, see ~/thiswork/scripts/Plot_Light_Cutter.py
+#adam# to mess with limits, see Plot_Light_Cutter.py
 #adam# The DARK limits are the same unless config changes (these were fit by eye)
 #adam# The FLAT limits may not be the same
 

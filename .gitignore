@@ -7,6 +7,7 @@ scratch/
 *.c
 *.o
 *.so
+.smhist
 OUT-*.log
 publication/
 simqueue/
@@ -16,6 +17,10 @@ adam-simple_ic/develop_simple_ic/ICstats/
 adam-python_funcifier/
 coadd_MACS0744+39/
 hawaii_gas_preH/
+ORIGINALS/
+backup_Zw_CRNitschke/
+adam-PyCallGraph
+adam-bigfiles_bpz_pdz_and_cosmos
 adam-ORIGINALS
 adam-analysis
 adam-ascii_usefuls
@@ -25,6 +30,8 @@ adam-badcol_10_3
 adam-mytools
 adam-parse_bash_logs
 adam-run_scamp
+adam-pat_calc_scripts
+adam-simple_ic
 
 store_sdss
 sdss_out

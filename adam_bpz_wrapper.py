@@ -51,9 +51,16 @@ import astropy.io.fits as pyfits
 
 #adam-Warning### inputs you might want to change
 DETECT_FILTER="W-C-RC"
-M_0_filt="SUBARU-10_2-1-W-C-RC" #this is the filter to use for "M_0", the mag most comparable to SDSS/2MASS/etc. deepest filter
-M_0_filt2="SUBARU-10_3-1-W-C-RC" #this is the backup filter to use for "M_0" if M_0_filt isn't available
-##for MACS1115 we want: 'SUBARU-10_3-1-W-C-RC', 'SUBARU-10_2-1-W-C-RC'
+#this is the filter to use for "M_0", the mag most comparable to SDSS/2MASS/etc. deepest filter
+M_0_filt="SUBARU-10_3-1-W-C-IC"
+M_0_filt2="SUBARU-10_2-1-W-C-IC" #this is the backup filter to use for "M_0" if M_0_filt isn't available
+#adam-tmp# M_0_filt="SUBARU-10_2-1-W-S-I+"
+#adam-tmp# M_0_filt2="SUBARU-10_3-1-W-S-I+"
+#Turns out I-band is a much closer match for BPZ prior
+#adam-old##for MACS1115 we want: 'SUBARU-10_3-1-W-C-RC', 'SUBARU-10_2-1-W-C-RC'
+#adam-old# M_0_filt="SUBARU-10_2-1-W-C-RC"
+#adam-old# M_0_filt2="SUBARU-10_3-1-W-C-RC"
+
 iaper = '1' #this is now just a tag I use where "1" just means nothing out of the ordinary. Probably used to mean something more significant. Other example: #adam-old# iaper = '1_M_0_Iband'
 ONLY_TYPE="no" #if this is "yes", then you're essentially using bpz to evaluate how good your magnitude ZPs are (make sure spec=True)
 spec = False
@@ -67,6 +74,10 @@ magtype = 'APER1' #magtype options are: 'ISO'; magtype = 'APER'
 print 'inputs you probably dont want to change: SPECTRA=',SPECTRA,' AP_TYPE=',AP_TYPE,' magflux=',magflux,' magtype=',magtype
 
 photdir = subarudir + '/' + cluster + '/PHOTOMETRY_' + DETECT_FILTER + AP_TYPE + '/'
+bpzoutdir = photdir
+#adam-tmp# bpzoutdir = photdir+ 'BPZ-prior_Imag-ZP_from_BPZ/'
+if not os.path.isdir(bpzoutdir):
+	os.makedirs(bpzoutdir)
 #adam-new# changed this to the PureStarCalib version, which I think should be the file type we move forward with from now on#adam-Warning#
 inputcat = photdir + cluster + '.calibrated_PureStarCalib.cat'
 inputcat_alter_ldac = photdir + cluster + '.calibrated_PureStarCalib.alter.cat'
@@ -391,8 +402,8 @@ filterlist = get_filters(inputcat_alter_ldac,'OBJECTS',SPECTRA=SPECTRA)
 print ' filterlist=',filterlist , ' len(filterlist)=',len(filterlist)
 
 ## make the bpz columns and bpz input file
-inputcat_alter_ascii= photdir + cluster + '.bpz_input.txt'
-columns_fl= photdir + cluster + '.bpz.columns'
+inputcat_alter_ascii= bpzoutdir + cluster + '.bpz_input.txt'
+columns_fl= bpzoutdir + cluster + '.bpz.columns'
 columns_fo= open(columns_fl,'w')
 columns_num=2
 ascii_cat_keys=["SeqNr"]
@@ -534,7 +545,10 @@ def do_bpz(CLUSTER,DETECT_FILTER,AP_TYPE,filters,inputcat_alter_ascii,inputcat_a
 		    print 'couldnt find filter!!!'
 		    raise Exception("no file of the name: os.environ['BPZPATH']+'/FILTER/'+f="+os.environ['BPZPATH'] + '/FILTER/' + f+" found!")
 
-	    base = '%(SUBARUDIR)s/%(CLUSTER)s/%(PHOTOMETRYDIR)s/%(CLUSTER)s.%(magtype)s.%(iaper)s.%(SPECTRA)s.all' % dict
+	    if bpzoutdir == photdir:
+		base = '%(SUBARUDIR)s/%(CLUSTER)s/%(PHOTOMETRYDIR)s/%(CLUSTER)s.%(magtype)s.%(iaper)s.%(SPECTRA)s.all' % dict
+	    else:
+		base = bpzoutdir + '%(CLUSTER)s.%(magtype)s.%(iaper)s.%(SPECTRA)s.all' % dict
 	    dict['columns'] = base + '.columns'
 	    if inputcolumns:
 		    command_cp_columns=' '.join(["cp",inputcolumns,dict['columns']])
@@ -623,3 +637,7 @@ print "for more info, run this: python $BPZPATH/bpzfinalize.py %s" % (base)
 #Includes calculation of modified chisq (chisq2) plus different formatting #Important: Check your results including SED fits and P(z)
 print "for more info, run this: python $BPZPATH/plots/webpage.py %s i2000-2063 -DIR /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/bpz_html_sex2mag" % (base)
 print "for plots, run this: adam_plot_bpz_output.py"
+if not os.path.isdir( photdir + "/bpz_html_sex2mag"):
+	os.makedirs( photdir + "/bpz_html_sex2mag")
+os.system("python %s/bpzfinalize.py %s" % (os.environ['BPZPATH'],base))
+os.system("python %s/plots/webpage.py %s i2000-2063 -DIR %s" % (os.environ['BPZPATH'],base,photdir + "/bpz_html_sex2mag"))

@@ -307,7 +307,7 @@ exit 0;
 #adam# The DARK limits are the same unless config changes (these were fit by eye)
 #10_3#super wide limits that I just use because this doesn't matter much at this point (this is found by taking the min of the lower limits and max of the upper limits for all "by eye" limits for each filter, then taking min-.04 and max+.08 so that I'm sure this will cut almost nothing out)
 #STARTOVER-CHANGE DARK LIMS or CHANGE WeightMasker# 
-#adam# to mess with limits, see ~/thiswork/scripts/Plot_Light_Cutter.py
+#adam# to mess with limits, see Plot_Light_Cutter.py
 #adam# The DARK limits are the same unless config changes (these were fit by eye)
 #adam# The FLAT limits may not be the same
 

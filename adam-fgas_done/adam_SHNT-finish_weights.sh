@@ -1,0 +1,1 @@
+./create_weights_raw_delink_para_CRNitschke_single.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-S-Z+_2013-06-10 SCIENCE OCFSF WEIGHTS W-S-Z+ /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-Z+_2013-06-10/SCIENCE/SUPA0139756_1OCFSF.fits
