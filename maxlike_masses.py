@@ -4,7 +4,6 @@
 ########################
 
 from __future__ import with_statement
-import cPickle
 import numpy as np, astropy.io.fits as pyfits
 import pymc
 import nfwmodeltools as tools, varcontainer
@@ -271,7 +270,7 @@ class LensingModel(object):
             parts.logmass_15mpc = pymc.Uniform('logmass_15mpc', np.log10(options.masslow), 
                                                np.log10(options.masshigh))
 
-            @pymc.deterministic(name='mass_15mpc')
+            @pymc.deterministic
             def mass_15mpc(logmass = parts.logmass_15mpc):
                 return 10**logmass
 
@@ -390,6 +389,8 @@ class LensingModel(object):
 
     def createModel(self, datamanager):
 
+        datamanager.ngalaxies = len(datamanager.inputcat)
+
         parts = self.makeModelParts(datamanager)
 
         return pymc.Model(parts)
@@ -424,9 +425,6 @@ class ScanModelToFile(object):
                 scan[i] = model.logp
             except pymc.ZeroProbability:
                 scan[i] =  pymc.PyMCObjects.d_neg_inf
-
-        
-
 
         cols = [ pyfits.Column(name = 'Mass', format = 'E', array = mass),
                  pyfits.Column(name = 'prob', format = 'E', array = scan)]
@@ -529,23 +527,32 @@ class SampleModelToFile(object):
 
         manager.mcmc.sample(nsamples)
 
-        if isinstance(manager.mcmc.concentration, float):
-            manager.masses = np.array([ nfwutils.massInsideR(rs,
-                                                             manager.mcmc.concentration,
-                                                             manager.mcmc.zcluster,
-                                                             manager.r500) \
-                                            for rs in manager.mcmc.trace('r_scale')[burn:] ])
-        else:
-            manager.masses = np.array([ nfwutils.massInsideR(rs,
-                                                             c,
-                                                             manager.mcmc.zcluster,
-                                                             manager.r500) \
-                                            for rs, c in zip(manager.mcmc.trace('r_scale')[burn:],
-                                                             manager.mcmc.trace('concentration')[burn:])])
-            
-        
+	#adam-tmp# I'm adding this try statement as a work around, because this line:
+	#adam-tmp#    if isinstance(manager.mcmc.concentration, float):                                                                                                                                         
+	#adam-tmp# Is giving me this error:
+	#adam-tmp#    AttributeError: 'MCMC' object has no attribute 'concentration'
 
-
+	#adam-changed# :s/manager.mcmc.zcluster/manager.zcluster/g
+	try:
+		if isinstance(manager.mcmc.concentration, float):
+		    manager.masses = np.array([ nfwutils.massInsideR(rs,
+								     manager.mcmc.concentration,
+								     manager.zcluster,
+								     manager.r500) \
+						    for rs in manager.mcmc.trace('r_scale')[burn:] ])
+		else:
+		    manager.masses = np.array([ nfwutils.massInsideR(rs,
+								     c,
+								     manager.zcluster,
+								     manager.r500) \
+						    for rs, c in zip(manager.mcmc.trace('r_scale')[burn:],
+								     manager.mcmc.trace('concentration')[burn:])])
+	except AttributeError:
+		manager.masses = np.array([ nfwutils.massInsideR(rs, c,
+		    					     manager.zcluster,
+		    					     manager.r500) \
+		    			    for rs, c in zip(manager.mcmc.trace('r_scale')[burn:],
+		    					     manager.mcmc.trace('concentration')[burn:])])
 
     ############
 
@@ -643,4 +650,7 @@ def dumpMasses(masses, outputFile):
     print 'Log10 Maxlike\t%e\t%e\t%e\n' % (lml, lm, lp)
 
 
+    print '\nwrote output: %s.mass.pkl' % outputFile
+    print 'wrote output: %s.mass.summary.txt' % outputFile
+    print 'wrote output: %s.mass.summary.pkl' % outputFile
 

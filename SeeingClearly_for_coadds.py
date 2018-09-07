@@ -33,6 +33,7 @@ import pickle
 from fitter import Gauss
 from UsefulTools import names, FromPick_data_true, FromPick_data_spots, GetMiddle, GetSpots_bins_values, ShortFileString, num2str
 import imagetools
+import cattools
 #super useful image packages
 #import ds9
 from scipy.stats import *
@@ -258,7 +259,7 @@ def seeing_clearly_withplot(image,checkplots=1,saveas=None,**kwargs):
 				#lets get the spots for plotting purposes
 				diffs=fwhm-seeing_wted
 				cut3spots=diffs.__abs__()<dist_cut #IR= In Region
-				finalspots=imagetools.SpotCutter([cut1spots,cut2spots,cut3spots])
+				finalspots=cattools.SpotCutter([cut1spots,cut2spots,cut3spots])
 				plotspots.append(finalspots)
 				#lets plot the stuff on the top axis
 				ax1.plot(steps,foms_wted,cut2color[cut_i],label='SNR>%s' % (s2ncut,))

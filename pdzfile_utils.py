@@ -3,7 +3,8 @@
 #########################
 
 import sys, re, cPickle
-import numpy as np, astropy, astropy.io.fits as pyfits
+import numpy as np
+import astropy, astropy.io.fits as pyfits
 import ldac
 
 
@@ -121,13 +122,28 @@ class PDZManager(object):
     ##########################
     
     @classmethod
-    def open(cls, pdzfile):
+    def open(cls, pdzfile, table='OBJECTS'):
         '''opens a pdzfile saved by PDZManager'''
 
-        pdz = ldac.openObjectFile(pdzfile)
+        pdz = ldac.openObjectFile(pdzfile, table)
 
         return cls(pdz)
 
+############################################
+
+def createPDZcat(seqnr, pdzrange, pdz):
+    npdzs = len(pdzrange)
+    minPDZ = np.min(pdzrange)
+    pdzstep = pdzrange[npdzs-1] - pdzrange[npdzs-2]
+    maxPDZ = np.max(pdzrange) + pdzstep
+    assert((np.arange(minPDZ, maxPDZ, pdzstep) == pdzrange).all())
+    cols = [pyfits.Column(name = 'SeqNr', format = 'J', array = seqnr),
+            pyfits.Column(name = 'pdz', format = '%dE' % npdzs, array = pdz)]
+    pdzs = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
+    pdzs.hdu.header['MINPDZ']= minPDZ
+    pdzs.hdu.header['MAXPDZ']= maxPDZ
+    pdzs.hdu.header['PDZSTEP']= pdzstep
+    return pdzs
 
 ############################################
 
@@ -197,7 +213,7 @@ if __name__ == '__main__':
     photoztype = 'bpz'
     if len(sys.argv) > 3:
         photoztype = sys.argv[3]
-        
+
     sourcefile = None
     if photoztype == 'zebra':
         sourcefile = sys.argv[4]
