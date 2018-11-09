@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #adam-use# put bigmacs zps in cats and headers of coadd.fits and calculate NFILT
-#adam-example# ipython -i -- adam_bigmacs-apply_zps.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.split_apers.cat -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat -z /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.bigmacs_cleaned_offsets.list
+#adam-example# ipython -i -- adam_bigmacs_apply_zps_and_add_NFILT.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.split_apers.cat -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat -z /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.bigmacs_cleaned_offsets.list
+#adam-example# ipython -i -- adam_bigmacs_apply_zps_and_add_NFILT.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper/MACS1115+01.unstacked.split_apers.cat -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper/MACS1115+01.calibrated_PureStarCalib.cat -z /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper/MACS1115+01.bigmacs_cleaned_offsets-PureStarCalib.list
+#adam-example# ipython -i -- adam_bigmacs_apply_zps_and_add_NFILT.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper/MACS1115+01.stars.split_apers.cat -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper/MACS1115+01.stars.calibrated_PureStarCalib.cat -z /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper/MACS1115+01.bigmacs_cleaned_offsets-PureStarCalib.list
 #####################
 
 # Manually set a zeropoint for a fitid, such as from SLR
@@ -8,12 +10,61 @@
 #####################
 
 import sys, os, re,glob
-sys.path.append('~/InstallingSoftware/pythons/')
+sys.path.append('/u/ki/awright/quick/pythons/')
+import imagetools, cattools
 import header_key_add
 import ldac, utilities
 import astropy.io.fits as pyfits
 import numpy
 ns=globals()
+
+######################
+
+def calc_NFILT_with_numobs(catinput,filt_zp_err):
+    mag_aper1_keys=filt_zp_err.keys()
+    mag_aper1_sdr={} #get a system of distinct representatives (SDR)
+    for mag_key in mag_aper1_keys:
+        filt=mag_key[mag_key.find('W-'):]
+        if mag_aper1_sdr.has_key(filt):
+                mag_aper1_sdr[filt].append(mag_key)
+        else:
+                mag_aper1_sdr[filt]=[mag_key]
+
+    #catinput=ldac.openObjectFile(mag_fl)
+    catshape=catinput[mag_aper1_sdr.values()[0][0]].shape
+    NFILT_corrected=numpy.zeros(catshape,dtype=numpy.float32)
+    for filt in mag_aper1_sdr.keys():
+        mag_aper1_keys_clean=mag_aper1_sdr[filt]
+        observed_in_filt=numpy.zeros(catshape,dtype=bool)
+	printstr=[]
+        for mag_key in mag_aper1_keys_clean:
+            flux_key=mag_key.replace("MAG_APER1","FLUX_APER1")
+            fluxerr_key=flux_key.replace("FLUX","FLUXERR")
+            ef=catinput[fluxerr_key].copy()
+            observed=(ef>0.)
+            observed_in_filt+=observed
+            if len(mag_aper1_keys_clean)>1:
+                if mag_key.find('10_3')>0:
+                        mag_key_10_3=mag_key
+                        observed_10_3=observed.copy()
+                if mag_key.find('10_2')>0:
+                        mag_key_10_2=mag_key
+                        observed_10_2=observed.copy()
+            	printstr+=['\t%s\t## observed: %i  (of %i). Percentage: %.1f  ## ' % (mag_key,observed.sum(),observed.__len__(),100*observed.mean())]
+        NFILT_corrected+=numpy.array(observed_in_filt,dtype=numpy.float32)
+
+        ## check how the data looks
+        print '\n%s\n## observed_in_filt: %i  (of %i). Percentage: %.1f  ## ' % (filt,observed_in_filt.sum(),observed_in_filt.__len__(),100*observed_in_filt.mean())
+        ## combine the different mags
+        if len(mag_aper1_keys_clean)>1:
+	    print '\n'.join(printstr)
+            #mag_both=numpy.where(observed_10_2,catinput[mag_key_10_2],catinput[mag_key_10_3])
+            #flux_both=numpy.where(observed_10_2,catinput[mag_key_10_2.replace("MAG_APER1","FLUX_APER1")],catinput[mag_key_10_3.replace("MAG_APER1","FLUX_APER1")])
+            #emag_both=numpy.where(observed_10_2,catinput[mag_key_10_2.replace("MAG_APER1","MAGERR_APER1")],catinput[mag_key_10_3.replace("MAG_APER1","MAGERR_APER1")])
+            #eflux_both=numpy.where(observed_10_2,catinput[mag_key_10_2.replace("MAG_APER1","FLUXERR_APER1")],catinput[mag_key_10_3.replace("MAG_APER1","FLUXERR_APER1")])
+
+    return NFILT_corrected
+
 ######################
 
 def getZP(zpfile):
@@ -32,7 +83,6 @@ def getZP(zpfile):
 	    ns.update(locals())
 	    raise
 
-
 #######################
 
 def main(flinput,flzps,flnew):
@@ -40,6 +90,7 @@ def main(flinput,flzps,flnew):
 
 		filt_zp_err=getZP(flzps)
 		catinput=ldac.openObjectFile(flinput)
+		NFILT=calc_NFILT_with_numobs(catinput,filt_zp_err)
 		flproto=flinput.replace(".cat",".proto-tmp.cat")
 
 		mag_aper1_keys=filt_zp_err.keys()
@@ -84,30 +135,40 @@ def main(flinput,flzps,flnew):
 			em=catinput[magerr_key].copy()
 			ef=catinput[fluxerr_key].copy()
 			#mask=f<=0 ## m==-99 ## (mask==nondetected+nonobserved)=True
+			detected=(f>0.)
 			nondetected=(f<=0.)*(ef>0) #Flux <=0, meaningful phot. error
 			nonobserved=(ef<=0.) #Negative errors
 
 			frac_zp=10**(-.4*zp)
 			flux_newcol=f*frac_zp #((f==-99)==nonobserved).all()=True
 			flux_newcol[nonobserved]=-99
+			#adam-correct# I did think, briefly, that this was a mistake, but it's correct, the frac_zp is a multiplicative factor, so it get's multiplied to the error as well (that's not the case with the mags, because for them it's an additive factor, hence not affecting the uncertainty)
 			eflux_newcol=numpy.where(nonobserved,ef,ef*frac_zp)
+
 			# using mag=-2.5*numpy.log10(flux) after calibrating flux even though m+zp gives the same thing, because I should just use fluxes always since magnitudes cannot be trusted!
 			mag_newcol=-2.5*numpy.log10(flux_newcol) #=m+zp
 			mag_newcol[nonobserved+nondetected]=-99
 
 			f_bpz=flux_newcol.copy()
 			ef_bpz=eflux_newcol.copy()
-			f_bpz[nonobserved+nondetected]=0
+			# previously I'd had f_bpz[nonobserved+nondetected]=0, and that was wrong!
+			f_bpz[nonobserved]=0
 			ef_bpz[nonobserved]=0
 			#m_bpz=mag_newcol.copy()
 			#em_bpz=em.copy()
 			#m_bpz[nonobserved+nondetected]=0
 			#em_bpz[nonobserved]=0
 
-			## Calculate NFILT
-			detected=numpy.logical_not(nondetected+nonobserved)
-			if len(ncs)==0: NFILT=numpy.zeros(detected.shape,dtype=numpy.float32)
-			NFILT+=numpy.array(detected,dtype=numpy.float32)
+			#adam-new# do this check on the calculations to put my mind at ease
+			m_check=m.copy()+zp
+			m_check[nonobserved+nondetected]=-99
+			close_enough=numpy.array([imagetools.isclose(a,b,abs_tol=1e-5) for a,b in zip(mag_newcol,m_check)])
+			assert(close_enough.all())
+
+			#adam-old# Calculate NFILT
+			#detected=numpy.logical_not(nondetected+nonobserved)
+			#if len(ncs)==0: NFILT=numpy.zeros(detected.shape,dtype=numpy.float32)
+			#NFILT+=numpy.array(detected,dtype=numpy.float32)
 
 			## check how the data looks
 			print '\n%s\n## detected: %i  ##  nondetected: %i  ## nonobserved: %i  ## ' % (filt,detected.sum(),nondetected.sum(),nonobserved.sum())
@@ -118,11 +179,10 @@ def main(flinput,flzps,flnew):
 			ncs.append(pyfits.Column(name=mag_key,format='1E',array=mag_newcol))
 			ncs.append(pyfits.Column(name=flux_key,format='1E',array=flux_newcol))
 			ncs.append(pyfits.Column(name=fluxerr_key,format='1E',array=eflux_newcol))
-			ncs.append(pyfits.Column(name=flux_key+"_bpz",format='1E',array=f_bpz))
-			ncs.append(pyfits.Column(name=fluxerr_key+"_bpz",format='1E',array=ef_bpz))
+			ncs.append(pyfits.Column(name=flux_key+"_bpz_inputs",format='1E',array=f_bpz))
+			ncs.append(pyfits.Column(name=fluxerr_key+"_bpz_inputs",format='1E',array=ef_bpz))
 			## no longer needed: fluxerr_newcol magerr_newcol
 			other_keys_del+=[ mag_key.replace("APER1-","APER-"), flux_key.replace("APER1-","APER-"), magerr_key.replace("APER1-","APER-"), fluxerr_key.replace("APER1-","APER-")]
-			print "\nNFILT=",NFILT,"\n"
 
 			### adam-old
 			##inmag=catinput[mag_key].copy()
@@ -161,7 +221,7 @@ def main(flinput,flzps,flnew):
 
 		## make a version of flinput with the keys in flproto deleted so that it doesn't give an error in the ldacjoinkey command
 		## ALSO remove MAG_APER-/FLUX_APER-/MAGERR_APER-/FLUXERR_APER- so I don't confuse it for MAG_APER1-/... later
-		keys_del=[col.name for col in ncs if not col.name.endswith("_bpz") and not col.name=="NFILT"]+other_keys_del
+		keys_del=[col.name for col in ncs if not col.name.endswith("_bpz_inputs") and not col.name=="NFILT"]+other_keys_del
 		flinput2cp=flinput.replace(".cat",".input-tmp.cat")
 		ooo=os.system("ldacdelkey -i "+flinput+" -o "+flinput2cp+" -k "+' '.join(keys_del))
 		if ooo!=0: raise Exception("the line os.system(ldacdelkey...) failed")

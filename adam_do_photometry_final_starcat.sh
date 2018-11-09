@@ -419,18 +419,18 @@ fi
 if [ $apply_calibrations -eq 1 ]; then
 
 	#apply ZPs in ${photdir}/${cluster}.bigmacs_cleaned_offsets-PureStarCalib.list, save to cat headers, and save them to images (coadd.fits)
-	#example:./adam_bigmacs-apply_zps.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.split_apers.cat -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat -z /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.bigmacs_cleaned_offsets-PureStarCalib.list
-	./adam_bigmacs-apply_zps.py -i ${photdir}/${cluster}.stars.split_apers.cat -o ${photdir}/${cluster}.stars.calibrated_PureStarCalib.cat -z ${photdir}/${cluster}.bigmacs_cleaned_offsets-PureStarCalib.list
+	#example:./adam_bigmacs_apply_zps_and_add_NFILT.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.split_apers.cat -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat -z /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.bigmacs_cleaned_offsets-PureStarCalib.list
+	./adam_bigmacs_apply_zps_and_add_NFILT.py -i ${photdir}/${cluster}.stars.split_apers.cat -o ${photdir}/${cluster}.stars.calibrated_PureStarCalib.cat -z ${photdir}/${cluster}.bigmacs_cleaned_offsets-PureStarCalib.list
 	exit_code=$?
 	if [ "${exit_code}" != "0" ]; then
-	    echo "Failure in adam_bigmacs-apply_zps.py!"
+	    echo "Failure in adam_bigmacs_apply_zps_and_add_NFILT.py!"
 	    exit 51
 	fi
-	./adam_bigmacs-apply_zps.py -i ${photdir}/${cluster}.unstacked.split_apers.cat -o ${photdir}/${cluster}.calibrated_PureStarCalib.cat -z ${photdir}/${cluster}.bigmacs_cleaned_offsets-PureStarCalib.list
+	./adam_bigmacs_apply_zps_and_add_NFILT.py -i ${photdir}/${cluster}.unstacked.split_apers.cat -o ${photdir}/${cluster}.calibrated_PureStarCalib.cat -z ${photdir}/${cluster}.bigmacs_cleaned_offsets-PureStarCalib.list
 
 	exit_code=$?
 	if [ "${exit_code}" != "0" ]; then
-	    echo "Failure in adam_bigmacs-apply_zps.py!"
+	    echo "Failure in adam_bigmacs_apply_zps_and_add_NFILT.py!"
 	    exit 53
 	fi
 

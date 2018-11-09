@@ -51,8 +51,8 @@ class SubaruSecureFilehandler(msf.SubaruFilehandler):
         newoptions.inputPDZ = '%s/%s.%s.pdz.cat' % (options.workdir, options.cluster,
                                                     options.filter)
 
-        newoptions.neighborcat = '%s/%s.%s.%s.neighbors.cat' % (options.workdir, options.cluster, 
-                                                                options.filter, options.image)
+	newoptions.neighborcat = '%s/%s.%s.%s.neighbors.cat' % (options.workdir, options.cluster, 
+								options.filter, options.image)
 
         
 

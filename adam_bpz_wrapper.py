@@ -340,8 +340,8 @@ def add_dummy_ifilter(catalog, outputfile):
         cols.append(pyfits.Column(name="MAGERR_APER1-SUBARU-10_3-1-W-S-I+",format='1E',array=numpy.zeros(arshape)))
         cols.append(pyfits.Column(name="FLUX_APER1-SUBARU-10_3-1-W-S-I+",format='1E',array=numpy.zeros(arshape)-99))
         cols.append(pyfits.Column(name="FLUXERR_APER1-SUBARU-10_3-1-W-S-I+",format='1E',array=numpy.zeros(arshape)-99))
-        cols.append(pyfits.Column(name="FLUX_APER1-SUBARU-10_3-1-W-S-I+_bpz",format='1E',array=numpy.zeros(arshape)))
-        cols.append(pyfits.Column(name="FLUXERR_APER1-SUBARU-10_3-1-W-S-I+_bpz",format='1E',array=numpy.zeros(arshape)))
+        cols.append(pyfits.Column(name="FLUX_APER1-SUBARU-10_3-1-W-S-I+_bpz_inputs",format='1E',array=numpy.zeros(arshape)))
+        cols.append(pyfits.Column(name="FLUXERR_APER1-SUBARU-10_3-1-W-S-I+_bpz_inputs",format='1E',array=numpy.zeros(arshape)))
     print 'add_dummy_ifilter| len(cols)=',len(cols)
     hdu = pyfits.PrimaryHDU()
     #old#hduSTDTAB = pyfits.BinTableHDU.from_columns(cols)
@@ -412,8 +412,8 @@ M_0_key2=None #this gets set in the loop
 for filt in filterlist:
 	filt_col=[filt,'%i,%i' % (columns_num,1+columns_num),'AB','0.02','0.0\n']
 	columns_fo.write('\t'.join(filt_col))
-	ascii_cat_keys.append("FLUX_APER1-"+filt+"_bpz")
-	ascii_cat_keys.append("FLUXERR_APER1-"+filt+"_bpz")
+	ascii_cat_keys.append("FLUX_APER1-"+filt+"_bpz_inputs")
+	ascii_cat_keys.append("FLUXERR_APER1-"+filt+"_bpz_inputs")
 	columns_num+=2
 	if M_0_filt in filt:
 		M_0_key=filt

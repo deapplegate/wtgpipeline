@@ -194,8 +194,10 @@ class SubaruFilehandler(object):
 
     def addCLOps(self, parser):
 
+        #adam-harmonize# neighborcat is not used in data, let's make sure it's not used in sims either
+        # 	setting nearestneighbor = False as default
         parser.add_option('--nearestneighbor', dest='nearestneighbor',
-                          help = 'Turns off the nearest neighbor cut', default = True, 
+                          help = 'Turns off the nearest neighbor cut', default = False, 
                           action='store_false')
         parser.add_option('-c', '--cluster', dest='cluster',
                           help='Cluster name')
@@ -227,9 +229,11 @@ class SubaruFilehandler(object):
 
     #############################
 
+    #adam-harmonize# neighborcat is not used in data, let's make sure it's not used in sims either
+    #	setting nearestneighbor = False as default
     def createOptions(self, cluster, filter, image, ldaclensing='../ldaclensing', 
                       snlow = 3, snhigh = 9999, oddscut = 0., minmag = 25., rhcut = 1.15,
-                      nearestneighbor = True, redseqcat = None, shapecut = False,
+                      nearestneighbor = False, redseqcat = None, shapecut = False,
                       options = None, args = None):
 
         if options is None:
@@ -290,6 +294,7 @@ class SubaruFilehandler(object):
 
         nearestneighbor = np.ones(len(inputcat)) == 1
         if options.nearestneighbor:
+	    raise Exception("""#adam-harmonize# neighborcat is not used in data, let's make sure it's not used in sims either""")
             nearestneighbor = manager.nearestneighbors['neighbors'] == 0
 
         redseqcut = np.ones(len(inputcat)) == 1
@@ -328,7 +333,8 @@ class SubaruFilehandler(object):
 
         newoptions.inputPDZ = '%s/pdz.cat' % photdir
 
-        newoptions.neighborcat = '%s/neighbors.cat' % lensingdir
+	#adam-harmonize# neighborcat is not used in data, let's make sure it's not used in sims either
+	#newoptions.neighborcat = '%s/neighbors.cat' % lensingdir
         
 
 
@@ -348,9 +354,11 @@ class SubaruFilehandler(object):
 
         manager.open('lensingcat', newoptions.lensingcat, ldac.openObjectFile)
 
-        if options.nearestneighbor is True:
-            nncat = ldac.openObjectFile(newoptions.neighborcat)
-            manager.nearestneighbors = nncat.matchById(manager.lensingcat)
+	#adam-harmonize# neighborcat is not used in data, let's make sure it's not used in sims either
+	if options.nearestneighbor is True:
+	    raise Exception("""#adam-harmonize# neighborcat is not used in data, let's make sure it's not used in sims either""")
+	    nncat = ldac.openObjectFile(newoptions.neighborcat)
+	    manager.nearestneighbors = nncat.matchById(manager.lensingcat)
 
         newoptions.psfsize = readPSFSize(options.workdir, options.cluster, options.filter, options.image)
 

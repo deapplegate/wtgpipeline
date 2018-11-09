@@ -125,8 +125,8 @@ M_0_key=None #this gets set in the loop
 for filt in filterlist:
 	filt_col=[filt,'%i,%i' % (columns_num,1+columns_num),'AB','0.02','0.0\n']
 	columns_fo.write('\t'.join(filt_col))
-	ascii_cat_keys.append("FLUX_APER1-"+filt+"_bpz")
-	ascii_cat_keys.append("FLUXERR_APER1-"+filt+"_bpz")
+	ascii_cat_keys.append("FLUX_APER1-"+filt+"_bpz_inputs")
+	ascii_cat_keys.append("FLUXERR_APER1-"+filt+"_bpz_inputs")
 	columns_num+=2
 	if M_0_filt in filt:
 		M_0_key=filt

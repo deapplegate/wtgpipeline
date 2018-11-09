@@ -125,6 +125,8 @@ Configured With:
         self.comment('load called with options = %s\n\tand args = %s' % \
                                  (str(self.options), str(self.args)))
 
+        print 'maxlike_controller.load called with options = %s\n\tand args = %s' % (str(self.options), str(self.args))
+
         if hasattr(self.modelbuilder, 'load'):
             self.modelbuilder.load(self)
         
@@ -143,7 +145,7 @@ Configured With:
 
         self.model = self.modelbuilder.createModel(self)
 
-        self.ngalaxies = len(self.inputcat)
+	#tried# self.ngalaxies = len(self.inputcat)
 
     ############
 

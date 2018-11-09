@@ -4,7 +4,7 @@
 ########################
 
 from __future__ import with_statement
-import numpy as np, astropy.io.fits as pyfits
+import numpy as np, astropy, astropy.io.fits as pyfits
 import pymc
 import nfwmodeltools as tools, varcontainer
 import nfwutils, shearprofile as sp, ldac
@@ -389,7 +389,7 @@ class LensingModel(object):
 
     def createModel(self, datamanager):
 
-        datamanager.ngalaxies = len(datamanager.inputcat)
+	#tried# datamanager.ngalaxies = len(datamanager.inputcat)
 
         parts = self.makeModelParts(datamanager)
 
@@ -507,7 +507,8 @@ class SampleModelToFile(object):
         sanitycheck['pz'] = model.pdz
         sanitycheck['betas'] = model.betas
         sanitycheck['SeqNr'] = manager.inputcat['SeqNr']
-        sanitycheck['phi'] = manager.inputcat['phi']
+	#adam-harmonize# ~/gravitas/maxlikelensing/maxlike_masses.py was missing this "phi" at some point, not sure why, but it doesn't seem to be needed
+	#adam-harmonize# sanitycheck['phi'] = manager.inputcat['phi']
         #sanitycheck['rho_c'] = model.rho_c
         #sanitycheck['rho_c_over_sigma_c'] = model.rho_c_over_sigma_c
 
@@ -574,14 +575,16 @@ class SampleModelToFile(object):
 
         outputFile = manager.options.outputFile
 
-        #dumpMasses(masses, '%s.mx500' % outputFile)
+	#adam-try# I'll first try running this and saving to the output from ~/gravitas/maxlikelensing/maxlike_masses.py in it's SampleModelToFile function
+        dumpMasses(masses, '%s.mx500' % outputFile)
 
-        #dumpMasses(manager.mcmc.trace('mass_15mpc')[manager.options.burn:],
-        #           '%s.mass15mpc' % outputFile)
+        dumpMasses(manager.mcmc.trace('mass_15mpc')[manager.options.burn:],
+                   '%s.mass15mpc' % outputFile)
 
 
-        dumpMasses(manager.mcmc.trace('m200')[manager.options.burn:],
-                   '%s.m200' % outputFile)
+	#adam-old# this is what was originally here, but 'm200' is not part of this mcmc chain, so I'll just make it identical to the one in ~/gravitas/maxlikelensing/
+	#dumpMasses(manager.mcmc.trace('m200')[manager.options.burn:],
+	#           '%s.m200' % outputFile)
 
 
     ##############

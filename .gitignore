@@ -2,13 +2,16 @@ scratch/
 *.tmp
 *.pyc
 *.png
+*.pkl
 *.eps
 *.ps
 *.c
 *.o
 *.so
+*.swp
 .smhist
-OUT-*.log
+OUT-*.log*
+err.OUT*
 publication/
 simqueue/
 setup.py
