@@ -33,7 +33,6 @@ def createBootstrapCats(cluster, filter, image, outdir, nbootstraps = 100, start
 
     zcluster = msf.parseZCluster(cluster)
     center = msf.readClusterCenters(cluster)
-    #adam-old# r_arc, E, B= sp.calcTangentialShear(cat = cat, 
     r_arc, E, B, phi = sp.calcTangentialShear(cat = cat, 
                                          center = center,
                                          pixscale = 0.2)

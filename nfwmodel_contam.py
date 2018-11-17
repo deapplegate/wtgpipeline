@@ -156,7 +156,7 @@ def beta_contamination(x, y, g1, g2, mag, useInContam,
     D_lens = sp.angulardist(zcluster)
 
     cat = {'Xpos' : x, 'Ypos' : y, 'gs1' : g1, 'gs2' : g2}
-    r_arcsec, E, B = sp.calcTangentialShear(cat, center, pixscale)
+    r_arcsec, E, B , phi = sp.calcTangentialShear(cat, center, pixscale)
     r_mpc = r_arcsec * (1./3600.) * (np.pi / 180. ) * D_lens 
         
     if logbin:

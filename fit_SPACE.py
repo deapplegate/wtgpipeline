@@ -212,7 +212,7 @@ for cluster,clusterz in list:
         print catfile 
         catalog= ldac.openObjectFile(catfile+'.tmp',table='PSSC')
         
-        r, E = sp.calcTangentialShear(catalog, center, pixscale,g1col='e1_acs',g2col='e2_acs')
+        r, E , B , phi = sp.calcTangentialShear(catalog, center, pixscale,g1col='e1_acs',g2col='e2_acs')
         beta=sp.beta(catalog["BPZ_Z_B"],clusterz)
         import scipy
         kappacut = scipy.array([False]*len(beta),dtype=bool) #sp.calcWLViolationCut(r, beta, sigma_v = 1300)

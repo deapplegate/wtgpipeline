@@ -206,7 +206,7 @@ pixscale=float(sys.argv[4]) # arcsec / pix
 
 #catalog= ldac.openObjectFile(catfile)
 
-r, E, B = sp.calcTangentialShear(lens, center, pixscale)
+r, E, B , phi = sp.calcTangentialShear(lens, center, pixscale)
 
 beta=sp.beta(phot["BPZ_Z_B"],cluster_z) #, calcAverage = False)
 

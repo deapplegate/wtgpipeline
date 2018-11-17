@@ -209,7 +209,7 @@ for cluster,clusterz in list:
 
         print catfile
         
-        r, E = sp.calcTangentialShear(catalog, center, pixscale)
+        r, E , B , phi = sp.calcTangentialShear(catalog, center, pixscale)
         
         beta=sp.beta(catalog["Z_BEST"],clusterz, calcAverage = False)
         

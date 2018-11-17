@@ -306,7 +306,7 @@ if True: #for cluster,clusterz,filter in list:
         print catfile 
         #catalog= ldac.openObjectFile(catfile+'.tmp',table='OBJECTS')
         
-        r, E, B = sp.calcTangentialShear(lens, center, pixscale,g1col='gs1corr',g2col='gs2corr')
+        r, E, B , phi = sp.calcTangentialShear(lens, center, pixscale,g1col='gs1corr',g2col='gs2corr')
         beta=sp.beta(phot["BPZ_Z_B"],clusterz)
         import scipy
         kappacut = scipy.array([False]*len(beta),dtype=bool) #sp.calcWLViolationCut(r, beta, sigma_v = 1300)

@@ -53,7 +53,7 @@ for curbin in xrange(back_bins):
 
     curGals = back_cat.filter(inBin)
 
-    r, E = sp.calcTangentialShear(curGals, (5000,5000), .2)
+    r, E , B, phi = sp.calcTangentialShear(curGals, (5000,5000), .2)
     beta=sp.beta(curGals["Z_BEST"],redshift, calcAverage = False)
     kappacut = sp.calcWLViolationCut(r, beta, sigma_v = 1300)
     curGals = curGals.filter(kappacut)

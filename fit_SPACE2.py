@@ -268,7 +268,7 @@ for cluster,clusterz,filter in list:
         print catfile 
         catalog= ldac.openObjectFile(catfile+'.tmp',table='OBJECTS')
         
-        r, E, B = sp.calcTangentialShear(catalog, center, pixscale) #,g1col='e1_acs',g2col='e2_acs')
+        r, E, B , phi = sp.calcTangentialShear(catalog, center, pixscale) #,g1col='e1_acs',g2col='e2_acs')
         beta=sp.beta(catalog["Z_BEST"],clusterz)
         import scipy
         kappacut = scipy.array([False]*len(beta),dtype=bool) #sp.calcWLViolationCut(r, beta, sigma_v = 1300)

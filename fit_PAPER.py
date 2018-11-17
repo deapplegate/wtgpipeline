@@ -229,7 +229,7 @@ for cluster,clusterz in list:
 
 
         
-        r, E, B = sp.calcTangentialShear(lens, center, pixscale)
+        r, E, B , phi = sp.calcTangentialShear(lens, center, pixscale)
         
         beta=sp.beta(phot["BPZ_Z_B"],clusterz)
         
