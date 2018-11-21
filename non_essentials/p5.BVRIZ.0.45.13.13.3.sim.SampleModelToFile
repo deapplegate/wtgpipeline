@@ -1,0 +1,7 @@
+#!/bin/bash
+#old# bsub -W 9 -R rhel60 -m bulletfarm -oo /nfs/slac/g/ki/ki18/anja/SUBARU/simcl/simcl_CAT4cccat-Zpoint/BVRIZ/MACS1347-11//nocontam/maxlike/cutout_z_drawn_z=0.45_mass=13.13_3.log  ./maxlike_simdriver.py -o /nfs/slac/g/ki/ki18/anja/SUBARU/simcl/simcl_CAT4cccat-Zpoint/BVRIZ/MACS1347-11//nocontam/maxlike/cutout_z_drawn_z=0.45_mass=13.13_3.out -i /nfs/slac/g/ki/ki18/anja/SUBARU/simcl/simcl_CAT4cccat-Zpoint/BVRIZ/MACS1347-11//cutout_z_drawn_z=0.45_mass=13.13_3.cat -p /nfs/slac/g/ki/ki18/anja/SUBARU/simcl/simcl_CAT4cccat-Zpoint/BVRIZ//pdz.pkl -b /nfs/slac/g/ki/ki18/anja/SUBARU/simcl/simcl_CAT4cccat-Zpoint/BVRIZ//bpz.cat
+
+#cp submitted.p5.BVRIZ.0.45.13.13.3.sim p5.BVRIZ.0.45.13.13.3.sim.SampleModelToFile
+
+bsub -W 9 -R rhel60 -m bulletfarm -oo /nfs/slac/g/ki/ki18/anja/SUBARU/simcl/simcl_CAT4cccat-Zpoint/BVRIZ/MACS1347-11//nocontam/maxlike/cutout_z_drawn_z=0.45_mass=13.13_3.log  ./maxlike_simdriver_SampleModelToFile.py -o /nfs/slac/g/ki/ki18/anja/SUBARU/simcl/simcl_CAT4cccat-Zpoint/BVRIZ/MACS1347-11//nocontam/maxlike/cutout_z_drawn_z=0.45_mass=13.13_3.SampleModelToFile.out -i /nfs/slac/g/ki/ki18/anja/SUBARU/simcl/simcl_CAT4cccat-Zpoint/BVRIZ/MACS1347-11//cutout_z_drawn_z=0.45_mass=13.13_3.cat -p /nfs/slac/g/ki/ki18/anja/SUBARU/simcl/simcl_CAT4cccat-Zpoint/BVRIZ//pdz.pkl -b /nfs/slac/g/ki/ki18/anja/SUBARU/simcl/simcl_CAT4cccat-Zpoint/BVRIZ//bpz.cat
+

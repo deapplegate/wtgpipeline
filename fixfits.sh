@@ -1,5 +1,0 @@
-#!/bin/bash
-set -xv
-
-dfits /nfs/slac/g/ki/ki18/anja/SUBARU//MACS1115+01/W-*[A-Z+]/SCIENCE/SUPA0*_6OCF*I.fits | fitsort FILTER OBJECT BADCCD GAIN CONFIG  CRVAL1 CRVAL2
-dfits /nfs/slac/g/ki/ki18/anja/SUBARU//MACS1115+01/W-*[A-Z+]/SCIENCE/SUPA0*_10OCF*I.fits | fitsort FILTER OBJECT BADCCD GAIN CONFIG CRVAL1 CRVAL2
