@@ -1,1 +1,0 @@
-/u/ki/awright/gravitas/maxlikelensing/make_pyx_setup.sh

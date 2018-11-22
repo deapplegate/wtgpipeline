@@ -1,1 +1,0 @@
-/u/ki/awright/gravitas/maxlikelensing/cosmos_mass_bias_calc_driver.sh

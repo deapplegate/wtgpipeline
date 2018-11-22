@@ -1,1 +1,0 @@
-/u/ki/awright//gravitas/maxlikelensing/prep_cosmos_run.py

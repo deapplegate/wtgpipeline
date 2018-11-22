@@ -1,1 +1,0 @@
-/u/ki/awright/gravitas/maxlikelensing/adam_make_cosmos_sims_finalplots.py

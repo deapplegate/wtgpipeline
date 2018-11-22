@@ -1,1 +1,0 @@
-/u/ki/awright//gravitas/maxlikelensing/scatter_sims.py

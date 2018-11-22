@@ -1,1 +1,0 @@
-/u/ki/awright//gravitas/maxlikelensing/process_cosmos_sims.py

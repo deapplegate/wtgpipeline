@@ -1,1 +1,0 @@
-/u/ki/awright/quick/pythons/adam_quicktools_ArgCleaner.py
