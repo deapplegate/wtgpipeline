@@ -4,12 +4,18 @@ set -xv
 # first argument = path to your local `quick` github repo
 # the second argument = path to local `gravitas` repo
 
-quickpath=$1/python/
+quickpath=$1/pythons/
 gravitaspath=$2/maxlikelensing/
 
 ## links to quick directory (probably ~/quick/pythons/)
-ln -s ${quickpath}/adam_quicktools_ArgCleaner.py .
-ln -s ${quickpath}/adam_quicktools_header_key_add.py .
+for fl in `cat ${quickpath}/pythons_to_link.list`
+do
+	ln -s ${quickpath}/${fl} .
+	Ignored=`grep ${fl} .gitignore | wc -l`
+	if [ ${Ignored} -eq 0 ]; then
+		echo ${fl} >> .gitignore
+	fi
+done
 
 ## links to gravitas directory (probably ~/gravitas/maxlikelensing/)
 ln -s ${gravitaspath}/adam_cosmos_options.py .

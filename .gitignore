@@ -121,3 +121,17 @@ voigt_tools.c
 voigt_tools.pyx
 voigt_tools.so
 voigtcall.pyx
+adam_quicktools_ArgCleaner.py
+adam_quicktools_header_key_add.py
+header_key_add.py
+BartStar.py
+Plot_Light_Cutter.py
+SeeingClearly.py
+UsefulTools.py
+cattools.py
+fitter.py
+imagetools.py
+import_ascii.py
+import_tools.py
+ldac.py
+sextract.py
