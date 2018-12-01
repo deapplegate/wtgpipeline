@@ -1,6 +1,6 @@
 #!/bin/bash
 set -xv
-#adam-does-new# adam_do_photometry_final_starcat.sh is like adam_do_photometry.sh, but it's designed to be run on the PureStarCalib sample from after running the beginning ldaclensing scripts
+#adam-does-new# adam_do_photometry_final_starcat.sh is like adam_do_photometry.sh, but it's designed to be run on the PureStarCalib sample from after running the beginning ldaclensing scripts, and it has a SHAPES mode!
 #adam-does-old# this is like do_photometry.sh, but it runs the bigmacs version of the SLR (currently the absolute calibration comes from SDSS by way of the -s option in bigmacs, this will need to be changed to 2MASS for non-SDSS clusters).
 # 	It also has these features:
 # 	1.) It uses the *_APER1-* keyword (second component of the *_APER-* vector in the ldac catalogs)
@@ -8,7 +8,7 @@ set -xv
 # 	3.) It doesn't utilize the photometry_db at all and ignores the lephare_zp entirely
 #adam-example# #use next two lines instead# ./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY
 #adam-example# ./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO 2>&1 | tee -a OUT-adam_do_photometry_final_starcat-PHOTO.log
-#adam-example# ./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper MERGE STARS 2>&1 | tee -a OUT-adam_do_photometry_final_starcat-MERGE_STARS.log
+#adam-example# ./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper MERGE STARS SHAPES 2>&1 | tee -a OUT-adam_do_photometry_final_starcat-MERGE_STARS_SHAPES.log
 #adam-example# ./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper SDSS 2>&1 | tee -a OUT-adam_do_photometry_final_starcat-SDSS.log
 #adam-example# ./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_final_starcat-BIGMACSCALIB_BIGMACSAPPLY.log
 ########################
@@ -21,7 +21,7 @@ cluster=$1
 detect_filter=$2
 lensing_filter=$3
 mode=$4  #aper or iso
-#PHOTO MERGE STARS SDSS BIGMACSCALIB BIGMACSAPPLY
+#PHOTO MERGE STARS SDSS SHAPES BIGMACSCALIB BIGMACSAPPLY
 export BONN_TARGET=$cluster
 export BONN_FILTER='all'
 
@@ -34,6 +34,7 @@ measure_photometry=0
 merge_filters=0
 find_stars=0
 sdss=0
+shapes=0
 fit_calibration=0
 apply_calibrations=0
 
@@ -52,6 +53,9 @@ for ((i=5;i<=$#;i=i+1)); do
 	    ;;
 	SDSS)
 	    sdss=1;
+	    ;;
+	SHAPES)
+	    shapes=1;
 	    ;;
 	BIGMACSCALIB)
 	    fit_calibration=1;
@@ -162,7 +166,7 @@ all_phot_cat=${photdir}/${cluster}.unstacked.cat
 star_cat=${photdir}/${cluster}.stars.cat
 
 detect_image=${subarudir}/${cluster}/${detect_filter}/SCIENCE/coadd_${cluster}_all/coadd.fits
-lensing_image=${subarudir}/${cluster}/${detect_filter}/SCIENCE/coadd_${cluster}_${lensing_coadd_type}/coadd.fits
+lensing_image=${subarudir}/${cluster}/${lensing_filter}/SCIENCE/coadd_${cluster}_${lensing_coadd_type}/coadd.fits
 
 if [ ! -e "${lensing_image}" ]; then
     echo "!!!!!!!!!!!!!!!!!WARNING: USING ALL IMAGE IN LENSING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
@@ -231,6 +235,9 @@ if [ $measure_photometry -eq 1 ]; then
 	## should have -K in there to keep them running and waiting their turn?
 	bsub -q ${queue} -o $subarudir/photlogs/$jobid.log -e $subarudir/photlogs/$jobid.err ./run_unstacked_photometry.sh ${subarudir}/${cluster} ${photdir} ${cluster} ${filter} ${detect_image} ${convolve}
 	#adam# How do I get the code to wait here until this job is done running on the batchq?
+	echo "#adam-look# later, check using these commands:"
+	echo "#adam-look# grep 'Success' $subarudir/photlogs/$jobid.log "
+	echo "#adam-look# ./get_error_log.sh $subarudir/photlogs/$jobid.err "
 
 	#need to make 2 calls; need to modify run_unstacked_photometry to handle two seperate calls.
 
@@ -353,6 +360,19 @@ if [ $sdss -eq 1 ]; then
     fi
 fi
 
+###########################################
+# Get SHAPES of objects
+###########################################
+#adam-look# let's put a SHAPES mode in right here
+if [ $shapes -eq 1 ]; then
+	./measure_shapes_wrapper.sh ${cluster} ${lensing_filter} ${lensing_coadd_type} 2>&1 | tee -a OUT-measure_shapes_wrapper_${cluster}.log
+	exit_stat=$?
+	if [ "${exit_stat}" -gt "0" ]; then
+		exit ${exit_stat};
+	fi
+	echo "./get_error_log.sh OUT-measure_shapes_wrapper_${cluster}.log"
+fi
+
 ################################################
 # Run BIGMACS to get the Photometric Calibration (i.e. get the zeropoints)
 ################################################
@@ -403,7 +423,7 @@ if [ $fit_calibration -eq 1 ]; then
 	export PYTHONPATH=$PYTHONPATH_old
 	grep -v "^#\|^psfPogCorr" ${photdir}/BIGMACS_output_PureStarCalib/${cluster}.stars.split_apers.cat.offsets.list | sed 's/\ +-//g;s/\ REDDER//g' >${photdir}/${cluster}.bigmacs_cleaned_offsets-PureStarCalib.list
 	#adam-note: what was I trying to do here:
-	line_nums=`wc -l ${photdir}/${cluster}.bigmacs_cleaned_offsets-PureStarCalib.list`
+	line_nums=`wc -l ${photdir}/${cluster}.bigmacs_cleaned_offsets-PureStarCalib.list | awk '{print $1}'`
 	if [ "${line_nums}" -eq  "0" ]; then
 		echo "Failure in BIGMACSCALIB"
 		exit 43
@@ -444,5 +464,6 @@ if [ $apply_calibrations -eq 1 ]; then
 	    echo "Calibrated Photometry not found!"
 	    exit 54
 	fi
+	echo "#adam-look# OK, now cd ~/gravitas/photoz_analysis/ ; vim adam_bpz_wrapper_v2.py ; ./adam_bpz_wrapper_v2.py"
 	
 fi

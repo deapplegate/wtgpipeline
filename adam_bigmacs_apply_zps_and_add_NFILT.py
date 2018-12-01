@@ -106,9 +106,11 @@ def main(flinput,flzps,flnew):
 			zp_tab_cols.append( col_err_zp )
 			## add zp,err_zp to image headers and get background/background_rms for this filter
 			filt=mag_key[mag_key.find('W-'):]
-			directory='/'.join([os.environ['SUBARUDIR'],os.environ['cluster'],filt,'SCIENCE','coadd_*'])
+			directory='/'.join([os.environ['SUBARUDIR'],os.environ['cluster'],filt,'SCIENCE','coadd_'+os.environ['cluster']+'_*'])
 			dirs=glob.glob(directory)
 			for dir in dirs:
+				if 'OLD' in dir:
+					continue
 				if not os.path.isfile(dir+"/coadd.fits"):
 					raise Exception("there is no file: "+dir+"/coadd.fits")
 				header_key_add.add_key_val(dir+"/coadd.fits",['ZP_BM','ZPERR_BM'],[zp,err_zp])

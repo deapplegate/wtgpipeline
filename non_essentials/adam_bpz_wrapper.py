@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+#adam-replaced# using something else instead. OK, now cd ~/gravitas/photoz_analysis/ ; vim adam_bpz_wrapper_v2.py ; ./adam_bpz_wrapper_v2.py
 #adam-example# ./adam_bpz_wrapper.py 2>&1 | tee -a OUT-adam_bpz_wrapper_${cluster}.log
 #adam-example# ipython -i adam_bpz_wrapper.py
 #adam-does# This code is an adaptation of do_photometry.py, which doesn't use lephare at all, but uses the properly calibrated photometry to get photoz's using the "bpz.py" package
@@ -52,14 +53,15 @@ import astropy.io.fits as pyfits
 #adam-Warning### inputs you might want to change
 DETECT_FILTER="W-C-RC"
 #this is the filter to use for "M_0", the mag most comparable to SDSS/2MASS/etc. deepest filter
-M_0_filt="SUBARU-10_3-1-W-C-IC"
-M_0_filt2="SUBARU-10_2-1-W-C-IC" #this is the backup filter to use for "M_0" if M_0_filt isn't available
+M_0_filt="SUBARU-10_2-1-W-S-I+"
+#M_0_filt="SUBARU-10_3-1-W-C-IC"
+#M_0_filt2="SUBARU-10_2-1-W-C-IC" #this is the backup filter to use for "M_0" if M_0_filt isn't available
 #adam-tmp# M_0_filt="SUBARU-10_2-1-W-S-I+"
 #adam-tmp# M_0_filt2="SUBARU-10_3-1-W-S-I+"
 #Turns out I-band is a much closer match for BPZ prior
 #adam-old##for MACS1115 we want: 'SUBARU-10_3-1-W-C-RC', 'SUBARU-10_2-1-W-C-RC'
 #adam-old# M_0_filt="SUBARU-10_2-1-W-C-RC"
-#adam-old# M_0_filt2="SUBARU-10_3-1-W-C-RC"
+M_0_filt2="SUBARU-10_3-1-W-C-RC"
 
 iaper = '1' #this is now just a tag I use where "1" just means nothing out of the ordinary. Probably used to mean something more significant. Other example: #adam-old# iaper = '1_M_0_Iband'
 ONLY_TYPE="no" #if this is "yes", then you're essentially using bpz to evaluate how good your magnitude ZPs are (make sure spec=True)
