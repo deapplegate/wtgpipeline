@@ -459,6 +459,7 @@ def statCombineFluxs(fluxs, errs, mask, sigmaReject = 5):
         local_mask[numpy.logical_or(mask == 0, outliers == 1)] = 0
 
         flux, err =  _weightedAverage(fluxs, errs, local_mask)
+        RHflux, RHerr = _checkerrorsRH(fluxs, errs, local_mask)
 
         outliers = identifyOutliers(fluxs, errs, flux, err, nImages, sigmaReject)
         nOutliers = outliers.sum(axis=-1)
@@ -482,6 +483,22 @@ def statCombineFluxs(fluxs, errs, mask, sigmaReject = 5):
 
 
 
+####################################
+
+def _checkerrorsRH(fluxs, errs, mask):
+    """Just print out the std dev of the fluxes and the errors
+    """
+    nImages = fluxs.shape[-1]
+    nGals = fluxs.shape[0]
+
+    local_weight = numpy.copy(mask)
+    local_weight[mask == 0] = 1
+    local_weight[mask != 0] = 0
+    mean_flux = numpy.average(fluxs,axis=-1, weights=local_weight)
+    diff_flux = np.transpose(np.transpose(fluxs)-mean_flux)
+    std_flux = numpy.average((diff_flux)**2,axis=-1, weights=local_weight)
+    return std_flux, numpy.average(errs,axis=-1,weights=local_weight)
+    
 ####################################
 
 def _weightedAverage(fluxs, errs, mask):
