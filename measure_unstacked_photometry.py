@@ -98,6 +98,7 @@ def measureUnstackedPhotometry(images,
     imaflags = _stackFluxs([image.cat['IMAFLAGS_ISO'] for image in images])
 
     combinedFluxs = {}
+    combinedFluxs_RHsimple = {}; simple=True
     for chipId in [1,2,4,8]:
 
         if _noFlagsMatch(imaflags, chipId):
@@ -127,9 +128,25 @@ def measureUnstackedPhotometry(images,
     	print 'chipId=',chipId
         flux, err = statCombineFluxs(fluxs, errs, mask)
         combinedFluxs[chipId] = (flux, err)
+        RHflux, RHerr = statCombineFluxs(fluxs, errs, mask,simple=simple)
+        combinedFluxs_RHsimple[chipId] = (RHflux, RHerr)
 
-    return combinedFluxs
+        if simple:
+            print flux.shape
+            import matplotlib.pyplot as plt
+            if flux.shape[-1]==2:
+                plt.plot(flux[:,-1], err[:,-1],'r.')
+                #plt.plot(flux, RHflux,'k.') # flux scatter over exposures/sqrt(Nexp)
+                plt.plot(flux[:,-1], RHerr[:,-1],'b.')  # mean err over exposures/sqrt(Nexp)
+            else:
+                plt.plot(flux, err,'r.')
+                #plt.plot(flux, RHflux,'k.') # flux scatter over exposures/sqrt(Nexp)
+                #plt.plot(flux, RHerr,'b.')  # mean err over exposures/sqrt(Nexp)
+            plt.show()
 
+    if not simple: return combinedFluxs
+    else: return combinedFluxs_RHsimple
+    
 ######################################################################
 
 def combineCats(images, instrum=None, mastercat=None, fluxscale = False):
@@ -446,7 +463,7 @@ def identifyOutliers(fluxs, errs, meanFlux, meanErr, nImages, nsigma):
     ##########
 
 
-def statCombineFluxs(fluxs, errs, mask, sigmaReject = 5):
+def statCombineFluxs(fluxs, errs, mask, sigmaReject = 5, simple=False):
 
     ########
 
@@ -479,7 +496,8 @@ def statCombineFluxs(fluxs, errs, mask, sigmaReject = 5):
             rejectedOutliers = identifyOutliers(rejectedFluxs, rejectedErrs, medianVals, rejectedMeanErr, nImages, sigmaReject)
             outliers[allRejected] = rejectedOutliers
 
-    return flux, err
+    if simple: return RHflux, RHerr
+    else: return flux, err
 
 
 
@@ -517,9 +535,9 @@ def _checkerrorsRH(fluxs, errs, mask):
 		    diff_flux = numpy.transpose(numpy.transpose(fluxs)-mean_flux)
 	    var_flux = numpy.sum(local_weight*(diff_flux)**2,axis=-1)/weightsum
 	    std_flux = numpy.sqrt(var_flux)
-    except Exception as e:
-	print e
-	import ipdb; ipdb.set_trace() # BREAKPOINT (`c` or `n` to continue)
+    except:
+	ns.update(locals()) #adam-tmp
+	raise
 
     return std_flux/numpy.sqrt(weightsum), numpy.sum(local_weight*errs,axis=-1)/weightsum
     
