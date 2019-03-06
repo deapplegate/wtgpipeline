@@ -56,9 +56,9 @@ ft=${rms_fwhm_dt_ft[3]}
 #       3.) data_SCIENCE_cosmics/CATALOG_CRN-cosmics_${cluster}_${filter}.${BASE}.cat
 #       check with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/ > CRN-cosmics_latest_run.log
 if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
-  ${P_SEX} ${file}   -c /u/ki/awright/thiswork/eyes/CRNitschke/config-sex.10_3_cr \
+  ${P_SEX} ${file}   -c /u/ki/awright/CRNitschke/config-sex.10_3_cr \
   		-SEEING_FWHM ${fwhm} \
-  		-FILTER_NAME /u/ki/awright/thiswork/eyes/CRNitschke/retina-eye.10_3_cr.ret \
+  		-FILTER_NAME /u/ki/awright/CRNitschke/retina-eye.10_3_cr.ret \
   		-FILTER_THRESH ${ft} \
   		-DETECT_THRESH ${dt} \
   		-ANALYSIS_THRESH ${dt} \
@@ -82,9 +82,9 @@ ft400=$(echo "400.0 / $rms" |bc -l)
 #       5.) data_SCIENCE_cosmics/CATALOG_FT400_CRN-cosmics_${cluster}_${filter}.${BASE}.cat
 #       check (1-6) with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/ > CRN-cosmics_latest_run.log
 if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_FT400_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
-  ${P_SEX} ${file}   -c /u/ki/awright/thiswork/eyes/CRNitschke/config-sex.10_3_cr \
+  ${P_SEX} ${file}   -c /u/ki/awright/CRNitschke/config-sex.10_3_cr \
                   -SEEING_FWHM ${fwhm} \
-                  -FILTER_NAME /u/ki/awright/thiswork/eyes/CRNitschke/retina-eye.10_3_cr.ret \
+                  -FILTER_NAME /u/ki/awright/CRNitschke/retina-eye.10_3_cr.ret \
                   -FILTER_THRESH ${ft400} \
                   -DETECT_THRESH ${dt} \
                   -ANALYSIS_THRESH ${dt} \
@@ -112,7 +112,7 @@ fi
 #       check with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_stars/ > CRN-stars_latest_run.log
 #       check with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_stars/ > CRN-stars_latest_run.log
 if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_stars/SEGMENTATION_CRN-stars_${cluster}_${filter}.${BASE}.fits" ]; then
-  /u/ki/awright/thiswork/eyes/CRNitschke/stars2block.py ${file}
+  /u/ki/awright/CRNitschke/stars2block.py ${file}
 else
   echo "SKIPPING stars2block.py for ${file}"
 fi
@@ -132,7 +132,7 @@ fi
 #       check with:ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/ > CRN-compare_last_run.log
 #                  ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BB_CRN*.fits >> CRN-compare_last_run.log
 if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BB_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
-  /u/ki/awright/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ${file}
+  /u/ki/awright/CRNitschke/blocked_blender.2.2.py ${file}
 else
   echo "SKIPPING blocked_blender.2.2.py for ${file}"
 fi
@@ -151,7 +151,7 @@ fi
 #                  ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BBSS_CRN*.fits >> CRN-SS_last_run.log
 #                  ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/StarRMout_KeepOrRM-purified_cosmics*.fits >> CRN-SS_last_run.log
 if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BBSS_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
-  /u/ki/awright/thiswork/eyes/CRNitschke/StarStripper.py ${file}
+  /u/ki/awright/CRNitschke/StarStripper.py ${file}
 else
   echo "SKIPPING StarStripper.py for ${file}"
 fi

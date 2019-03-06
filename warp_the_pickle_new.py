@@ -554,6 +554,7 @@ def similar(input):
     ''' need to fit spectral ends to reproduce locus color '''        
 
     return sdssSpectrum, specAll
+    #warp_the_pickle.py had this instead: return sdssSpectrum, specAll, spectra_complete[diffs[0][1]][1]
 
     
 

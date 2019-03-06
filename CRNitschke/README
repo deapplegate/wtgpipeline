@@ -1,0 +1,33 @@
+special_cases: treats special cases when considering certain options, these special cases are then chosen between and incorporated into the general coding if needed.
+
+get_sextract_thresholds.py (formerly known as CRNitschke.py): runs SeeingClearly to get the seeing and rms of the image, then uses those to get sextractor thresholds for CR detection
+
+blocked_blender.py:blends cosmics and blocks them from being blended into stars
+
+stars2block.py:  this file runs BartStar.getstars and then saves this so that these detections can be blocked from masking by blocked_blender.py
+
+#tools not in this directory
+tool_development: code/plots from the codes I used to develope the tools in this directory as well as BartStar.getstar and SeeingClearly.seeing_clearly
+BartStar.py: a whole bunch of star tools, including one that picks them out, and one that plots where they are in MAG-RADIUS plots
+SeeingClearly.py: calculates seeing, has a plotting option to check if it's right or not 
+
+#mkdir CRNitschke
+cp ~/InstallingSoftware/pythons/SeeingClearly.py CRNitschke/CRNitschke.py
+cp config-sex.10_3_cr.2.1 CRNitschke/config-sex.10_3_cr
+cp ../step5/save/2300files_Buffer900K/retina-eye.2.1_W-C-RC.both.edge_out.ret ./retina-eye.10_3_cr.ret 
+cp /u/ki/awright/thiswork/eyes/sex-params.2.1 ../CRNitschke/sex-params.2.2 
+
+stars2block.py:
+	getstar_segments: runs BartStar.getstar
+
+BartStar.py:
+	improved_star_mag_rad_range: imagetools.Star_Rad_Mag_Range
+	getstar:SeeingClearly.seeing_clearly
+	ShowStars:
+
+SeeingClearly.py:
+	seeing_clearly_withplot: sextract.sextractor, BartStar.ShowStars
+	seeing_clearly:sextract.sextractor 
+
+sextract.py:
+	sextractor: calls nothing but sextractor

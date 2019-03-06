@@ -71,6 +71,12 @@ stuff_todo=['Coadding (1 day)',
 'Coadd Masking (1/3 day)',
 'Photometric Measurement and Calibration',
 'Photo-Zs', 'cc masses', 'p(z) masses']
+
 for cl in active_fgas_clusters:
 	for item in stuff_todo:
+		print ":".join([item,cl])
+
+mask_todo=['coadd init','standard by-hand masking','backmasking','autosuppression','asteroid','star (ALL BANDS)','edgemask (ALL BANDS)','check background-sub errors (ALL BANDS)','coadd final']
+for cl in active_fgas_clusters:
+	for item in  mask_todo:
 		print ":".join([item,cl])

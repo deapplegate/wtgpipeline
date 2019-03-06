@@ -47,7 +47,7 @@ cat ${TEMPDIR}/crw_images_$$ |\
     BASE=`basename ${file} $3.fits`
     #adam# START MY STUFF!
     #adam# get_sextract_thresholds.py to determine the seeing and get the optimal sextractor thresholds
-    /u/ki/awright/thiswork/eyes/CRNitschke/get_sextract_thresholds.py ${file} ${TEMPDIR}/crw_gst_$$.txt
+    /u/ki/awright/CRNitschke/get_sextract_thresholds.py ${file} ${TEMPDIR}/crw_gst_$$.txt
     cat CRNitschke_${cluster}_${run}_${filter}.txt ${TEMPDIR}/crw_gst_$$.txt >> CRNitschke_${cluster}_${run}_${filter}.tmp.txt
     mv CRNitschke_${cluster}_${run}_${filter}.tmp.txt CRNitschke_${cluster}_${run}_${filter}.txt
   done

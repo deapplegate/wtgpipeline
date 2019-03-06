@@ -1,0 +1,11 @@
+{RXJ2129,Zw2089,MACS0429-02}
+## RXJ2129
+export cluster=RXJ2129
+filter=W-C-RC
+ending=OCFSI
+
+## Zw2089 lensing vars:
+cluster=Zw2089
+filter=W-J-V
+ending=OCFSIR
+config="10_3"

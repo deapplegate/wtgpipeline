@@ -385,10 +385,12 @@ if [ -f /$1/$2/cat/chips_phot.cat5 ]; then
 fi
 
 ./adam_quicktools_fix_header_verify.py /$1/$2/coadd_$3/$5.fits
+. ~/wtgpipeline/progs.ini
+. ~/wtgpipeline/SUBARU.ini
 ./SeeingClearly_for_coadds.py /$1/$2/coadd_$3/$5.fits
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
-	exit ${exit_stat}
+	echo "adam-Error (update_coadd_header.sh seeing calc failed): ./SeeingClearly_for_coadds.py /$1/$2/coadd_$3/$5.fits"
 fi
 
 echo "ds9e /$1/$2/coadd_$3/$5.fits -catalog import tsv $1/$2/coadd_$3/$5.get_seeing.filtered.tsv -catalog import tsv $1/$2/coadd_$3/$5.get_seeing.unfiltered.tsv &"

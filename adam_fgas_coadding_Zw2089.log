@@ -1,0 +1,8 @@
+Zw2089.W-J-B: ./do_coadd_batch.sh Zw2089 W-J-B all exposure gabodsid
+Zw2089.W-J-B_2015-12-15_CALIB: ./do_coadd_batch.sh Zw2089 W-J-B_2015-12-15_CALIB all exposure 3s
+Zw2089.W-J-V: ./do_coadd_batch.sh Zw2089 W-J-V all exposure good gabodsid
+Zw2089.W-C-RC: ./do_coadd_batch.sh Zw2089 W-C-RC all exposure good gabodsid
+Zw2089.W-C-RC_2015-12-15_CALIB: ./do_coadd_batch.sh Zw2089 W-C-RC_2015-12-15_CALIB all exposure 3s
+Zw2089.W-S-I+: ./do_coadd_batch.sh Zw2089 W-S-I+ all exposure good gabodsid
+Zw2089.W-S-Z+: ./do_coadd_batch.sh Zw2089 W-S-Z+ all exposure gabodsid
+Zw2089.W-S-Z+_2015-12-15_CALIB: ./do_coadd_batch.sh Zw2089 W-S-Z+_2015-12-15_CALIB all exposure 3s

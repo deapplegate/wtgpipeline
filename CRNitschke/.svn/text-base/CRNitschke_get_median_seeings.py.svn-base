@@ -1,0 +1,39 @@
+#! /usr/bin/env python
+import sys
+import sys ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
+from import_tools import *
+import os
+env=os.environ
+from get_sextract_thresholds import seeing_to_ft_dt
+fl='/u/ki/awright/bonnpipeline/'+'_'.join(['CRNitschke',env['cluster'],env['run'],env['filter']])+'.txt'
+t=ascii.read(fl,ascii.NoHeader)
+fls=t['col1'].data
+seeings=t['col2'].data
+rmss=t['col3'].data
+indepCCD=asarray([f.split('_')[0] for f in fls],dtype=str)
+ids=unique(indepCCD)
+medsees=zeros(seeings.shape,dtype=float)
+fts=zeros(seeings.shape,dtype=float)
+dts=zeros(seeings.shape,dtype=float)
+
+for id in ids:
+	id_box=indepCCD==id
+	medsee=median(seeings[id_box])
+	medsees[id_box]=medsee
+	ft,dt=seeing_to_ft_dt(medsee)
+	fts[id_box]=ft
+	dts[id_box]=dt
+
+detect_thresh=dts/rmss
+filter_thresh=fts/rmss
+detect_thresh_cap=asarray([min(Dthresh,150.0) for Dthresh in detect_thresh],dtype=float)
+if (medsees==0).any():
+	raise Exception('Not all files are done yet?!')
+
+newcol4=astropy.table.table.Column(medsees,name='col4')
+newcol5=astropy.table.table.Column(filter_thresh,name='col5')
+newcol6=astropy.table.table.Column(detect_thresh_cap,name='col6')
+t.add_column(newcol4)
+t.add_column(newcol5)
+t.add_column(newcol6)
+ascii.write(t,fl.replace('CRNitschke','CRNitschke_final'),delimiter='\t',quotechar='"')

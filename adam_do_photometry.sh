@@ -66,6 +66,12 @@ export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 export subarudir=${SUBARUDIR}
 export subdir=${SUBARUDIR}
 
+#adam-tmp#
+#lensing_coadd_type="gabodsid1554" #adam: default is to use "good" coadd for lensing
+lensing_coadd_type="good" #adam: default is to use "good" coadd for lensing
+
+#default: lensing_image=${subarudir}/${cluster}/${lensing_filter}/SCIENCE/coadd_${cluster}_good/coadd.fits and cats go to LENSING_${detect_filter}_${lensing_filter}_${mode}/good/
+#but, for MACS1226+21 for example, used lensing_coadd_type="gab4060-rot1" 
 #adam#photrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/photometry_2010
 #adam#lensingrepo=/nfs/slac/g/ki/ki06/anja/SUBARU/lensing_2010
 #photrepo=/nfs/slac/kipac/fs1/u/awright/SUBARU/photometry
@@ -93,12 +99,6 @@ lensingdirname=LENSING_${detect_filter}_${lensing_filter}_${mode}
 lensingdir=${lensingrepo}/${cluster}/${lensingdirname}
 #adam-new# so, this determines which type of coadd is used for the lensing image and where to write the lensing cats to (i.e. writes to ${lensingdir}/${lensing_coadd_type})
 
-#adam-tmp#
-lensing_coadd_type="gabodsid1554" #adam: default is to use "good" coadd for lensing
-lensing_coadd_type="good" #adam: default is to use "good" coadd for lensing
-
-#default: lensing_image=${subarudir}/${cluster}/${lensing_filter}/SCIENCE/coadd_${cluster}_good/coadd.fits and cats go to LENSING_${detect_filter}_${lensing_filter}_${mode}/good/
-#but, for MACS1226+21 for example, used lensing_coadd_type="gab4060-rot1" 
 
 
 if [ ! -d "${photdir}" ]; then
@@ -350,9 +350,11 @@ if [ $fit_calibration -eq 1 ]; then
 	#	/nfs/slac/g/ki/ki18/anja/SUBARU//${cluster}/PHOTOMETRY_W-C-RC_aper/${cluster}.qc.columns 
 	# adam_bigmacs-make_input_columns.py: make the cluster.qc.columns and cluster.sdss.columns files needed to run bigmacs.
 	python adam_bigmacs-make_input_columns.py $cluster detect=${detect_filter} aptype=${mode}
+	exit_code=$?
 	if [ "${exit_code}" != "0" ]; then echo "Failure in BIGMACSCALIB" ; exit 40 ; fi
 	# adam_bigmacs-cat_array_splitter.py: split the APER- cat objects in two and save APER1- scalar object, which is the only useful one
 	python adam_bigmacs-cat_array_splitter.py -i ${photdir}/${cluster}.unstacked.cat -o ${photdir}/${cluster}.unstacked.split_apers.cat
+	exit_code=$?
 	if [ "${exit_code}" != "0" ]; then echo "Failure in BIGMACSCALIB" ; exit 41 ; fi
 	python adam_bigmacs-cat_array_splitter.py -i ${photdir}/${cluster}.stars.cat -o ${photdir}/${cluster}.stars.split_apers.cat
 	exit_code=$?
@@ -384,8 +386,8 @@ if [ $fit_calibration -eq 1 ]; then
 	export PYTHONPATH=$PYTHONPATH_old
 	grep -v "^#\|^psfPogCorr" ${photdir}/BIGMACS_output/${cluster}.stars.split_apers.cat.offsets.list | sed 's/\ +-//g;s/\ REDDER//g' >${photdir}/${cluster}.bigmacs_cleaned_offsets.list
 	#adam-note: what was I trying to do here:
-	#exit_code=`wc -l ${photdir}/${cluster}.bigmacs_cleaned_offsets.list`
-	if [ "${exit_code}" -eq  "0" ]; then
+	line_nums=`wc -l ${photdir}/${cluster}.bigmacs_cleaned_offsets.list`
+	if [ "${line_nums}" -eq  "0" ]; then
 		echo "Failure in BIGMACSCALIB"
 		exit 43
 	fi
@@ -400,18 +402,18 @@ fi
 if [ $apply_calibrations -eq 1 ]; then
 
 	#apply ZPs in ${photdir}/${cluster}.bigmacs_cleaned_offsets.list, save to cat headers, and save them to images (coadd.fits)
-	#example:./adam_bigmacs-apply_zps.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.split_apers.cat -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat -z /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.bigmacs_cleaned_offsets.list
-	./adam_bigmacs-apply_zps.py -i ${photdir}/${cluster}.stars.split_apers.cat -o ${photdir}/${cluster}.stars.calibrated.cat -z ${photdir}/${cluster}.bigmacs_cleaned_offsets.list
+	#example:./adam_bigmacs_apply_zps_and_add_NFILT.py -i /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.unstacked.split_apers.cat -o /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat -z /nfs/slac/kipac/fs1/u/awright/SUBARU/photometry/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.bigmacs_cleaned_offsets.list
+	./adam_bigmacs_apply_zps_and_add_NFILT.py -i ${photdir}/${cluster}.stars.split_apers.cat -o ${photdir}/${cluster}.stars.calibrated.cat -z ${photdir}/${cluster}.bigmacs_cleaned_offsets.list
 	exit_code=$?
 	if [ "${exit_code}" != "0" ]; then
-	    echo "Failure in adam_bigmacs-apply_zps.py!"
+	    echo "Failure in adam_bigmacs_apply_zps_and_add_NFILT.py!"
 	    exit 51
 	fi
-	./adam_bigmacs-apply_zps.py -i ${photdir}/${cluster}.unstacked.split_apers.cat -o ${photdir}/${cluster}.calibrated.cat -z ${photdir}/${cluster}.bigmacs_cleaned_offsets.list
+	./adam_bigmacs_apply_zps_and_add_NFILT.py -i ${photdir}/${cluster}.unstacked.split_apers.cat -o ${photdir}/${cluster}.calibrated.cat -z ${photdir}/${cluster}.bigmacs_cleaned_offsets.list
 
 	exit_code=$?
 	if [ "${exit_code}" != "0" ]; then
-	    echo "Failure in adam_bigmacs-apply_zps.py!"
+	    echo "Failure in adam_bigmacs_apply_zps_and_add_NFILT.py!"
 	    exit 53
 	fi
 

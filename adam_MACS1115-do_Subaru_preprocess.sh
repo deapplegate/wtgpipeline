@@ -645,7 +645,7 @@ do
 		./setup_SUBARU.sh ${SUBARUDIR}/${run}_${filter}/${FLAT}/ORIGINALS/
 		. ${INSTRUMENT:?}.ini > /tmp/INSTRUMENT.log 2>&1
 
-		#adam# to mess with limits, see ~/thiswork/scripts/Plot_Light_Cutter.py
+		#adam# to mess with limits, see Plot_Light_Cutter.py
 		#adam# The DARK limits are the same unless config changes (these were fit by eye)
 		#adam# The FLAT limits may not be the same
 

@@ -4,7 +4,7 @@ set -xv
 #adam-example# ./measure_shapes_wrapper.sh ${cluster} ${filter} ${lensext}
 
 
-. progs.ini
+. progs.ini > /tmp/progs.out 2>&1 
 
 cluster=$1
 filter=$2

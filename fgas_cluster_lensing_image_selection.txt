@@ -1,0 +1,83 @@
+MACS0429-02 W-C-RC good
+email: MACS0429-02 has an easy choice for the lensing band! W-C-RC has lower seeing, more EXPTIME, and looks better.
+FILE      	EXPID      	COND1        	SEEING	
+coadd.fits	SUPA0043636	(EXPOSURE=1);	0.78  	
+coadd.fits	SUPA0043637	(EXPOSURE=2);	0.71  	
+coadd.fits	SUPA0043638	(EXPOSURE=3);	0.745 	
+coadd.fits	SUPA0043639	(EXPOSURE=4);	0.72  	
+coadd.fits	SUPA0043640	(EXPOSURE=5);	0.78  	
+coadd.fits	SUPA0043641	(EXPOSURE=6);	0.78  	
+coadd.fits	SUPA0043642	(EXPOSURE=7);	0.725 	
+coadd.fits	SUPA0043643	(EXPOSURE=8);	0.65  	
+
+MACS1115+01 W-C-RC gabodsid1554
+FILE      	EXPID      	COND1         	SEEING            	
+coadd.fits	SUPA0019885	(EXPOSURE=1); 	0.575             	
+coadd.fits	SUPA0019886	(EXPOSURE=2); 	0.595             	
+coadd.fits	SUPA0019887	(EXPOSURE=3); 	0.5649999999999999	
+coadd.fits	SUPA0019888	(EXPOSURE=4); 	0.67              	
+coadd.fits	SUPA0019889	(EXPOSURE=5); 	0.675             	
+coadd.fits	SUPA0019890	(EXPOSURE=6); 	0.725             	
+coadd.fits	SUPA0019891	(EXPOSURE=7); 	0.65              	
+coadd.fits	SUPA0019892	(EXPOSURE=8); 	0.77              	
+coadd.fits	SUPA0019893	(EXPOSURE=9); 	0.735             	
+coadd.fits	SUPA0120144	(EXPOSURE=10);	0.77              	
+coadd.fits	SUPA0120145	(EXPOSURE=11);	0.745             	
+coadd.fits	SUPA0120146	(EXPOSURE=12);	0.645             	
+coadd.fits	SUPA0120147	(EXPOSURE=13);	0.62              	
+coadd.fits	SUPA0120148	(EXPOSURE=14);	0.585             	
+coadd.fits	SUPA0120149	(EXPOSURE=15);	0.55              	
+coadd.fits	SUPA0120150	(EXPOSURE=16);	0.59              	
+coadd.fits	SUPA0120151	(EXPOSURE=17);	0.675             	
+coadd.fits	SUPA0120152	(EXPOSURE=18);	0.605             	
+coadd.fits	SUPA0120153	(EXPOSURE=19);	0.535             	
+# choose gabodsid1554 (10_2) over gabodsid4094 (10_3), but it was a toss-up.
+
+RXJ2129      good          W-C-RC
+FILE      	EXPID      	COND1         	SEEING            	
+coadd.fits	SUPA0032911	(EXPOSURE=1); 	0.6850000000000001	
+coadd.fits	SUPA0032912	(EXPOSURE=2); 	0.705             	
+coadd.fits	SUPA0032913	(EXPOSURE=3); 	0.665             	
+coadd.fits	SUPA0032914	(EXPOSURE=4); 	0.535             	
+coadd.fits	SUPA0032915	(EXPOSURE=5); 	0.52              	
+coadd.fits	SUPA0032916	(EXPOSURE=6); 	0.475             	
+coadd.fits	SUPA0032917	(EXPOSURE=7); 	0.535             	
+coadd.fits	SUPA0032918	(EXPOSURE=8); 	0.535             	
+coadd.fits	SUPA0032919	(EXPOSURE=9); 	0.535             	
+coadd.fits	SUPA0135155	(EXPOSURE=10);	0.46              	
+coadd.fits	SUPA0135156	(EXPOSURE=11);	0.48              	
+coadd.fits	SUPA0135157	(EXPOSURE=12);	0.48              	
+coadd.fits	SUPA0135158	(EXPOSURE=13);	0.55              	
+coadd.fits	SUPA0135159	(EXPOSURE=14);	0.54              	
+coadd.fits	SUPA0135160	(EXPOSURE=15);	0.535             	
+coadd.fits	SUPA0135161	(EXPOSURE=16);	0.535             	
+coadd.fits	SUPA0135162	(EXPOSURE=17);	0.58              	
+coadd.fits	SUPA0135163	(EXPOSURE=18);	0.49              	
+coadd.fits	SUPA0135164	(EXPOSURE=19);	0.515             	
+coadd.fits	SUPA0135165	(EXPOSURE=20);	0.495             	
+coadd.fits	SUPA0135166	(EXPOSURE=21);	0.575             	
+coadd.fits	SUPA0135167	(EXPOSURE=22);	0.65              	
+coadd.fits	SUPA0135168	(EXPOSURE=23);	0.73              	
+coadd.fits	SUPA0135169	(EXPOSURE=24);	0.8149999999999999	
+coadd.fits	SUPA0135170	(EXPOSURE=25);	0.625             	
+coadd.fits	SUPA0135171	(EXPOSURE=26);	0.675             	
+RXJ2129_good_coadd_conditions.txt
+good:(((EXPOSURE>9))AND((EXPOSURE<23)OR(EXPOSURE>24)))
+
+Zw2089       good          W-J-V
+email: Zw2089 has an easyish choice for the lensing band. W-J-V from 2010 (not from 2006) has lower seeing, and looks better.
+FILE      	EXPID      	COND1         	SEEING            	
+coadd.fits	SUPA0051473	(EXPOSURE=1); 	1.005             	
+coadd.fits	SUPA0051474	(EXPOSURE=2); 	1.195             	
+coadd.fits	SUPA0051475	(EXPOSURE=3); 	1.155             	
+coadd.fits	SUPA0051476	(EXPOSURE=4); 	0.9399999999999999	
+coadd.fits	SUPA0051477	(EXPOSURE=5); 	0.825             	
+coadd.fits	SUPA0127026	(EXPOSURE=6); 	0.66              	
+coadd.fits	SUPA0127027	(EXPOSURE=7); 	0.575             	
+coadd.fits	SUPA0127028	(EXPOSURE=8); 	0.505             	
+coadd.fits	SUPA0127029	(EXPOSURE=9); 	0.5               	
+coadd.fits	SUPA0127030	(EXPOSURE=10);	0.5               	
+coadd.fits	SUPA0127031	(EXPOSURE=11);	0.49              	
+coadd.fits	SUPA0127032	(EXPOSURE=12);	0.51              	
+Zw2089_good_coadd_conditions.txt
+good:(EXPOSURE>6)

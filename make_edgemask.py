@@ -4,7 +4,7 @@ import astropy, astropy.io.fits as pyfits, sys, numpy as np
 import regionfile as rf
 #The matplotlib.nxutils module has been removed. Use the functionality on matplotlib.path.Path.contains_point
 #from matplotlib.nxutils import points_inside_poly
-from matplotlib.path import Path
+import matplotlib.path
 
 
 def makeEdgemask(inputfile, outputfile, regionfile=0):
@@ -52,8 +52,7 @@ def makeEdgemask(inputfile, outputfile, regionfile=0):
 
         regionmask=make_mask_from_reg(regions,output.shape[0],output.shape[1])
         output = np.logical_or(output , regionmask)*1.
-        
-    
+
 
     hdu = pyfits.PrimaryHDU(output)
     hdu.writeto(outputfile, overwrite=True)
@@ -66,13 +65,20 @@ def make_mask_from_reg(regions,xsize,ysize):
     points = np.vstack((x,y)).T
 
     outarr = np.zeros((ysize,xsize))
+    grid = np.zeros((ysize,xsize))
     
     for region in regions:
         vertlist = region.vertices
         paired_vertlist=[]
         for ipair in range(0,len(vertlist),2):
             paired_vertlist.append([vertlist[ipair],vertlist[ipair+1]])
-        grid = points_inside_poly(points, paired_vertlist)
+	#adam-old# grid = points_inside_poly(points, paired_vertlist)
+	print ' paired_vertlist=',paired_vertlist
+	print ' points=',points
+        mplpath = matplotlib.path.Path(paired_vertlist)
+	for point in points:
+		grid[point]=mplpath.contains_point(point)
+
         grid = grid.reshape((ysize,xsize))*1
         outarr = outarr+grid
 

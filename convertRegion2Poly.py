@@ -82,6 +82,21 @@ def doFile(inputfile, outputfile):
 
 if __name__ == '__main__':
 
+    from adam_quicktools_ArgCleaner import ArgCleaner
+    print 'len(sys.argv)=',len(sys.argv)
+    args=ArgCleaner(sys.argv)
+    #if len(args)==1:
+    ####if args[0].endswith('.reg'):
+    ####    filename=args[0]
+    ####    base=os.path.basename(filename).split('.reg')[0]
+    ####    dirname=os.path.dirname(filename)
+    ####    backup_filename=dirname+'/'+base+'_before_convertRegion2Poly.reg'
+    ####    os.rename(filename, backup_filename)
+    ####    output = open(filename, 'w')
+    ####    input = open(backup_filename, 'r')
+    ####    doFile(input, output)
+    ####    output.close()
+    ####    input.close()
     if len(sys.argv) == 1:
         doFile(sys.stdin, sys.stdout)
 

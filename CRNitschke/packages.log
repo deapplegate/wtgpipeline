@@ -1,0 +1,82 @@
+	#from IPython import embed
+	from adam_quicktools_ArgCleaner import ArgCleaner
+	from matplotlib.colors import LogNorm
+	import itertools
+	import matplotlib.cm as cm
+	import matplotlib.pylab
+	import numpy
+	import pyfits
+	import sys
+#Preliminaries: import and backup files first
+#from collections import Counter
+#from import_tools import *
+#import BartStar
+#import astropy
+#import cosmolopy
+#import ds9
+#import pickle
+#import pyfits
+#import scipy.signal as signal
+#import shutil
+from UsefulTools import names, FromPick_data_true, FromPick_data_spots, GetMiddle, GetSpots_bins_values, ShortFileString
+from UsefulTools import names, FromPick_data_true, FromPick_data_spots, GetMiddle, GetSpots_bins_values, ShortFileString, num2str
+from __future__ import division #3/2=1.5 and 3//2=1
+from astropy.io import ascii
+from astropysics import models
+from collections import Counter
+from copy import deepcopy
+from copy import deepcopy as cp
+from fitter import Gauss
+from glob import glob
+from imagetools import GetCCD,GetReads,around,points_around,listtuple,totuple,equalequal,splitter,get_center,get_centerY,get_centerX, NthEntry2Pos, HCcorner
+from import_tools import *
+from matplotlib.pylab import *
+from matplotlib.pyplot import *
+from mpl_toolkits.axes_grid1 import ImageGrid
+from mpl_toolkits.mplot3d import Axes3D
+from numpy import *
+from numpy import array
+from numpy import histogram
+from scipy import optimize
+from scipy.ndimage import *
+from scipy.stats import *
+from subprocess import *
+import BartStar
+import SeeingClearly
+import astropy
+import astropy, astropy.io.fits as pyfits
+import astropy.io.fits
+import astropy.io.fits as pyfits
+import copy
+import cosmolopy
+import hashlib
+import imagetools
+import img_scale
+import ipdbplugin as ipdb
+import itertools
+import math
+import matplotlib.pyplot as plt
+import numpy
+import numpy as np
+import numpy as np ; import matplotlib.pyplot as plt
+import os
+import pdb
+import pickle
+import pickle, sys, time, os, shutil, pdb, re
+import pyfits
+import pymodelfit
+import random
+import re
+import scipy
+import scipy.ndimage
+import scipy.signal as signal
+import scipy.stats
+import sextract
+import shutil
+import string
+import stsci
+import stsci.image as image
+import sys
+import sys ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
+import sys,os
+import time

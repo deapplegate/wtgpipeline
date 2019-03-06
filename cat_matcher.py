@@ -1,4 +1,7 @@
 #! /usr/bin/env python
+#adam-successor# cat_matcher_v2.py will do less stuff but be more concise
+#adam-useful# document this later, it's helpful! PUT IN cattools.py
+
 from matplotlib.pylab import *
 import astropy.io.fits as pyfits
 import ldac

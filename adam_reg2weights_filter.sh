@@ -3,8 +3,7 @@
 # 	1.) make regions compatible
 # 	2.) put them in flags/weights
 # 	3.) (OPTIONAL) redo coaddition! (don't have to redo astrom/photom usually, might want to redo science_weighted, maybe!)
-#adam-example# ./adam_reg2weights-maybe_coadd_catchup.sh "MACS1226+21" "W-C-IC_2010-02-12 W-C-RC_2010-02-12 W-J-B_2010-02-12 W-J-V_2010-02-12 W-S-G+_2010-04-15 W-S-I+_2010-04-15 W-C-IC_2011-01-06 W-S-Z+_2011-01-06 W-C-RC_2006-03-04"
-#adam-example# ./adam_reg2weights-maybe_coadd_catchup.sh $cluster $filter_runs
+#adam-example# ./adam_reg2weights_filter.sh "RXJ2129" "W-C-RC"
 . progs.ini > /tmp/progs.out 2>&1
 . bash_functions.include > /tmp/bash_functions.out 2>&1
 
@@ -58,7 +57,7 @@ do
     ./parallel_manager.sh add_regionmasks.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE ${ending} WEIGHTS ${filter} 2>&1 | tee -a OUT-add_regionmasks_${filter}_${cluster}.log
 
     ### optional thing here ### #adam# could re-do the science_weighted if I wanted to check out how they look
-    #./parallel_manager.sh create_science_weighted.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS ${ending} 2>&1 | tee -a OUT-create_science_weighted_${filter}_${cluster}.log
+    ./parallel_manager.sh create_science_weighted.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE WEIGHTS ${ending} 2>&1 | tee -a OUT-create_science_weighted_${filter}_${cluster}.log
 
 done
 

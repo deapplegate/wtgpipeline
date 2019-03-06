@@ -8,8 +8,8 @@ set -xv
 ##########################################################
 # Find images with 0 weight, make sure BADCCD is set to 1
 ###########################################################
-. progs.ini
-. bash_functions.include
+. progs.ini > /tmp/progs.out 2>&1
+. bash_functions.include > /tmp/progs.out 2>&1
 
 rundir=$1
 science=$2
@@ -28,7 +28,7 @@ badchips=""
 
 for chip in ${chips}; do
 
-    imstats `ls ${weightdir}/*${chip}${ext}.weight.fits` | awk '($1 !~ /^#/) {print $1,$2,$3,$4,$5,$6}' > unfixbadccd_stats_$$
+    ${P_IMSTATS} `ls ${weightdir}/*${chip}${ext}.weight.fits` | awk '($1 !~ /^#/) {print $1,$2,$3,$4,$5,$6}' > unfixbadccd_stats_$$
 
     {
 	while read weightfile mode lquart median uquart mean; do

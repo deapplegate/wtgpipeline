@@ -1,4 +1,5 @@
 #!/bin/bash -xv
+#adam-example# ./create_binnedmosaics.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/ SCIENCE_weighted SUP 'OCFSI.weighted' 8 -32
 #adam-example# ./create_binnedmosaics.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-Z+/ SCIENCE SUP 'OCFSF' 1 -32
 #adam-example# ./create_binnedmosaics.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-Z+_2010-11-04/ SCIENCE_weighted SUP 'OCFSF.weighted' 8 -32
 #adam-example# ./create_binnedmosaics.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-I+/ SCIENCE_weighted SUP 'OCFSFI.weighted' 1 -32

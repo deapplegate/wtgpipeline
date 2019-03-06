@@ -163,7 +163,7 @@ do
     export BONN_TARGET=${cluster} ; export BONN_FILTER=${filter}_${run}
     
     ### backup regions
-    ./adam_backup_regs.py ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/reg/
+    ./adam_quicktools_backup_regs.py ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/reg/
     ###
     #may need to use adam_quicktools_reg_wcs2phys.sh if reg files ended up in fk5 format and must be converted to image coordinate
     ###############################

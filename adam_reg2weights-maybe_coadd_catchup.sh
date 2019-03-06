@@ -45,9 +45,9 @@ do
     ### make regions compatible ###
     ###############################
     #adam# makes regions readable by rest of pipeline (include in final masking script).transform ds9-region file into ww-readable file:
-    #adam# converts `box` regions to `polygon`
+    #adam# converts `box` regions to `polygon` and changes `polygon` to `POLYGON`
     ./convertRegion2Poly.py ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE
-    #adam# changes `polygon` to `POLYGON`!
+    #adam# pretty sure this isn't needed: changes `polygon` to `POLYGON`!
     ./transform_ds9_reg_alt.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE
     #adam# deletes region files that are empty
     ./clean_empty_regionfiles.sh ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/reg/*.reg

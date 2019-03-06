@@ -45,7 +45,7 @@ Ife=cat0.field(I_filt.replace("MAG","FLUXERR"))
 filt_bpz_keys=[]
 filts=[]
 for key in cat0.columns.names:
-	if key.endswith("_bpz"):
+	if key.endswith("_bpz_inputs"):
 		if key.startswith("FLUX_"):
 			filt=key[string.find(key,"W-"):-4]
 			if filt=='W-C-RC':

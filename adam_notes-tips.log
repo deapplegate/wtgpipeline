@@ -1,0 +1,4 @@
+
+## to use fthedit or other like tools on the cluster you have to include these lines:
+export HEADASNOQUERY=
+export HEADASPROMPT=/dev/null

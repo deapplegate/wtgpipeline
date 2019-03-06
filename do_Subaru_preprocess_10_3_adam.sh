@@ -256,7 +256,7 @@ done
 #adam# this will use the flats and darks to make run_filter/WEIGHTS/global*.fits
 #adam# this uses the tools I've developed, it applies the SUPER WIDE uniform cuts, then uses WeightMasker and region files to mask out bad pixels in globalweights_1.fits
 #############SUPER WIDE BASE_WEIGHT LIMITS USED HERE!########################
-#adam# to mess with limits, see ~/thiswork/scripts/Plot_Light_Cutter.py
+#adam# to mess with limits, see Plot_Light_Cutter.py
 #adam# The DARK limits are the same unless config changes (these were fit by eye)
 #adam# The FLAT limits may not be the same
 #adam# The DARK limits are the same unless config changes (these were fit by eye)

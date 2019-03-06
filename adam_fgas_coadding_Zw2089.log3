@@ -1,0 +1,22 @@
+#!/bin/bash
+set -xv
+
+ending="OCFI"
+rm /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-J-B.*
+rm /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-C-RC*
+rm /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-S-Z+*
+bsub -W 7000 -m bulletfarm -q long -J Zw2089.W-J-B -o /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-J-B.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-J-B.err ./do_coadd_batch.sh Zw2089 W-J-B "all exposure " 'none' ${ending}  "yes" "yes"
+ending="OCFI"
+bsub -W 1000 -m bulletfarm -q long -J Zw2089.W-J-B_2015-12-15_CALIB -o /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-J-B_2015-12-15_CALIB.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-J-B_2015-12-15_CALIB.err ./do_coadd_batch.sh Zw2089 W-J-B_2015-12-15_CALIB "all exposure 3s" 'none' ${ending}  "yes" "yes"
+ending="OCFSI"
+#bsub -W 7000 -m bulletfarm -q long -J Zw2089.W-J-V -o /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-J-V.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-J-V.err ./do_coadd_batch.sh Zw2089 W-J-V "all exposure good gabodsid" 'none' ${ending}  "yes" "yes"
+ending="OCFI"
+bsub -W 7000 -m bulletfarm -q long -J Zw2089.W-C-RC -o /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-C-RC.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-C-RC.err ./do_coadd_batch.sh Zw2089 W-C-RC "all exposure " 'none' ${ending}  "yes" "yes"
+ending="OCFI"
+bsub -W 1000 -m bulletfarm -q long -J Zw2089.W-C-RC_2015-12-15_CALIB -o /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-C-RC_2015-12-15_CALIB.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-C-RC_2015-12-15_CALIB.err ./do_coadd_batch.sh Zw2089 W-C-RC_2015-12-15_CALIB "all exposure 3s" 'none' ${ending}  "yes" "yes"
+ending="OCFSI"
+#bsub -W 7000 -m bulletfarm -q long -J Zw2089.W-S-I+ -o /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-S-I+.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-S-I+.err ./do_coadd_batch.sh Zw2089 W-S-I+ "all exposure gabodsid" 'none' ${ending}  "yes" "yes"
+ending="OCFSFI"
+bsub -W 7000 -m bulletfarm -q long -J Zw2089.W-S-Z+ -o /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-S-Z+.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-S-Z+.err ./do_coadd_batch.sh Zw2089 W-S-Z+ "all exposure " 'none' ${ending}  "yes" "yes"
+ending="OCFSFI"
+bsub -W 1000 -m bulletfarm -q long -J Zw2089.W-S-Z+_2015-12-15_CALIB -o /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-S-Z+_2015-12-15_CALIB.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs/Zw2089.W-S-Z+_2015-12-15_CALIB.err ./do_coadd_batch.sh Zw2089 W-S-Z+_2015-12-15_CALIB "all exposure 3s" 'none' ${ending}  "yes" "yes"

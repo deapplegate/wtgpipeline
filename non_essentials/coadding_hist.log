@@ -1,0 +1,1000 @@
+rm *.cat
+kinit
+vim /u/ki/awright/InstallingSoftware/pythons/header_key_add.py
+cd ~/bonnpipeline/
+ls -lrth
+./adam_quicktools_get_sextractor_shortened_error_log.sh ~/my_data/batch_files/coadd_MACS1115+01/OUT-2017-09-29-do_coadd_batch_W-C-RC.err
+./adam_quicktools_get_sextractor_shortened_error_log.sh ~/my_data/batch_files/coadd_MACS1115+01/OUT-2017-09-29-do_coadd_batch_W-S-Z+.err 
+ls -lrth
+#./adam_quicktools_get_sextractor_shortened_error_log.sh ~/my_data/batch_files/coadd_MACS1115+01/OUT-2017-09-29-do_coadd_batch_W-S-Z+.err 
+ls -lrth
+ls /gpfs/slac/kipac/fs1/anja
+ls /gpfs/slac/kipac/fs1/u/anja
+#./mask_coadd.sh ${cluster} W-C-RC
+./vars_MACS1115.sh 
+export cluster='MACS1115+01'
+export filter='W-C-RC'
+./mask_coadd.sh ${cluster} W-C-RC
+kinit
+./mask_coadd.sh ${cluster} W-C-RC
+ ds9 -cmap bb -zscale ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.stars.reg &
+echo $filter
+ds9 -cmap bb -zscale ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_g*/coadd.fits &
+kinit
+echo ${cluster} ${filter}
+cd ../wtgpipeline
+ls -lrth
+vim run_bpz_on_cosmos.py 
+hostname
+conda install pymc
+conda info pymc
+conda info mahotas
+conda install pymc
+conda install https://repo.continuum.io/pkgs/free/linux-64/pymc-2.3.6-np111py27_nomkl_2.tar.bz2
+ipython
+#conda install https://repo.continuum.io/pkgs/free/linux-64/pymc-2.3.6-np111py27_nomkl_2.tar.bz2
+conda install -h
+conda remove pymc
+#conda install --no-update-deps 
+#conda install https://repo.continuum.io/pkgs/free/linux-64/pymc-2.3.6-np111py27_nomkl_2.tar.bz2
+conda install --no-update-deps https://repo.continuum.io/pkgs/free/linux-64/pymc-2.3.6-np111py27_2.tar.bz2
+ipython
+conda remove pymc
+cd ../bonnpipeline/
+conda install https://repo.continuum.io/pkgs/free/linux-64/pymc-2.3.6-np111py27_2.tar.bz2
+ipython
+vim /afs/slac.stanford.edu/u/ki/awright/wtgpipeline/prep_cosmos_run.py
+ipython
+grep "header\.update([^,]*,[^,]*,[^,]*)" *.py
+sed -i.old "s/header\.update(\([^,]*\),\([^,]*\),\([^,]*\))/header[\1]=(\2,\3)/g" pickles_mags.py
+sed -i.old "s/header\.update(\([^,]*\),\([^,]*\))/header[\1]=\2/g" *.py
+vim /afs/slac.stanford.edu/u/ki/awright/wtgpipeline/cosmos_sim.py
+kinit
+cd ../wtgpipeline
+ls
+ls -lrth
+vim submit_mlsims.sh 
+kinit
+vim /afs/slac.stanford.edu/u/ki/awright/wtgpipeline/shearprofile.py
+vim /afs/slac.stanford.edu/u/ki/awright/wtgpipeline/shearprofile.py
+vim shearprofile.py
+vim shearprofile.py
+vim shearprofile.py
+./maxlike_simdriver.py -o /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/cutout_z_drawn_z=0.20_mass=12.00_44.out -i /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/cutout_z_drawn_z=0.20_mass=12.00_44.cat -p /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/pdz.pkl -b /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/bpz.cat
+bsub -W 9 -oo test_args.log './maxlike_simdriver.py -o /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/cutout_z_drawn_z=0.20_mass=12.00_44.out -i /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/cutout_z_drawn_z=0.20_mass=12.00_44.cat -p /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/pdz.pkl -b /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/bpz.cat'
+cat test_args.log 
+env
+ipython
+vim maxlike_simdriver.py 
+vim maxlike_simdriver.py
+# maxlike_simdriver.py
+# maxlike_simdriver.py
+grep "\#\!" *.py
+grep "\#\!" *.py | grep -v python
+vim phot_slr.py
+vim phot_slr.py
+grep "\#\!" *.py | grep -v "\/usr/bin/env python
+"
+grep "\#\!" *.py | grep -v "\/usr\/bin\/env python
+"
+grep "\#\!" *.py | grep -v "\/usr\/bin\/env python"
+echo $PYTHONPATH
+grep "\#\!" *.py | grep -v "\/usr\/bin\/env python"
+vim sqlcl.py
+echo $PYTHONPATH
+bsub -W 9 -oo test_bsub.log './maxlike_simdriver.py -o /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/cutout_z_drawn_z=0.20_mass=12.00_44.out -i /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/cutout_z_drawn_z=0.20_mass=12.00_44.cat -p /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/pdz.pkl -b /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/bpz.cat'
+#bsub -W 9 -oo test_bsub.log './maxlike_simdriver.py -o /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/cutout_z_drawn_z=0.20_mass=12.00_44.out -i /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/cutout_z_drawn_z=0.20_mass=12.00_44.cat -p /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/pdz.pkl -b /u/ki/dapple/nfs22/cosmossims2017/UGRIZ/bpz.cat'
+bjobs
+bjobs
+head -n 1 *.py > py_shebangs.log
+bjobs
+vim py_shebangs.log 
+grep -v "\/usr\/bin\/env" *.py
+grep -V "\/usr\/bin\/env" *.py
+grep -l "\/usr\/bin\/env" *.py
+grep -L "\/usr\/bin\/env" *.py
+grep -l "\/usr\/bin\/env" *.py
+vim u.py 
+grep -L "\/usr\/bin\/env" *.py
+bjobs
+grep -L "\/usr\/bin\/env" *.py > fix_shebangs.log
+ls -lrth
+cat test_bsub.log 
+echo $PYTHONPATH
+history
+vim submit_mlsims.sh 
+echo $PYTHONPATH
+./photorunner.sh ./simqueue/ ./simqueue/log short 256
+kill %2
+bjobs
+bjobs -a
+ls
+ls simqueue/
+ls simqueue/p5*
+echo $PYTHONPATH
+PYTHONPATH=''
+ls -lrth
+./submit_mlsims.sh ~dapple/nfs22/cosmossims2017 UGRIZ 5
+#./photorunner.sh ./simqueue/ ./simqueue/log short 256
+kinit
+./photorunner.sh ./simqueue/ ./simqueue/log short 256
+kill %2
+./submit_mlsims.sh ~dapple/nfs22/cosmossims2017 UGRIZ 5
+./photorunner.sh ./simqueue/ ./simqueue/log short 256
+kill %2
+jobs
+;s =;rtj
+ls -lrth
+kinit
+./submit_mlsims.sh ~dapple/nfs22/cosmossims2017 UGRIZ 5
+./photorunner.sh ./simqueue/ ./simqueue/log short 256
+./submit_mlsims.sh ~dapple/nfs22/cosmossims2017 UGRIZ 5
+./photorunner.sh ./simqueue/ ./simqueue/log short 256
+kill %3
+jobs
+kill %2
+bjobs
+bjobs -a
+bjobs -a
+bkill 891624
+bjobs -a
+bjobs -a
+bkill 891624
+bjobs -a
+./submit_mlsims.sh ~dapple/nfs22/cosmossims2017 UGRIZ 5
+bjobs
+./photorunner.sh ./simqueue/ ./simqueue/log short 256
+kill %1
+./submit_mlsims.sh ~dapple/nfs22/cosmossims2017 UGRIZ 5
+ls -lrth
+cat mp.tmp 
+rm mp.tmp 
+ls -lrth
+rm *.pyc
+vim diff_bonnpipeline_checker.sh 
+kinit
+python preprocess_cosmos_sims.py ~/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/
+vim preprocess_cosmos_sims.py 
+vim preprocess_cosmos_sims.py 
+python preprocess_cosmos_sims.py ~/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/
+ls -lrth
+vim preprocess_cosmos_sims.py 
+python ~/bonnpipeline/preprocess_cosmos_sims.py ~/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/
+vim preprocess_cosmos_sims.py 
+python preprocess_cosmos_sims.py ~/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/
+vim preprocess_cosmos_sims.py 
+python preprocess_cosmos_sims.py ~/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/
+vim preprocess_cosmos_sims.py 
+ls /u/ki/awright/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/*.out
+ls /u/ki/awright/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/
+#ls /u/ki/awright/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/
+python preprocess_cosmos_sims.py ~dapple/nfs22/cosmossims2017/UGRIZ/nocontam/maxlike/
+ipython
+hostname
+grep "def consolidate" *.py
+vim process_cosmos_sims.py
+git add process_cosmos_sims.py
+git help commit
+git status
+git help add
+cat git_commands.txt 
+git add -u .
+git status
+git commit -m "ready for bonnpipeline fork"
+git push
+history | cut -c -8 | tail -n 10
+history | cut -c 8- | tail -n 10
+history | cut -c 8- | tail -n 10 | grep git >> git_commands.txt 
+vim git_commands.txt 
+vim process_cosmos_sims.py
+kinit
+ls -lrth *.py
+ls -lrth *.py | grep "Oct 10" | wc -l
+ls -lrth *.py | grep "Oct 5" | wc -l
+ls -lrth *.py | grep "Oct  5" | wc -l
+diff submit_mlsims.sh ~/bonnpipeline/submit_mlsims.sh
+kinit
+kinit
+cd ~/QuickTools/
+grep "chmod" *.*
+ls
+vim cheatsheet_python.log 
+vim cheatsheet_general-bash-regex-filetools.log 
+cd ~/bonnpipeline/
+ls
+ls doug_notes_cosmos_sim.txt
+cat doug_notes_cosmos_sim.txt
+cat BBSSCR_stats-header.txt
+cat save_pid.txt
+rm save_pid.txt
+cat adam_notes-sextractor.txt
+mv adam_notes-sextractor.txt ../add_to_documentation_later/
+cat flatstats.txt
+rm flatstats.txt
+cat adam-look-postH_preprocess.txt
+rm adam-look-postH_preprocess.txt
+cat adam_useful_scripts.txt
+mv adam_useful_scripts.txt ../add_to_documentation_later/
+cat adam_preH_superflat_progress.txt
+mv adam_preH_superflat_progress.txt scratch
+cat adam_find_fgas_info.txt
+# adam_find_fgas_info.txt
+cat adam_fgas_change_OBJECT_names.sh
+mv adam_fgas_change_OBJECT_names.sh ../add_to_documentation_later/
+rm adam_find_fgas_info.txt
+cat MACS1115+01_filter_endingsI.txt
+ls CRNitschke_final_Zw2*.txt
+ls CRNitschke_final_Zw2*.txt | wc -l
+ls CRNitschke_Zw2*.txt | wc -l
+cat CRNitschke_Zw2*.txt
+wc -l CRNitschke_Zw2*.txt
+wc -l CRNitschke_final_Zw2*.txt
+vimdiff CRNitschke_Zw2701_2010-12-05_W-J-V.txt CRNitschke_final_Zw2701_2010-12-05_W-J-V.txt
+rm CRNitschke_Zw2*.txt
+ls pipeline_junk/
+vimdiff pipeline_junk/phot_slr.py phot_slr.py 
+rm -r pipeline_junk/
+ls bigmacs_naive/
+rm bigmacs_naive/*.pyc
+ls pickles
+svn stat pickles
+ls anja_skype/
+ls anja_skype/match_data_and_darks.log 
+cat anja_skype/match_data_and_darks.log 
+#match_data_and_darks.log 
+mv anja_skype/match_data_and_darks.log ../add_to_documentation_later/
+ls anja_skype/
+ls -l anja_skype/plt10_2_DARK_ImageFitLimit_Hists.png 
+mv anja_skype/plt10_2_DARK_ImageFitLimit_Hists.png ../add_to_documentation_later/
+rm -r anja_skype/
+ls adam_in_case/
+rm -r adam_in_case/
+ls bpz_vault_ONLY_TYPE/
+mv bpz_vault_ONLY_TYPE/ ~/data
+ls pickles
+ls -ld pickles
+ll
+ll | grep "\->"
+cd ../wtgpipeline
+ls photconf/
+ls -lrth
+cd photconf/
+ls -lrth
+ll
+ls -lrth
+ls -lrth ~
+kinit
+ls -lrth 
+ls -lrth ~/bonnpipeline/photconf/
+ls -lrth ~/bonnpipeline/
+ls -lrth ~
+grep "pull" *.log
+history
+history | grep git
+ls .svn
+ls ~/bonnpipeline/photconf/.svn/
+cd ..
+ls -lrth | grep "\->"
+cd ~/bonnpipeline/
+ls -lrth | grep "\->"
+cd ..
+ls -lrth
+cat out.log 
+rm out.log
+ls -lrth
+vim history_wtgpipeline_fork_prep.log 
+vim git_important_wtgpipeline_merge_info.log
+history | grep git
+cd gitfork/
+grep "git merge bonnpipeline_input" *.log
+vim history_wtgpipeline_fork_and_merge.log
+scp awright@xoc10.stanford.edu:/home/awright/research/important/github_bonnpipeline_input.log .
+ls
+wc -l github_bonnpipeline_input.log 
+scp awright@xoc10.stanford.edu:/home/awright/research/important/pre_github_merge_svn_problems.log .
+ls
+cp history_wtgpipeline_fork_and_merge.log tmp_git.log
+vim tmp_git.log 
+rm tmp_git.log 
+cd wtgpipeline/
+kinit
+vim ~dapple/nfs/pipeline//cvs_bonnpipeline/ldac.py
+vim ~dapple/nfs/pipeline/patbonnpipeline/ldac.py
+vim ~dapple/nfs/pipeline/patpipeline/ldac.py
+ipython
+ls -lrth
+xv plt_p* &
+cd wtgpipeline/
+ls
+grep "createCatalog" *.py
+grep "^def\|createCatalog" cosmos_sim.py
+grep "createCutoutSuite\|createCatalog" cosmos_sim.py
+grep "createCutoutSuite\|createCatalog" *.py
+vim make_nongauss_sims.py
+ls /nfs/slac/g/ki/ki06/anja/SUBARU/tmp/tmptFjAuO
+ls /nfs/slac/g/ki/ki06/anja/SUBARU/tmp/tmptFjAuO/
+ls /nfs/slac/g/ki/ki06/anja/SUBARU/tmp/tmptFjAuO/*
+ls -a /nfs/slac/g/ki/ki06/anja/SUBARU/tmp/tmptFjAuO/
+ls -al /nfs/slac/g/ki/ki06/anja/SUBARU/tmp/tmptFjAuO/
+grep "import shearprofile" *.py
+grep "shearprofile" *.py | grep import 
+grep -l "shearprofile" *.py
+grep -l "shearprofile" *.py > chechem.tmp.list
+vim chechem.tmp.list 
+vim fit_DOUG.py fit_GROUND.py fit_PAPER.py fit_PAPER_BAD.py fit_PAT.py fit_PAT2.py fit_PAT3.py fit_SIS.py fit_SPACE.py fit_SPACE2.py
+cat chechem.tmp.list 
+vim MLmasstable.py bootstrap_masses.py compare_masses.py henkstyle.py maxlike_masses.py maxlike_nfw2param.py maxlike_plots.py newmanstyle_batchrunner.py nfwmodel.py nfwmodelML_batchrunner.py nfwmodel_binned_batchrunner.py nfwmodel_contam.py patprofile.py plotSIS.py plot_GalDensity.py plot_contamination.py process_cosmos_sims.py read_MCMC.py shearmodel.py shearprofileplots.py
+kinit
+ls -lrth
+vim simcl_cosmos_mass_bias_calc_driver.sh
+#vim simcl_cosmos_mass_bias_calc_driver.sh
+kinit
+vim simcl_cosmos_mass_bias_calc_driver.sh
+history | grep "pycallgraph"
+ls adam-copy_maxlike_simdriver.py
+vim simcl_cosmos_mass_bias_calc_driver.sh
+vimdiff *cosmos_mass_bias_calc_driver.sh
+rm simcl_cosmos_mass_bias_calc_driver.sh
+vim cosmos_mass_bias_calc_driver.sh
+./cosmos_mass_bias_calc_driver.sh
+ipython -i
+./cosmos_mass_bias_calc_driver.sh
+cd wtgpipeline/
+vim ./simple_ic_SDSS.py
+vim ./simple_ic_PANSTARRS.py
+vimdiff simple_ic_PANSTARRS.py simple_ic_SDSS.py
+vim ./simple_ic_PANSTARRS.py
+vim ./simple_ic_PANSTARRS.py
+ls -lrth
+vim OUT-simple_ic_PANSTARRS_march13.log 
+vim ./simple_ic_PANSTARRS.py
+ls -lrth
+vim simple_ic_PANSTARRS_from_other.py 
+#ipython -i ./simple_ic_PANSTARRS_from_other.py
+echo $cluster
+export cluster=RXJ2129
+ipython -i ./simple_ic_PANSTARRS_from_other.py
+ipython -i ./simple_ic_PANSTARRS_from_other.py
+kill %1
+ipython -i ./simple_ic_PANSTARRS_from_other.py
+./simple_ic_PANSTARRS_from_other.py 2>&1 | tee -a OUT-simple_ic_PANSTARRS_from_other.log
+cd wtgpipeline/
+cp .simple_ic_PANSTARRS_from_other.py.swp scratch/
+vim simple_ic_PANSTARRS_from_other.py 
+vim simple_ic_PANSTARRS_from_other.py 
+grep "PANSTARRS\|panstarrs\|PAN3_\|^def " simple_ic_PANSTARRS_from_other.py 
+grep "PANSTARRS\|panstarrs\|PAN3_\|^def " simple_ic_PANSTARRS_from_other.py 
+#cp simple_ic_PANSTARRS_from_other.py simple_ic_PANSTARRS_from_other.py 
+ls simple_ic.py
+cp simple_ic_PANSTARRS_from_other.py simple_ic.py 
+vim simple_ic.py
+vim simple_ic.py
+export cluster=RXJ2129
+./simple_ic.py 2>&1 | tee -a OUT-simple_ic_SDSS_RXJ_march13.log
+vim simple_ic.py
+./simple_ic.py 2>&1 | tee -a OUT-simple_ic_SDSS_RXJ_march13.log
+./simple_ic.py 2>&1 | tee -a OUT-simple_ic_SDSS_RXJ_march13.log
+hostname
+history | cut -c 8-
+rm OUT-simple_ic_SDSS_RXJ_march13.log
+cd ~/my_data/SUBARU/RXJ2129/W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6/plots_photom
+firefox RXJ2129_scamp.xml &
+xeyes &
+echo $display
+cd ~/my_data/SUBARU/MACS0429-02/W-J-B/SCIENCE/astrom_photom_scamp_PANSTARRS/plots_photom
+firefox MACS0429-02_scamp.xml &
+xeyes
+exit
+cd wtgpipeline/
+exit
+cd my_data/SUBARU/Zw2089/W-J-V/SCIENCE/
+ls
+dfits SUPA01270* | fitsort CRN_DT
+dfits SUPA01270*_10OCFSI.fits | fitsort CRN_DT
+dfits SUPA01270*_10OCFS.fits | fitsort CRN_DT
+#dfits SUPA01270*_10OCFSIR.fits | fitsort CRN_DT
+dfits /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_CRN-cosmics_Zw2089_W-J-V.SUPA01270* | fitsort CRN_DT
+dfits /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_CRN-cosmics_Zw2089_W-J-V.SUPA01270*_1.fits | fitsort CRN_DT
+ds9e SUPA0127026_*OCFSIR.fits 
+cd ../SCIENCE_weighted/
+ls
+ds9e SUPA0127026_* &
+ds9e SUPA012702[7-9]_OCFSIR*
+ls SUPA012702[7-9]_OCFSIR*
+ls SUPA012702[7-9]_*OCFSIR*
+#ls SUPA012702[7-9
+history
+ls ${PWD}/SUPA012702[7-9]_*OCFSIR* ${PWD}/SUPA012703[0-9]_*OCFSIR* >> ~/wtgpipeline/toMask_Zw2089.log
+cd ~/wtgpipeline/
+echo $cluster
+cluster=Zw2089
+filter=W-J-V
+jobs
+kill %1
+ds9e &
+./maskImages.pl -r /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/reg/ -l toMask_Zw2089.log -d /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE_weighted/ SUP
+vim toMask_Zw2089.log
+wc -l toMask_Zw2089.log
+#./maskImages.pl -r /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/reg/ -l toMask_Zw2089.log -d /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE_weighted/ SUP
+history
+#./maskImages.pl -r /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/reg/ -l toMask_Zw2089.log -d /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE_weighted/ SUP
+krenew
+history
+./maskImages.pl -r /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/reg/ -l toMask_Zw2089.log -d /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE_weighted/ SUP
+wc -l toMask_Zw2089.log]
+wc -l toMask_Zw2089.log]
+wc -l toMask_Zw2089.log
+vim toMask_Zw2089.log
+#./maskImages.pl -r /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/reg/ -l toMask_Zw2089.log -d /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE_weighted/ SUP
+krenew
+#./maskImages.pl -r /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/reg/ -l toMask_Zw2089.log -d /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE_weighted/ SUP
+history
+./maskImages.pl -r /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/reg/ -l toMask_Zw2089.log -d /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE_weighted/ SUP
+mv OUT-coadd_Zw2089.W-J-V.log  scratch
+vim adam_pipeline_notes.sh 
+ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits -green ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -blue ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg &
+echo ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg
+#echo ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg
+history | grep suppression
+vim adam_pipeline_notes.sh
+ls -lrth ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits -green ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -blue ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg
+ls ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits -green ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -blue ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg
+ls ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits
+ls ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits
+cleat
+clear
+ls ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits
+ls ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits -green ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -blue ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg
+clear
+history
+ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits -green ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -blue ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg &
+vim adam_pipeline_notes.sh
+vim ./batch_suppress.sh
+vim move_suppression.sh 
+krenew
+ls -lrth /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0*.fits
+ls -lrth *.py
+vim my_cluster_params.py
+./my_cluster_params.py Zw2089 FILTERs
+#for filt in `./my_cluster_params.py Zw2089 FILTERs` ; do ds9e 
+ls -lrth /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0*.fits
+for filt in `./my_cluster_params.py Zw2089 FILTERs` ; do echo ds9e -title "Zw2089_${filt}_BACKsubERRORcheck" /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA*.${filt}.fits & >> Zw2089_BACKsubERRORcheck.sh ; done
+ls -lrth
+vim Zw2089_BACKsubERRORcheck.sh 
+for filt in `./my_cluster_params.py Zw2089 FILTERs` ; do echo ds9e -title "Zw2089_${filt}_BACKsubERRORcheck" /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA*.${filt}.fits \& >> Zw2089_BACKsubERRORcheck.sh ; done
+vim Zw2089_BACKsubERRORcheck.sh 
+chmod u+x Zw2089_BACKsubERRORcheck.sh 
+./Zw2089_BACKsubERRORcheck.sh 
+ds9e
+vim Zw2089_BACKsubERRORcheck.sh 
+./Zw2089_BACKsubERRORcheck.sh 
+jobs
+kill %5
+jobs
+krenew
+ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale -title Zw2089_W-S-Z+_BACKsubERRORcheck /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154656.W-S-Z+.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154658.W-S-Z+.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154659.W-S-Z+.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154660.W-S-Z+.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154661.W-S-Z+.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154662.W-S-Z+.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154663.W-S-Z+.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154664.W-S-Z+.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154665.W-S-Z+.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154666.W-S-Z+.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154667.W-S-Z+.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/coadds_together_Zw2089/coadd_Zw2089_SUPA0154668.W-S-Z+.fits &
+jobs
+exit
+cd wtgpipeline/
+cd scratch
+grep "CRNitschke" OUT-*.log
+#grep "CRNitschke" OUT-*.log
+cd ../../thiswork/eyes
+ls
+cd CRNitschke
+vim /u/ki/awright/CRNitschke/blocked_blender.2.2.py
+krenew
+history | grep "science_weighted"
+ls ${SUBARUDIR}/RADIAL_MASKS
+ls ~/data/RADIAL_MASKS ${SUBARUDIR}/RADIAL_MASKS
+ln -s ~/data/RADIAL_MASKS ${SUBARUDIR}/RADIAL_MASKS
+cd ~/my_data/SUBARU/
+ls
+cd Zw2089
+ls
+ls -lrth
+cd W-J-V
+ls
+ls -lrth
+cd SCIENCE
+ls -lrth
+ls -lrth *OCFSIR.fits
+ls -lrth
+cd coadd_Zw2089_good
+ls
+#ds9e coadd.fits 
+ls *.fits
+ds9e coadd.fits coadd.flag.fits coadd.weight.fits &
+cd ..
+ds9e SUPA0127029_3OCFSIR.fits -regions load reg/SUPA0127029_3.reg &
+ls -lrth ../WEIGHTS/SUPA0127029_3OCFSIR.flag.fits 
+ls -lrth ../WEIGHTS/SUPA0127029_3*
+history | grep suppression
+ls -lrth
+cd coadd_Zw2089_good
+ls
+ds9e coadd.flag.fits ../coadd_OLD_Zw2089_gabodsid4356/coadd.flag.fits ../coadd_OLD_Zw2089_gabodsid4356/coadd.fits &
+cd ../../
+cd ../ki05_W-J-V_2006-12-21/
+cd ..
+ls
+cd 2006_W-J-V
+ls
+cd SCIENCE/
+ls
+cd -
+cd -
+cd ....
+cd ../..
+ls
+ls -lrth W-J-V/SCIENCE/autosuppression/
+cd ~/wtg
+cd ~/wtgpipeline/
+vim ./batch_suppress.sh
+vim ./suppressreflections.py
+cat april_vars.log 
+cluster=Zw2089
+filter=W-J-V
+ending=OCFSIR
+krenew
+bqueues
+queue=medium
+ending=OCFSI
+./batch_suppress.sh ${cluster} ${filter} /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE/autosuppression/10_2/ $ending $queue
+bjobs -a
+bjobs
+bjobs -a
+logdir=/gpfs/slac/kipac/fs1/u/awright/SUBARU/coaddlogs
+jobid=${cluster}.${filter}.suppress
+regdir='/gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/autosuppression/10_2/'
+subaru=${SUBARUDIR}
+for i in 1 5 8 9 ; do                                                                                                                                                                                             bsub -R rhel60 -W 40 -K -oo ${logdir}/${jobid}_${i}.log -eo ${logdir}/${jobid}_${i}.err -q ${queue} ./suppressreflections.py $regdir ${subaru}/${cluster}/${filter}/SCIENCE/*${i}${ending}.fits; done
+bjobs -a
+i=8 ; bsub -m bulletfarm -W 40 -K -oo ${logdir}/${jobid}_${i}.log -eo ${logdir}/${jobid}_${i}.err -q ${queue} ./suppressreflections.py $regdir ${subaru}/${cluster}/${filter}/SCIENCE/*${i}${ending}.fits
+clear
+bjobs -a
+i=3 ; bsub -m bulletfarm -W 40 -K -oo ${logdir}/${jobid}_${i}.log -eo ${logdir}/${jobid}_${i}.err -q ${queue} ./suppressreflections.py $regdir ${subaru}/${cluster}/${filter}/SCIENCE/*${i}${ending}.fits
+#i=4 ; bsub -m bulletfarm -W 40 -K -oo ${logdir}/${jobid}_${i}.log -eo ${logdir}/${jobid}_${i}.err -q ${queue} ./suppressreflections.py $regdir ${subaru}/${cluster}/${filter}/SCIENCE/*${i}${ending}.fits
+history
+regdir='/gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/autosuppression/'
+i=3 ; bsub -m bulletfarm -W 40 -K -oo ${logdir}/${jobid}_${i}.log -eo ${logdir}/${jobid}_${i}.err -q ${queue} ./suppressreflections.py $regdir ${subaru}/${cluster}/${filter}/SCIENCE/*${i}${ending}.fits
+i=4 ; bsub -m bulletfarm -W 40 -K -oo ${logdir}/${jobid}_${i}.log -eo ${logdir}/${jobid}_${i}.err -q ${queue} ./suppressreflections.py $regdir ${subaru}/${cluster}/${filter}/SCIENCE/*${i}${ending}.fits
+bjobs -a
+i=5 ; bsub -m bulletfarm -W 40 -K -oo ${logdir}/${jobid}_${i}.log -eo ${logdir}/${jobid}_${i}.err -q ${queue} ./suppressreflections.py $regdir ${subaru}/${cluster}/${filter}/SCIENCE/*${i}${ending}.fits
+history
+ending=OCFSIR
+ls -lrth
+mv OUT-add_regionmasks_W-J-V_Zw2089.log gabodsid_tmp_Zw2089_W-J-V.log OUT-coadd_Zw2089.W-J-V.log scratch/
+rm err.OUT-coadd_Zw2089.W-J-V.log 
+cat toMask_Zw2089.log 
+rm toMask_Zw2089.log 
+ls -lrth
+rm OUT-create_science_weighted.tmp
+./adam_pre_coadd_cleanup.sh ${cluster} ${filter}
+echo ./do_coadd_batch.sh Zw2089 W-J-V "all good exposure gabodsid" 'Zw2089_good_coadd_conditions.txt' ${ending} 2>&1 | tee -a OUT-coadd_${cluster}.${filter}.log
+./do_coadd_batch.sh Zw2089 W-J-V "all good exposure gabodsid" 'Zw2089_good_coadd_conditions.txt' ${ending} 2>&1 | tee -a OUT-coadd_${cluster}.${filter}.log
+rm OUT-coadd_${cluster}.${filter}.log
+./do_coadd_batch.sh Zw2089 W-J-V "all good exposure gabodsid" 'Zw2089_good_coadd_conditions.txt' ${ending} 2>&1 | tee -a OUT-coadd_${cluster}.${filter}.log
+ds9e /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_good/coadd.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits &
+ds9e /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_good/coadd.*.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.*.fits &
+history
+ls -lrth
+ls
+ls -lrtd */
+cd adam-nedgals2mygals/
+ls
+ls -lrth
+ipython -i plot_specz_and_bpz_compare.py 
+vim plot_specz_and_bpz_compare.py 
+ipython -i plot_specz_and_bpz_compare.py 
+ls -lrth
+cd ~/my_data/SUBARU/
+ls
+cd MACS1226+21/
+ls
+ls -lrth
+cd LENSING_W-C-RC_W-C-RC_aper/
+ls
+cd ../PHOTOMETRY
+cd ../PHOTOMETRY_W-C-RC_aper/
+ls
+ls -lrth
+vim README 
+grep "INTERP" *.*
+vim MACS1226+21.APER1.1.CWWSB_capak.list.all.bpz
+cd ../../
+cd Zw2089/W-S-Z+/SCIENCE/
+mkdir reg
+cd ../../W-S-I+
+cd SCIENCE/
+ls SUPA0108254_6OCFSI.fits SUPA0108255_6OCFSI.fits SUPA0108257_6OCFSI.fits SUPA010825426_6OCFSI.fits 
+ls SUPA0108254_6OCFSI.fits SUPA0108255_6OCFSI.fits SUPA0108257_6OCFSI.fits SUPA0108426_6OCFSI.fits 
+#ls SUPA0108254_6OCFSI.fits SUPA0108255_6OCFSI.fits SUPA0108257_6OCFSI.fits SUPA0108426_6OCFSI.fits 
+ls reg/
+ds9e SUPA0108426_3OCFSI.fits -regions load reg/SUPA0108426_3.reg
+history
+ls -lrth reg/SUPA0108426_3.reg
+ls -lrth reg/SUPA*
+cd ../../
+ls -lrthd W-J-V/SCIENCE/*/
+cd ..
+cd RXJ2129/W-J-V/
+cd SCIENCE/
+ls autosuppression/
+cd ../../W-C-RC
+cd Sc
+cd SCIENCE/
+ls
+ls -lrth
+ls BACKMASK/
+cd autosuppression/
+ls
+cd ../../
+cd ../../MACS0429-02/W-C-RC/SCIENCE/
+ls -lrth
+ds9e -title MACS0429_supas coadd_MACS0429-02_SUPA00436*/coadd.fits &
+ds9e -title MACS0429_nonsupas coadd_MACS0429-02_[a-z]*/coadd.fits &
+cd -
+cd ../../Zw2089/W-J-V
+ls -lrthd */
+cd SCIENCE
+ls -lrthd */
+cd scratch/
+ls
+#ds9e -tile mode 5 2 
+ls -l1
+ls -l1 SUPA005147*_5OCF*
+ls -l1 SUPA005147*_5OCF*
+ls -1 SUPA005147*_5OCF*
+ds9e ../SUPA005147[3-7]_5OCFSIR.fits SUPA005147[3-7]_5OCFSIR.fits &
+fitsdiff SUPA0051473_5OCFSIR.fits ../SUPA0051473_5OCFSI.fits 
+fitsdiff SUPA0051473_5OCFSIR.fits ../SUPA0051473_5OCFSIR.fits 
+fitsdiff SUPA0051474_5OCFSIR.fits ../SUPA0051474_5OCFSIR.fits 
+fitsdiff SUPA0051475_5OCFSIR.fits ../SUPA0051475_5OCFSIR.fits 
+fitsdiff SUPA0051475_5OCFSIR.fits ../SUPA0051475_5OCFSI.fits 
+ls
+cd ..
+ls
+ls -lrth
+ic '%1 %2 + ' SUPA0051476_4OCFSI.fits SUPA0051476_4OCFSIR.fits > SUPA0051476_4IandR_ave.fits
+ic '%1 %2 + ' SUPA0051476_3OCFSI.fits SUPA0051476_3OCFSIR.fits > SUPA0051476_3IandR_ave.fits
+ds9e SUPA0051476_[3-4]OCFSI.fits SUPA0051476_[3-4]OCFSIR.fits SUPA0051476_[3-4]IandR_ave.fits &
+  jobs
+ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale SUPA0051476_3OCFSI.fits SUPA0051476_3OCFSIR.fits SUPA0051476_3IandR_ave.fits
+bg
+history | cut -c 8- | tail -n 10
+vim soften_rings.sh
+ls SUPA005147*_5OCFSIR.fits
+ls SUPA005147*_5OCFSIR.fits >> soften_rings.sh 
+vim soften_rings.sh 
+dfits SUPA0051476_4IandR_ave.fits
+vim soften_rings.sh 
+./soften_rings.sh 
+chmod u+x ./soften_rings.sh 
+./soften_rings.sh 
+vim soften_rings.sh 
+mv soften_rings.sh ~/wtgpipeline/
+cd ~/wtgpipeline/
+git add soften_rings.sh 
+vim adam_pipeline_notes.sh 
+vim final_Zw2089_V_coadd.sh
+chmod u+x final_Zw2089_V_coadd.sh
+./final_Zw2089_V_coadd.sh 
+#cd /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_gabodsid*/coadd.fits 
+history
+ls gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_gabodsid*/coadd.fits gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_OLD_gabodsid*/coadd.fits
+ls /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_gabodsid*/coadd.fits gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_OLD_gabodsid*/coadd.fits
+ls /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_gabodsid*/coadd.fits gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_OLD_gabodsid*/coadd.fits
+ls /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_gabodsid*/coadd.fits gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_OLD_Zw2089_gabodsid*/coadd.fits
+ls /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_gabodsid*/coadd.fits gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_*OLD*/coadd.fits
+ls -d /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_*
+ls -d /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_*_gabods*
+ds9e  /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_*_gabods*/coadd.fits &
+runs=`\ls -d ${SUBARUDIR}/${cluster}/*/ | grep "${filter}" | awk -F'_' '($3 !~ /CALIB/ && NF == 2){print}'`
+echo $runs
+#
+ds9 -region load /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/masks/coadd_FK5_W-J-V_Zw2089_good.edgemask.reg -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_good//coadd.*fits &
+ls -lrth ~/my_data/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_SUPA005147*/coadd.*.fits &
+ds9e ~/my_data/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_SUPA005147*/coadd.*.fits &
+ls -lrth
+ls -lrth *.log3
+vim adam_fgas_coadding_Zw2089.log3
+bqueues
+long            175  Open:Active       - 2000    1    -  3645   611  3034     0
+vim adam_fgas_coadding_Zw2089.log3
+./adam_fgas_coadding_Zw2089.log3
+bjobs
+bqueues
+vim mask_coadd.sh 
+echo ./mask_coadd.sh  ${cluster} W-J-V coadd.stars.reg good
+./mask_coadd.sh Zw2089 W-J-V coadd.stars.reg good
+./mask_coadd.sh Zw2089 W-J-V coadd.asteroids.reg good
+./mask_coadd.sh Zw2089 W-J-V coadd.asteroids.reg all
+./mask_coadd.sh Zw2089 W-J-V coadd.stars.reg all
+bjobs
+ls -lrth
+./adam_BACKsubERRORcheck.sh MACS0429-02
+jobs
+bjobs
+bjobs -a
+bjobs -a
+cat vars
+cat april_vars.log 
+export cluster=Zw2089 ; export detect_filter=W-J-V;export lensing_filter=W-J-V ;export ending=OCFSIR ; export config="10_3"
+vim ./adam_do_photometry.sh
+#vim ./adam_do_photometry.sh
+export cluster=Zw2089 ; export detect_filter=W-J-V;export lensing_filter=W-J-V ;export ending=OCFSIR ; export config="10_3"
+echo ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY
+./adam_do_photometry.sh Zw2089 W-J-V W-J-V aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_Zw2089_allmodes.log
+kill %6
+dfits /gpfs/slac/kipac/fs1/u/awright/SUBARU/Zw2089/W-J-V/SCIENCE/coadd_Zw2089_good/coadd.fits | grep SEEING
+ls *CRNitschke*
+vim create_weights_raw_delink_para_CRNitschke_setup.sh
+vim /u/ki/awright/CRNitschke/get_sextract_thresholds.py
+vim /u/ki/awright/CRNitschke/adam_stars_from_cat.py
+ipython -i --  /u/ki/awright/CRNitschke/adam_stars_from_cat.py  ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits
+vim /u/ki/awright/InstallingSoftware/pythons/sextractimtools/coadd.log
+. progs.ini 
+. SUBARU.ini
+ipython -i --  /u/ki/awright/CRNitschke/adam_stars_from_cat.py  ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits
+ls *header*.py
+./header_key_add.py ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits SEEING=0.624
+#./adam_do_photometry.sh Zw2089 W-J-V W-J-V aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_Zw2089_allmodes.log
+rm OUT-adam_do_photometry_Zw2089_allmodes.log 
+./adam_do_photometry.sh Zw2089 W-J-V W-J-V aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_Zw2089_allmodes.log
+history | cut -c 8-
+vim /u/ki/awright/CRNitschke/adam_stars_from_cat.py
+vim /u/ki/awright/CRNitschke/adam_stars_from_cat.py
+vim /u/ki/awright/InstallingSoftware/pythons/sextractimtools/coadd.log
+vim SeeingClearly_for_coadds.py 
+vim SeeingClearly_for_coadds.py 
+vim update_coadd_header.sh 
+vim update_coadd_header.sh 
+vim SeeingClearly_for_coadds.py 
+vim SeeingClearly_for_coadds.py 
+history
+./adam_do_photometry.sh Zw2089 W-J-V W-J-V aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_Zw2089_allmodes.log
+vim adam_do_photometry.sh 
+vim do_coadd_batch.sh
+./adam_do_photometry.sh Zw2089 W-J-V W-J-V aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_Zw2089_allmodes.log
+kill %6
+jobs
+kill %5
+ls -lrth
+vim seeing_Zw2089.cat
+# seeing_Zw2089.cat
+cat seeing_Zw2089.cat
+awk '{print "./SeeingClearly_for_coadds.py ",$1}' seeing_Zw2089.cat
+#awk '{print "./SeeingClearly_for_coadds.py ",$1}' seeing_Zw2089.cat
+awk -h
+awk OFS='\ ' '{print "./SeeingClearly_for_coadds.py ",$1}' seeing_Zw2089.cat
+awk -v OFS='\ ' '{print "./SeeingClearly_for_coadds.py ",$1}' seeing_Zw2089.cat
+awk -v OFS=' ' '{print "./SeeingClearly_for_coadds.py ",$1}' seeing_Zw2089.cat
+awk -v OFS=' ' '{print "./SeeingClearly_for_coadds.py ",$1}' seeing_Zw2089.cat > todo.sh
+vim todo.sh 
+cat seeing_Zw2089.cat
+dfits /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits | fitsort SEEING
+vim todo.sh 
+dfits /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_SUPA0127032/coadd.fits | fitsort SEEING
+chmod u+x todo.sh 
+./todo.sh 
+echo $DATACONF
+dfits /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-S-Z+/SCIENCE/coadd_Zw2089_SUPA0154665/coadd.fits
+./adam_do_photometry.sh Zw2089 W-J-V W-J-V aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_Zw2089_allmodes.log
+kill %5
+#awk -v OFS='\ ' '{print "./SeeingClearly_for_coadds.py ",$1}' seeing_Zw2089.cat
+vim seeing_Zw2089.cat 
+vim SeeingClearly_for_coadds.py 
+vim SeeingClearly_for_coadds.py 
+ls -lrth
+./todo.sh 
+kill %5
+./todo.sh 2>&1 | tee -a tmp.out
+#./adam_do_photometry.sh Zw2089 W-J-V W-J-V aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_Zw2089_allmodes.log
+history
+rm OUT-adam_do_photometry_Zw2089_allmodes.log
+./adam_do_photometry.sh Zw2089 W-J-V W-J-V aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_Zw2089_allmodes.log
+vim SeeingClearly_for_coadds.py 
+vim seeing_Zw2089.cat 
+vim adam_do_photometry.sh 
+bjobs
+bjobs -a
+bjobs -a
+vim adam_do_photometry.sh 
+bjobs -a
+vim adam_do_photometry.sh 
+vim OUT-adam_do_photometry_Zw2089_allmodes.log 
+ls -lrthd */
+ls -lrthd *
+ls -lrthd */
+ls -lrthd */
+ls -lrthd | grep "->"
+ls -lrth | grep "->"
+\ls -lrth | grep "->"
+\ls -lrth | grep "\->"
+ls -lrthd */
+mkdir adam-simple_change_many_files
+mkdir ../ldaclensing/adam-simple_change_many_files
+cd ../ldaclensing
+ln -s /u/ki/awright/wtgpipeline/adam_quicktools_simple_change_many_files.sh .
+ls -lrth
+cd -
+ls -lrth
+rm instrument_9594 
+echo soften_rings.sh >> useful_code_logger.log
+echo adam_BACKsubERRORcheck.sh >> useful_code_logger.log
+echo adam_quicktools_fix_header_verify.py >> useful_code_logger.log
+vim update_coadd_header.sh 
+grep "writekey" update_coadd_header.sh 
+vim update_coadd_header.sh 
+#./mask_coadd.sh ${cluster} W-C-RC coadd.edgemask.reg "all"
+vim adam_quicktools_fix_header_verify.py
+ls -lrth
+vim fixheaders_RXJ2129.py 
+vim fixheaders_RXJ2129.py 
+vim fixheaders_RXJ2129.py 
+dfits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0135155_3OCFI.fits
+dfits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0135155_3OCFI.fits
+vim fixheaders_RXJ2129.py 
+dfits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0135155_3OCFI.fits
+ls -lrth /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0135155_3*
+ls -lrth /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0135155_3*
+dfits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0135155_3OCFI.fits
+ls -lrth /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0135155_3*
+dfits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0135155_3OCFI.fits
+vim fixheaders_RXJ2129.py 
+bjobs
+bjobs -a
+bjobs -a
+bjobs -a
+#vim fixheaders_RXJ2129.py 
+history
+#./adam_do_photometry.sh Zw2089 W-J-V W-J-V aper MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_Zw2089_allmodes.log2
+krenew
+#./adam_do_photometry.sh Zw2089 W-J-V W-J-V aper MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_Zw2089_allmodes.log2
+./adam_do_photometry.sh Zw2089 W-J-V W-J-V aper MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_Zw2089_allmodes.log2
+export cluster=RXJ2129
+cd wtgpipeline/
+ds9 &
+ending=OCFSI
+supa=SUPA0135163
+python -i -- backmask.py ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/BACKMASK/${supa}-all.coadd.smoothed.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/${supa}_[0-9]*${ending}.fits
+supa=SUPA0135164
+python -i -- backmask.py ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/BACKMASK/${supa}-all.coadd.smoothed.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/${supa}_[0-9]*${ending}.fits
+supa=SUPA0135165
+python -i -- backmask.py ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/BACKMASK/${supa}-all.coadd.smoothed.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/${supa}_[0-9]*${ending}.fits
+y
+supa=SUPA0135166
+y
+python -i -- backmask.py ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/BACKMASK/${supa}-all.coadd.smoothed.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/${supa}_[0-9]*${ending}.fits
+supa=SUPA0135167
+python -i -- backmask.py ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/BACKMASK/${supa}-all.coadd.smoothed.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/${supa}_[0-9]*${ending}.fits
+supa=SUPA0135168
+supa=SUPA0135169
+python -i -- backmask.py ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/BACKMASK/${supa}-all.coadd.smoothed.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/${supa}_[0-9]*${ending}.fits
+supa=SUPA0135168
+python -i -- backmask.py ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/BACKMASK/${supa}-all.coadd.smoothed.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/${supa}_[0-9]*${ending}.fits
+supa=SUPA0135170
+python -i -- backmask.py ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/BACKMASK/${supa}-all.coadd.smoothed.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/${supa}_[0-9]*${ending}.fits
+y
+supa=SUPA0135171
+python -i -- backmask.py ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/BACKMASK/${supa}-all.coadd.smoothed.fits /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/${supa}_[0-9]*${ending}.fits
+hostname
+top
+jobs
+ds9 &
+ls -lrth
+cat tmp.tmp 
+ls -lrth
+hostname
+job
+jjobs
+jobs
+krenew
+grep "autosuppression" *.sh
+vim adam_use_fix_autosuppression.sh
+cat april_coadd_masks.sh
+ls -lrth *.sh
+vim adam_BACKsubERRORcheck.sh
+ls -lrth *ds9*
+cat *ds9*.sh > tmp.tmp
+grep "chip" tmp.tmp
+vim ./adam_quicktools_ds9_chips2mosaic.sh
+echo ${cluster}/${filter}/SCIENCE/ ${ending}
+hostname
+hostname
+krenew
+ds9 &
+top
+ipython -i -- backmask.py /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/BACKMASK/SUPA0032912-all.coadd.smoothed.fits /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0032912_[0-9]*OCFSI*.fits
+ipython -i -- backmask.py /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/BACKMASK/SUPA0032913-all.coadd.smoothed.fits /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0032913_[0-9]*OCFSI*.fits
+ipython -i -- backmask.py /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/BACKMASK/SUPA0032915-all.coadd.smoothed.fits /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0032915_[0-9]*OCFSI*.fits
+ipython -i -- backmask.py /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/BACKMASK/SUPA0032917-all.coadd.smoothed.fits /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0032917_[0-9]*OCFSI*.fits
+ipython -i -- backmask.py /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/BACKMASK/SUPA0032918-all.coadd.smoothed.fits /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/SUPA0032918_[0-9]*OCFSI*.fits
+cd /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/reg/
+ls -lrth
+cat SUPA0032912_3.reg
+cat SUPA0032912_3.reg
+pwd
+cat SUPA0032912_3.reg
+ls
+ls -lrth
+mkdir may14_prior_to_adding_chip1_and_6_masks
+ls may14_prior_to_adding_chip1_and_6_masks
+ls may14_prior_to_adding_chip1_and_6_masks | wc -l
+ls *.reg.new | wc -l
+rename 's/.reg.new/.reg/g' *.reg.new
+cd ../autosuppression
+jobs
+hostname
+ls -lrth
+str=''
+for i in 1 2 3 4 5 6 7 8 9 10 ; do str="-region load SUPA0135171_${i}.reg ../SUPA0135171_${i}OCFSI.fits ${str}" ; done
+echo $str
+ds9e -region load SUPA0135171_10.reg ../SUPA0135171_10OCFSI.fits -region load SUPA0135171_9.reg ../SUPA0135171_9OCFSI.fits -region load SUPA0135171_8.reg ../SUPA0135171_8OCFSI.fits -region load SUPA0135171_7.reg ../SUPA0135171_7OCFSI.fits -region load SUPA0135171_6.reg ../SUPA0135171_6OCFSI.fits -region load SUPA0135171_5.reg ../SUPA0135171_5OCFSI.fits -region load SUPA0135171_4.reg ../SUPA0135171_4OCFSI.fits -region load SUPA0135171_3.reg ../SUPA0135171_3OCFSI.fits -region load SUPA0135171_2.reg ../SUPA0135171_2OCFSI.fits -region load SUPA0135171_1.reg ../SUPA0135171_1OCFSI.fits &
+pwd
+ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale -region load SUPA0135171_10.reg ../SUPA0135171_10OCFSI.fits -region load SUPA0135171_9.reg ../SUPA0135171_9OCFSI.fits &
+#for i in 1 2 3 4 5 6 7 8 9 10 ; do str=" ${SUBARUDIR}/RXJ2129/W-C-RC/SCIENCE/SUPA0135171_${i}OCFSI.fits -region load SUPA0135171_${i}.reg ${str} " ; done
+str=''
+for i in 1 2 3 4 5 6 7 8 9 10 ; do str=" ${SUBARUDIR}/RXJ2129/W-C-RC/SCIENCE/SUPA0135171_${i}OCFSI.fits -region load SUPA0135171_${i}.reg ${str} " ; done
+echo $str
+ds9e /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/SUPA0135171_10OCFSI.fits -region load SUPA0135171_10.reg /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/SUPA0135171_9OCFSI.fits -region load SUPA0135171_9.reg /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/SUPA0135171_8OCFSI.fits -region load SUPA0135171_8.reg /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/SUPA0135171_7OCFSI.fits -region load SUPA0135171_7.reg /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/SUPA0135171_6OCFSI.fits -region load SUPA0135171_6.reg /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/SUPA0135171_5OCFSI.fits -region load SUPA0135171_5.reg /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/SUPA0135171_4OCFSI.fits -region load SUPA0135171_4.reg /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/SUPA0135171_3OCFSI.fits -region load SUPA0135171_3.reg /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/SUPA0135171_2OCFSI.fits -region load SUPA0135171_2.reg /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/SUPA0135171_1OCFSI.fits -region load SUPA0135171_1.reg &
+rm SUPA0135171_2.reg
+cd ../autosuppression_smoothed_chips/
+ls SUPA0*_2*
+\ls -1 SUPA0*_2* > fix2.sh
+vim fix2.sh 
+sed 's/OCFSI_smoothed.fits/.reg/g' fix2.sh
+sed 's/OCFSI_smoothed.fits/.reg/g' fix2.sh > fix2_reg.sh
+vim fix2_reg.sh 
+paste -d\  fix2.sh fix2_reg.sh 
+paste -d\  fix2.sh fix2_reg.sh  > tmp.tmp
+vim tmp.tmp 
+cat tmp.tmp
+ds9e SUPA0032913_2OCFSI_smoothed.fits -region load ../reg/SUPA0032913_2.reg SUPA0032915_2OCFSI_smoothed.fits  -region load ../reg/SUPA0032915_2.reg SUPA0032918_2OCFSI_smoothed.fits -region load ../reg/SUPA0032918_2.reg SUPA0135156_2OCFSI_smoothed.fits -region load ../reg/SUPA0135156_2.reg SUPA0135157_2OCFSI_smoothed.fits -region load ../reg/SUPA0135157_2.reg SUPA0135158_2OCFSI_smoothed.fits -region load ../reg/SUPA0135158_2.reg SUPA0135159_2OCFSI_smoothed.fits -region load ../reg/SUPA0135159_2.reg SUPA0135160_2OCFSI_smoothed.fits -region load ../reg/SUPA0135160_2.reg SUPA0135166_2OCFSI_smoothed.fits -region load ../reg/SUPA0135166_2.reg SUPA0135167_2OCFSI_smoothed.fits -region load ../reg/SUPA0135167_2.reg SUPA0135168_2OCFSI_smoothed.fits -region load ../reg/SUPA0135168_2.reg SUPA0135169_2OCFSI_smoothed.fits -region load ../reg/SUPA0135169_2.reg SUPA0135170_2OCFSI_smoothed.fits -region load ../reg/SUPA0135170_2.reg &
+cp fix2_reg.sh get_regs.sh
+vim get_regs.sh 
+jobs
+ds9 -view layout vertical -zoom to fit -geometry 2000x2000 -cmap bb -zscale  /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135171_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135171_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135162_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135162_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135158_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135158_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135159_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135159_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135157_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135157_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135156_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135156_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135165_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135165_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135164_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135164_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135163_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135163_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135155_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135155_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135169_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135169_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135161_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135161_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135160_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135160_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135168_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135168_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135170_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135170_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135167_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135167_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135166_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135166_8.reg &
+cd ../autosuppression
+ls -lrth
+ls -lrth
+#ds9 -view layout vertical -zoom to fit -geometry 2000x2000 -cmap bb -zscale  /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135171_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135171_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135162_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135162_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135158_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135158_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135159_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135159_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135157_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135157_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135156_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135156_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135165_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135165_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135164_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135164_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135163_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135163_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135155_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135155_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135169_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135169_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135161_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135161_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135160_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135160_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135168_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135168_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135170_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135170_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135167_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135167_8.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135166_8OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135166_8.reg &
+ls -lrth
+vim SUPA0135166_8.reg
+ds9e ../autosuppression_smoothed_chips/SUPA0135166_8OCFSI_smoothed.fits -region load SUPA0135166_8.reg &
+vim SUPA0135166_8.reg
+tail -n 3 SUPA01351*_8.reg
+grep '0\.03' SUPA01351*_8.reg
+sed -i.old  '/0\.03/d' SUPA01351*_8.reg
+wc -l SUPA01351*_8.reg
+cat SUPA0135155_8.reg
+mv *.old scratch/
+for fl in `\ls SUPA01351*_8.reg` ; do ochip=`basename ${fl} _8.reg` ; cp ${fl} ${ochip}_7.reg ; done
+ds9 -view layout vertical -zoom to fit -geometry 2000x2000 -cmap bb -zscale  /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135171_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135171_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135162_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135162_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135158_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135158_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135159_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135159_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135157_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135157_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135156_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135156_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135165_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135165_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135164_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135164_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135163_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135163_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135155_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135155_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135169_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135169_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135161_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135161_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135160_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135160_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135168_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135168_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135170_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135170_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135167_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135167_7.reg /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression_smoothed_chips/SUPA0135166_7OCFSI_smoothed.fits -region load /u/ki/awright/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression//SUPA0135166_7.reg &
+vim SUPA0135155_4.reg 
+vim SUPA0135155_9.reg 
+#sed -i.old  '/0\.03/d' SUPA01351*_8.reg
+cd template_rings_rot1/
+vim chip_8.reg 
+grep "0\.03" *.reg
+wc -l chip_*.reg
+cd ..
+ls
+cd template_rings_rot1/
+wc -l chip_*.reg
+vim chip_9.reg 
+wc -l chip_*.reg
+vim chip_4.reg 
+vim chip_7.reg 
+cd ..
+for fl in `\ls SUPA01351*_8.reg` ; do ochip=`basename ${fl} _8.reg` ; cp ${fl} ${ochip}_3.reg ; done
+echo 'for fl in `\ls SUPA01351*_8.reg` ; do ochip=`basename ${fl} _8.reg` ; cp ${fl} ${ochip}_3.reg ; done' > ring_mover.sh
+cd ~/wtgpipeline/
+krenew
+./adam_quicktools_reg_wcs2phys.sh 
+export cluster=RXJ2129
+export ending=OCFSIR
+export filter=W-C-RC
+history | cut -c 8-
+history | cut -c 8- > coadding_hist.log

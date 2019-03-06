@@ -1,35 +1,50 @@
 #! /bin/bash -xv
-#adam-does# this code changes the coordinates of region files from physical to fk5
+#adam-does# this code changes the coordinates of region files from fk5 to image
 #adam-predecessor# this code came from /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC_2010-11-04/reg/wcs2phys.sh
-#adam-call_example# ./adam_wcs2phys.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/autosuppression/ /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/ OCF
+#adam-call_example# ./adam_quicktools_reg_wcs2phys.sh
 #adam-comments# could be adapted to change other properties as well
-regdir="/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC_2010-03-12/SCIENCE/reg"
-scidir="/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC_2010-03-12/SCIENCE"
-ending="OCFS"
-mkdir ${regdir}/image_coord_regs2/
+
+##IMPORTANT NOTE##
+##THIS WILL KILL ALL THE ds9 WINDOWS ON THIS HOST!
+echo "THIS WILL KILL ALL THE ds9 WINDOWS ON THIS HOST!"
 
 
-for file in $(ls -1 ${regdir}/wcs_coord_regs/SUPA0120152_*.reg)
+
+
+
+
+regdir="${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/autosuppression/"
+scidir="${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/"
+ending="OCFSI"
+mkdir ${regdir}/image_coord_regs/
+mkdir ${regdir}/wcs_coord_regs/
+
+
+#for file in $(ls -1 ${regdir}/SUPA*.reg)
+for file in $(ls -1 ~/my_data/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression/SUPA0032911_*.reg)
 do
 
-base=`basename ${file}`
-BASE_no_ext=`basename ${file} .reg`
+	base=`basename ${file}`
+	BASE_no_ext=`basename ${file} .reg`
 
-ds9 ${scidir}/${BASE_no_ext}${ending}.fits &
-sleep 10
-xpaset -p ds9 lower
-xpaset -p ds9 regions load ${file}
-xpaset -p ds9 regions format ds9
-sleep 1
-xpaset -p ds9 regions system image
-sleep 2
-#xpaset -p ds9 regions skyformat sexagesimal
-xpaset -p ds9 regions save ${regdir}/image_coord_regs2/${base}
-sleep 2
-xpaset -p ds9 regions delete all
-sleep 5
-wc -l ${file} ${regdir}//${base}
-echo ''
+	ds9 ${scidir}/${BASE_no_ext}${ending}.fits &
+	sleep 10
+	xpaset -p ds9 lower
+	xpaset -p ds9 regions load ${file}
+	xpaset -p ds9 regions format ds9
+	sleep 1
+	xpaset -p ds9 regions system image
+	sleep 2
+	#xpaset -p ds9 regions skyformat sexagesimal
+	xpaset -p ds9 regions save ${regdir}/image_coord_regs/${base}
+	sleep 2
+	xpaset -p ds9 regions delete all
+	sleep 3
+	#wc -l ${file} ${regdir}//${base}
+	mv ${file} ${regdir}/wcs_coord_regs/
+	cp -n ${regdir}/image_coord_regs/${base} ${regdir}/
+	echo "done with ${base}"
+
 done
 
 xpaset -p ds9 exit

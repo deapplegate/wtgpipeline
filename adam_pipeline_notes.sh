@@ -104,21 +104,32 @@ ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}
 
 
 #11.) do_photometry.sh
+## everything together here: fgas_photometry_driver_template.sh
 export cluster=MACS0416-24; export ending="OCFR" ; export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU ; export INSTRUMENT=SUBARU
 export cluster=MACS1226+21; export ending="OCFI" ;export INSTRUMENT=SUBARU ;export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU/
 export detect_filter=W-C-RC;export lensing_filter=W-C-RC
 export cluster=Zw2089 ; export detect_filter=W-J-V;export lensing_filter=W-J-V ;export ending=OCFSIR ; export config="10_3"
 # first make sure this is right: cluster_cat_filters.dat
-./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY
-#or is it?: ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS SDSS BIGMACSCALIB BIGMACSAPPLY
-#todo# photoz's
+./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS SDSS BIGMACSCALIB BIGMACSAPPLY
+#or is it?: ./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY
 
+# Now with PureStarCalib, do this:
+
+#1# ./adam_do_photometry_final_starcat.sh modes: PHOTO MERGE STARS SHAPES [ SDSS ]
+# 	NOT photometry scripts also measure shapes! ( just made a SHAPES mode for adam_do_photometry_final_starcat.sh )
+#	example: lensext='good' ; filter="W-C-RC" ; cluster="MACS0416-24"
+#	adam-example# ./measure_shapes_wrapper.sh ${cluster} ${filter} ${lensext}
+#2# cd ~/gravitas/ldacpipeline/ ... get poly fit, etc.
+#3# return to this directory and do BIGMACSCALIB BIGMACSAPPLY
 
 #12.) photo-z calculation using bpz.py
 #adam-note#  inputfile= /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat
 #adam-note#  outputfile= /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all.EVERY.cat
+#adam-look# OK, now instead of adam_bpz_wrapper.py, we're using ./adam_bpz_wrapper_v2.py
+cd ~/gravitas/photoz_analysis/ 
+vim adam_bpz_wrapper_v2.py
 . bpz.ini
-./adam_bpz_wrapper.py
+./adam_bpz_wrapper_v2.py
 
 #Ok, now you can move on to the lensing scripts!
 cd ~/ldaclensing

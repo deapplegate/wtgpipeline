@@ -1,5 +1,0 @@
-#!/bin/bash
-set -xv
-
-bsub -q long -W 7000 -R rhel60 -o /nfs/slac/kipac/fs1/u/awright/batch_files/coadd_MACS0416-24//OUT-2017-09-20-do_coadd_batch_W-C-RC.out -e /nfs/slac/kipac/fs1/u/awright/batch_files/coadd_MACS0416-24//OUT-2017-09-20-do_coadd_batch_W-C-RC.err "./do_coadd_batch.sh MACS0416-24 W-C-RC 'all exposure good ' 'none' OCFR 'yes' 'yes'"
-

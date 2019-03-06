@@ -13,8 +13,8 @@ export detect_filter=W-C-RC;export lensing_filter=W-C-RC
 ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO MERGE STARS BIGMACSCALIB BIGMACSAPPLY
 
 ## other tools used by adam_do_photometry.sh:
-adam_bigmacs-apply_zps.py
-adam_bigmacs-apply_zps_old.py
+adam_bigmacs_apply_zps_and_add_NFILT.py
+adam_bigmacs_apply_zps_and_add_NFILT_old.py
 adam_bigmacs-cat_array_splitter.py
 adam_bigmacs-make_input_columns.py
 
