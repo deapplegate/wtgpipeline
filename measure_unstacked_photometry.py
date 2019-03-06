@@ -460,6 +460,7 @@ def statCombineFluxs(fluxs, errs, mask, sigmaReject = 5):
         local_mask[numpy.logical_or(mask == 0, outliers == 1)] = 0
 
         flux, err =  _weightedAverage(fluxs, errs, local_mask)
+	#adam-tmp# OVERWRITE _weightedAverage FOR CHECKING PURPOSES
         RHflux, RHerr = _checkerrorsRH(fluxs, errs, local_mask)
 
         outliers = identifyOutliers(fluxs, errs, flux, err, nImages, sigmaReject)
@@ -506,7 +507,12 @@ def _checkerrorsRH(fluxs, errs, mask):
 	    #diff_flux = numpy.transpose(numpy.transpose(fluxs)-mean_flux)
 	    shape_ar=mean_flux.shape
 	    if len(shape_ar)>1:
-		    diff_flux = numpy.array([fluxs[:,:,i]-mean_flux[:,i] for i in range(shape_ar[-1])])
+		    diff_flux = numpy.array([numpy.transpose(  numpy.transpose(fluxs[:,i,:])-mean_flux[:,i]  ) for i in range(shape_ar[-1])])
+		    df_final=numpy.zeros(fluxs.shape)
+		    for i in range(shape_ar[-1]):
+
+			    df_final[:,i,:]=diff_flux[i,:]
+		    diff_flux=df_final
             else:
 		    diff_flux = numpy.transpose(numpy.transpose(fluxs)-mean_flux)
 	    var_flux = numpy.sum(local_weight*(diff_flux)**2,axis=-1)/weightsum
