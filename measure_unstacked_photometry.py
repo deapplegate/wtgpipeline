@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#adam-example# python -W ignore -- ./measure_unstacked_photometry.py -o ~awright/my_data/MACS0416_test_std_mags.cat -i SUBARU-10_3 -m /u/ki/awright/my_data/SUBARU/MACS0416-24/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/all.filtered.cat /u/ki/awright/my_data/SUBARU/MACS0416-24/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/SUPA0125903.filtered.cat /u/ki/awright/my_data/SUBARU/MACS0416-24/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/SUPA0125904.filtered.cat /u/ki/awright/my_data/SUBARU/MACS0416-24/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/SUPA0125905.filtered.cat /u/ki/awright/my_data/SUBARU/MACS0416-24/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/SUPA0125906.filtered.cat /u/ki/awright/my_data/SUBARU/MACS0416-24/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/SUPA0125907.filtered.cat /u/ki/awright/my_data/SUBARU/MACS0416-24/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/SUPA0125908.filtered.cat /u/ki/awright/my_data/SUBARU/MACS0416-24/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/SUPA0125909.filtered.cat /u/ki/awright/my_data/SUBARU/MACS0416-24/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/SUPA0125910.filtered.cat /u/ki/awright/my_data/SUBARU/MACS0416-24/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/SUPA0125911.filtered.cat /u/ki/awright/my_data/SUBARU/MACS0416-24/PHOTOMETRY_W-C-RC_aper/W-C-RC/unstacked/SUPA0125912.filtered.cat
 ######################
 #adam-changed# %:s/new_table/BinTableHDU.from_columns/g
 from __future__ import with_statement
@@ -123,6 +124,7 @@ def measureUnstackedPhotometry(images,
                     errs[:,i] = images[i].getFluxErr(fluxkey, fluxscalings[i])
 
     
+    	print 'chipId=',chipId
         flux, err = statCombineFluxs(fluxs, errs, mask)
         combinedFluxs[chipId] = (flux, err)
 
@@ -163,6 +165,7 @@ def combineCats(images, instrum=None, mastercat=None, fluxscale = False):
 		
 		fluxType = utilities.extractFluxType(fluxkey)
 		
+		print 'fluxkey=',fluxkey
 		fluxs = measureUnstackedPhotometry(images, fluxkey = fluxkey, 
 						   fluxscale = fluxscale)
 
@@ -447,8 +450,6 @@ def statCombineFluxs(fluxs, errs, mask, sigmaReject = 5):
 
     ########
 
-        
-
     outliers = numpy.zeros_like(mask)
 
     nImages = fluxs.shape[-1]
@@ -475,7 +476,6 @@ def statCombineFluxs(fluxs, errs, mask, sigmaReject = 5):
             medianVals = _median(rejectedFluxs, rejectedMask)
 
             rejectedOutliers = identifyOutliers(rejectedFluxs, rejectedErrs, medianVals, rejectedMeanErr, nImages, sigmaReject)
-            
             outliers[allRejected] = rejectedOutliers
 
     return flux, err
@@ -488,16 +488,34 @@ def statCombineFluxs(fluxs, errs, mask, sigmaReject = 5):
 def _checkerrorsRH(fluxs, errs, mask):
     """Just print out the std dev of the fluxes and the errors
     """
-    nImages = fluxs.shape[-1]
-    nGals = fluxs.shape[0]
+    try:
+	    nImages = fluxs.shape[-1]
+	    nGals = fluxs.shape[0]
+	    if len(fluxs.shape)>2:
+	        nApers = fluxs.shape[1]
+		assert(nApers!=nImages)
 
-    local_weight = numpy.copy(mask)
-    local_weight[mask == 0] = 1
-    local_weight[mask != 0] = 0
-    mean_flux = numpy.average(fluxs,axis=-1, weights=local_weight)
-    diff_flux = np.transpose(np.transpose(fluxs)-mean_flux)
-    std_flux = numpy.average((diff_flux)**2,axis=-1, weights=local_weight)
-    return std_flux, numpy.average(errs,axis=-1,weights=local_weight)
+	    local_weight = numpy.copy(mask)
+	    local_weight[mask == 0] = 1
+	    local_weight[mask != 0] = 0
+	    #import ipdb; ipdb.set_trace() # BREAKPOINT (`c` or `n` to continue)
+	    weightsum = local_weight.sum(axis=-1)
+	    mean_flux = numpy.sum(fluxs*local_weight,axis=-1)/weightsum
+	    print fluxs.shape, mean_flux.shape
+	    #import ipdb; ipdb.set_trace() # BREAKPOINT (`c` or `n` to continue)
+	    #diff_flux = numpy.transpose(numpy.transpose(fluxs)-mean_flux)
+	    shape_ar=mean_flux.shape
+	    if len(shape_ar)>1:
+		    diff_flux = numpy.array([fluxs[:,:,i]-mean_flux[:,i] for i in range(shape_ar[-1])])
+            else:
+		    diff_flux = numpy.transpose(numpy.transpose(fluxs)-mean_flux)
+	    var_flux = numpy.sum(local_weight*(diff_flux)**2,axis=-1)/weightsum
+	    std_flux = numpy.sqrt(var_flux)
+    except Exception as e:
+	print e
+	import ipdb; ipdb.set_trace() # BREAKPOINT (`c` or `n` to continue)
+
+    return std_flux/numpy.sqrt(weightsum), numpy.sum(local_weight*errs,axis=-1)/weightsum
     
 ####################################
 
