@@ -31,8 +31,8 @@ adam-badcol_10_3
 adam-mytools
 adam-parse_bash_logs
 adam-run_scamp
+adam_make_pyx_setup.sh
 adam-pat_calc_scripts
-
 store_sdss
 sdss_out
 asctoldac_sdss.conf
