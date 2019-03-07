@@ -75,7 +75,7 @@ def _noFlagsMatch(flags, flagno):
 
 def measureUnstackedPhotometry(images, 
                                fluxkey = 'FLUX_APER',
-                               fluxscale = False):
+                               fluxscale = False,simple=False):
     '''measureUnstackedPhotometry
        @param images A list of Image objects for each input catalog
        @param fluxkey Key in each image catalog with flux measurement
@@ -98,7 +98,6 @@ def measureUnstackedPhotometry(images,
     imaflags = _stackFluxs([image.cat['IMAFLAGS_ISO'] for image in images])
 
     combinedFluxs = {}
-    combinedFluxs_RHsimple = {}; simple=True
     for chipId in [1,2,4,8]:
 
         if _noFlagsMatch(imaflags, chipId):
@@ -126,26 +125,10 @@ def measureUnstackedPhotometry(images,
 
     
     	print 'chipId=',chipId
-        flux, err = statCombineFluxs(fluxs, errs, mask)
+        flux, err = statCombineFluxs(fluxs, errs, mask,simple=simple)
         combinedFluxs[chipId] = (flux, err)
-        RHflux, RHerr = statCombineFluxs(fluxs, errs, mask,simple=simple)
-        combinedFluxs_RHsimple[chipId] = (RHflux, RHerr)
 
-        if simple:
-            print flux.shape
-            import matplotlib.pyplot as plt
-            if flux.shape[-1]==2:
-                plt.plot(flux[:,-1], err[:,-1],'r.')
-                #plt.plot(flux, RHflux,'k.') # flux scatter over exposures/sqrt(Nexp)
-                plt.plot(flux[:,-1], RHerr[:,-1],'b.')  # mean err over exposures/sqrt(Nexp)
-            else:
-                plt.plot(flux, err,'r.')
-                #plt.plot(flux, RHflux,'k.') # flux scatter over exposures/sqrt(Nexp)
-                #plt.plot(flux, RHerr,'b.')  # mean err over exposures/sqrt(Nexp)
-            plt.show()
-
-    if not simple: return combinedFluxs
-    else: return combinedFluxs_RHsimple
+    return combinedFluxs
     
 ######################################################################
 
@@ -184,21 +167,58 @@ def combineCats(images, instrum=None, mastercat=None, fluxscale = False):
 		
 		print 'fluxkey=',fluxkey
 		fluxs = measureUnstackedPhotometry(images, fluxkey = fluxkey, 
-						   fluxscale = fluxscale)
+						   fluxscale = fluxscale, simple=False)
+		botherrs=1
+		if botherrs:
+			fluxs_simple_stderr = measureUnstackedPhotometry(images, fluxkey = fluxkey, 
+							   fluxscale = fluxscale,simple=True)
 
+			for chipid, (flux, err) in fluxs_simple_stderr.iteritems():
+			    mag, magerr = calcMags(flux, err)
+			    if instrum is None:
+				id = '%d' % chipid
+			    else:
+				id = '%s-%d' % (instrum, chipid)
+			    fluxerr_key = 'SIMPLESTD_FLUXERR_%s' % fluxType
+			    mag_key = 'SIMPLESTD_MAG_%s' % fluxType
+			    magerr_key = 'SIMPLESTD_MAGERR_%s' % fluxType
+			    if len(flux.shape) == 1:
+				cols.append(pyfits.Column(name='%s-%s' % ('SIMPLESTD_FLUX_%s' % fluxType, id), 
+							  format='E', 
+							  array=flux))
+				cols.append(pyfits.Column(name='%s-%s' % (fluxerr_key, id),
+							  format='E', 
+							  array=err))
+				cols.append(pyfits.Column(name='%s-%s' % (mag_key, id), 
+							  format='E', 
+							  array=mag))
+				cols.append(pyfits.Column(name='%s-%s' % (magerr_key, id),
+							  format='E', 
+							  array=magerr))
+
+			    else:
+				nelements = flux.shape[1]
+				cols.append(pyfits.Column(name='%s-%s' % ('SIMPLESTD_FLUX_%s' % fluxType, id), 
+							  format='%dE' % nelements, 
+							  array=flux))
+				cols.append(pyfits.Column(name='%s-%s' % (fluxerr_key, id), 
+							  format='%dE' % nelements, 
+							  array=err))
+				cols.append(pyfits.Column(name='%s-%s' % (mag_key, id), 
+							  format='%dE' % nelements, 
+							  array=mag))
+				cols.append(pyfits.Column(name='%s-%s' % (magerr_key, id), 
+							  format='%dE' % nelements, 
+							  array=magerr))
 		for chipid, (flux, err) in fluxs.iteritems():
-
 		    mag, magerr = calcMags(flux, err)
-
 		    if instrum is None:
 			id = '%d' % chipid
 		    else:
 			id = '%s-%d' % (instrum, chipid)
-
 		    fluxerr_key = 'FLUXERR_%s' % fluxType
 		    mag_key = 'MAG_%s' % fluxType
 		    magerr_key = 'MAGERR_%s' % fluxType
-
 		    if len(flux.shape) == 1:
 			cols.append(pyfits.Column(name='%s-%s' % (fluxkey, id), 
 						  format='E', 
@@ -464,6 +484,7 @@ def identifyOutliers(fluxs, errs, meanFlux, meanErr, nImages, nsigma):
 
 
 def statCombineFluxs(fluxs, errs, mask, sigmaReject = 5, simple=False):
+    '''simple: 0 (make errors in wtg method), 1 (make RH simple std error calculation)'''
 
     ########
 
