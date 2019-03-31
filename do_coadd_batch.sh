@@ -363,12 +363,14 @@ do
 	    if [ "$?" -gt "0" ]; then exit $? ; fi
             ./perform_coadd_swarp.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE ${cluster}_gabodsid${GABODSID}
 	    if [ "$?" -gt "0" ]; then exit $? ; fi
-            ./update_coadd_header.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE ${cluster}_gabodsid${GABODSID} STATS coadd ${MAGZP} AB ${CONDITION}
+            ./update_coadd_header.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE ${cluster}_gabodsid${GABODSID} CHIPS_STATS coadd ${MAGZP} AB ${CONDITION}
             exit_stat=$?
             if [ "${exit_stat}" -gt "0" ]; then
               	echo "adam-Error: problem with update_coadd_header.sh!"
               	exit ${exit_stat};
             fi
+	    ./fix_coadd_gabodsid.py ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_gabodsid${GABODSID}/coadd.fits
+	    ./fix_coadd_gabodsid-update_coadd_header.sh ${SUBARUDIR}/${cluster}/${filter} SCIENCE ${cluster}_gabodsid${GABODSID} CHIPS_STATS coadd -1.0 AB
             ic -p 8 '16 1 %1 1e-6 < ?' ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_gabodsid${GABODSID}/coadd.weight.fits > ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_gabodsid${GABODSID}/coadd.flag.fits
 	    if [ "$?" -gt "0" ]; then exit $? ; fi
             coaddmodes="${coaddmodes} gabodsid${GABODSID}"

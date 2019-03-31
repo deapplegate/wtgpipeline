@@ -72,7 +72,13 @@ set -xv
 #    It is used for the comment of the MAGZP header keyword	
 #$8: coaddition condition					(ex. ${CONDITION})
 
-. ${INSTRUMENT:?}.ini > /tmp/SUBARU.out 2>&1
+#adam-new# March31st 2019
+config=`dfits /$1/$2/coadd_$3/$5.fits | fitsort CONFIG | tail -n 1 | awk '{print $2}'`
+if [ "${config}" != "KEY_N/A" ]; then
+	. ${INSTRUMENT:?}_${config}.ini > /tmp/SUBARU.out 2>&1
+else
+	. ${INSTRUMENT:?}.ini > /tmp/SUBARU.out 2>&1
+fi
 . progs.ini > /tmp/SUBARU.out 2>&1
 . bash_functions.include > /tmp/bash.out 2>&1
 
