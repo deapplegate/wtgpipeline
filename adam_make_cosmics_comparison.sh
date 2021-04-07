@@ -1,14 +1,19 @@
 #!/bin/bash
 set -xv
-#adam-example# ./create_weights_raw_delink_para_CRNitschke_single.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-S-Z+_2013-06-10 SCIENCE OCFSF WEIGHTS W-S-Z+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-S-Z+_2013-06-10/SCIENCE/SUPA0139751_9OCFSF.fits
+#adam-example# ./adam_make_cosmics_comparison.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1226+21/W-S-Z+_2011-01-06 SCIENCE OCF WEIGHTS W-S-Z+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1226+21/W-S-Z+_2011-01-06/SCIENCE/SUPA0128343_3OCF.fits
+#adam-example# ./adam_make_cosmics_comparison.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1226+21/W-C-RC_2010-02-12 SCIENCE OCF WEIGHTS W-C-RC /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1226+21/W-C-RC_2010-02-12/SCIENCE/SUPA0118336_3OCF.fits
+#eye_CRnum191_Pnum39.fits
+
+#SUPA0118336_3OCF.fits	0.57
+#adam-does# this will compare the old and new CRmask results
+#adam-example-old# ./create_weights_raw_delink_para_CRNitschke_single.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-S-Z+_2013-06-10 SCIENCE OCFSF WEIGHTS W-S-Z+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-S-Z+_2013-06-10/SCIENCE/SUPA0139751_9OCFSF.fits
+#/gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1226+21/W-S-Z+_2011-01-06/SCIENCE/SUPA0128342_3OCF.fits
+#/gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1226+21/W-S-Z+_2011-01-06/SCIENCE/SUPA0128343_3OCF.fits
+#/gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1226+21/W-S-Z+_2011-01-06/SCIENCE/SUPA0128345_3OCF.fits
+#/gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1226+21/W-S-Z+_2011-01-06/SCIENCE/SUPA0128346_3OCF.fits
+#/gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1226+21/W-S-Z+_2011-01-06/SCIENCE/SUPA0128347_3OCF.fits
 
 
-
-
-#adam-chain#CRN! Runs the CRNitschke cosmic ray masker. first run create_weights_raw_delink_para_CRNitschke_setup.sh, then run this code like this `./parallel_manager.sh create_weights_raw_delink_para_CRNitschke.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS ${filter}`
-#adam-does# this code executes the CRNitschke cosmic finder on all of the images!
-#adam-call_example# ./parallel_manager.sh create_weights_raw_delink_para_CRNitschke.sh ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE ${ending} WEIGHTS ${filter}
-#adam-predecessor# create_weights_raw_delink_para_10_3_cr.sh
 
 # $1: main directory
 # $2: science dir.
@@ -56,9 +61,9 @@ ft=${rms_fwhm_dt_ft[3]}
 #       3.) data_SCIENCE_cosmics/CATALOG_CRN-cosmics_${cluster}_${filter}.${BASE}.cat
 #       check with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/ > CRN-cosmics_latest_run.log
 if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
-  ${P_SEX} ${file}   -c /u/ki/awright/CRNitschke/config-sex.10_3_cr \
+  ${P_SEX} ${file}   -c /u/ki/awright/thiswork/eyes/CRNitschke/config-sex.10_3_cr \
   		-SEEING_FWHM ${fwhm} \
-  		-FILTER_NAME /u/ki/awright/CRNitschke/retina-eye.10_3_cr.ret \
+  		-FILTER_NAME /u/ki/awright/thiswork/eyes/CRNitschke/retina-eye.10_3_cr.ret \
   		-FILTER_THRESH ${ft} \
   		-DETECT_THRESH ${dt} \
   		-ANALYSIS_THRESH ${dt} \
@@ -82,9 +87,9 @@ ft400=$(echo "400.0 / $rms" |bc -l)
 #       5.) data_SCIENCE_cosmics/CATALOG_FT400_CRN-cosmics_${cluster}_${filter}.${BASE}.cat
 #       check (1-6) with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/ > CRN-cosmics_latest_run.log
 if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_FT400_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
-  ${P_SEX} ${file}   -c /u/ki/awright/CRNitschke/config-sex.10_3_cr \
+  ${P_SEX} ${file}   -c /u/ki/awright/thiswork/eyes/CRNitschke/config-sex.10_3_cr \
                   -SEEING_FWHM ${fwhm} \
-                  -FILTER_NAME /u/ki/awright/CRNitschke/retina-eye.10_3_cr.ret \
+                  -FILTER_NAME /u/ki/awright/thiswork/eyes/CRNitschke/retina-eye.10_3_cr.ret \
                   -FILTER_THRESH ${ft400} \
                   -DETECT_THRESH ${dt} \
                   -ANALYSIS_THRESH ${dt} \
@@ -112,7 +117,7 @@ fi
 #       check with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_stars/ > CRN-stars_latest_run.log
 #       check with: ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_stars/ > CRN-stars_latest_run.log
 if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_stars/SEGMENTATION_CRN-stars_${cluster}_${filter}.${BASE}.fits" ]; then
-  /u/ki/awright/CRNitschke/stars2block.py ${file}
+  /u/ki/awright/thiswork/eyes/CRNitschke/stars2block.py ${file}
 else
   echo "SKIPPING stars2block.py for ${file}"
 fi
@@ -132,7 +137,7 @@ fi
 #       check with:ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/ > CRN-compare_last_run.log
 #                  ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BB_CRN*.fits >> CRN-compare_last_run.log
 if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BB_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
-  /u/ki/awright/CRNitschke/blocked_blender.2.2.py ${file}
+  /u/ki/awright/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ${file}
 else
   echo "SKIPPING blocked_blender.2.2.py for ${file}"
 fi
@@ -151,7 +156,7 @@ fi
 #                  ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BBSS_CRN*.fits >> CRN-SS_last_run.log
 #                  ls -lrth /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/StarRMout_KeepOrRM-purified_cosmics*.fits >> CRN-SS_last_run.log
 if [ ! -f "/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BBSS_CRN-cosmics_${cluster}_${filter}.${BASE}.fits" ]; then
-  /u/ki/awright/CRNitschke/StarStripper.py ${file}
+  /u/ki/awright/thiswork/eyes/CRNitschke/StarStripper.py ${file}
 else
   echo "SKIPPING StarStripper.py for ${file}"
 fi
@@ -221,6 +226,9 @@ if [ "${exit_stat}" -gt "0" ]; then
     echo "adam-look: create_weights_raw_delink_para_CRNitschke.sh failed for file=${file}"
     exit 1
 fi 
+OUTIMAGEOLD="/u/ki/awright/my_data/thesis_stuff/old_cosmics/oldCRmask_${BASE}.fits"
+OUTIMAGECRN="/u/ki/awright/my_data/thesis_stuff/old_cosmics/CRNCRmask_${BASE}.fits"
+cp ${TEMPDIR}/cosmic_${CHIP}_$$.2.fits  ${OUTIMAGECRN}
 mv ${TEMPDIR}/cosmic_${CHIP}_$$.2.fits  ${TEMPDIR}/cosmic_${CHIP}_$$.fits 
 # create ww config file on the fly
 
@@ -277,7 +285,6 @@ fi
 
 ## now run the old-style masker
 MASKOLD=${CONF}/cosmic.ret.sex
-OUTIMAGEOLD="/u/ki/awright/my_data/thesis_stuff/old_cosmics/oldCRmask_${BASE}.fits"
 conffile=${REDDIR}/cosmic.conf.sex
 ${P_SEX} ${file} -c ${conffile} -CHECKIMAGE_NAME \
                     ${TEMPDIR}/cosmic_${CHIP}_$$.fits \
@@ -286,3 +293,7 @@ ${P_SEX} ${file} -c ${conffile} -CHECKIMAGE_NAME \
                     -SEEING_FWHM ${fwhm}
 sfdir/expand_cosmics_mask ${TEMPDIR}/cosmic_${CHIP}_$$.fits  ${TEMPDIR}/cosmic_${CHIP}_$$.2.fits
 mv ${TEMPDIR}/cosmic_${CHIP}_$$.2.fits  ${OUTIMAGEOLD}
+
+echo "OUTIMAGEOLD=" $OUTIMAGEOLD
+echo "OUTIMAGECRN=" $OUTIMAGECRN
+./adam_make_comparable_CRmask.py ${file} ${OUTIMAGECRN} ${OUTIMAGEOLD}

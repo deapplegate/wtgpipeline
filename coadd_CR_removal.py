@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 from __future__ import division #3/2=1.5 and 3//2=1
-#adam-does# blends cosmics and blocks them from being blended into stars
-#adam-use # use with CRNitschke cosmics masking pipeline
-import sys #; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
+#adam-does# makes REMS masks
+#adam-use # use on clusters where we have wayyyy to many exposures in the lensing band to make masks by hand (i.e. RXJ2129)
+import sys
 #from import_tools import *
 import imagetools_light as imagetools
 import astropy

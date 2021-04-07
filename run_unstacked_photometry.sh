@@ -76,7 +76,7 @@ for exposure in $exposures; do
 	measure_flag=${measure_dir}/${measure_base}.flag.fits
 	seeing=`dfits $file | fitsort -d SEEING | awk '{print $2}'`
 	
-	tag=`echo $measure_dir | awk -F '_' '{print $3}'`
+	tag=`echo $measure_dir | awk -F '_' '{print $NF}'`
 
 	./extract_object_cats.py --di $detect --dw $detect_weight \
 	    --pi $file --pw $measure_weight --pf $measure_flag \
@@ -150,8 +150,10 @@ fi
 
 configs=`awk '{print $2}' unstacked.exp.list_$$ | sort | uniq`
 # Combine catalogs into final catalog
+echo "adam-look: configs=$configs for $cluster - $filter"
 merge_line=""
 for config in $configs; do
+
 
     cats=`grep "$config" unstacked.exp.list_$$ | awk -v ORS=' ' '{print $1}'`
 

@@ -1,0 +1,69 @@
+|----------------------------------------------------------------------------------------------------------------------------------------------|
+|***$$$~~~: BB stats for the file=/gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1226+21/W-S-Z+_2011-01-06/SCIENCE/SUPA0128343_3OCF.fits :***$$$~~~|
+|***$$$~~~: MYSEEING=0.77 EXPTIME=240 RMS=60.77                                                                                      :***$$$~~~|
+|----------------------------------------------------------------------------------------------------------------------------------------------|
+|                                                                                                                iter0 took 0.09 minutes (1.0%)|
+| iter0| # cosmics before blending :695
+| iter0| # masked pixels before blending :2144 %=0.00025613970700675903
+|                                                                                                               iter1 took 2.55 minutes (19.0%)|
+| iter1| # cosmics after blending #1 :339
+| iter1| # masked pixels after blending #1 :12685 %=0.001515453443741016
+| iter1| # that are big enough (area>8) to be considered in raise thresh cut:307 %=0.9056047197640118
+| iter1| # with large holes that will be sent to raise thresh cut:23 of those this many were fixed:11
+| iter1| # with bad rr not great rr and open8 and openS ringer failed (i.e. masks considered in iterN):56
+|
+| iterN| iterations 2 thru 8 
+|                                                                                                                iter2 took 1.14 minutes (9.0%)|
+| iter2| 5 DONE: (1: PASSED ALL) == 5 (2: ERASE FAILED) == 0 (3: PREVsplit) == 0 (4: swallowed) == 0 (5: Multiple Ringers) == 0
+| iter2| 51 NEXT: (1: rr) == 32 (2: open) == 17 (3: ring failed) == 2 (4: rr=nan size>9 open8=0) == 0
+| iter2| 0 REMOVED-ERASED STAR CANDIDATES 
+|                                                                                                                iter3 took 1.17 minutes (9.0%)|
+| iter3| 12 DONE: (1: PASSED ALL) == 10 (2: PREVsplit) == 1 (3: Multiple Ringers) == 1 (4: ERASE FAILED) == 0 (5: swallowed) == 0
+| iter3| 40 NEXT: (1: rr) == 21 (2: open) == 19 (3: rr=nan size>9 open8=0) == 0 (4: ring failed) == 0
+| iter3| 0 REMOVED-ERASED STAR CANDIDATES 
+|                                                                                                                iter4 took 1.12 minutes (9.0%)|
+| iter4| 3 DONE: (1: PASSED ALL) == 3 (2: ERASE FAILED) == 0 (3: PREVsplit) == 0 (4: swallowed) == 0 (5: Multiple Ringers) == 0
+| iter4| 37 NEXT: (1: open) == 21 (2: rr) == 16 (3: rr=nan size>9 open8=0) == 0 (4: ring failed) == 0
+| iter4| 0 REMOVED-ERASED STAR CANDIDATES 
+|                                                                                                                iter5 took 0.81 minutes (6.0%)|
+| iter5| 5 DONE: (1: PASSED ALL) == 5 (2: ERASE FAILED) == 0 (3: PREVsplit) == 0 (4: swallowed) == 0 (5: Multiple Ringers) == 0
+| iter5| 32 NEXT: (1: open) == 21 (2: rr) == 11 (3: rr=nan size>9 open8=0) == 0 (4: ring failed) == 0
+| iter5| 0 REMOVED-ERASED STAR CANDIDATES 
+|                                                                                                               iter6 took 1.33 minutes (10.0%)|
+| iter6| 5 DONE: (1: PASSED ALL) == 5 (2: ERASE FAILED) == 0 (3: PREVsplit) == 0 (4: swallowed) == 0 (5: Multiple Ringers) == 0
+| iter6| 27 NEXT: (1: open) == 20 (2: rr) == 7 (3: rr=nan size>9 open8=0) == 0 (4: ring failed) == 0
+| iter6| 0 REMOVED-ERASED STAR CANDIDATES 
+|                                                                                                                iter7 took 0.52 minutes (4.0%)|
+| iter7| 1 DONE: (1: PASSED ALL) == 1 (2: ERASE FAILED) == 0 (3: PREVsplit) == 0 (4: swallowed) == 0 (5: Multiple Ringers) == 0
+| iter7| 25 NEXT: (1: open) == 19 (2: rr) == 6 (3: rr=nan size>9 open8=0) == 0 (4: ring failed) == 0
+| iter7| 1 REMOVED-ERASED STAR CANDIDATES 
+|                                                                                                               iter8 took 3.12 minutes (24.0%)|
+| iter8| 4 DONE: (1: PASSED ALL) == 3 (2: ERASE FAILED) == 1 (3: PREVsplit) == 0 (4: swallowed) == 0 (5: Multiple Ringers) == 0
+| iter8| 20 NEXT: (1: open) == 17 (2: rr) == 3 (3: rr=nan size>9 open8=0) == 0 (4: ring failed) == 0
+| iter8| 1 REMOVED-ERASED STAR CANDIDATES 
+|
+| iterN| iterations 2 thru 8 totals (NEXT stats aren't all that meaningful here)
+| iterN| 35 DONE: (1: PASSED ALL) == 32 (2: ERASE FAILED) == 1 (3: PREVsplit) == 1 (4: Multiple Ringers) == 1 (5: swallowed) == 0
+| iterN| 232 NEXT: (1: open) == 134 (2: rr) == 96 (3: ring failed) == 2 (4: rr=nan size>9 open8=0) == 0
+| iterN| 2 REMOVED-ERASED STAR CANDIDATES 
+|                                                                                                          LastStretch took 0.12 minutes (1.0%)|
+| LastStretch| Masked a total of this many cosmics: 14
+| LastStretch| of which an average of this # of pixels was added on: 10.928571428571429
+|                                                                                                             CRonSTAR took 0.15 minutes (1.0%)|
+| CRonSTAR| Masked a total of this many cosmics: 12
+| CRonSTAR| of which an average of this # of pixels was added on: 28.5
+|                                                                                                                FT400 took 0.96 minutes (7.0%)|
+| FT400| Masked a total of this many cosmics: 81
+| FT400| of which these many were totally new: 1
+|                                                                                                                 SAVE took 0.02 minutes (0.0%)|
+| FINAL| Total cosmics+sat spikes masked: 353
+| FINAL| Total cosmics masked: 341
+| FINAL| cosmics masked per second exposed: 1.42083333333
+|----------------------------------------------------------------------------------------------------------------------------------------------|
+BBSSCR_stats-BB SUPA0128343_3 W-S-Z+ 0.77 1.42 341 240 60.77 2 353 12 1 14
+
+ds9 -zscale -tile mode column /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/BBout_ORIGINAL_MACS1226+21_W-S-Z+.SUPA0128343_3.fits /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/BBout_WOblend_MACS1226+21_W-S-Z+.SUPA0128343_3.fits /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/BB_ERASED_bthresh065_BBCR_MACS1226+21_W-S-Z+.SUPA0128343_3.fits /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/BBrevised_bthresh065_BBCR_MACS1226+21_W-S-Z+.SUPA0128343_3.fits -zscale -lock frame image -lock crosshair image -geometry 2000x2000 &
+
+done with file=/gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1226+21/W-S-Z+_2011-01-06/SCIENCE/SUPA0128343_3OCF.fits
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+

@@ -149,6 +149,7 @@ def main(flinput,flzps,flnew):
 
 			# using mag=-2.5*numpy.log10(flux) after calibrating flux even though m+zp gives the same thing, because I should just use fluxes always since magnitudes cannot be trusted!
 			mag_newcol=-2.5*numpy.log10(flux_newcol) #=m+zp
+			# for sextractor, both nonobs and nondet are -99 (for bpz unobs=-99 and undet=+99)
 			mag_newcol[nonobserved+nondetected]=-99
 
 			f_bpz=flux_newcol.copy()
@@ -227,7 +228,7 @@ def main(flinput,flzps,flnew):
 		flinput2cp=flinput.replace(".cat",".input-tmp.cat")
 		ooo=os.system("ldacdelkey -i "+flinput+" -o "+flinput2cp+" -k "+' '.join(keys_del))
 		if ooo!=0: raise Exception("the line os.system(ldacdelkey...) failed")
-		
+
 		flnew2cp=flnew.replace(".cat",".new-tmp.cat")
 		keys_add=[col.name for col in ncs]
 		print "\nnow running: ldacjoinkey -p "+flproto+" -i "+flinput2cp+" -o "+flnew2cp+" -t OBJECTS -k "+' '.join(keys_add)

@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+#adam-example# ./SeeingClearly_for_coadds.py /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_good/coadd.fits
 #adam-does# calculates seeing, has a plotting option to check if it's right or not 
 #adam-use# anything
 #the basics

@@ -26,17 +26,18 @@ set -xv
 #fi
 #exit 0
 
-./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper SDSS 2>&1 | tee -a OUT-adam_do_photometry_${cluster}_SDSSmode.log
-./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper SHAPES 2>&1 | tee -a OUT-adam_do_photometry_${cluster}_SHAPESmode.log
-exit_stat=$?
-if [ "${exit_stat}" -gt "0" ]; then
-        exit ${exit_stat};
-fi
-exit 0
+#./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper SDSS 2>&1 | tee -a OUT-adam_do_photometry_${cluster}_SDSSmode.log
+#./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper SHAPES 2>&1 | tee -a OUT-adam_do_photometry_${cluster}_SHAPESmode.log
+#exit_stat=$?
+#if [ "${exit_stat}" -gt "0" ]; then
+#        exit ${exit_stat};
+#fi
+#exit 0
+#
+#cd ~/ldaclensing/
 
-cd ~/ldaclensing/
-
-./adam_do_photometry_final_starcat.sh  ${detect_filter} ${lensing_filter} aper BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_${cluster}_bigmacs.log
+./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_${cluster}_bigmacs.log
+#./adam_do_photometry_final_starcat.sh ${cluster} ${detect_filter} ${lensing_filter} aper BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_${cluster}_bigmacs.log
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
         exit ${exit_stat};

@@ -1,7 +1,6 @@
 #!/bin/bash
 set -xv
 
-
 export cluster=RXJ2129
 export ending=OCFSIR
 export filter=W-C-RC
@@ -13,7 +12,7 @@ echo $str
 
 ## make some useful smoothed images
 adam_make_autosuppression_ims.py #makes autosuppression directory with images that can be used to place stellar halos
-Note this might help: adam_use_fix_autosuppression.sh
+#Note this might help: adam_use_fix_autosuppression.sh
 adam_make_backmask_ims.py
 
 ## check for background subtract errors:
@@ -32,13 +31,14 @@ python -i -- backmask.py ${SUBARUDIR}/${cluster}/W-C-RC/SCIENCE/BACKMASK/${supa}
 
 
 # apply edge, asteroid, and star masks to flags:
- star and asteroid coadd-level masking
+# star and asteroid coadd-level masking
  ./mask_coadd.sh ${cluster} W-C-RC #make coadd.stars.reg, then fix it in ds9
  ds9 -cmap bb -zscale ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.stars.reg &
  ./mask_coadd.sh ${cluster} W-C-RC coadd.stars.reg 2>&1 | tee -a OUT-mask_coadd.stars.log
  ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits -green ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -blue ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd.asteroids.reg &
  ./mask_coadd.sh ${cluster} W-C-RC coadd.asteroids.reg gabodsid1554 2>&1 | tee -a OUT-mask_coadd.asteroids.log
 
+ds9 -zscale -rgb -red ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_good/coadd.fits -green ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -blue ${SUBARUDIR}/${cluster}/${filter}/SCIENCE/coadd_${cluster}_all/coadd.fits -regions load ${SUBARUDIR}/${cluster}/masks/coadd_W-C-RC_good.mask2019.reg &
 ## make edgemask
 export lensing_coadd_type="gabodsid1554"
 cp /u/ki/awright/wtgpipeline/coadd_template.edgemask.reg ${SUBARUDIR}/${cluster}/masks/coadd_${lensing_filter}_${lensing_coadd_type}.edgemask.reg

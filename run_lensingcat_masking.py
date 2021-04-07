@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+#adam-example# ipython -i -- ./run_lensingcat_masking.py ${cluster} ${filter} ${filter} aper ${lens}
+#     cluster = argv[0]
+#    detect_filter = argv[1]
+#    lensing_filter = argv[2]
+#    mode = argv[3]
+#    image = argv[4]
 ########################
 #
 # Process a cluster, remaking the lensing catalog with proper IMAFLAGS_ISO values
@@ -152,7 +158,6 @@ def main(argv = sys.argv):
 
     if forceRemake or not os.path.exists(flag_catalog) or olderthan(flag_catalog, [detect_image, detect_weight, lensing_image, lensing_weight, compiledFlag]):
 
-        
 
         extract_object_cats.sextractor(detect = detect_image, image = lensing_weight, config = extract_object_cats.DETECT_OBJS_CONFIG,
                                        catalog_name = '%s0' % flag_catalog,
@@ -160,11 +165,12 @@ def main(argv = sys.argv):
                                        weight_type = ['MAP_WEIGHT', 'NONE'],
                                        weight_image = [detect_weight, 'NONE'],
                                        flag_image = compiledFlag,
-                                       checkimage_type = 'BACKGROUND',
-                                       checkimage_name = 'background.fits',
                                        back_type = ['AUTO','MANUAL'],
                                        back_value = ['0.0', '0.0'],
                                        backphoto_type = 'GLOBAL')
+					#why make this useless checkimage?
+                                       #checkimage_type = 'BACKGROUND',
+                                       #checkimage_name = 'background.fits',
 
         extract_object_cats.ldacconv('%s0' % flag_catalog, flag_catalog)
                                        

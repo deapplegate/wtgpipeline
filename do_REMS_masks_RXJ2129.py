@@ -1,4 +1,6 @@
 #! /usr/bin/env python
+#adam-does# this applies REMS masks made by coadd_CR_removal.py to the resampled weight/flag files
+#adam-use# use this on clusters with wayyy too many exposures in the lensing band to practically be able to mask by hand
 import os,sys
 from glob import glob
 import astropy, astropy.io.fits

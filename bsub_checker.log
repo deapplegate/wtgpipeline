@@ -1,0 +1,164 @@
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-J-B /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B_2015-12-15_CALIB.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B_2015-12-15_CALIB.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-J-B_2015-12-15_CALIB /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B_2015-12-15_CALIB.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B_2015-12-15_CALIB.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-V.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-V.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-J-V /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-V.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-V.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-C-RC /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC_2015-12-15_CALIB.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC_2015-12-15_CALIB.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-C-RC_2015-12-15_CALIB /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC_2015-12-15_CALIB.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC_2015-12-15_CALIB.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-I+.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-I+.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-S-I+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-I+.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-I+.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-S-Z+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+_2015-12-15_CALIB.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+_2015-12-15_CALIB.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-S-Z+_2015-12-15_CALIB /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+_2015-12-15_CALIB.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+_2015-12-15_CALIB.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-B.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-B.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper MACS1115+01 W-J-B /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits .935
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-B.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-B.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-V.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-V.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper MACS1115+01 W-J-V /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits .935
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-V.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-V.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-RC.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-RC.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper MACS1115+01 W-C-RC /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits .935
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-RC.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-RC.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-IC.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-IC.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper MACS1115+01 W-C-IC /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits .935
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-IC.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-IC.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-S-Z+.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-S-Z+.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper MACS1115+01 W-S-Z+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits .935
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-S-Z+.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-S-Z+.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-J-B.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-J-B.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/RXJ2129/PHOTOMETRY_W-C-RC_aper RXJ2129 W-J-B /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/coadd_RXJ2129_all/coadd.fits .845
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-J-B.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-J-B.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-J-V.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-J-V.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/RXJ2129/PHOTOMETRY_W-C-RC_aper RXJ2129 W-J-V /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/coadd_RXJ2129_all/coadd.fits .845
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-J-V.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-J-V.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-C-RC.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-C-RC.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/RXJ2129/PHOTOMETRY_W-C-RC_aper RXJ2129 W-C-RC /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/coadd_RXJ2129_all/coadd.fits .845
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-C-RC.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-C-RC.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-S-I+.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-S-I+.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/RXJ2129/PHOTOMETRY_W-C-RC_aper RXJ2129 W-S-I+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/coadd_RXJ2129_all/coadd.fits .845
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-S-I+.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-S-I+.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-S-Z+.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-S-Z+.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/RXJ2129/PHOTOMETRY_W-C-RC_aper RXJ2129 W-S-Z+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//RXJ2129/W-C-RC/SCIENCE/coadd_RXJ2129_all/coadd.fits .845
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-S-Z+.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/RXJ2129.W-C-RC.W-S-Z+.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-B.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-B.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS0429-02/PHOTOMETRY_W-C-RC_aper MACS0429-02 W-J-B /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all/coadd.fits 1.05
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-B.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-B.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-B_2015-12-15_CALIB.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-B_2015-12-15_CALIB.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS0429-02/PHOTOMETRY_W-C-RC_aper MACS0429-02 W-J-B_2015-12-15_CALIB /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all/coadd.fits 1.05
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-B_2015-12-15_CALIB.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-B_2015-12-15_CALIB.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-V.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-V.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS0429-02/PHOTOMETRY_W-C-RC_aper MACS0429-02 W-J-V /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all/coadd.fits 1.05
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-V.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-V.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-V_2009-01-23_CALIB.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-V_2009-01-23_CALIB.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS0429-02/PHOTOMETRY_W-C-RC_aper MACS0429-02 W-J-V_2009-01-23_CALIB /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all/coadd.fits 1.05
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-V_2009-01-23_CALIB.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-J-V_2009-01-23_CALIB.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-RC.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-RC.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS0429-02/PHOTOMETRY_W-C-RC_aper MACS0429-02 W-C-RC /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all/coadd.fits 1.05
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-RC.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-RC.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-RC_2009-01-23_CALIB.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-RC_2009-01-23_CALIB.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS0429-02/PHOTOMETRY_W-C-RC_aper MACS0429-02 W-C-RC_2009-01-23_CALIB /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all/coadd.fits 1.05
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-RC_2009-01-23_CALIB.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-RC_2009-01-23_CALIB.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-IC.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-IC.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS0429-02/PHOTOMETRY_W-C-RC_aper MACS0429-02 W-C-IC /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all/coadd.fits 1.05
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-IC.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-IC.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-IC_2006-12-21_CALIB.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-IC_2006-12-21_CALIB.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS0429-02/PHOTOMETRY_W-C-RC_aper MACS0429-02 W-C-IC_2006-12-21_CALIB /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all/coadd.fits 1.05
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-IC_2006-12-21_CALIB.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-C-IC_2006-12-21_CALIB.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-S-Z+.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-S-Z+.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS0429-02/PHOTOMETRY_W-C-RC_aper MACS0429-02 W-S-Z+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all/coadd.fits 1.05
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-S-Z+.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-S-Z+.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-S-Z+_2015-12-15_CALIB.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-S-Z+_2015-12-15_CALIB.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS0429-02/PHOTOMETRY_W-C-RC_aper MACS0429-02 W-S-Z+_2015-12-15_CALIB /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS0429-02/W-C-RC/SCIENCE/coadd_MACS0429-02_all/coadd.fits 1.05
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-S-Z+_2015-12-15_CALIB.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS0429-02.W-C-RC.W-S-Z+_2015-12-15_CALIB.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-B.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-B.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper MACS1115+01 W-J-B /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits .935
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-B.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-B.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-V.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-V.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper MACS1115+01 W-J-V /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits .935
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-V.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-J-V.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-RC.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-RC.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper MACS1115+01 W-C-RC /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits .935
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-RC.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-RC.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-IC.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-IC.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper MACS1115+01 W-C-IC /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits .935
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-IC.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-C-IC.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-S-Z+.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-S-Z+.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/MACS1115+01/PHOTOMETRY_W-C-RC_aper MACS1115+01 W-S-Z+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits .935
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-S-Z+.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/MACS1115+01.W-C-RC.W-S-Z+.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-J-B /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B_2015-12-15_CALIB.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B_2015-12-15_CALIB.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-J-B_2015-12-15_CALIB /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B_2015-12-15_CALIB.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-B_2015-12-15_CALIB.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-V.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-V.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-J-V /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-V.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-J-V.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-C-RC /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC_2015-12-15_CALIB.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC_2015-12-15_CALIB.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-C-RC_2015-12-15_CALIB /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC_2015-12-15_CALIB.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-C-RC_2015-12-15_CALIB.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-I+.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-I+.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-S-I+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-I+.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-I+.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-S-Z+ /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+.aper.cats.err 
+bsub -q long -W 7000 -m bulletfarm  -o /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+_2015-12-15_CALIB.aper.cats.log -e /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+_2015-12-15_CALIB.aper.cats.err ./run_unstacked_photometry.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089 /gpfs/slac/kipac/fs1/u/awright/SUBARU//photometry/Zw2089/PHOTOMETRY_W-J-V_aper Zw2089 W-S-Z+_2015-12-15_CALIB /gpfs/slac/kipac/fs1/u/awright/SUBARU//Zw2089/W-J-V/SCIENCE/coadd_Zw2089_all/coadd.fits .88
+#adam-look# later, check using these commands:
+#adam-look# grep 'Success' /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+_2015-12-15_CALIB.aper.cats.log 
+#adam-look# ./get_error_log.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU//photlogs/Zw2089.W-J-V.W-S-Z+_2015-12-15_CALIB.aper.cats.err 

@@ -168,7 +168,8 @@ def combineCats(images, instrum=None, mastercat=None, fluxscale = False):
 		print 'fluxkey=',fluxkey
 		fluxs = measureUnstackedPhotometry(images, fluxkey = fluxkey, 
 						   fluxscale = fluxscale, simple=False)
-		botherrs=1
+		#adam-SHNT# here is to toggle the calculation of BOTH kinds of fluxerr calculation, the weighted-mean method Doug used and the simple std calculation RH and I implemented for comparison.
+		botherrs=0
 		if botherrs:
 			fluxs_simple_stderr = measureUnstackedPhotometry(images, fluxkey = fluxkey, 
 							   fluxscale = fluxscale,simple=True)

@@ -74,6 +74,12 @@ export subarudir=${SUBARUDIR}
 export subdir=${SUBARUDIR}
 
 lensing_coadd_type=`grep ${cluster} lensing_coadd_type_filter.list | awk '{print $2}'`
+#filters=`grep "${cluster}" cluster.status | awk -v ORS=' ' '($1 !~ /#/){print $2}'`
+filters=`grep "${cluster}" cluster_cat_filters.dat | awk -v ORS=' ' '{for(i=3;i<=NF;i++){if($i!~"CALIB" && $i!="K") print $i}}'`
+#adam-tmp# Ok, let's just TRY including CALIB (3sec) images this time
+#filters=`grep "${cluster}" cluster_cat_filters.dat | awk -v ORS=' ' '{for(i=3;i<=NF;i++){if( $i!="K") print $i}}'`
+echo "adam-look: filters=" $filters
+echo "adam-look: lensing_coadd_type=" $lensing_coadd_type
 
 #default: lensing_image=${subarudir}/${cluster}/${lensing_filter}/SCIENCE/coadd_${cluster}_good/coadd.fits and cats go to LENSING_${detect_filter}_${lensing_filter}_${mode}/good/
 #but, for MACS1226+21 for example, used lensing_coadd_type="gab4060-rot1" 
@@ -93,9 +99,6 @@ fi
 queue="long -W 7000 -m bulletfarm "
 #adam-old# queue="long -W 7000 -R rhel60 "
 
-#filters=`grep "${cluster}" cluster.status | awk -v ORS=' ' '($1 !~ /#/){print $2}'`
-filters=`grep "${cluster}" cluster_cat_filters.dat | awk -v ORS=' ' '{for(i=3;i<=NF;i++){if($i!~"CALIB" && $i!="K") print $i}}'`
-echo "filters=" $filters
 if [ -z "${filters}" ]; then
 	echo "adam-Error: you need to include the lensing filter for ${cluster} in cluster_cat_filters.dat!"
 	exit 1
@@ -224,21 +227,16 @@ if [ $measure_photometry -eq 1 ]; then
     for filter in $filters; do
 
 	jobid=${cluster}.${detect_filter}.${filter}.${mode}.cats
-	#adam-tmp#
-	#if [ "${filter}" == "W-C-IC" ]; then
-	#	continue
-	#elif [ "${filter}" == "W-C-RC" ]; then 
-	#	continue
-	#fi
 
 	rm $subarudir/photlogs/$jobid.log $subarudir/photlogs/$jobid.err
 	## should have -K in there to keep them running and waiting their turn?
 	bsub -q ${queue} -o $subarudir/photlogs/$jobid.log -e $subarudir/photlogs/$jobid.err ./run_unstacked_photometry.sh ${subarudir}/${cluster} ${photdir} ${cluster} ${filter} ${detect_image} ${convolve}
 	#adam# How do I get the code to wait here until this job is done running on the batchq?
-	echo "#adam-look# later, check using these commands:"
-	echo "#adam-look# grep 'Success' $subarudir/photlogs/$jobid.log "
-	echo "#adam-look# ./get_error_log.sh $subarudir/photlogs/$jobid.err "
-
+	echo "bsub -q ${queue} -o $subarudir/photlogs/$jobid.log -e $subarudir/photlogs/$jobid.err ./run_unstacked_photometry.sh ${subarudir}/${cluster} ${photdir} ${cluster} ${filter} ${detect_image} ${convolve}" >> bsub_checker.log
+	echo "#adam-look# later, check using these commands:" >> bsub_checker.log
+	echo "#adam-look# grep 'Success' $subarudir/photlogs/$jobid.log " >> bsub_checker.log
+	echo "#adam-look# ./get_error_log.sh $subarudir/photlogs/$jobid.err " >> bsub_checker.log
+	tail -n 4 bsub_checker.log
 	#need to make 2 calls; need to modify run_unstacked_photometry to handle two seperate calls.
 
     done
@@ -309,7 +307,7 @@ fi
 #adam-look# STARS (c)
 if [ $find_stars -eq 1 ]; then
 
-    #adam-SHNT# I think everything up to this point is ok
+    #adam# I think everything up to this point is ok
     ./produce_catalogs.sh ${subarudir}/${cluster} ${photdir} ${lensingdir}/${lensing_coadd_type} ${cluster} ${detect_image} ${lensing_image}
     exit_code=$?
     if [ "${exit_code}" != "0" ]; then
@@ -349,6 +347,10 @@ if [ $sdss -eq 1 ]; then
 	exit 32
     fi
     ./convert_aper.py ${star_cat} ${photdir}/${cluster}.stars.converted.cat
+    exit_stat=$?
+    if [ "${exit_stat}" -gt "0" ]; then
+        exit ${exit_stat};
+    fi
     ./match_simple.sh ${photdir}/${cluster}.stars.converted.cat ${sdss_cat} ${matched_catalog}
     if [ $? -ne 0 ]; then
 	echo "Failure in match_simple.py!"
@@ -410,7 +412,7 @@ if [ $fit_calibration -eq 1 ]; then
 	#2MASS# python fit_locus.py --file ${photdir}/${cluster}.stars.split_apers.cat --columns ${photdir}/${cluster}.qc.columns --extension 1 --bootstrap 5 --l -j --output ${photdir}/BIGMACS_output_PureStarCalib/ 2>&1 | tee -a OUT-bigmacs-fit_locus.log
 	#SDSS# fit zps with SDSS, bootstrap=5
 	#SDSS# python fit_locus.py --file ${photdir}/${cluster}.stars.split_apers.cat --columns ${photdir}/${cluster}.qc.columns --extension 1 --bootstrap 5 --l -s -u --output ${photdir}/BIGMACS_output_PureStarCalib_unit_test/ 2>&1 | tee -a OUT-bigmacs-fit_locus.log
-	python fit_locus.py --file ${photdir}/${cluster}.stars.split_apers.cat --columns ${photdir}/${cluster}.qc.columns --extension 1 --bootstrap 5 --l -s --output ${photdir}/BIGMACS_output_PureStarCalib/ 2>&1 | tee -a OUT-bigmacs-fit_locus-PureStarCalib.log
+	python fit_locus.py --file ${photdir}/${cluster}.stars.split_apers.cat --columns ${photdir}/${cluster}.qc.columns --extension 1 --bootstrap 5 --l -s --output ${photdir}/BIGMACS_output_PureStarCalib/ 2>&1 | tee -a ~/wtgpipeline/OUT-bigmacs-fit_locus-PureStarCalib${logend}
 	exit_code=${PIPESTATUS[0]}
 	if [ "${exit_code}" != "0" ]; then
 		echo "Failure in BIGMACSCALIB"
@@ -458,12 +460,11 @@ if [ $apply_calibrations -eq 1 ]; then
 	    echo "Calibrated Photometry not found!"
 	    exit 52
 	fi
-	
-	
+
 	if [ ! -s "${photdir}/${cluster}.stars.calibrated_PureStarCalib.cat" ]; then
 	    echo "Calibrated Photometry not found!"
 	    exit 54
 	fi
 	echo "#adam-look# OK, now cd ~/gravitas/photoz_analysis/ ; vim adam_bpz_wrapper_v2.py ; ./adam_bpz_wrapper_v2.py"
-	
+
 fi

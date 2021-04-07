@@ -23,7 +23,11 @@ def getstar_segments(star_infl,seeing=None,radmagrange=None,mode='liberal',unsat
 		return_names=['star_table','good_box','star_fitsfl']
 		star_table,good_box,star_fitsfl=BartStar.getstar(star_infl,seeing=seeing,radmagrange=radmagrange,mode=mode,unsat_cut=unsat_cut,return_names=return_names,**kwargs)
 		all_stars_box=good_box
-	BASE  =os.path.basename(star_infl).split('OCF')[0]
+        flname=os.path.basename(star_infl).split('.')[0]
+        if 'OCF' in star_infl:
+                BASE=os.path.basename(star_infl).split('OCF')[0]
+        else:
+                BASE=flname
 	star_only_table=star_table[all_stars_box]
 	starlabellist=star_table['NUMBER'].data
 	starll = starlabellist[all_stars_box]

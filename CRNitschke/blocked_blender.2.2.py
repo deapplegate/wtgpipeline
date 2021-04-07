@@ -15,6 +15,8 @@ from skimage import morphology
 import mahotas
 from matplotlib.pyplot import *
 import numpy
+numpy.warnings.filterwarnings('ignore') #adam-tmp#
+warnings.simplefilter("ignore", DeprecationWarning)
 from numpy import histogram
 import time
 ns=globals()
@@ -106,12 +108,12 @@ def track2ring(track_spots,ring_spots):
 def ringable(ra_object):
 	'''this takes an "almost ring" and makes it a true ring. it is called within `ringer`.'''
 	ra_spots=asarray(ra_object.copy(),dtype=bool)
-	ra_insides=scipy.ndimage.binary_fill_holes(ra_spots)* logical_not(ra_spots)
+	ra_insides=scipy.ndimage.binary_fill_holes(ra_spots)* numpy.logical_not(ra_spots)
 	hom=zeros(ra_spots.shape)
 	for corner in [(0,0),(0,-1),(-1,0),(-1,-1)]:
 		miss=zeros((3,3),dtype=bool)
 		miss[corner]=1
-		hit=scipy.ndimage.morphology.binary_dilation(miss,conn4)*logical_not(miss)
+		hit=scipy.ndimage.morphology.binary_dilation(miss,conn4)*numpy.logical_not(miss)
 		hom+=scipy.ndimage.morphology.binary_hit_or_miss(ra_spots, structure1=hit, structure2=miss)
 	hom=asarray(hom,dtype=bool)
 	fill_them=ra_insides*hom
@@ -174,7 +176,7 @@ def ringer_noplot(spots_ringer,l_ringer,filtstamp_ringer,imstamp_ringer,seg0stam
                 if (insides!=newinsides).any():
                         newinsides_seg,Nnewinsides_segs= scipy.ndimage.label(newinsides,conn8)
                         if Nnewinsides_segs<=1:
-                                ring2=scipy.ndimage.binary_dilation(newinsides,conn8,mask=ring)-newinsides
+                                ring2=scipy.ndimage.binary_dilation(newinsides,conn8,mask=ring)*logical_not(newinsides)
                                 ring=ring2
                                 insides=newinsides
                 #skel_outside_ring=ringer_skel*logical_not(scipy.ndimage.binary_fill_holes(scipy.ndimage.binary_dilation(ring,conn4)))
@@ -382,7 +384,7 @@ def ringer(spots_ringer,l_ringer,filtstamp_ringer,imstamp_ringer,seg0stamp_ringe
 		if (insides!=newinsides).any():
 			newinsides_seg,Nnewinsides_segs= scipy.ndimage.label(newinsides,conn8)
 			if Nnewinsides_segs<=1:
-				ring2=scipy.ndimage.binary_dilation(newinsides,conn8,mask=ring)-newinsides
+				ring2=scipy.ndimage.binary_dilation(newinsides,conn8,mask=ring) * logical_not(newinsides)
 				f=figure()
 				ax=f.add_subplot(2,2,1);imshow(ring,interpolation='nearest',origin='lower left');title('ring')
 				ax=f.add_subplot(2,2,2);imshow(insides,interpolation='nearest',origin='lower left');title('insides')
@@ -1102,15 +1104,20 @@ blend_rr_cut=3.0
 blend_sizediff_1vs2_cut=60
 blend_slope_off_cut=.06
 blend_holefilledpixels_cut=21
-#SHNT: make it plot/not plot based on value of PLOT_ON_OFF
+
 def blocked_blender(bthresh,CRfiltimage,CRll,CRslices,starbools,CRseg):
-	'''take input CR detections and output a detections that have been blblend_ended (surroundings have been included in the mask if they were above bthresh) and blocked (meaning they are blocked from hitting a detected object'''
+	'''take input CR detections and output detections that have been blended (surroundings have been included in the mask if they were above bthresh)
+		and blocked (meaning they are blocked from hitting a detected object)
+	'''
 	try:
 		print '\n############# START BLEND: bthresh = '+str(bthresh)+" ###################"
 		blend_Niters=[];blend_ended=[]
 		blended_CRseg=CRseg.copy()
 		bthresh2=bthresh+blend_raise_bthresh_amount
 		bthresh_raise_tag=('bthresh%.i_to_%.i' % (bthresh,bthresh+blend_raise_bthresh_amount))
+		'''
+		THESIS-BlendFunc:blending function begins by looping over each track in the initial masks 
+		'''
 		for l in CRll:
 			sl=CRslices[l-1]
 			sle=imagetools.slice_expand(sl,100)
@@ -1119,6 +1126,13 @@ def blocked_blender(bthresh,CRfiltimage,CRll,CRslices,starbools,CRseg):
 			cosmics1=blended_CRseg[sle]==l
 			cosmics2=cosmics1.copy()
 			#iterate a max of 100 times to expand to neighboring pixels above bthresh
+			'''
+			THESIS-BlendFunc: for each mask region, we include the pixels neighboring a track if those pixels are above the blending threshold.
+			THESIS-BlendFunc: we iteratively continue the inclusion of neighboring pixels above the threshold, allowing the track to expand, until it either:
+			THESIS-BlendFunc: 	(1) expansion converges, whenever the iteration allows for no neighboring pixels to be included
+			THESIS-BlendFunc: 	(2) expands into a star or a saturation spike
+			THESIS-BlendFunc: 	(3) reaches the 100 iteration limit
+			'''
 			for i in range(100): #limit to 100 iterations
 				cosmicsb4=cosmics1.copy()
 				cosmics1=ExpandMaskAbove(CRfiltstamp,cosmicsb4,bthresh)
@@ -1131,7 +1145,10 @@ def blocked_blender(bthresh,CRfiltimage,CRll,CRslices,starbools,CRseg):
 			else:
 				blend_ended.append(2)
 			blend_Niters.append(i+1)
-			#do this iteration again at a higher threshold
+
+			'''
+			THESIS-BlendFunc: This is done at two different thresholds, one at the fiducial threshold, and one 70 counts larger, referred to as the fiducial mask and raised mask respectively.
+			'''
 			for i in range(100): #limit to 100 iterations
 				cosmics2b4=cosmics2.copy()
 				cosmics2=ExpandMaskAbove(CRfiltstamp,cosmics2b4,bthresh2)
@@ -1141,48 +1158,77 @@ def blocked_blender(bthresh,CRfiltimage,CRll,CRslices,starbools,CRseg):
 					break
 			# if the higher threshold result is way smaller, then consider returning the 2nd one
 			size_diff12=cosmics1.sum()-cosmics2.sum()
+			#key: cosmics1 is "fiducial mask" and cosmics2 is "raised mask"
+			'''
+			THESIS-BlendFunc: The raised mask will inevitably have a smaller area, if it is smaller by 60 pixels or more, it indicates that the algorithm overmasked at the fiducial blending threshold, and we consider choosing the raised mask instead.
+			THESIS-BlendFunc: This choice is based on several criteria:
+			THESIS-BlendFunc:         (1) if less than 3% of the pixels in fiducial mask are open8 pixels, then fiducial mask isn't a blob, so stick with fiducial mask (rather than switching to raised mask)
+			THESIS-BlendFunc:         (2) if more than 3% are open8, then we fit a line to the (x,y) coordinates of the pixels in the track.
+			THESIS-BlendFunc:                 ...Since CR tracks often look like lines, if the R^2 value per pixel is bad (>3), it is an indication that it might not be a track.
+			THESIS-BlendFunc:                 (2a) if the R^2 value per pixel is bad (>3), and if greater than 20% of the region is open8, then use raised mask
+			THESIS-BlendFunc:                         (there is also an iterative track stretcher run if the fit is really good (R^2<1.2))
+			THESIS-BlendFunc:                 (2b) if the R^2 value per pixel is bad (>3), and less than 20% of the region is open8, then use fiducial mask (not much difference, and if fiducial mask is really that bad, it'll get dropped later)
+			THESIS-BlendFunc:                 (2c) if the R^2 value per pixel is good (<3) for raised mask, then try it for fiducial mask as well.
+			THESIS-BlendFunc:                         (2c) if the R^2 value per pixel is bad (>4) for fiducial mask OR their slopes are different (by at least 6%), then use raised mask
+			THESIS-BlendFunc:                         (there is also an iterative track stretcher run if the fit is really good (R^2<1.2))
+			THESIS-BlendFunc:                         (2c) if the R^2 value per pixel is good (<4) for fiducial mask as well and their slopes are similar (within 6%), then use fiducial mask, since they are both lines along the same trajectory anyway.
+			THESIS-BlendFunc:         (3) if there are at least 21 pixels contained within holes in the mask, then it's a ring and you should choose the raised mask, even though it's probably not any better (can't be worse!)
+			'''
 			if size_diff12>blend_sizediff_1vs2_cut:
-				#START: now make sure sum(8)>9 just to make sure
 				open8_cosmics=scipy.ndimage.binary_opening(cosmics1,conn8)
 				open8_Nspots= float(open8_cosmics.sum())
 				open8_frac=open8_Nspots/cosmics1.sum()
 				if open8_frac<.03: #if less than 3% of the pixels in cosmics1 are open8 pixels, then cosmics1 isn't a blob, so stick with cosmics1 (rather than switching to cosmics2)
 					if PLOT_ON_OFF:
-						f=figure(figsize=(12,9));f.add_subplot(121);title('FINAL: cosmics1');yy,xx=nonzero(cosmics1);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
-						f.add_subplot(122);title('cosmics2');yy,xx=nonzero(cosmics2);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
-						f.suptitle('Stick with cosmics1\nfailed: open8_frac=%.3f < .03' % (open8_frac,))
+						yyp1,xxp1=nonzero(cosmics1);yyp2,xxp2=nonzero(cosmics2)
+						xxpmin=min(xxp1.min(),xxp2.min());xxpmax=max(xxp1.max(),xxp2.max())
+						yypmin=min(yyp1.min(),yyp2.min());yypmax=max(yyp1.max(),yyp2.max())
+						f=figure(figsize=(12,9));f.add_subplot(121);title('FINAL: cosmics1');imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xxp1,yyp1,marker='o',edgecolors='k',facecolors='None')
+						xlim(xxpmin,xxpmax)
+						ylim(yypmin,yypmax)
+						f.add_subplot(122);title('cosmics2');imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xxp2,yyp2,marker='o',edgecolors='k',facecolors='None')
+						xlim(xxpmin,xxpmax)
+						ylim(yypmin,yypmax)
+						f.suptitle('Stick with cosmics1\ntrue that: open8_frac=%.3f < .03\nhence its cosmics1 isnt a blob, so stick with cosmics1' % (open8_frac,))
+						f.text(.003,.004,bthresh_raise_tag+': open8_frac < .03, hence its cosmics1 isnt a blob, so stick with cosmics1' ,size=10)
 						f.savefig(plotdir+'pltRevise%s_failed_raise_thresh_%s-No_Open8-label%.4i' % (OFB,bthresh_raise_tag,l))
-						close(f);del f
-					#END: now make sure sum(8)>9 just to make sure
+						if PLOT_ON_OFF_SHOW:pass
+						else: close(f);del f
 				else:
 					rr2,poly2,polytype2=polyfitter(cosmics2,1)
 					if isnan(rr2) or rr2>blend_rr_cut: #if the linefit looks like crap for cosmics2, then it probably will for cosmics1, so we assume it's not a line and take 2nd mask
 						if open8_frac>.2: #if greater than 20% of the image is open8, then use cosmics2:
-							#stretch cosmics2 if it's linear
-							if rr2<1.2:
-								cosmics2_addons,count_stretch2=iter_track_stretch(cosmics2, CRfiltstamp,bthresh*.4,BASE,l,SBstamp,name_extras='_InBlender2',ts_rr_cut=2.0,rr_per_step=.04)
-								cosmics2[cosmics2_addons*cosmics1]=True
-								cosmics2=connector(cosmics2)
-							else:
-								count_stretch2=0
-							#make sure picking cosmics2 doesn't mean that we're breaking the track into smaller pieces
-							contig_checkseg,Npieces2=scipy.ndimage.label(cosmics2,conn8)
-							contig_checkseg,Npieces1=scipy.ndimage.label(cosmics1,conn8)
-							if Npieces2<=Npieces1: #if picking cosmics2 doesn't break the track up into smaller pieces, then continue
+							cosmics1_old=cosmics1.copy()
+							cosmics1=cosmics2
+							'''
+							THESIS-BlendFunc: this is nearly always an improvement, where the masking bled into other objects and has to be returned to a sane size (i.e. cosmics2)
+							'''
+							#2019: no need to make these plots, there are a ton of them and they're always an improvement
+							if 0:
 								if PLOT_ON_OFF:
-									f=figure(figsize=(12,9));f.add_subplot(121);title('cosmics1');yy,xx=nonzero(cosmics1);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
+									f=figure(figsize=(12,9));f.add_subplot(121);title('cosmics1');yy,xx=nonzero(cosmics1_old);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
 									f.add_subplot(122);title('FINAL: cosmics2');yy,xx=nonzero(cosmics2);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
-									f.suptitle('Going from cosmics1 to cosmics2 (count_stretch2=%s)!\npassed: open8_frac=%.3f < .03\npassed: rr2=%.3f>blend_rr_cut=%.3f\npassed: open8_frac=%.3f >.2' % (count_stretch2,open8_frac,rr2,blend_rr_cut,open8_frac))
+									f.suptitle('Going from cosmics1 to cosmics2!\npassed: open8_frac=%.3f > .03\npassed: rr2=%.3f>blend_rr_cut=%.3f\npassed: open8_frac=%.3f >.2' % (open8_frac,rr2,blend_rr_cut,open8_frac))
 									f.savefig(plotdir+'pltRevise%s_passed_raise_thresh_%s-simple-label%.4i' % (OFB,bthresh_raise_tag,l))
-									close(f);del f
-								cosmics1=cosmics2
-						else:
+									if PLOT_ON_OFF_SHOW:pass
+									else: close(f);del f
+						else: #if linefit looks like crap for cosmics2 AND less than 20% of the image is open8, then use cosmics1:
 							if PLOT_ON_OFF:
-								f=figure(figsize=(12,9));f.add_subplot(121);title('FINAL: cosmics1');yy,xx=nonzero(cosmics1);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
-								f.add_subplot(122);title('cosmics2');yy,xx=nonzero(cosmics2);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
-								f.suptitle('Stick with cosmics1!\npassed: open8_frac=%.3f < .03\npassed: rr2=%.3f>blend_rr_cut=%.3f\nfailed open8_frac=%.3f >.2' % (open8_frac,rr2,blend_rr_cut,open8_frac))
+								yyp1,xxp1=nonzero(cosmics1);yyp2,xxp2=nonzero(cosmics2)
+								xxpmin=min(xxp1.min(),xxp2.min());xxpmax=max(xxp1.max(),xxp2.max())
+								yypmin=min(yyp1.min(),yyp2.min());yypmax=max(yyp1.max(),yyp2.max())
+								f=figure(figsize=(12,9));f.add_subplot(121);title('FINAL: cosmics1');imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xxp1,yyp1,marker='o',edgecolors='k',facecolors='None')
+								xlim(xxpmin,xxpmax)
+								ylim(yypmin,yypmax)
+								f.add_subplot(122);title('cosmics2');yy,xx=nonzero(cosmics2);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xxp2,yyp2,marker='o',edgecolors='k',facecolors='None')
+								xlim(xxpmin,xxpmax)
+								ylim(yypmin,yypmax)
+								f.suptitle('Stick with cosmics1!\npassed: open8_frac=%.3f > .03\npassed: rr2=%.3f>blend_rr_cut=%.3f\nfailed open8_frac=%.3f >.2' % (open8_frac,rr2,blend_rr_cut,open8_frac))
+								f.text(.003,.004,bthresh_raise_tag+': open8_frac < .20, so even though linefit is decent, just stick with cosmics1' ,size=10)
 								f.savefig(plotdir+'pltRevise%s_failed_raise_thresh_%s-simple-label%.4i' % (OFB,bthresh_raise_tag,l))
-								close(f);del f
+								print 'if linefit looks like crap for cosmics2 AND less than 20% of the image is open8, then use cosmics1'
+								if PLOT_ON_OFF_SHOW:pass
+								else: close(f);del f
 					else: #if the line fit is decent for cosmics2, try the line fit for cosmics1
 						yy2,xx2=nonzero(cosmics2)
 						slope2=poly2.coeffs[0]
@@ -1212,7 +1258,7 @@ def blocked_blender(bthresh,CRfiltimage,CRll,CRslices,starbools,CRseg):
 							Y3=arange(yy3.min(),yy3.max(),.1)
 							pltxx1,pltyy1=poly1(Y3),Y3
 							pltxx2,pltyy2=poly2(Y3),Y3
-						if isnan(rr1) or rr1>(blend_rr_cut+1.0) or slope_off>blend_slope_off_cut:#if the linefit looks like crap for cosmics1, then we assume it's not a line and take 2nd mask
+						if isnan(rr1) or rr1>(blend_rr_cut+1.0) or slope_off>blend_slope_off_cut: #if the R^2 value per pixel is bad (>4) for cosmics1 OR their slopes are different (by at least 6%), then use cosmics2
 							#stretch cosmics2 if it's linear
 							if rr2<1.2:
 								cosmics2_addons,count_stretch2=iter_track_stretch(cosmics2, CRfiltstamp,bthresh*.4,BASE,l,SBstamp,name_extras='_InBlender2',ts_rr_cut=2.0,rr_per_step=.04)
@@ -1225,14 +1271,20 @@ def blocked_blender(bthresh,CRfiltimage,CRll,CRslices,starbools,CRseg):
 							contig_checkseg,Npieces1=scipy.ndimage.label(cosmics1,conn8)
 							if Npieces2<=Npieces1: #if picking cosmics2 doesn't break the track up into smaller pieces, then continue
 								if PLOT_ON_OFF:
-									f=figure(figsize=(12,9));f.add_subplot(121);title('cosmics1');yy,xx=nonzero(cosmics1);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
-									f.add_subplot(122);title('FINAL: cosmics2');yy,xx=nonzero(cosmics2);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
-									f.suptitle('Going from cosmics1 to cosmics2! (count_stretch2=%s)\npassed: open8_frac=%.3f < .03\npassed: rr2=%.3f>blend_rr_cut=%.3f\npassed: rr1=%.3f>blend_rr_cut+1=%.3f or slope_off=%.3f>blend_slope_off_cut=%.3f' % (count_stretch2,open8_frac,rr2,blend_rr_cut,rr1,blend_rr_cut+1.0,slope_off,blend_slope_off_cut))
-									f.savefig(plotdir+'pltRevise%s_passed_raise_thresh_%s-higher_thresh_much_smaller-label%.4i' % (OFB,bthresh_raise_tag,l))
-									close(f);del f
+									'''
+									THESIS-BlendFunc: this is nearly always an improvement, where the masking bled into other objects and has to be returned to a sane size (i.e. cosmics2)
+									'''
+									#2019: no need to make these plots, there are a ton of them and they're always an improvement
+									if 0:
+										f=figure(figsize=(12,9));f.add_subplot(121);title('cosmics1');yy,xx=nonzero(cosmics1);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
+										f.add_subplot(122);title('FINAL: cosmics2');yy,xx=nonzero(cosmics2);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
+										f.suptitle('Going from cosmics1 to cosmics2! (count_stretch2=%s)\npassed: open8_frac=%.3f < .03\npassed: rr2=%.3f>blend_rr_cut=%.3f\npassed: rr1=%.3f>blend_rr_cut+1=%.3f or slope_off=%.3f>blend_slope_off_cut=%.3f' % (count_stretch2,open8_frac,rr2,blend_rr_cut,rr1,blend_rr_cut+1.0,slope_off,blend_slope_off_cut))
+										f.savefig(plotdir+'pltRevise%s_passed_raise_thresh_%s-higher_thresh_much_smaller-label%.4i' % (OFB,bthresh_raise_tag,l))
+										if PLOT_ON_OFF_SHOW:show()
+										else: close(f);del f
 								cosmics1=cosmics2
 						elif PLOT_ON_OFF: #else cosmics1 stays the same because I determine that they are both lines along the same trajectory!
-							f=figure()
+							f=figure(figsize=(10,5))
 							f.suptitle('Stick with cosmics1!\npassed: open8_frac=%.3f < .03\npassed: rr2=%.3f>blend_rr_cut=%.3f\nfailed: rr1=%.3f>blend_rr_cut=%.3f and slope_off=%.3f>blend_slope_off_cut=%.3f' % (open8_frac,rr2,blend_rr_cut,rr1,blend_rr_cut,slope_off,blend_slope_off_cut))
 							ax=f.add_subplot(1,1,1)
 							ax.imshow(CRfiltstamp,interpolation='nearest',origin='lower left')
@@ -1242,21 +1294,35 @@ def blocked_blender(bthresh,CRfiltimage,CRll,CRslices,starbools,CRseg):
 							ax.plot(pltxx1,pltyy1,'k--')
 							ax.set_ylim(yy3.min()-3,yy3.max()+3)
 							ax.set_xlim(xx3.min()-3,xx3.max()+3)
+							f.text(.003,.004,bthresh_raise_tag+': the linefit is decent for both, theyre on the same trajectory, so just stick with cosmics1' ,size=10)
 							f.savefig(plotdir+'pltRevise%s_failed_raise_thresh_%s-SameTrajectory-label%.4i' % (OFB,bthresh_raise_tag,l))
-							close(f);del f
+							if PLOT_ON_OFF_SHOW:pass
+							else: close(f);del f
 			#get the number hole pixels using the simple way of doing it rather than using `holefilledpixels=count_hole_filled_pixels(cosmics1)`
 			if bthresh==bthresh1: #only do the holefilled cut raise if it's the first time using blender
 				holefilledpixels=(scipy.ndimage.binary_fill_holes(cosmics1)!=cosmics1).sum()
 				if holefilledpixels>blend_holefilledpixels_cut:
-					if PLOT_ON_OFF:
+					#2019: no need to make these plots, there are a ton of them and they're always an improvement
+					if 0 and PLOT_ON_OFF:
+						yyp1,xxp1=nonzero(cosmics1);yyp2,xxp2=nonzero(cosmics2)
+						xxpmin=min(xxp1.min(),xxp2.min());xxpmax=max(xxp1.max(),xxp2.max())
+						yypmin=min(yyp1.min(),yyp2.min());yypmax=max(yyp1.max(),yyp2.max())
 						f=figure(figsize=(12,9));f.add_subplot(121);title('cosmics1');yy,xx=nonzero(cosmics1);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
+						xlim(xxpmin,xxpmax)
+						ylim(yypmin,yypmax)
 						f.add_subplot(122);title('FINAL: cosmics2');yy,xx=nonzero(cosmics2);imshow(CRfiltstamp,interpolation='nearest',origin='lower left');scatter(xx,yy,marker='o',edgecolors='k',facecolors='None')
+						xlim(xxpmin,xxpmax)
+						ylim(yypmin,yypmax)
 						f.suptitle('Go from cosmics1 to cosmics2!')
+						f.text(.003,.004,bthresh_raise_tag+': choose cosmics2 over cosmics1, simply because of the holes...helps little' ,size=10)
 						f.savefig(plotdir+'pltRevise%s_passed_raise_thresh_%s-holefilledpixels-label%.4i' % (OFB,bthresh_raise_tag,l))
-						close(f);del f
+						if PLOT_ON_OFF_SHOW:pass
+						else: close(f);del f
 					print "holefilledpixels: ",holefilledpixels
 					cosmics1=cosmics2
 			blended_CRseg[sle][cosmics1]=l
+		if PLOT_ON_OFF_SHOW:show()
+
 		#loop ends if mask (1) converges, (2) hits a star, or (3) hits 100 iterations
 		blend_ended=array(blend_ended)
 		print "times converged: ",(blend_ended==0).sum()
@@ -1339,7 +1405,7 @@ def plotlabels(ll,segments=None,slices=None,params=None,background=None):
 		show();print "adam-Error: in running BB on fl=",fl,"\n\nrun this command to check it out: ipython -i -- ~/thiswork/eyes/CRNitschke/blocked_blender.2.2.py ",fl,"\n\n"; raise
 
 def reset_labels(prob_labels,segs2reset):
-	'''take in a current image and an older image and reset the masks in `prob_labels` to how they were in the older image'''
+	'''take in a current image and reset the masks in `prob_labels` to how they were at the beginning '''
 	CRsegX=segs2reset.copy()
 	for l in prob_labels:
 		spots=segs2reset==l
@@ -1350,10 +1416,13 @@ def reset_labels(prob_labels,segs2reset):
 #END: LABEL FUNCTIONS
 
 PLOT_ON_OFF=0 #0=plotting off 1=plotting on
+PLOT_ON_OFF_SHOW=0 #0=plotting off 1=plotting on (this is only useful for debugging or thesis-writing)
 
 if __name__ == "__main__":
+	
 	args=imagetools.ArgCleaner(sys.argv)
-	if len(sys.argv)<2:
+	if len(args)<1:
+		print 'args=',args
 		sys.exit()
 	fl=args[-1]
 	if not os.path.isfile(fl):
@@ -1381,7 +1450,10 @@ if __name__ == "__main__":
 	#iter0: take the original files2check and prepare them for blending
 	files2check=[]
 	flname=os.path.basename(fl).split('.')[0]
-	BASE=os.path.basename(fl).split('OCF')[0]
+	if 'OCF' in fl:
+		BASE=os.path.basename(fl).split('OCF')[0]
+	else:
+		BASE=flname
 	#get cosmics images
 	OFB='%s_%s_%s' % (OBJECT,FILTER,BASE,)
 	CR_segfl='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
@@ -1400,7 +1472,7 @@ if __name__ == "__main__":
 	CRfiltimage=CRfitsfl[0].data
 	CRfiltheader=CRfitsfl[0].header
 	CRfitsfl.close()
-	#get stars images
+
 	star_segfl='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_stars/SEGMENTATION_CRN-stars_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
 	starseg0=asarray(imagetools.GetImage(star_segfl),dtype=int)
 	star0_slices=scipy.ndimage.find_objects(starseg0 )
@@ -1437,10 +1509,17 @@ if __name__ == "__main__":
 			ratio_h2w=float(sl_wY)/sl_wX
 			if ratio_h2w>2:
 				sat_spike_bools[ss0_bools]=True
+
 	#setup final star position array
-	sat_spike_bools=mahotas.dilate(sat_spike_bools,conn4)#dilate only those large saturation areas
-	starbools=mahotas.dilate(starseg0>Nstars,conn4)#dilate only those large saturation areas
+	sat_spike_bools=mahotas.dilate(sat_spike_bools,conn4) #dilate only those large saturation areas
+	starbools=mahotas.dilate(starseg0>Nstars,conn4) #dilate only those large saturation areas
 	starbools+=(starseg0>0)
+
+	'''
+	THESIS: above here, I've just (1)  loaded in files (image, filtered image, star segmentation, and mask segmentation) and threshold values
+	THESIS:                       (2)  masked regions of obvious saturation: (a) with 60 contiguous pixels above saturation and (b) very large regions near saturation that have an s2 shape in them, then dilate (a) and (b)
+	'''
+
 	#get cosmics and remove the ones that overlap with the stars (these will be replaced later, but I don't want them to be blended!)
 	CRseg0=asarray(imagetools.GetImage(CR_segfl),dtype=int)
 	CRll_for_loop=arange(CRseg0.max())+1
@@ -1474,6 +1553,9 @@ if __name__ == "__main__":
 				CRoverlapSTAR[CRsl][CRspots]=1
 
 	CRll=asarray(CRll)
+	'''
+	THESIS: now I've removed the CR masks on top of stars (almost entirely saturation spikes!)
+	'''
 	#get the info needed to define the blender function
 	#start saving output
 	compare_dir='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/'
@@ -1486,18 +1568,21 @@ if __name__ == "__main__":
 	fl_original=compare_dir+'BBout_ORIGINAL_%s_%s.%s.fits' % (OBJECT,FILTER,BASE)
 	hdu.writeto(fl_original,overwrite=True)
 	files2check.append(fl_original)
+	print 'OUTPUT FILES: original (ie. pre-blending) unfiltered image saved as: ',fl_original
 	#save old CR mask file
 	hdu=astropy.io.fits.PrimaryHDU(WOblendCRfiltimage)
 	hdu.header=CRfiltheader
 	fl_woblend=compare_dir+'BBout_WOblend_%s_%s.%s.fits' % (OBJECT,FILTER,BASE)
 	hdu.writeto(fl_woblend,overwrite=True)
 	files2check.append(fl_woblend)
+	print 'OUTPUT FILES: original (ie. pre-blending) filtered image saved as: ',fl_woblend
 	#END: iter0
 
 	#START: iter1
 	t1=time.time()
 	#iter1: run the blender!
 	bthresh1_tag=('bthresh%.3i' % (bthresh1))
+	print 'bthresh1_tag=',bthresh1_tag
 	CRblended1=blocked_blender(bthresh1,CRfiltimage,CRll,CRslices,starbools,CRseg0.copy())
 	BBCRmask=CRblended1>0
 	print "Masked",float((BBCRmask).sum())/detections0.sum(),"times the number of original pixels"
@@ -1505,6 +1590,10 @@ if __name__ == "__main__":
 	BBCRseg,BBCR_Nlabels=scipy.ndimage.label(BBCRmask,conn8)
 	BBCRslices_b4=scipy.ndimage.find_objects(BBCRseg)
 	BBCRlabels=arange(BBCR_Nlabels)+1
+	'''
+	THESIS: ran first iteration of blocked-blender, re-labeled, segmented, and sliced iter1 results
+	'''
+
 	#get the number of holes in each detection
 	BBCRslices=[]
 	Nholefilledpixels=[]
@@ -1519,12 +1608,15 @@ if __name__ == "__main__":
 	BBCR_hit_spike=asarray(BBCR_hit_spike)
 	BBCRregs=skimage.measure.regionprops(BBCRseg)
 	area=array([BBCRregs[i].area for i in range(BBCR_Nlabels)])
+	'''
+	THESIS: measured the size (area), the # of hole-pixels(Nholefilledpixels), and if it hit a spike (BBCR_hit_spike), for each region
+	'''
 
-	#select cut parameters
-	rr_iterN_cut=3.1 #masks with poly residual/#pts>=this will have their threshold raised
-	holefilledpixels_cut=5 #masks with >this pixels will be sent to the ringer function
-	open_cut=11;open_rr_cut=.8
 	area_cut=8
+	holefilledpixels_cut=5
+	rr_iterN_cut=3.1
+	open_cut=11
+	open_rr_cut=0.8
 
 	#get rid of masks that are just big blobs near saturation spikes
 	BBCRll_spike_overlaps=BBCRlabels[BBCR_hit_spike]
@@ -1536,12 +1628,18 @@ if __name__ == "__main__":
 		for l_spike_fail in BBCRll_spike_overlaps[spike_overlap_fail_area_cut]:
 			spike_overlap_reset[l_spike_fail]=False
 			spike_overlap_stats[l_spike_fail]="KEEP: It's small, just keep it as is."
+	if PLOT_ON_OFF_SHOW:
+		print 'showing plots from first blocked_blender run'
+		show()
 
 	#iter1: select the masks big enough to be able to fail cuts
 	hole_cuts=Nholefilledpixels>holefilledpixels_cut
 	big_enough=area>area_cut
 	area2polyfit=area[big_enough]
 	BBCRlabels2polyfit=BBCRlabels[big_enough]
+	'''
+	THESIS: picked out masks which are large enough that they might fail cuts later (masks of area<8 have only one iteration)
+	'''
 	#iter1: find detections from iter1 that fail the polynomial fit cut (add to list of bad labels if poly doesn't fit well)
 	cut_labels2=[];cut_details2=[]
 	########count=0
@@ -1580,6 +1678,11 @@ if __name__ == "__main__":
 				cut_labels2.append(k)
 				cut_details2.append("sum(S)=%s>%s sum(8)=%s>%s & rr=%.2f>%.2f" % (openS_Nspots,open_cut,open8_Nspots,open_cut,rr_k,open_rr_cut))
 				########ax.set_title(ax.get_title().replace('residual/#points','rr')+'\nsum(S)=%s sum(8)=%s' % (openS_Nspots,open8_Nspots),size=10.5)
+	'''
+	THESIS: masks will have their threshold raised if (poly of degree 5 has (R^2/#pts)>=3.1) AND (open8_frac>.03)
+	THESIS: masks will have their threshold raised if (poly of degree 5 has (R^2/#pts)>=0.8) AND (# openS spots>11)
+	THESIS: masks with >5 pixels in a hole will be sent to the ringer function
+	'''
 	########else:
 	########	f=imagetools.AxesStripText(f,allticks=True,titles=False)
 	########	f.savefig(plotdir+'pltRevise%s_bad_labels-polyfit_num%.3i' % (OFB,count))
@@ -1589,8 +1692,10 @@ if __name__ == "__main__":
 			f=plotlabels(spike_overlap_stats.keys(),params=spike_overlap_stats.values())
 			f.suptitle('before')
 			f=imagetools.AxesStripText(f,allticks=True,titles=False)
+			f.text(.003,.004,'Spike Overlap Masks, after iter1 (before resetting).')
 			f.savefig(plotdir+'pltSatSpikes%s-1before' % (OFB,))
-			close(f);del f
+			if PLOT_ON_OFF_SHOW:pass # show before and after together
+			else: close(f);del f
 		results_spike_reset=array(spike_overlap_reset.values())
 		ll_spikes=array(spike_overlap_reset.keys())
 		ll_spike_reset=ll_spikes[results_spike_reset]
@@ -1599,10 +1704,15 @@ if __name__ == "__main__":
 			f=plotlabels(spike_overlap_stats.keys(),params=spike_overlap_stats.values())
 			f.suptitle('after')
 			f=imagetools.AxesStripText(f,allticks=True,titles=False)
+			f.text(.003,.004,'Spike Overlap Masks, after the reset.')
 			f.savefig(plotdir+'pltSatSpikes%s-2after' % (OFB,))
-			close(f);del f
+			if PLOT_ON_OFF_SHOW:
+				print 'Spike Overlap Masks!'
+				show()
+			else: close(f);del f
 		#iter1: find detections from iter1 that fail the number of filled pixels cut
 		fillSET=set(BBCRlabels[hole_cuts])
+		# remove from those the spike resets, since I'm done with those now.
 		fillLL=array(list(fillSET.difference(ll_spike_reset)))
 	else:
 		fillLL=BBCRlabels[hole_cuts]
@@ -1615,14 +1725,22 @@ if __name__ == "__main__":
 			ind=cut_labels2.index(l)
 			cut_labels2.pop(ind)
 			cut_details2.pop(ind)
+	'''
+	THESIS: after iter1, we remove big blobs near saturation spikes. If the mask's conn8_frac>0.2, then they are reset to pre-blended size. If conn8_frac<0.2, then we keep the mask as it is, but don't include it in any later iterN of BB.
+	'''
 	if PLOT_ON_OFF:
 		params=['label=%s #holes=%s' % (hole_l, hole_N) for hole_l,hole_N in zip(fillLL,fillLL_Nholes_filled)]
 		f=plotlabels(fillLL,params=params)
+		f.suptitle('UNFILTERED')
 		f.savefig(plotdir+'pltRevise%s_bad_labels-holes_1before-unfiltered' % (OFB,))
-		close(f);del f
+		if PLOT_ON_OFF_SHOW:pass # show filtered and unfiltered together
+		else: close(f);del f
+
 		f=plotlabels(fillLL,params=params,background=CRfiltimage)
+		f.suptitle('FILTERED')
 		f.savefig(plotdir+'pltRevise%s_bad_labels-holes_1before-filtered' % (OFB,))
-		close(f);del f
+		if PLOT_ON_OFF_SHOW:pass
+		else: close(f);del f
 	#iter1: END
 
 	#BEGIN: RING
@@ -1630,8 +1748,10 @@ if __name__ == "__main__":
 	for l in fillLL:
 		sl2=BBCRslices[l-1]
 		spots_ring=BBCRseg[sl2]==l
-		if PLOT_ON_OFF: newring,ringstat=ringer(spots_ringer=spots_ring.copy(),l_ringer=l,filtstamp_ringer=CRfiltimage[sl2],imstamp_ringer=image[sl2],seg0stamp_ringer=CRseg0[sl2],star_stamp=starbools[sl2])
+ 		if PLOT_ON_OFF: newring,ringstat=ringer(spots_ringer=spots_ring.copy(),l_ringer=l,filtstamp_ringer=CRfiltimage[sl2],imstamp_ringer=image[sl2],seg0stamp_ringer=CRseg0[sl2],star_stamp=starbools[sl2])
 		else: newring,ringstat=ringer_noplot(spots_ringer=spots_ring.copy(),l_ringer=l,filtstamp_ringer=CRfiltimage[sl2],imstamp_ringer=image[sl2],seg0stamp_ringer=CRseg0[sl2],star_stamp=starbools[sl2])
+		newring_noplot,ringstat_noplot=ringer_noplot(spots_ringer=spots_ring.copy(),l_ringer=l,filtstamp_ringer=CRfiltimage[sl2],imstamp_ringer=image[sl2],seg0stamp_ringer=CRseg0[sl2],star_stamp=starbools[sl2])
+		assert((newring==newring_noplot).all())
 		if ringstat==0:
 			Nring_fixed1+=1
 			BBCRseg[sl2][spots_ring]=0
@@ -1639,6 +1759,10 @@ if __name__ == "__main__":
 		else:
 			cut_labels2.append(l)
 			cut_details2.append(ringstat)
+	'''
+	THESIS: ringer run once, if ringstat is 0, then the ring is fixed
+	'''
+	print '%s of potential %s rings have been fixed in first iteration' % (Nring_fixed1, len(fillLL))
 	#moved the "after" plot to the end
 	#END: RING
 
@@ -1658,10 +1782,17 @@ if __name__ == "__main__":
 	star_ERASE=zeros(CRseg0.shape,dtype=bool)
 	antidrop_extras=''
 	iterN_stats={}
+	'''
+	THESIS: For those masks that fail the aformentioned cuts, we reset them to their initial masks, then blend again using a larger fiducial bthresh, in an iterative process, until they pass those cuts. The cuts are raised 7 times, at each increment the bthresh is raised by 20 counts. If, a mask is carried through all seven iterations, the mask is accepted regardless of whether it's passed the cuts or not.
+	THESIS: (adam-SHNT): now, what about the blob cuts, track-stretch, and star cut? Seems like these are the only things that happen in this loop that aren't present in the first loop?
+	'''
 	for iterN in range(2,iterN_final+1):
 		exec "t%s=time.time()" % (iterN)
 		iterN_stats[iterN]={'DONE-swallowed':0,'DONE-PREVsplit':0,'DONE-Multiple Ringers':0,'NEXT-rr':0,'NEXT-ring failed':0,'NEXT-open':0,'NEXT-rr=nan size>9 open8=0':0,'REMOVED-ERASE':0,'DONE-ERASE FAILED':0,'DONE-PASSED ALL':0}
 		rr_iterN_cut+=.1
+		'''
+		THESIS: reset masks that fail the cuts to the way they were in the beginning
+		'''
 		#iter2: take detections from iter1 that fail the cuts and reset them to the way they were at iter0
 		CRsegN=reset_labels(cut_labels[iterN],CRblendeds[iterN-1]) #reset cut_labels2 from CRblendeds[iterN-1] to CRseg0
 		bthresh_tag=('bthresh%.3i' % (bthreshs[iterN]))
@@ -1684,7 +1815,9 @@ if __name__ == "__main__":
 						f=imagetools.AxesStripText(f,allticks=True,titles=False)
 						f=imagetools.AxesCompact(f,.1)
 						f.savefig(plotdir+'pltRevise%s_anti-drop_%s-%slabel_group_num%.3i' % (OFB,bthresh_tag,antidrop_extras,count))
-						close(f);del f
+
+						if PLOT_ON_OFF_SHOW:pass
+						else: close(f);del f
 						f=figure(figsize=(22,13.625))
 					antidrop_extras=''
 					count+=1
@@ -1704,6 +1837,9 @@ if __name__ == "__main__":
 				continue
 			holefilledpixels=count_hole_filled_pixels(iterNmask)
 			run_ring_bool= holefilledpixels>holefilledpixels_cut
+			'''
+			THESIS: if more than 8 pixels in holes, run the ringer, if ringstat=0, it's a good ring, let's keep it!
+			'''
 			if run_ring_bool:
 				if PLOT_ON_OFF: newring,ringstat=ringer(spots_ringer=iterNmask.copy(),l_ringer=probl,filtstamp_ringer=CRfiltimage[sl2],imstamp_ringer=image[sl2],seg0stamp_ringer=CRseg0[sl2],star_stamp=starbools[sl2])
 				else: newring,ringstat=ringer_noplot(spots_ringer=iterNmask.copy(),l_ringer=probl,filtstamp_ringer=CRfiltimage[sl2],imstamp_ringer=image[sl2],seg0stamp_ringer=CRseg0[sl2],star_stamp=starbools[sl2])
@@ -1723,6 +1859,13 @@ if __name__ == "__main__":
 			open8_Nspots= open8_blended_only_spots.sum();openS_Nspots=openS_blended_only_spots.sum()
 			del open8_blended_only_spots,openS_blended_only_spots
 			#iter2: STRETCH now do the iter_track_stretch thing!
+
+			'''
+			THESIS: this fits a line to `cosmics` and stretches the mask along the line.
+			THESIS: if the line fit is decent, then it determines if any of the pixels included from the stretching have counts in `CRfiltstamp` above `thresh`. 
+			THESIS: If they do, then those pixels are included in the final mask and it returns `cosmics_final,1`, else it returns `cosmics,0`
+			THESIS: process is continued iteratively within iter_track_stretch
+			'''
 			slE=imagetools.slice_expand(sl,100)
 			if bthreshs[iterN]>=80:
 				iterNmaskE=CRblendeds[iterN][slE]==probl
@@ -1761,6 +1904,9 @@ if __name__ == "__main__":
 			else:
 				rr_i,poly_i,polytype_i=polyfitter(iterNmask_slsq3,degree=5)
 			#START: PREVsplit
+			'''
+			THESIS: if you're fragmenting the mask into more pieces this time, then choose the previous one
+			'''
 			autopass=False
 			if not (run_ring_bool and ringstat==0): #if we didn't successfully run the ringer function
 				#check if the mask has been split into 2 pieces
@@ -1787,20 +1933,32 @@ if __name__ == "__main__":
 						autopass=True
 			#END: PREVsplit
 			if not autopass and ((ringstat=="Circle of Cosmics" or ringstat=="none in square pattern") and iterN>=3 and open8_frac<.2):
+				'''
+				THESIS: if ringer found a circle of cosmics => DONE
+				'''
 				iterN_stats[iterN]['DONE-Multiple Ringers']+=1
 				more_title_extras="DONE!!! Circle of Cosmics rr=%.2f size=%s sum(8)=%s sum(S)=%s open8_frac=%.2f<.2" % (rr_i, iterNmask_slsq3.sum(), open8_Nspots, openS_Nspots,open8_frac)
 				antidrop_extras+='CosmicCircle-'
-			elif not autopass and (open8_frac>.03 and rr_i>rr_iterN_cut): #if not autopass and (more than 3% of the pixels in cosmics are open8 pixels, then cosmics is a blob, so raise the thresh
+			elif not autopass and (open8_frac>.03 and rr_i>rr_iterN_cut):
+				'''
+				THESIS: if more than 3% of the pixels in cosmics are open8 pixels, and doesn't match poly5 well, then cosmics is a blob, so NEXT
+				'''
 				iterN_stats[iterN]['NEXT-rr']+=1
 				cut_labels[iterN+1].append(probl)
 				cut_details[iterN+1].append("rr=%.2f>%.2f open8_frac=%.2f>.03" % (rr_i,rr_iterN_cut,open8_frac))
 				more_title_extras=('this iter (%s of %s) details: ' % (iterN+1,iterN_final))+cut_details[iterN+1][-1]
 			elif not autopass and (ringstat!=0 and holefilledpixels>holefilledpixels_cut):
+				'''
+				THESIS: if ring failed and still hole pixels >8 => NEXT
+				'''
 				iterN_stats[iterN]['NEXT-ring failed']+=1
 				cut_labels[iterN+1].append(probl)
 				cut_details[iterN+1].append(ringstat)
 				more_title_extras=('this iter (%s of %s) details: ' % (iterN+1,iterN_final))+cut_details[iterN+1][-1]
 			elif not autopass and (open8_Nspots>open_cut and openS_Nspots>open_cut and rr_i>open_rr_cut):
+				'''
+				THESIS: if (poly of degree 5 has (R^2/#pts)>=0.8) AND (# openS spots>11) => NEXT
+				'''
 				iterN_stats[iterN]['NEXT-open']+=1
 				cut_labels[iterN+1].append(probl)
 				cut_details[iterN+1].append("sum(S)=%s>%s sum(8)=%s>%s rr=%.2f>%.2f" % (openS_Nspots,open_cut,open8_Nspots,open_cut,rr_i,open_rr_cut))
@@ -1811,6 +1969,9 @@ if __name__ == "__main__":
 				cut_details[iterN+1].append("rr=nan size>9 open8_Nspots=0")
 				more_title_extras=('this iter (%s of %s) details: ' % (iterN+1,iterN_final))+cut_details[iterN+1][-1]
 			elif not autopass and (isnan(rr_i) and masksize>9 and masksize0<3 and open8_frac>.6): #if not autopass and (this is true then it might be a star!
+				'''
+				THESIS: if fit fails, and mask area>9 pixels, and open8_frac>.6, and it's all one connected piece, and (peak pix) (2nd pix) and (3rd pix) are all neighbors => ERASE Mask!
+				'''
 				#make sure that the original mask pixels are all 4-connected and that the mask isn't in 2 pieces
 				contig_checkseg,contig_check_NlabelsN=scipy.ndimage.label(iterNmask_slsq3,conn8)
 				contig_checkseg,contig_check_Nlabels0=scipy.ndimage.label(iter0mask,conn8)
@@ -1836,6 +1997,9 @@ if __name__ == "__main__":
 					more_title_extras="DONE!!! Didn't Pass ERASE (not star) rr=nan open8_frac=%.2f>.6" % (open8_frac,)
 					more_title_extras+="\nFAILED one OF:Nlabels=%s>1 max_and_2nd_next=%s max_and_2nd_next_to_3rd=%s" % (contig_check_Nlabels,max_and_2nd_next,max_and_2nd_next_to_3rd )
 			else:
+				'''
+				THESIS: else it passes and it's removed from the iterative loop raising the thresholds!
+				'''
 				iterN_stats[iterN]['DONE-PASSED ALL']+=1
 				more_title_extras="DONE!!! rr=%.2f iterNmask.sum()=%s sum(8)=%s sum(S)=%s open8_frac=%.2f" % (rr_i, iterNmask_slsq3.sum(), open8_Nspots, openS_Nspots,open8_frac)
 				#START: PREV
@@ -1894,7 +2058,8 @@ if __name__ == "__main__":
 			f=imagetools.AxesCompact(f,.1)
 			f.savefig(plotdir+'pltRevise%s_anti-drop_%s-%slabel_group_num%.3i' % (OFB,bthresh_tag,antidrop_extras,count))
 			antidrop_extras=''
-			close(f);del f
+			if PLOT_ON_OFF_SHOW:pass
+			else: close(f);del f
 	#ERASE the removed stars
 	CRblendeds[iterN_final][star_ERASE]=0
 	#iter2: this is it, all I need to do is to reset anything that's filled. Just to be safe
@@ -1911,9 +2076,13 @@ if __name__ == "__main__":
 	if PLOT_ON_OFF:
 		f=plotlabels(fillLL,segments=BBCRblend_comparable,slices=BBCRslices,params=params)
 		f.savefig(plotdir+'pltRevise%s_bad_labels-holes_2after' % (OFB,))
-		close(f);del f
+		if PLOT_ON_OFF_SHOW:show()
+		else: close(f);del f
 	#END: iter2
 
+	'''
+	THESIS-LastStretch: fit a line for each cosmic and connect any close co-linear tracks
+	'''
 	#START: LastStretch
 	tLS=time.time()
 	#last step should be to fit a line for each cosmic and connect any close co-linear tracks
@@ -1957,6 +2126,9 @@ if __name__ == "__main__":
 	#END: LastStretch
 
 	#START: CR/star overlap
+	'''
+	THESIS-LastStretch: remove any pixels that might have gone through stars in LastStretch!
+	'''
 	tOverlap=time.time()
 	#setup final masks which include the CR/star overlap
 	BBCRmask_final=LastStretchseg>0

@@ -2,6 +2,9 @@
 import sys ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons/')
 import imagetools
 from import_tools import *
+import numpy
+numpy.warnings.filterwarnings('ignore') #adam-tmp#
+warnings.simplefilter("ignore", DeprecationWarning)
 fl=sys.argv[-1]
 ending=""
 #fl='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-S-Z+_2010-11-04/SCIENCE/SUPA0125892_7OCF.fits'
@@ -10,7 +13,12 @@ header=astropy.io.fits.open(fl)[0].header
 OBJECT=header['MYOBJ']
 FILTER=header['FILTER']
 CCDnum=header['IMAGEID']
-BASE=os.path.basename(fl).split('OCF')[0]
+
+flname=os.path.basename(fl).split('.')[0]
+if 'OCF' in fl:
+	BASE=os.path.basename(fl).split('OCF')[0]
+else:
+	BASE=flname
 OFB='%s_%s_%s' % (OBJECT,FILTER,BASE,)
 image=imagetools.GetImage(fl)
 compare_dir='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/'
