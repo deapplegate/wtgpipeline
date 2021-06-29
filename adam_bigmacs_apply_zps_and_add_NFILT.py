@@ -20,8 +20,8 @@ ns=globals()
 
 ######################
 
-def calc_NFILT_with_numobs(catinput,filt_zp_err):
-    mag_aper1_keys=filt_zp_err.keys()
+def calc_NFILT_with_numobs(catinput,mag_aper1_keys):
+    ''' Calculate NFILT, this time properly accounting for everything'''
     mag_aper1_sdr={} #get a system of distinct representatives (SDR)
     for mag_key in mag_aper1_keys:
         filt=mag_key[mag_key.find('W-'):]
@@ -29,6 +29,7 @@ def calc_NFILT_with_numobs(catinput,filt_zp_err):
                 mag_aper1_sdr[filt].append(mag_key)
         else:
                 mag_aper1_sdr[filt]=[mag_key]
+    print 'mag_aper1_sdr=',mag_aper1_sdr
 
     #catinput=ldac.openObjectFile(mag_fl)
     catshape=catinput[mag_aper1_sdr.values()[0][0]].shape
@@ -90,10 +91,10 @@ def main(flinput,flzps,flnew):
 
 		filt_zp_err=getZP(flzps)
 		catinput=ldac.openObjectFile(flinput)
-		NFILT=calc_NFILT_with_numobs(catinput,filt_zp_err)
+		mag_aper1_keys=filt_zp_err.keys()
+		NFILT=calc_NFILT_with_numobs(catinput,mag_aper1_keys)
 		flproto=flinput.replace(".cat",".proto-tmp.cat")
 
-		mag_aper1_keys=filt_zp_err.keys()
 		other_keys_del=[] #this will get built up in the loop
 		ncs=[]
 		zp_tab_cols=[]
