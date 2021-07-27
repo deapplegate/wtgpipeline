@@ -6,10 +6,10 @@ s = ndimage.generate_binary_structure(2,2)
 
 
 def fixwt(filt,i,cutval):
-	globwtfl2='/nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_%s/WEIGHTS/globalweight_%s.fits' % (filt,i)
-	globwtfl1='/nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_%s/WEIGHTS/ORIGINAL_globalweights/globalweight_%s.fits' % (filt,i)
-	#os.mkdir('/nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_%s/WEIGHTS/fixed_globalweights/' % (filt))
-	globwtflnew='/nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_%s/WEIGHTS/fixed_globalweights/globalweight_%s.fits' % (filt,i)
+	globwtfl2='/u/ki/awright/data/2015-12-15_%s/WEIGHTS/globalweight_%s.fits' % (filt,i)
+	globwtfl1='/u/ki/awright/data/2015-12-15_%s/WEIGHTS/ORIGINAL_globalweights/globalweight_%s.fits' % (filt,i)
+	#os.mkdir('/u/ki/awright/data/2015-12-15_%s/WEIGHTS/fixed_globalweights/' % (filt))
+	globwtflnew='/u/ki/awright/data/2015-12-15_%s/WEIGHTS/fixed_globalweights/globalweight_%s.fits' % (filt,i)
 	globwtfo1=pyfits.open(globwtfl1)[0].data
 	globwtfo2=pyfits.open(globwtfl2)[0].data
 	globwtfo2_header=pyfits.open(globwtfl2)[0].header
@@ -17,7 +17,7 @@ def fixwt(filt,i,cutval):
 	labels2,Nlabels2=ndimage.measurements.label(globwtfo2==0,s)
 	#print globwtfl1,(globwtfo1==0).sum(),globwtfo1[globwtfo1>0].min(),Nlabels1
 	#print globwtfl2,(globwtfo2==0).sum(),globwtfo2[globwtfo2>0].min(),Nlabels2
-	fitfl8=pyfits.open('/nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_%s/BASE_WEIGHT/BASE_WEIGHT_%s.fits' % (filt,i))
+	fitfl8=pyfits.open('/u/ki/awright/data/2015-12-15_%s/BASE_WEIGHT/BASE_WEIGHT_%s.fits' % (filt,i))
 	wt8=fitfl8[0].data
 	#labels8_7,Nlabels_7=ndimage.measurements.label((wt8<.7),s)
 	spots2=globwtfo2==0

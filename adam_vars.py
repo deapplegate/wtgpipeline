@@ -1,4 +1,4 @@
-SUBARUDIR="/nfs/slac/g/ki/ki18/anja/SUBARU"
+SUBARUDIR="/u/ki/awright/data"
 INSTRUMENT="SUBARU"
 cluster="MACS1226+21"
 ending="OCF"

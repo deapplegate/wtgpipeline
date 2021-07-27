@@ -14,12 +14,12 @@ conn8=array([[1,1,1],[1,1,1],[1,1,1]])
 conn4=array([[0,1,0],[1,1,1],[0,1,0]])
 connS=array([[0,1,1,0],[1,1,1,1],[1,1,1,1],[0,1,1,0]],dtype=bool)
 
-args=glob('/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/BB_ERASED_*_3.fits')
-#CR_segfl='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BB_CRN-cosmics_MACS0429-02_W-J-B.SUPA0154630_9.fits'
-#/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_MACS0429-02_W-J-B.SUPA0154630_1.fits
+args=glob('/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_compare/BB_ERASED_*_3.fits')
+#CR_segfl='/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_BB_CRN-cosmics_MACS0429-02_W-J-B.SUPA0154630_9.fits'
+#/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_MACS0429-02_W-J-B.SUPA0154630_1.fits
 #CR_newsegfl=CR_segfl.replace('SEGMENTATION_CRN-cosmics','SEGMENTATION_BB_CRN-cosmics')
-compdir='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/'
-alldir='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/'
+compdir='/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_compare/'
+alldir='/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/'
 time=[]
 rms=[]
 seeing=[]

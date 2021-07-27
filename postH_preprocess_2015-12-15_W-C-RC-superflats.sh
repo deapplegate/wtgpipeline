@@ -182,13 +182,13 @@ if [ "${exit_stat}" -gt "0" ]; then
 	exit ${exit_stat};
 fi
 
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/${pprun}/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}.fits > stats_${SCIENCEDIR}.log
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/${pprun}/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}_illum256.fits > stats_${SCIENCEDIR}_illum256.log
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/${pprun}/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}_fringe256.fits > stats_${SCIENCEDIR}_fringe256.log
+imstats -d 3 /u/ki/awright/data/${pprun}/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}.fits > stats_${SCIENCEDIR}.log
+imstats -d 3 /u/ki/awright/data/${pprun}/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}_illum256.fits > stats_${SCIENCEDIR}_illum256.log
+imstats -d 3 /u/ki/awright/data/${pprun}/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}_fringe256.fits > stats_${SCIENCEDIR}_fringe256.log
 
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/${pprun}/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}.fits > stats_${SCIENCEDIR}_norm.log
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/${pprun}/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}_illum256.fits > stats_${SCIENCEDIR}_norm_illum256.log
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/${pprun}/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}_fringe256.fits > stats_${SCIENCEDIR}_norm_fringe256.log
+imstats -d 3 /u/ki/awright/data/${pprun}/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}.fits > stats_${SCIENCEDIR}_norm.log
+imstats -d 3 /u/ki/awright/data/${pprun}/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}_illum256.fits > stats_${SCIENCEDIR}_norm_illum256.log
+imstats -d 3 /u/ki/awright/data/${pprun}/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}_fringe256.fits > stats_${SCIENCEDIR}_norm_fringe256.log
 
 exit 0;
 #check this later

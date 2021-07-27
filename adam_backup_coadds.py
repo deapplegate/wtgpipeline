@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import sys,os,glob
-maindir="/nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/"
-backdir="/nfs/slac/g/ki/ki18/anja/SUBARU/compare_astrom_offsets/backup_MACS0416-24_refcat_good5_wt10_STABILITY_INSTRUMENT/"
+maindir="/u/ki/awright/data/MACS0416-24/"
+backdir="/u/ki/awright/data/compare_astrom_offsets/backup_MACS0416-24_refcat_good5_wt10_STABILITY_INSTRUMENT/"
 if not os.path.isdir(backdir):
 	os.makedirs(backdir)
 

@@ -3,7 +3,7 @@ set -xv
 
 ##template for switching##
 #TEMPLATE-run-filter-FLAT
-SUBARUDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/"
+SUBARUDIR="/u/ki/awright/data/"
 
 ./parallel_manager.sh adam_CTcorr_make_images_para.sh ${SUBARUDIR}/${run}_${filter} BIAS ${FLAT} SCIENCE " O X C F"
 exit_stat=$? #use ${PIPESTATUS[0]} if it's <command> | tee -a OUT-command.log                                                                                                      

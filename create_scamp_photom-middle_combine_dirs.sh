@@ -57,13 +57,13 @@ done
 #ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-J-V/SCIENCE/astrom_photom_scamp_SDSS-R6/cat_photom/SUPA* ~/data/${cluster}/W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6
 #ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-J-V/SCIENCE/astrom_photom_scamp_SDSS-R6/headers/SUPA* ~/data/${cluster}/W-J-B/SCIENCE/astrom_photom_scamp_SDSS-R6
 
-#mkdir -p /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/headers_scamp_SDSS-R6/
-#mkdir -p /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/headers_scamp_photom_SDSS-R6/
-#mkdir -p /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/cat_scampIC
-#mkdir -p /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/W-C-IC/WEIGHTS
-#cp /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/WEIGHTS/SUPA*_*I.weight.fits /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/W-C-IC/WEIGHTS/
-#cp /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/WEIGHTS/SUPA*_*I.flag.fits /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/W-C-IC/WEIGHTS/
-#ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/SUPA*I.fits /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/
-#ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/SUPA*I.sub.fits /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/
-#cp /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/headers_scamp_SDSS-R6/SUPA*.head /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/headers_scamp_SDSS-R6/
-#ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/cat_scampIC/SUPA*I.cat /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/cat_scampIC/
+#mkdir -p /u/ki/awright/data/${cluster}/W-C-IC/SCIENCE/headers_scamp_SDSS-R6/
+#mkdir -p /u/ki/awright/data/${cluster}/W-C-IC/SCIENCE/headers_scamp_photom_SDSS-R6/
+#mkdir -p /u/ki/awright/data/${cluster}/W-C-IC/SCIENCE/cat_scampIC
+#mkdir -p /u/ki/awright/data/${cluster}/W-C-IC/WEIGHTS
+#cp /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/WEIGHTS/SUPA*_*I.weight.fits /u/ki/awright/data/${cluster}/W-C-IC/WEIGHTS/
+#cp /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/WEIGHTS/SUPA*_*I.flag.fits /u/ki/awright/data/${cluster}/W-C-IC/WEIGHTS/
+#ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/SUPA*I.fits /u/ki/awright/data/${cluster}/W-C-IC/SCIENCE/
+#ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/SUPA*I.sub.fits /u/ki/awright/data/${cluster}/W-C-IC/SCIENCE/
+#cp /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/headers_scamp_SDSS-R6/SUPA*.head /u/ki/awright/data/${cluster}/W-C-IC/SCIENCE/headers_scamp_SDSS-R6/
+#ln -s /nfs/slac/g/ki/ki05/anja/SUBARU/${cluster}/W-C-IC/SCIENCE/cat_scampIC/SUPA*I.cat /u/ki/awright/data/${cluster}/W-C-IC/SCIENCE/cat_scampIC/

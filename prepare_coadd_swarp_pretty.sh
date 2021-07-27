@@ -223,7 +223,7 @@ fi
 
 # create links of the science and weight frames:
 BONNDIR=`pwd`
-HEADDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/coadd_headers/"
+HEADDIR="/u/ki/awright/data/coadd_headers/"
 
 # construct a unique name for the coadd.head file
 # of this co-addition:

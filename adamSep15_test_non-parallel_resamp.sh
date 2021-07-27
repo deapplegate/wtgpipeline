@@ -10,7 +10,7 @@ export filter="W-C-RC"
 . progs.ini > /tmp/out 2>&1
 . SUBARU.ini > /tmp/out 2>&1
 
-# instead of : ./parallel_manager.sh ./resample_coadd_swarp_chips_para.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC SCIENCE OCFR.sub MACS0416-24_good /u/ki/awright/wtgpipeline MACS0416-24_all
+# instead of : ./parallel_manager.sh ./resample_coadd_swarp_chips_para.sh /u/ki/awright/data/MACS0416-24/W-C-RC SCIENCE OCFR.sub MACS0416-24_good /u/ki/awright/wtgpipeline MACS0416-24_all
 #run this:
-./parallel_manager.sh ./resample_coadd_swarp_chips_para.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC SCIENCE OCFR.sub MACS0416-24_good /u/ki/awright/wtgpipeline MACS0416-24_all
+./parallel_manager.sh ./resample_coadd_swarp_chips_para.sh /u/ki/awright/data/MACS0416-24/W-C-RC SCIENCE OCFR.sub MACS0416-24_good /u/ki/awright/wtgpipeline MACS0416-24_all
 

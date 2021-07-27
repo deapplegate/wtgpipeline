@@ -11210,7 +11210,7 @@ elif 'SUBARUDIR' in os.environ:
 	subdir=os.environ['SUBARUDIR']
 else:
 	#adam# subdir='/nfs/slac/g/ki/ki05/anja/SUBARU/'
-	subdir='/nfs/slac/g/ki/ki18/anja/SUBARU/'
+	subdir='/u/ki/awright/data/'
 #adam-end#
 
 if __name__ == '__main__': 

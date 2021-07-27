@@ -20,7 +20,7 @@ from adam_quicktools_ArgCleaner import ArgCleaner
 args=ArgCleaner(sys.argv)
 print "args=", args
 
-#/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/coadds-pretty_for_10_3_cr.2/
+#/u/ki/awright/data/eyes/coadds-pretty_for_10_3_cr.2/
 import pickle
 fl=open('/u/ki/awright/thiswork/eyes/Prettys_info.2.1.pkl','rb')
 Pinfo=pickle.load(fl) #CRbads[filter][CRnum]['CCDnum','weight_file','file','dark_file','CRtag'] only 'file' and 'CRtag' are useful here
@@ -35,8 +35,8 @@ CRinfo=pickle.load(CRfo)
 CRfo.close()
 
 
-#args=glob('/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/BB_ERASED_*_3.fits')
-#/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_MACS0429-02_W-J-B.SUPA0154630_1.fits
+#args=glob('/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_compare/BB_ERASED_*_3.fits')
+#/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_MACS0429-02_W-J-B.SUPA0154630_1.fits
 tinput_dir='/nfs/slac/kipac/fs1/u/awright/eyes/eye-10_3_cr.2.1/W-C-RC/both/edge_out/inputs/'
 toutput_dir='/nfs/slac/kipac/fs1/u/awright/eyes/eye-10_3_cr.2.1/W-C-RC/both/edge_out/outputs/'
 OUTDIR="/u/ki/awright/my_data/thesis_stuff/CRN_final_purecomp/"
@@ -45,8 +45,8 @@ tinputfls+=glob('/nfs/slac/kipac/fs1/u/awright/eyes/eye-10_3_cr.2.1/W-C-RC/both/
 tinputfls+=glob('/nfs/slac/kipac/fs1/u/awright/eyes/eye-10_3_cr.2.1/W-C-RC/both/edge_out/inputs/eye_CRnum20_Pnum*.fits')
 #tinputfls=glob(OUTDIR+'CRNmask_eye_CRnum0_Pnum*.fits')
 
-compdir='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/'
-alldir='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/'
+compdir='/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_compare/'
+alldir='/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/'
 time=[]
 rms=[]
 seeing=[]

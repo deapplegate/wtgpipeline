@@ -1,7 +1,7 @@
 #!/bin/bash
 set -v
 
-dirs=`\ls -d /nfs/slac/g/ki/ki18/anja/SUBARU/20*_W-*/SCIENCE/diffmask/`
+dirs=`\ls -d /u/ki/awright/data/20*_W-*/SCIENCE/diffmask/`
 for dir in ${dirs}
 do
 	echo "${dir}"

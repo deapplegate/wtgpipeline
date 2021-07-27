@@ -70,8 +70,8 @@ print "\n"+"\nds9 -zscale -tile mode column "+" ".join(files2check)+" -zscale -l
 #        BASE=os.path.basename(fl).split('OCF')[0]
 #        #get cosmics images
 #        OFB='%s_%s_%s' % (OBJECT,FILTER,BASE,)
-#        CR_segfl='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
-#        CR_filtfl='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_CRN-cosmics_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
+#        CR_segfl='/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
+#        CR_filtfl='/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_CRN-cosmics_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
 #        CRfitsfl=astropy.io.fits.open(CR_filtfl)
 #        rms=CRfitsfl[0].header['MYRMS']
 #        rms_bins=arange(10,100,5)

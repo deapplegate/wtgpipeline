@@ -9,12 +9,12 @@ export subdir=/gpfs/slac/kipac/fs1/u/awright/SUBARU/
 ##2010-11-04_W-S-Z+ this I'm holding off on till later. I need to figure out if it can just be run and will process the new stuff without touching the old stuff *(i'm pretty sure this will be fine)
 
 ## then do this one and others like it with two flats! (there is a "flatcompare" script if I remember right)
-adam-look| mv /nfs/slac/g/ki/ki18/anja/SUBARU/2009-03-28_W-J-V/SCIENCE_norm /nfs/slac/g/ki/ki18/anja/SUBARU/2009-03-28_W-J-V/SCIENCE_norm_SKYFLAT
+adam-look| mv /u/ki/awright/data/2009-03-28_W-J-V/SCIENCE_norm /u/ki/awright/data/2009-03-28_W-J-V/SCIENCE_norm_SKYFLAT
 adam-look| #BEFORE moving on to the next step, I'll have to rm SCIENCE and replace it with either SCIENCE_DOMEFLAT or SCIENCE_SKYFLAT!
-adam-look| rm -r /nfs/slac/g/ki/ki18/anja/SUBARU/2009-03-28_W-J-V/SCIENCE/
-adam-look| mv /nfs/slac/g/ki/ki18/anja/SUBARU/2009-03-28_W-J-V/SCIENCE_DOMEFLAT/ /nfs/slac/g/ki/ki18/anja/SUBARU/2009-03-28_W-J-V/SCIENCE/
+adam-look| rm -r /u/ki/awright/data/2009-03-28_W-J-V/SCIENCE/
+adam-look| mv /u/ki/awright/data/2009-03-28_W-J-V/SCIENCE_DOMEFLAT/ /u/ki/awright/data/2009-03-28_W-J-V/SCIENCE/
 adam-look| OR
-adam-look| mv /nfs/slac/g/ki/ki18/anja/SUBARU/2009-03-28_W-J-V/SCIENCE_SKYFLAT/ /nfs/slac/g/ki/ki18/anja/SUBARU/2009-03-28_W-J-V/SCIENCE/
+adam-look| mv /u/ki/awright/data/2009-03-28_W-J-V/SCIENCE_SKYFLAT/ /u/ki/awright/data/2009-03-28_W-J-V/SCIENCE/
 
 ## pick FLAT for these:
 2009-09-19_W-J-V/SCIENCE_DOMEFLAT  2010-03-12_W-C-RC/SCIENCE_DOMEFLAT  2010-03-12_W-J-B/SCIENCE_DOMEFLAT  2010-11-04_W-J-B/SCIENCE_DOMEFLAT

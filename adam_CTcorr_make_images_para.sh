@@ -7,7 +7,7 @@ set -xv
 #3# C (cut IM_OX -> IM_OXC & cut IM_O -> IM_OC)
 #4# F ( IM_OXC -> IM_OXCF & IM_OC -> IM_OCF & IM_OCF-IM_OXCF -> diff )
 #adam-example# ./parallel_manager.sh adam_CTcorr_make_images_para.sh ${SUBARUDIR}/${run}_${filter} BIAS ${FLAT} SCIENCE " O X C F"
-#	./parallel_manager.sh adam_CTcorr_make_images_para.sh /nfs/slac/g/ki/ki18/anja/SUBARU/2010-02-12_W-C-RC BIAS DOMEFLAT SCIENCE " O X C F"
+#	./parallel_manager.sh adam_CTcorr_make_images_para.sh /u/ki/awright/data/2010-02-12_W-C-RC BIAS DOMEFLAT SCIENCE " O X C F"
 
 #$1: main directory (filter)
 #$2: Bias directory

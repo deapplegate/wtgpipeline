@@ -108,14 +108,14 @@ do
     done
  
     #adam# -FLAT Y 
-    #adam# -FLAT_IMAGE //nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_8_illum256.fits 
+    #adam# -FLAT_IMAGE //u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_8_illum256.fits 
     #adam# -FLAT_THRESHHOLD .1
     #adam# -COMBINE N
     #adam# -OUTPUT Y
-    #adam# -OUTPUT_DIR //nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2/
+    #adam# -OUTPUT_DIR //u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2/
     #adam# -OUTPUT_SUFFIX S.fits
     #adam# -FLAT_SCALE Y
-    #adam# -FLAT_SCALEIMAGE //nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_1_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_2_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_3_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_4_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_5_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_6_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_7_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_8_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_9_illum256.fits /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_10_illum256.fits
+    #adam# -FLAT_SCALEIMAGE //u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_1_illum256.fits /u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_2_illum256.fits /u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_3_illum256.fits /u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_4_illum256.fits /u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_5_illum256.fits /u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_6_illum256.fits /u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_7_illum256.fits /u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_8_illum256.fits /u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_9_illum256.fits /u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET2_norm/SCIENCE_SKYFLAT_SET2_norm_10_illum256.fits
     
     # Flat fielding: All images are divided by the image specified in FLAT_IMAGE.
     # If scaling (FLAT_SCALE) is asked for, the flatfield is normalised to the highest median

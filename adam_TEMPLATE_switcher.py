@@ -38,6 +38,6 @@ for pp_key in ppruns.keys():
 
 	logout=temp_file.replace("TEMPLATE",pp_key).rsplit('.')[0]
 	#print logout
-        print "bsub -W 7000 -R rhel60 -o /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-%s.out -e /nfs/slac/g/ki/ki18/anja/SUBARU/batch_files/OUT-%s.err ./%s" % (logout,logout,final_file)
+        print "bsub -W 7000 -R rhel60 -o /u/ki/awright/data/batch_files/OUT-%s.out -e /u/ki/awright/data/batch_files/OUT-%s.err ./%s" % (logout,logout,final_file)
 
 #m=re.match("(SUPA[0-9][0-9][0-9][0-9][0-9][0-9][0-9])(.*)",l)

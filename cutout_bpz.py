@@ -13,7 +13,7 @@ import scipy
 def make_thecorrections(cluster,DETECT_FILTER,SPECTRA='CWWSB_capak.list',AP_TYPE='_aper',magtype='APER1',type='all'):
     #adam-new# the output dir is now: /nfs/slac/kipac/fs1/u/awright/photoz/MACS1226+21/CWWSB_capak.list
     #adam-new# export sne=/nfs/slac/kipac/fs1/u/awright/
-    path='/nfs/slac/g/ki/ki18/anja/SUBARU/%s/' % cluster
+    path='/u/ki/awright/data/%s/' % cluster
 
     params = {'path':path, 
                   'cluster':cluster, 

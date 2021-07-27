@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 #adam-does# matches the redshifts from our pipeline/bpz to external reference redshifts
 #adam-example# ipython -i -- ./match_specz_and_bpz_cats.py nedcat bpzcat =astropy.io.ascii.read("/u/ki/awright/wtgpipeline/adam_ned_MACS1226+21_galaxies.tsv")
-#adam-example# ipython -i -- ./match_specz_and_bpz_cats.py /u/ki/awright/wtgpipeline/adam_ned_MACS1226+21_galaxies.tsv /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.bpztab.cat
+#adam-example# ipython -i -- ./match_specz_and_bpz_cats.py /u/ki/awright/wtgpipeline/adam_ned_MACS1226+21_galaxies.tsv /u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.bpztab.cat
 
 import sys,os,inspect ; sys.path.append('/u/ki/awright/InstallingSoftware/pythons')
 from import_tools import *
@@ -16,8 +16,8 @@ from astropy import units as u
 from astropy.io import ascii
 import string
 
-bpz_file= "/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all.input_and_bpz.tab"
-final_file= "/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all.EVERY.cat"
+bpz_file= "/u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all.input_and_bpz.tab"
+final_file= "/u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all.EVERY.cat"
 def ldac_opener(cat_file):
 	cat=astropy.io.fits.open(cat_file)
 	print "%s tables in %s opening 1st one" % (len(cat),cat_file)

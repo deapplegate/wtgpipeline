@@ -1,6 +1,6 @@
 #! /bin/bash -xv
-#adam-example# ./cp_aux_data.sh ${SUBARUDIR} /nfs/slac/g/ki/ki18/anja/SUBARU/from_archive/Z2701/
-#adam-example# ./cp_aux_data.sh ${SUBARUDIR} 2010-03-04_W-S-Z+ /nfs/slac/g/ki/ki18/anja/SUBARU/from_archive/Z2089/ (would put those from 2010-03-03 2010-03-04 & 2010-03-05 all in the same dir)
+#adam-example# ./cp_aux_data.sh ${SUBARUDIR} /u/ki/awright/data/from_archive/Z2701/
+#adam-example# ./cp_aux_data.sh ${SUBARUDIR} 2010-03-04_W-S-Z+ /u/ki/awright/data/from_archive/Z2089/ (would put those from 2010-03-03 2010-03-04 & 2010-03-05 all in the same dir)
 #adam-example# ./cp_aux_data.sh ${SUBARUDIR} 2010-12-05_W-J-V ~/my_data/from_archive/fgas_preH_raw/Z2701/FLAT/DOMEFLAT_2010-12-05_W-J-V
 #. BonnLogger.sh
 #. log_start

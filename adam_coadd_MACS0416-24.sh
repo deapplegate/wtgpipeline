@@ -25,7 +25,7 @@ echo "adam-STARTING: ${cluster} ${filter} 'all' 'none' ${ending} " >> coadd_many
 grep -n -i "exit [1-9]\|except\|error" OUT-do_coadd_batch-${cluster}_${filter}.log >> coadd_many_logger_${cluster}.log
 echo "adam-ENDING: ${cluster} ${filter} 'all' 'none' ${ending} " >> coadd_many_logger_${cluster}.log
 
-./adam_make_backmask_ims.py /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/
+./adam_make_backmask_ims.py /u/ki/awright/data/MACS0416-24/W-C-RC/SCIENCE/
 
 export filter=W-J-B
 echo "adam-STARTING: ${cluster} ${filter} 'exposure' 'none' ${ending} " >> coadd_many_logger_${cluster}.log

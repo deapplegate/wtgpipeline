@@ -8,7 +8,7 @@ if 'bonn' not in os.environ:
     os.environ['bonn'] = os.getcwd()+'/'
 
 if 'subdir' not in os.environ:
-    os.environ['subdir'] = '/nfs/slac/g/ki/ki18/anja/SUBARU'
+    os.environ['subdir'] = '/u/ki/awright/data'
     #adam# os.environ['subdir'] = '/nfs/slac/g/ki/ki05/anja/SUBARU'
 
 

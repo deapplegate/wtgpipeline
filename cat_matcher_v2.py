@@ -17,10 +17,10 @@ oldfls={'cut_lensing': '//nfs/slac/g/ki/ki05/anja/SUBARU/MACS1115+01/LENSING_W-C
 'coadd_photo': '//nfs/slac/g/ki/ki05/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good/coadd_photo.cat',
 'photometry': '/nfs/slac/g/ki/ki05/anja/SUBARU/MACS1115+01/PHOTOMETRY_W-C-RC_aper/MACS1115+01.slr.cat'}
 
-newfls={'cut_lensing': '/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/cut_lensing.cat',
-'coadd_filtered': '/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/coadd_filtered.cat',
-'coadd_photo': '/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/coadd_photo.cat',
-'photometry': '/nfs/slac/g/ki/ki18/anja/SUBARU/fgas_pz_masses/MACS1115+01.W-C-RC.cat'}
+newfls={'cut_lensing': '/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/cut_lensing.cat',
+'coadd_filtered': '/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/coadd_filtered.cat',
+'coadd_photo': '/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/coadd_photo.cat',
+'photometry': '/u/ki/awright/data/fgas_pz_masses/MACS1115+01.W-C-RC.cat'}
 
 import os
 for fl in newfls.values()+oldfls.values():
@@ -30,23 +30,23 @@ for fl in newfls.values()+oldfls.values():
 oldfl=oldfls['coadd_photo']
 newfl=newfls['coadd_photo']
 
-# ds9e /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits -catalog import tsv /nfs/slac/g/ki/ki18/anja/SUBARU/fgas_pz_masses/compare_MACS1115+01+01_and_explore_NFILT_alpha_delta/old_unmatched_photometry_old2new.cat -catalog import tsv /nfs/slac/g/ki/ki18/anja/SUBARU/fgas_pz_masses/compare_MACS1115+01+01_and_explore_NFILT_alpha_delta/old_unmatched_cut_lensing_old2new.cat &
-# -catalog import tsv /nfs/slac/g/ki/ki18/anja/SUBARU/fgas_pz_masses/compare_MACS1115+01+01_and_explore_NFILT_alpha_delta/old_unmatched_photometry_old2new.cat -catalog import tsv /nfs/slac/g/ki/ki18/anja/SUBARU/fgas_pz_masses/compare_MACS1115+01+01_and_explore_NFILT_alpha_delta/old_unmatched_cut_lensing_old2new.cat &
-finaldir_in='/nfs/slac/g/ki/ki18/anja/SUBARU/fgas_pz_masses/compare_MACS1115+01_io/inputs_regs_and_annulus_removed/'
-finaldir_out='/nfs/slac/g/ki/ki18/anja/SUBARU/fgas_pz_masses/compare_MACS1115+01_io/outputs/'
+# ds9e /u/ki/awright/data/MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_all/coadd.fits -catalog import tsv /u/ki/awright/data/fgas_pz_masses/compare_MACS1115+01+01_and_explore_NFILT_alpha_delta/old_unmatched_photometry_old2new.cat -catalog import tsv /u/ki/awright/data/fgas_pz_masses/compare_MACS1115+01+01_and_explore_NFILT_alpha_delta/old_unmatched_cut_lensing_old2new.cat &
+# -catalog import tsv /u/ki/awright/data/fgas_pz_masses/compare_MACS1115+01+01_and_explore_NFILT_alpha_delta/old_unmatched_photometry_old2new.cat -catalog import tsv /u/ki/awright/data/fgas_pz_masses/compare_MACS1115+01+01_and_explore_NFILT_alpha_delta/old_unmatched_cut_lensing_old2new.cat &
+finaldir_in='/u/ki/awright/data/fgas_pz_masses/compare_MACS1115+01_io/inputs_regs_and_annulus_removed/'
+finaldir_out='/u/ki/awright/data/fgas_pz_masses/compare_MACS1115+01_io/outputs/'
 
 
 
 ## get cut_lensing.cat matched
-compare_dir='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/compare_oct24_2018/'
-newcatfl='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/cut_lensing.cat'
-compare_dir='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_and_masks_matched/'
-oldcatfl='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_and_masks_matched/cut_lensing.cat'
+compare_dir='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/compare_oct24_2018/'
+newcatfl='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/cut_lensing.cat'
+compare_dir='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_and_masks_matched/'
+oldcatfl='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_and_masks_matched/cut_lensing.cat'
 oldcatfl_pre_match=oldcatfl+'-pre_match.cat'
 #os.system('mv %s %s' % (oldcatfl,oldcatfl_pre_match))
-lensoldfl='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_and_masks_gscut/cut_lensing.cat'
-lensnewWoldRSfl='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554_gscut_rgcut_rhcut_starcut_oldRScut/cut_lensing.cat'
-lensnewWnewRSfl='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554_gscut_rgcut_rhcut_starcut_newRScut/cut_lensing.cat'
+lensoldfl='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_and_masks_gscut/cut_lensing.cat'
+lensnewWoldRSfl='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554_gscut_rgcut_rhcut_starcut_oldRScut/cut_lensing.cat'
+lensnewWnewRSfl='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554_gscut_rgcut_rhcut_starcut_newRScut/cut_lensing.cat'
 mold,mnew,d2d,unmold,unmnew=cattools.match_pair_stats(lensoldfl,lensnewWoldRSfl,tag='comparison_btwn_old_and_newWoldRScut',output_dir='/u/ki/awright/wtgpipeline/scratch/')
 mold,mnew,d2d,unmold,unmnew=cattools.match_pair_stats(lensnewWnewRSfl,lensnewWoldRSfl,tag='comparison_btwn_old_and_newWoldRScut',output_dir='/u/ki/awright/wtgpipeline/scratch/')
 
@@ -140,8 +140,8 @@ sys.exit()
 
 ## get RS-new out of cut_lensing_RS_remains.cat
 datadir='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_and_masks_and_RS/'
-RSnewfl="/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/MACS1115+01_redsequence.cat"
-#RSnewfl="/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/coadd_rs.cat"
+RSnewfl="/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/MACS1115+01_redsequence.cat"
+#RSnewfl="/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/coadd_rs.cat"
 oldlensfl=datadir+'cut_lensing_RS_remains.cat'
 catfl=datadir+'cut_colors.cat'
 t=ldac.openObjectFile(catfl)
@@ -176,14 +176,14 @@ notmoldcat.saveas(datadir+'cut_lensing.cat',overwrite=True)
 sys.exit()
 
 ##
-compare_dir='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_matched/'
-oldcatfl='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_matched/cut_lensing.cat'
-#adam-old# compare_dir='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_and_masks_matched/'
-#adam-old# oldcatfl='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_and_masks_matched/cut_lensing.cat'
+compare_dir='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_matched/'
+oldcatfl='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_matched/cut_lensing.cat'
+#adam-old# compare_dir='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_and_masks_matched/'
+#adam-old# oldcatfl='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/good_from_2011_changed_faintmag_cut_and_masks_matched/cut_lensing.cat'
 oldcatfl_pre_match=oldcatfl+'-pre_match.cat'
 os.system('mv %s %s' % (oldcatfl,oldcatfl_pre_match))
 
-newcatfl='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/cut_lensing.cat'
+newcatfl='/u/ki/awright/data/MACS1115+01/LENSING_W-C-RC_W-C-RC_aper/gabodsid1554/cut_lensing.cat'
 moldcat,mnewcat,d2d,unmoldcat,unmnewcat=cattools.match_unordered(oldcatfl_pre_match,newcatfl)
 tag='gabodsid1554'
 mnewcat.saveas(compare_dir+'new_matched_'+tag+'_paired.cat',overwrite=True)
@@ -203,12 +203,12 @@ import time
 for tag, catfl in zip(tags,files):
 	if tag.endswith('photometry'): continue
 	t0=time.time()
-	cat_rm_regs , catfl_regs_removed=cattools.clean_from_regions(catfl,catflout='/nfs/slac/g/ki/ki18/anja/SUBARU/fgas_pz_masses/compare_MACS1115+01_io/inputs_regs_removed/'+tag+'_rm_regs.cat',regfl='/nfs/slac/g/ki/ki18/anja/SUBARU/fgas_pz_masses/compare_MACS1115+01_io/regions_old_and_new_combined_cleaned.reg')
+	cat_rm_regs , catfl_regs_removed=cattools.clean_from_regions(catfl,catflout='/u/ki/awright/data/fgas_pz_masses/compare_MACS1115+01_io/inputs_regs_removed/'+tag+'_rm_regs.cat',regfl='/u/ki/awright/data/fgas_pz_masses/compare_MACS1115+01_io/regions_old_and_new_combined_cleaned.reg')
 	fls_dict[tag]=catfl_regs_removed
 	cats_dict[tag]=cat_rm_regs
 	t1=time.time()
 	print 'tag='+tag+' takes %.1f seconds' % (t1-t0)
-	#cattools.ldaccat_to_ds9(cat_rm_regs,'/nfs/slac/g/ki/ki18/anja/SUBARU/fgas_pz_masses/compare_MACS1115+01_io/inputs_regs_removed/'+tag+'_paired_rm_regs.tsv',image='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_gabodsid1554/coadd.fits',printinfo=False,keys=txt_keys)
+	#cattools.ldaccat_to_ds9(cat_rm_regs,'/u/ki/awright/data/fgas_pz_masses/compare_MACS1115+01_io/inputs_regs_removed/'+tag+'_paired_rm_regs.tsv',image='/u/ki/awright/data/MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_gabodsid1554/coadd.fits',printinfo=False,keys=txt_keys)
 
 ## then exclude the stuff outside the .75-3 Mpc annulus
 try:
@@ -241,7 +241,7 @@ for tag, catfl in zip(tags,files):
 
 	txt_keys=['ALPHA_J2000','DELTA_J2000','SeqNr']
 	txt_keys=['x','y','SeqNr']
-	cattools.ldaccat_to_ds9(cat_rm_regs,finaldir_in+tag+'.tsv',image='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_gabodsid1554/coadd.fits',printinfo=False,keys=txt_keys)
+	cattools.ldaccat_to_ds9(cat_rm_regs,finaldir_in+tag+'.tsv',image='/u/ki/awright/data/MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_gabodsid1554/coadd.fits',printinfo=False,keys=txt_keys)
 
 ## match just the annulus objects (750kpc and 3Mpc)
 
@@ -251,7 +251,7 @@ cattools.match_pair_stats(final_fls_dict['old_coadd_filtered'],final_fls_dict['n
 cattools.match_pair_stats(final_fls_dict['old_cut_lensing'],final_fls_dict['new_cut_lensing'],tag='cut_lensing')
 
 
-#ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale -title "cut_lensing: match-paired (green) , unmatch-new (blue) , unmatch-old (black)"  /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_gabodsid1554/coadd.fits -catalog import tsv new_matched_cut_lensing_paired.cat -catalog import tsv new_unmatched_cut_lensing_paired.cat -catalog import tsv old_unmatched_cut_lensing_paired.cat  &
+#ds9 -frame lock image -zoom to fit -geometry 2000x2000 -cmap bb -zscale -title "cut_lensing: match-paired (green) , unmatch-new (blue) , unmatch-old (black)"  /u/ki/awright/data/MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_gabodsid1554/coadd.fits -catalog import tsv new_matched_cut_lensing_paired.cat -catalog import tsv new_unmatched_cut_lensing_paired.cat -catalog import tsv old_unmatched_cut_lensing_paired.cat  &
 
 oldphoto=ldac.openObjectFile(final_fls_dict['old_coadd_photo'])
 newphoto=ldac.openObjectFile(final_fls_dict['new_coadd_photo'])

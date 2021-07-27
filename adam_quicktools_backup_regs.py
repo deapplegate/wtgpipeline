@@ -1,13 +1,13 @@
 #! /usr/bin/env python
 #adam-does# backs up the region files that I've slaved over night and day and never want to have to redo EVER!
 #adam-use# use along with stellar suppression rings, by-hand masking regions, backmasking areas. asteroid and star masks, any region files at all
-#adam-example# ipython -i -- adam_quicktools_backup_regs.py /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/autosuppression/
+#adam-example# ipython -i -- adam_quicktools_backup_regs.py /u/ki/awright/data/MACS0416-24/W-C-RC/SCIENCE/autosuppression/
 #adam-example# ipython -i -- adam_quicktools_backup_regs.py /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/autosuppression/
 import sys
 sys.path.append('/u/ki/awright/InstallingSoftware/pythons/')
 from import_tools import *
-backup_main="/nfs/slac/g/ki/ki18/anja/SUBARU/backup_regions/"
-SUBARUDIR1="/nfs/slac/g/ki/ki18/anja/SUBARU/"
+backup_main="/u/ki/awright/data/backup_regions/"
+SUBARUDIR1="/u/ki/awright/data/"
 SUBARUDIR2="/gpfs/slac/kipac/fs1/u/awright/SUBARU/"
 
 def backup_regions(dir2backup):

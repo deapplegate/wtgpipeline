@@ -88,7 +88,7 @@ exit 0;
 #./maskImages.pl -r ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/reg/ -d ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE_weighted/ SUP 
 # OR
 #./maskImages.pl -l july3Mask.list -r ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE/reg/ -d ${SUBARUDIR}/${cluster}/${filter}_${run}/SCIENCE_weighted/ SUP 
-#adam# ./maskImages.pl -d /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC_2010-11-04/SCIENCE_weighted/ SUP
+#adam# ./maskImages.pl -d /u/ki/awright/data/MACS0416-24/W-C-RC_2010-11-04/SCIENCE_weighted/ SUP
 
 #adam# now change the regions I created to polygons
 #./convertRegion2Poly.py ${SUBARUDIR}/${cluster}/${filter}_${run} SCIENCE

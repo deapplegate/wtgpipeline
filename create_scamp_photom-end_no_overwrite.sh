@@ -2,7 +2,7 @@
 set -xvu
 #adam-example# ./create_scamp_photom-end_no_overwrite.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-J-B SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-J-B_2015-12-15_CALIB SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-J-V SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-J-V_2009-01-23_CALIB SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-C-RC SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-C-RC_2009-01-23_CALIB SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-C-IC SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-C-IC_2006-12-21_CALIB SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-S-Z+ SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/MACS0429-02/W-S-Z+_2015-12-15_CALIB SCIENCE 30000 PANSTARRS 2>&1 | tee -a OUT-create_scamp_photom-end_no_overwrite_MACS0429-02.log
 #adam-example# ./create_scamp_photom-end_no_overwrite.sh /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-J-B SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-J-V SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-I+ SCIENCE /gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-S-Z+ SCIENCE  26000 SDSS-R6 2>&1 | tee -a OUT-create_scamp_photom-end_no_overwrite_RXJ2129.sh
-#adam-example# ./create_scamp_photom-end_no_overwrite.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-B SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-V SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-IC SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-S-Z+ SCIENCE 30000 SDSS-R6 2>&1 | tee -a OUT-create_scamp_photom-end_no_overwrite.sh
+#adam-example# ./create_scamp_photom-end_no_overwrite.sh /u/ki/awright/data/MACS1115+01/W-J-B SCIENCE /u/ki/awright/data/MACS1115+01/W-J-V SCIENCE /u/ki/awright/data/MACS1115+01/W-C-RC SCIENCE /u/ki/awright/data/MACS1115+01/W-C-IC SCIENCE /u/ki/awright/data/MACS1115+01/W-S-Z+ SCIENCE 30000 SDSS-R6 2>&1 | tee -a OUT-create_scamp_photom-end_no_overwrite.sh
 #. BonnLogger.sh
 #. log_start
 
@@ -685,7 +685,7 @@ fi
 #MACS0416# scamp_mode_use=${scamp_mode_exp_ref}
 #MACS0416# echo "copying good5 cat to " ${PWD}
 #MACS0416# if [ ! -f "astrefcat.cat" ]; then
-#MACS0416# 	cp /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/MACS0416-24_W-C-RC_only_5_good_ims_final.cat ./astrefcat.cat
+#MACS0416# 	cp /u/ki/awright/data/MACS0416-24/MACS0416-24_W-C-RC_only_5_good_ims_final.cat ./astrefcat.cat
 #MACS0416# fi
 
 echo "scamp_mode_use=" $scamp_mode_use
@@ -782,7 +782,7 @@ ${P_SCAMP} `${P_FIND} ../cat_photom/ -name \*scamp.cat` \
 #adam-tmp# this is the standard operating procedure, remove all of the #usual_scamp_call# stuff before the next cluster 
 #usual_scamp_call# is exactly the above, but with "-ASTREF_CATALOG ${STARCAT} \" rather than "-ASTREF_CATALOG FILE \"
 
-#scamp_doesnt_recognize# -ASTREF_CATNAME /nfs/slac/g/ki/ki18/anja/SUBARU/compare_astrom_offsets/coadd_W-C-RC_only_5_good_ims/good5_W-C-RC_final.cat \
+#scamp_doesnt_recognize# -ASTREF_CATNAME /u/ki/awright/data/compare_astrom_offsets/coadd_W-C-RC_only_5_good_ims/good5_W-C-RC_final.cat \
 #  so instead I copy this cat to the current dir with default name: astrefcat.cat
 #scamp_doesnt_recognize# -ASTREFMAGERR_KEY MAGERR_AUTO
 

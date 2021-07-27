@@ -89,4 +89,4 @@ do
 done
 exit 0; #DARK Step (2)
 #adam-SHNT# If I do need to check it out, then look here: do_Subaru_DARK_Template.sh
-#adam-SHNT# check things out here:/nfs/slac/g/ki/ki18/anja/SUBARU/10_3_DARK/DARK/darks_2yr2mo_change
+#adam-SHNT# check things out here:/u/ki/awright/data/10_3_DARK/DARK/darks_2yr2mo_change

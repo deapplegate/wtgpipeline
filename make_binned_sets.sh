@@ -1,5 +1,5 @@
 #!/bin/bash
-#adam-example# ./make_binned_sets.sh /nfs/slac/g/ki/ki18/anja/SUBARU/2010-12-05_W-J-V/SCIENCE_norm/BINNED
+#adam-example# ./make_binned_sets.sh /u/ki/awright/data/2010-12-05_W-J-V/SCIENCE_norm/BINNED
 set -xv
 REDDIR=`pwd`
 binned_dir=$1

@@ -644,7 +644,7 @@ def parseeazy(catalog,n):
     print catalog + '.tab'
 
 def parsebpz(catalog,n):
-    '''this adds BPZ_NUMBER on the end, but it's always =0 currently (see /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/all_bpzAPER1CWWSB_capak.list1_0.bpz.tab.txt)'''
+    '''this adds BPZ_NUMBER on the end, but it's always =0 currently (see /u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/all_bpzAPER1CWWSB_capak.list1_0.bpz.tab.txt)'''
     import os,re
     from utilities import run
     f = open(catalog,'r').readlines()
@@ -879,8 +879,8 @@ def do_bpz(CLUSTER,DETECT_FILTER,AP_TYPE,filters,inputcat_alter_ascii,inputcat_a
         dict['catalog'] = catalog
         dict['prob'] = prob
 
-        #adam-comment# command_cp_cat= cp /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.bpz_input.txt /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/all.APER1CWWSB_capak.list.cat.bpz1.tab
-        #adam-comment# Hit error on: counter=  obs_file= /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/all_bpzAPER1CWWSB_capak.list1_0.cat  flux_cols= (1, 3, 5, 7, 9)
+        #adam-comment# command_cp_cat= cp /u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.bpz_input.txt /u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/all.APER1CWWSB_capak.list.cat.bpz1.tab
+        #adam-comment# Hit error on: counter=  obs_file= /u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/all_bpzAPER1CWWSB_capak.list1_0.cat  flux_cols= (1, 3, 5, 7, 9)
         cat_in_command= '%(SUBARUDIR)s/%(CLUSTER)s/%(PHOTOMETRYDIR)s/all_bpz%(magtype)s%(SPECTRA)s%(iaper)s_%(n)s.cat' % dict
 	command_cp_cat=' '.join(["cp",inputcat_alter_ascii,cat_in_command])
         print "command_cp_cat=",command_cp_cat
@@ -985,7 +985,7 @@ def do_bpz(CLUSTER,DETECT_FILTER,AP_TYPE,filters,inputcat_alter_ascii,inputcat_a
 
     #adam-old# convert_to_mags(base,dict['incat_' + dict['type']],base+'.EVERY.cat')
     convert_to_mags(base,inputcat_alter_ldac,base+'.EVERY.cat')
-    #adam-expanded# convert_to_mags("/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all" , "/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.alter.cat" , "/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all.EVERY.cat")
+    #adam-expanded# convert_to_mags("/u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all" , "/u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.alter.cat" , "/u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all.EVERY.cat")
 
     #adam-Warning# Other codes might use different final cats/output besides *EVERY.cat
     #for example they might look for:

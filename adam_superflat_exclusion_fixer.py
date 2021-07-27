@@ -1,6 +1,6 @@
 #! /usr/bin/env python
-#adam-example# ./adam_superflat_exclusion_fixer.py /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET3/superflat_exclusion 0
-#adam-example-countonly# ./adam_superflat_exclusion_fixer.py /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET3/superflat_exclusion 1
+#adam-example# ./adam_superflat_exclusion_fixer.py /u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET3/superflat_exclusion 0
+#adam-example-countonly# ./adam_superflat_exclusion_fixer.py /u/ki/awright/data/2015-12-15_W-C-RC/SCIENCE_SKYFLAT_SET3/superflat_exclusion 1
 import sys,os
 sys.path.append("~/InstallingSoftware/pythons/")
 import imagetools

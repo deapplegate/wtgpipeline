@@ -1,7 +1,7 @@
 #!/bin/bash
 set -xv
 ## only important ones
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/
+export SUBARUDIR=/u/ki/awright/data/
 export bonn=/u/ki/awright/wtgpipeline/
 export subdir=${SUBARUDIR}
 export subarudir=${SUBARUDIR}

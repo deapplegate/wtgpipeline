@@ -581,7 +581,7 @@ fi
 #MACS0416# scamp_mode_use=${scamp_mode_exp_ref}
 #MACS0416# echo "copying good5 cat to " ${PWD}
 #MACS0416# if [ ! -f "astrefcat.cat" ]; then
-#MACS0416# 	cp /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/MACS0416-24_W-C-RC_only_5_good_ims_final.cat ./astrefcat.cat
+#MACS0416# 	cp /u/ki/awright/data/MACS0416-24/MACS0416-24_W-C-RC_only_5_good_ims_final.cat ./astrefcat.cat
 #MACS0416# fi
 
 echo "scamp_mode_use=" $scamp_mode_use
@@ -646,7 +646,7 @@ ${P_SCAMP} `${P_FIND} ../cat/ -name \*scamp.cat` \
 #refcat_scamp_call#         -ASTREFMAG_KEY MAG_AUTO \
 #refcat_scamp_call#         -ASTREF_WEIGHT 1
 
-#scamp_doesnt_recognize# -ASTREF_CATNAME /nfs/slac/g/ki/ki18/anja/SUBARU/compare_astrom_offsets/coadd_W-C-RC_only_5_good_ims/good5_W-C-RC_final.cat \
+#scamp_doesnt_recognize# -ASTREF_CATNAME /u/ki/awright/data/compare_astrom_offsets/coadd_W-C-RC_only_5_good_ims/good5_W-C-RC_final.cat \
 #  so instead I copy this cat to the current dir with default name: astrefcat.cat
 #scamp_doesnt_recognize# -ASTREFMAGERR_KEY MAGERR_AUTO
 

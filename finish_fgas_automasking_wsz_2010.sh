@@ -72,7 +72,7 @@ if [ "${exit_stat}" -gt "0" ]; then
 fi
 #adam# makes: actual weights from globalweights, diffmask, and the region files. Also, all of the CRNitschke pipeline output!
 #adam# makes: ~/data/MACS0416-24/W-S-Z+_2010-11-04/WEIGHTS/SUPA0100120_10OCF.flag.fits and SUPA0100120_10OCF.weight.fits 
-./create_weights_raw_delink_para_CRNitschke.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-S-Z+_2010-03-12 SCIENCE OCFSF WEIGHTS ' 8 '
+./create_weights_raw_delink_para_CRNitschke.sh /u/ki/awright/data/MACS1115+01/W-S-Z+_2010-03-12 SCIENCE OCFSF WEIGHTS ' 8 '
 exit_stat=$?
 if [ "${exit_stat}" -gt "0" ]; then
     exit ${exit_stat};

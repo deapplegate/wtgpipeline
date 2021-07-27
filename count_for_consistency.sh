@@ -4,7 +4,7 @@
 #adam-example# ./count_for_consistency.sh 2010-11-04_W-S-Z+
 
 pprun=$1
-SUBARUDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/"
+SUBARUDIR="/u/ki/awright/data/"
 dir=${SUBARUDIR}/${pprun}/
 echo ""
 echo "######## ${pprun} ########"

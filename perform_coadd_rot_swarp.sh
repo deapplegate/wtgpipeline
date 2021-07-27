@@ -56,7 +56,7 @@ set -xv
 . progs.ini > /tmp/progs.out 2>&1
 
 BONNDIR=`pwd`
-HEADDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/coadd_headers/" 
+HEADDIR="/u/ki/awright/data/coadd_headers/" 
 # construct a unique name for the coadd.head file
 # of this co-addition:
 #

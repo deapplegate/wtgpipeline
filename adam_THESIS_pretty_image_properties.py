@@ -5,7 +5,7 @@ from adam_quicktools_ArgCleaner import ArgCleaner
 args=ArgCleaner(sys.argv)
 print "args=", args
 
-#/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/coadds-pretty_for_10_3_cr.2/
+#/u/ki/awright/data/eyes/coadds-pretty_for_10_3_cr.2/
 import pickle
 fl=open('/u/ki/awright/thiswork/eyes/Prettys_info.2.1.pkl','rb')
 Pinfo=pickle.load(fl) #CRbads[filter][CRnum]['CCDnum','weight_file','file','dark_file','CRtag'] only 'file' and 'CRtag' are useful here

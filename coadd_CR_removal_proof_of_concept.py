@@ -19,7 +19,7 @@ ns=globals()
 conn8=array([[1,1,1],[1,1,1],[1,1,1]])
 conn4=array([[0,1,0],[1,1,1],[0,1,0]])
 connS=array([[0,1,1,0],[1,1,1,1],[1,1,1,1],[0,1,1,0]],dtype=bool)
-plotdir='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/plot_SCIENCE_compare/'
+plotdir='/u/ki/awright/data/eyes/CRNitschke_output/plot_SCIENCE_compare/'
 from glob import glob
 coadd_masterdir='/gpfs/slac/kipac/fs1/u/awright/SUBARU/RXJ2129/W-C-RC/SCIENCE/'
 supa_coadds=glob(coadd_masterdir+'coadd_RXJ2129_SUPA01*/coadd.fits')
@@ -1491,8 +1491,8 @@ if __name__ == "__main__":
 	BASE=os.path.basename(fl).split('OCF')[0]
 	#get cosmics images
 	OFB='%s_%s_%s' % (OBJECT,FILTER,BASE,)
-	CR_segfl='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
-	CR_filtfl='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_CRN-cosmics_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
+	CR_segfl='/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_CRN-cosmics_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
+	CR_filtfl='/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/FILTERED_CRN-cosmics_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
 	CRfitsfl=astropy.io.fits.open(CR_filtfl)
 	rms=CRfitsfl[0].header['MYRMS']
 	rms_bins=arange(10,100,5)
@@ -1508,7 +1508,7 @@ if __name__ == "__main__":
 	CRfiltheader=CRfitsfl[0].header
 	CRfitsfl.close()
 	#get stars images
-	star_segfl='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_stars/SEGMENTATION_CRN-stars_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
+	star_segfl='/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_stars/SEGMENTATION_CRN-stars_%s_%s.%s.fits' % (OBJECT,FILTER,BASE,)
 	starseg0=asarray(imagetools.GetImage(star_segfl),dtype=int)
 	star0_slices=scipy.ndimage.find_objects(starseg0 )
 	Nstars=starseg0.max()
@@ -1583,7 +1583,7 @@ if __name__ == "__main__":
 	CRll=asarray(CRll)
 	#get the info needed to define the blender function
 	#start saving output
-	compare_dir='/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/'
+	compare_dir='/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_compare/'
 	detections0=CRseg0>0
 	WOblendCRfiltimage=CRfiltimage.copy()
 	WOblendCRfiltimage[detections0]=-2000

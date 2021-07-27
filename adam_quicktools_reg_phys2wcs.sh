@@ -1,10 +1,10 @@
 #! /bin/bash -xv
 #adam-does# this code changes the coordinates of region files from physical to fk5
-#adam-predecessor# this code came from /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC_2010-11-04/reg/wcs2phys.sh
-#adam-call_example# ./adam_wcs2phys.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/autosuppression/ /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/ OCF
+#adam-predecessor# this code came from /u/ki/awright/data/MACS0416-24/W-C-RC_2010-11-04/reg/wcs2phys.sh
+#adam-call_example# ./adam_wcs2phys.sh /u/ki/awright/data/MACS0416-24/W-C-RC/SCIENCE/autosuppression/ /u/ki/awright/data/MACS0416-24/W-C-RC/SCIENCE/ OCF
 #adam-comments# could be adapted to change other properties as well
-regdir="/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC_2010-02-12/SCIENCE/reg"
-scidir="/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC_2010-02-12/SCIENCE"
+regdir="/u/ki/awright/data/MACS1226+21/W-C-RC_2010-02-12/SCIENCE/reg"
+scidir="/u/ki/awright/data/MACS1226+21/W-C-RC_2010-02-12/SCIENCE"
 ending="OCF"
 
 

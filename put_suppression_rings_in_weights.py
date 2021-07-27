@@ -11,7 +11,7 @@ if not len(args)==len(flag_fls):
 
 for fl in flag_fls:
 	wtfl=fl.replace('flag','weight')
-	os.system('cp %s /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC/WEIGHTS/pre_ring_backup/' % (fl))
+	os.system('cp %s /u/ki/awright/data/MACS1115+01/W-C-RC/WEIGHTS/pre_ring_backup/' % (fl))
 	flag=astropy.io.fits.open(fl)[0].data
 	wtfo=astropy.io.fits.open(wtfl,'update')
 	flag0s=(flag==0.0).mean()

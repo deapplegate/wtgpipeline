@@ -26,13 +26,13 @@ print "filter,run,ending,chips=",filter,run,ending,chips
 ## Now the difference images from ctcorr!
 endingX=ending+"X"
 for chip in chips_list:
-	fls_diff=glob("/nfs/slac/g/ki/ki18/anja/SUBARU/%s_%s/SCIENCE/IM_diff/SUPA*_%i_diff.fits" % (run,filter,chip))
+	fls_diff=glob("/u/ki/awright/data/%s_%s/SCIENCE/IM_diff/SUPA*_%i_diff.fits" % (run,filter,chip))
 	for fl_diff in fls_diff:
 		basename_diff=os.path.basename(fl_diff)[:-10]
-		fl_ending="/nfs/slac/g/ki/ki18/anja/SUBARU/%s_%s/SCIENCE/%s%s.fits" % (run,filter,basename_diff,ending)
+		fl_ending="/u/ki/awright/data/%s_%s/SCIENCE/%s%s.fits" % (run,filter,basename_diff,ending)
 		if not os.path.isfile(fl_ending):
 			raise Exception("PROBLEM with input file to correct:\nfl_ending=%s\nINPUT args are:\n\tfilter=%s\n\trun=%s\n\tending=%s\n\tchips=%s" % (fl_ending,filter,run,ending,chips))
-		flX="/nfs/slac/g/ki/ki18/anja/SUBARU/%s_%s/SCIENCE/%s%s.fits" % (run,filter,basename_diff,endingX)
+		flX="/u/ki/awright/data/%s_%s/SCIENCE/%s%s.fits" % (run,filter,basename_diff,endingX)
 		im_diff=pyfits.open(fl_diff)[0].data
 		im_diff=asarray(im_diff,dtype=float32)
 		print "%s: min=%.1f mean=%.1f max=%.1f " % (os.path.basename(fl_diff),im_diff.min(),im_diff.mean(),im_diff.max())

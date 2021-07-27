@@ -1,7 +1,7 @@
 #!/bin/bash
 set -xv
 #adam-does# this makes ds9 screenshots of the spikefinder stuff (masks and images) so you can see if sf did ok
-#adam-example# ./bad_shadow_remover.sh /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-S-Z+/SCIENCE/diffmask
+#adam-example# ./bad_shadow_remover.sh /u/ki/awright/data/2015-12-15_W-S-Z+/SCIENCE/diffmask
 echo "moving to $1"
 OCFsfdir=$1
 OCFdir=${OCFsfdir%diffmask*}

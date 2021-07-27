@@ -22,10 +22,10 @@ Made batch wrapper for them using the combo of these:
     * adam_CTcorr_allOCF-TEMPLATE.sh
 
 #4a.) change directory structure
-#ln -s /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}_*/SCIENCE/SUPA*.fits /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE/
-#ln -s /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}_*/WEIGHTS/SUPA*.fits /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/WEIGHTS/
+#ln -s /u/ki/awright/data/${cluster}/${filter}_*/SCIENCE/SUPA*.fits /u/ki/awright/data/${cluster}/${filter}/SCIENCE/
+#ln -s /u/ki/awright/data/${cluster}/${filter}_*/WEIGHTS/SUPA*.fits /u/ki/awright/data/${cluster}/${filter}/WEIGHTS/
 #4b.) setup header files (for each ${filter})
-#./update_config_header.sh /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE SUBARU ${cluster}
+#./update_config_header.sh /u/ki/awright/data/${cluster}/${filter}/SCIENCE SUBARU ${cluster}
 #4c.) do the cross talk correction for 10_3 ONLY!
 
 
@@ -34,7 +34,7 @@ Made batch wrapper for them using the combo of these:
 ./do_Subaru_register_4batch.sh ${cluster} 2MASS astrom "W-J-B W-C-RC W-S-Z+"
 #OR if in SDSS footprint: SDSS DR10 Finding Chart Tool at skyserver.sdss.org
 ./do_Subaru_register_4batch.sh ${cluster} SDSS-R6 astrom "W-J-B W-J-V W-C-RC W-C-IC W-S-Z+" 
-#adam-CHECK# after astrometry call check the output plots in /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE/astrom_scamp_2MASS/plots
+#adam-CHECK# after astrometry call check the output plots in /u/ki/awright/data/${cluster}/${filter}/SCIENCE/astrom_scamp_2MASS/plots
 ## if using panstarrs for astrometric ref or for IC, then run this:
 ./adam_download_panstarrs_catalog.py && ./adam_combine_and_fix_panstarrs_catalog.py && ./adam_illumcorr_panstarrs_catalog.py
 ./do_Subaru_register_4batch.sh ${cluster} PANSTARRS astrom "W-J-B W-J-V W-C-RC W-C-IC W-S-Z+" 
@@ -55,7 +55,7 @@ ipython simple_ic_PANSTARRS.py
 ./do_Subaru_register_4batch.sh ${cluster} 2MASS photom "W-J-B W-C-RC W-S-Z+"
 #OR if in SDSS footprint: SDSS DR10 Finding Chart Tool at skyserver.sdss.org
 ./do_Subaru_register_4batch.sh ${cluster} SDSS-R6 photom "W-J-B W-J-V W-C-RC W-C-IC W-S-Z+"
-#adam-CHECK# check the output plots in /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE/astrom_photom_scamp_2MASS/plots
+#adam-CHECK# check the output plots in /u/ki/awright/data/${cluster}/${filter}/SCIENCE/astrom_photom_scamp_2MASS/plots
 
 
 #8.) coaddition ("all" and "exposure" for all filters, also "good" for lensing filter)
@@ -87,8 +87,8 @@ adam_make_autosuppression_ims.py #makes autosuppression directory with images th
 #Currently $ending would be "OCF", once the IC works, it should be "OCFR". probably $queue should be "long"
 queue=medium
 ending=OCFSI
-./batch_suppress.sh ${cluster} ${filter} /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE/autosuppression $ending $queue
-#./batch_suppress.sh ${cluster} ${filter} /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE/autosuppression/10_2/ $ending $queue
+./batch_suppress.sh ${cluster} ${filter} /u/ki/awright/data/${cluster}/${filter}/SCIENCE/autosuppression $ending $queue
+#./batch_suppress.sh ${cluster} ${filter} /u/ki/awright/data/${cluster}/${filter}/SCIENCE/autosuppression/10_2/ $ending $queue
 ./move_suppression.sh MACS0416-24 W-C-RC  $ending
 ## soften_rings.sh: might be helpful if the rings appear to have over-subtracted things a bit.
 
@@ -123,8 +123,8 @@ export cluster=Zw2089 ; export detect_filter=W-J-V;export lensing_filter=W-J-V ;
 #3# return to this directory and do BIGMACSCALIB BIGMACSAPPLY
 
 #12.) photo-z calculation using bpz.py
-#adam-note#  inputfile= /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat
-#adam-note#  outputfile= /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all.EVERY.cat
+#adam-note#  inputfile= /u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.calibrated.cat
+#adam-note#  outputfile= /u/ki/awright/data/MACS1226+21/PHOTOMETRY_W-C-RC_aper/MACS1226+21.APER1.1.CWWSB_capak.list.all.EVERY.cat
 #adam-look# OK, now instead of adam_bpz_wrapper.py, we're using ./adam_bpz_wrapper_v2.py
 cd ~/gravitas/photoz_analysis/ 
 vim adam_bpz_wrapper_v2.py

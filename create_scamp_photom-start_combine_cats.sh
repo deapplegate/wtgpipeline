@@ -1,6 +1,6 @@
 #!/bin/bash
 set -xvu
-#adam-example# ./create_scamp_photom-start_combine_cats.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-B SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-S-Z+ SCIENCE 30000 SDSS-R6
+#adam-example# ./create_scamp_photom-start_combine_cats.sh /u/ki/awright/data/MACS1115+01/W-J-B SCIENCE /u/ki/awright/data/MACS1115+01/W-C-RC SCIENCE /u/ki/awright/data/MACS1115+01/W-S-Z+ SCIENCE 30000 SDSS-R6
 #. BonnLogger.sh
 #. log_start
 
@@ -523,7 +523,7 @@ fi
 #adam-tmp# mv create_scamp_photom-no_overwrite.sh create_scamp_photom-end_no_overwrite.sh
 ./create_scamp_photom-middle_combine_dirs.sh ${cluster} W-J-B W-J-B
 
-#adam-example# ./create_scamp_photom-end_no_overwrite.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-B SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-V SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-IC SCIENCE /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-S-Z+ SCIENCE 30000 SDSS-R6
+#adam-example# ./create_scamp_photom-end_no_overwrite.sh /u/ki/awright/data/MACS1115+01/W-J-B SCIENCE /u/ki/awright/data/MACS1115+01/W-J-V SCIENCE /u/ki/awright/data/MACS1115+01/W-C-RC SCIENCE /u/ki/awright/data/MACS1115+01/W-C-IC SCIENCE /u/ki/awright/data/MACS1115+01/W-S-Z+ SCIENCE 30000 SDSS-R6
 
 #create_scamp_photom-start_combine_cats.sh	this script runs scampcat.py on all of the new data and sets up the astrom_photom_scamp_SDSS-R6 directory properly
 #create_scamp_photom-middle_combine_dirs.py	this links or copies the needed data from the old directories into the new ones so everything is set and ready to go

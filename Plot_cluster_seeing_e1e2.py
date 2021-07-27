@@ -22,15 +22,15 @@ args=imagetools.ArgCleaner(sys.argv,FileString)
 cluster=args[0]
 
 # make files like this:
-os.system("ls -1 /nfs/slac/g/ki/ki18/anja/SUBARU/%s/W-C-RC/SCIENCE/%s_SUPA*.cat | head -n 1 > tmp_cluster.txt" % (cluster,cluster))
+os.system("ls -1 /u/ki/awright/data/%s/W-C-RC/SCIENCE/%s_SUPA*.cat | head -n 1 > tmp_cluster.txt" % (cluster,cluster))
 with open("tmp_cluster.txt",'r') as fo:
     l=fo.read()
     catname=l.split("/")[-1]
     supa=catname[len(cluster)+1:-5]
 
 
-os.system("/u/ki/anja/software/ldacpipeline-0.12.20/bin/Linux_64/ldactoasc -i /nfs/slac/g/ki/ki18/anja/SUBARU/%s/W-C-RC/SCIENCE/%s_%s.cat -t STATS -k SEEING seeing_fwhmse seeing_rh_al e1 e2 > %s_seeings_and_e1e2.txt" % (cluster,cluster,supa,cluster))
-os.system("/u/ki/anja/software/ldacpipeline-0.12.20/bin/Linux_64/ldactoasc -i /nfs/slac/g/ki/ki18/anja/SUBARU/%s/W-C-RC/SCIENCE/%s_%s.cat -t STATS -s -b -k IMAGENAME > IMAGENAMES.txt" % (cluster,cluster,supa))
+os.system("/u/ki/anja/software/ldacpipeline-0.12.20/bin/Linux_64/ldactoasc -i /u/ki/awright/data/%s/W-C-RC/SCIENCE/%s_%s.cat -t STATS -k SEEING seeing_fwhmse seeing_rh_al e1 e2 > %s_seeings_and_e1e2.txt" % (cluster,cluster,supa,cluster))
+os.system("/u/ki/anja/software/ldacpipeline-0.12.20/bin/Linux_64/ldactoasc -i /u/ki/awright/data/%s/W-C-RC/SCIENCE/%s_%s.cat -t STATS -s -b -k IMAGENAME > IMAGENAMES.txt" % (cluster,cluster,supa))
 
 fl="%s_seeings_and_e1e2.txt" % (cluster)
 tab = ascii.read(fl,Reader=ascii.SExtractor)

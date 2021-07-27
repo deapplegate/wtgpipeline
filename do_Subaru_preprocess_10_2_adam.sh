@@ -71,7 +71,7 @@ fi
 
 #adam# this isn't a directory
 ./setup_SUBARU.sh ${SUBARUDIR}/${run}_${filter}/SCIENCE/ORIGINALS #RAWDATA folder
-#./setup_SUBARU.sh /nfs/slac/g/ki/ki18/anja/SUBARU/2006-03-04_W-C-RC/SCIENCE/ORIGINALS/
+#./setup_SUBARU.sh /u/ki/awright/data/2006-03-04_W-C-RC/SCIENCE/ORIGINALS/
 export INSTRUMENT=SUBARU
 
 . ${INSTRUMENT:?}.ini

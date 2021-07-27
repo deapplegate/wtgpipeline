@@ -1,5 +1,5 @@
 #!/bin/bash -xv
-cd /nfs/slac/g/ki/ki18/anja/SUBARU/
+cd /u/ki/awright/data/
 
 # ds9 -tile grid layout 5 2 -geometry 2000x2000 -frame lock image -cmap bb -scale limits .99 1.01 SUPA012604*.fits -zoom to fit -saveimage png -saveimage png plt10ims_SUPA012604.png -quit
 

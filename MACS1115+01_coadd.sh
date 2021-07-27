@@ -2,7 +2,7 @@
 set -xv
 
 export cluster='MACS1115+01'
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/ ; export INSTRUMENT=SUBARU
+export SUBARUDIR=/u/ki/awright/data/ ; export INSTRUMENT=SUBARU
 #mkdir /nfs/slac/kipac/fs1/u/awright/batch_files/coadd_MACS1115+01/
 export filter='W-C-RC'
 ./adam_pre_coadd_cleanup.sh MACS1115+01 W-C-RC

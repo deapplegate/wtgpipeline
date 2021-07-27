@@ -382,8 +382,8 @@ fi
 #adam-look# BIGMACSCALIB (e)
 if [ $fit_calibration -eq 1 ]; then
 	#adam_bigmacs-make_input_columns.py makes these files:
-	#	/nfs/slac/g/ki/ki18/anja/SUBARU//${cluster}/PHOTOMETRY_W-C-RC_aper/${cluster}.sdss.columns
-	#	/nfs/slac/g/ki/ki18/anja/SUBARU//${cluster}/PHOTOMETRY_W-C-RC_aper/${cluster}.qc.columns 
+	#	/u/ki/awright/data//${cluster}/PHOTOMETRY_W-C-RC_aper/${cluster}.sdss.columns
+	#	/u/ki/awright/data//${cluster}/PHOTOMETRY_W-C-RC_aper/${cluster}.qc.columns 
 	# adam_bigmacs-make_input_columns.py: make the cluster.qc.columns and cluster.sdss.columns files needed to run bigmacs.
 	python adam_bigmacs-make_input_columns.py $cluster detect=${detect_filter} aptype=${mode}
 	exit_code=$?
@@ -420,7 +420,7 @@ if [ $fit_calibration -eq 1 ]; then
 	fi
 
 	#2MASS# ## fit zps with 2MASS, bootstrap=5
-	#2MASS# python fit_locus.py --file /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/PHOTOMETRY_W-C-RC_aper/${cluster}.stars.calibrated.cat --columns /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/PHOTOMETRY_W-C-RC_aper/${cluster}.qc.columns --extension 1 --bootstrap 5 -l -j --output /nfs/slac/g/ki/ki18/anja/SUBARU//${cluster}/PHOTOMETRY_W-C-RC_aper/BIGMACS_output_stars_2MASS-no_unit_test/ -p /nfs/slac/g/ki/ki18/anja/SUBARU//${cluster}/PHOTOMETRY_W-C-RC_aper/BIGMACS_output_stars_2MASS-no_unit_test/PLOTS 2>&1 | tee -a OUT-fit_locus-2MASS-no_unit_test-bootstrap5.log
+	#2MASS# python fit_locus.py --file /u/ki/awright/data/${cluster}/PHOTOMETRY_W-C-RC_aper/${cluster}.stars.calibrated.cat --columns /u/ki/awright/data/${cluster}/PHOTOMETRY_W-C-RC_aper/${cluster}.qc.columns --extension 1 --bootstrap 5 -l -j --output /u/ki/awright/data//${cluster}/PHOTOMETRY_W-C-RC_aper/BIGMACS_output_stars_2MASS-no_unit_test/ -p /u/ki/awright/data//${cluster}/PHOTOMETRY_W-C-RC_aper/BIGMACS_output_stars_2MASS-no_unit_test/PLOTS 2>&1 | tee -a OUT-fit_locus-2MASS-no_unit_test-bootstrap5.log
 	cd $bonn
 	export PYTHONPATH=$PYTHONPATH_old
 	grep -v "^#\|^psfPogCorr" ${photdir}/BIGMACS_output_PureStarCalib/${cluster}.stars.split_apers.cat.offsets.list | sed 's/\ +-//g;s/\ REDDER//g' >${photdir}/${cluster}.bigmacs_cleaned_offsets-PureStarCalib.list

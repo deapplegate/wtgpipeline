@@ -14,12 +14,12 @@ filter=W-S-Z+; run=2011-01-06; BASE=SUPA0128343_4   #61.3791  0.765   57.0226673
 
 #use this command to see how the CR masker is preforming:
 
-ds9 -tile mode column -zscale /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/${filter}_${run}/SCIENCE/${BASE}OCF.fits \
-        /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/BBrevised_bthresh*_BBCR_MACS1226+21_${filter}.${BASE}.fits \
-	/nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/StarRMout_KeepOrRM-purified_cosmics_MACS1226+21_${filter}.${BASE}.fits \
-        /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/${filter}_${run}/SCIENCE_weighted/${BASE}OCF.weighted.fits \
-        -scale mode minmax /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/BB_ERASED_bthresh*_BBCR_MACS1226+21_${filter}.${BASE}.fits \
-        /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_KeepOrRM-starlike_cosmics_MACS1226+21_${filter}.${BASE}.fits \
+ds9 -tile mode column -zscale /u/ki/awright/data/MACS1226+21/${filter}_${run}/SCIENCE/${BASE}OCF.fits \
+        /u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_compare/BBrevised_bthresh*_BBCR_MACS1226+21_${filter}.${BASE}.fits \
+	/u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/StarRMout_KeepOrRM-purified_cosmics_MACS1226+21_${filter}.${BASE}.fits \
+        /u/ki/awright/data/MACS1226+21/${filter}_${run}/SCIENCE_weighted/${BASE}OCF.weighted.fits \
+        -scale mode minmax /u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_compare/BB_ERASED_bthresh*_BBCR_MACS1226+21_${filter}.${BASE}.fits \
+        /u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_KeepOrRM-starlike_cosmics_MACS1226+21_${filter}.${BASE}.fits \
         -lock frame image -geometry 2000x2000 & 
 
 xv pltSS_NotStars-k_gt_kmax_MACS1226+21_${filter}_*_${BASE}.png  pltSS_Stars_MACS1226+21_${filter}_*_${BASE}.png &
@@ -27,8 +27,8 @@ filter=W-J-B ; run=2010-02-12; BASE=SUPA0118323_7    #12.4808  0.66    170.0  20
 filter=W-J-V ; run=2010-02-12; BASE=SUPA0118325_8    #27.516   0.615   133.214148132  16.3541212386
 filter=W-S-G+; run=2010-04-15; BASE=SUPA0121585_9   #21.9571  0.855   159.401742489  20.4945097486
 
-ds9 -tile mode column -zscale /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/${filter}_${run}/SCIENCE/${BASE}OCF.fits \
-        /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_compare/BBrevised_bthresh*_BBCR_MACS1226+21_${filter}.${BASE}.fits \
-        -scale mode minmax /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_KeepOrRM-starlike_cosmics_MACS1226+21_${filter}.${BASE}.fits \
+ds9 -tile mode column -zscale /u/ki/awright/data/MACS1226+21/${filter}_${run}/SCIENCE/${BASE}OCF.fits \
+        /u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_compare/BBrevised_bthresh*_BBCR_MACS1226+21_${filter}.${BASE}.fits \
+        -scale mode minmax /u/ki/awright/data/eyes/CRNitschke_output/data_SCIENCE_cosmics/SEGMENTATION_KeepOrRM-starlike_cosmics_MACS1226+21_${filter}.${BASE}.fits \
         -lock frame image -geometry 2000x2000 & 
 

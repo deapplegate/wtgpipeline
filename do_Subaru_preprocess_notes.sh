@@ -9,7 +9,7 @@ process_bias_4channels_eclipse_para.sh: correct the bias frames for overscan
 #DARK STEPS
 ########### DARK Step (1) #########################################
 #adam# Dark step (1) is to do this, use optional run directory=10_3 for darks since you only take darks very infrequently
-#adam# instead of this I ran ./cp_aux_data.sh /nfs/slac/g/ki/ki18/anja/SUBARU 10_3_DARK /nfs/slac/g/ki/ki18/anja/SUBARU/from_archive/darks
+#adam# instead of this I ran ./cp_aux_data.sh /u/ki/awright/data 10_3_DARK /u/ki/awright/data/from_archive/darks
 
 ########### DARK Step (2) #########################################
 ## process the DARK frames (per chip)

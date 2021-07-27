@@ -94,7 +94,7 @@ export BONN_FILTER=${filter}
 ########################################
 
 REDDIR=`pwd`
-HEADDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/coadd_headers/"
+HEADDIR="/u/ki/awright/data/coadd_headers/"
 export SUBARUDIR=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 
 ##########################################

@@ -23,7 +23,7 @@ def Star_Rad_Mag_Range(catfl,Nstars=None,ELLIPTICITY=None,**kwargs):
 			ELLIPTICITY=kwargs['ELLIPTICITY']
 			
 		#(1)#getting the ldac CATALOG files
-		#Pnum0   /nfs/slac/g/ki/ki18/anja/SUBARU/eyes/coadds-pretty_for_10_3_cr.2/MACS0018+16_W-C-RC_sub1.fits   14.7568	 0.787
+		#Pnum0   /u/ki/awright/data/eyes/coadds-pretty_for_10_3_cr.2/MACS0018+16_W-C-RC_sub1.fits   14.7568	 0.787
 		#adam-remove# cosmic_fl="/u/ki/awright/InstallingSoftware/pythons/sextractimtools/CATALOG.fits_ldac-%s.fits" % (imagetools.id_generator(10),)
 		outfl="/u/ki/awright/InstallingSoftware/pythons/sextractimtools/prean_out-%s.log" % (imagetools.id_generator(10),)
 		#default sextractor#print "**ANTI-REMINDER** for now I'm using the default (2.8.6) even though it gives non-sensical values of FWHM! rather than the theli version of sextractor (2.2.2)"

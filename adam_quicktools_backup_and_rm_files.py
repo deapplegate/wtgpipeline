@@ -1,12 +1,12 @@
 #! /usr/bin/env python
 #adam-does# moves a certain class of files so that it's not in the way screwing up pipeline scripts, but keeping them somewhere in case I need them
 #adam-use# for example, after running the stellar suppression you can remove the *OCF.fits files so they don't confuse the processing of the *OCFR.fits files. But you can save the *OCF.fits files in case you add more stellar rings in later.
-#adam-example# ipython -i -- adam_backup_and_rm_files.py /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/*OCF.fits
+#adam-example# ipython -i -- adam_backup_and_rm_files.py /u/ki/awright/data/MACS0416-24/W-C-RC/SCIENCE/*OCF.fits
 import sys
 sys.path.append('/u/ki/awright/InstallingSoftware/pythons/')
 from import_tools import *
-SUBARUDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/"
-backup_main="/nfs/slac/g/ki/ki18/anja/SUBARU/backup_files/"
+SUBARUDIR="/u/ki/awright/data/"
+backup_main="/u/ki/awright/data/backup_files/"
 files2backup=imagetools.ArgCleaner(sys.argv)
 fl0= files2backup[0]
 backup_from_dir=fl0[:fl0.rfind('/')]

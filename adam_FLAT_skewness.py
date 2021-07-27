@@ -12,7 +12,7 @@ for pprun in ["2010-03-12_W-J-B","2010-11-04_W-J-B","2009-09-19_W-J-V","2010-03-
 	SKY_R_med=[]
 	DOME_L_med=[]
 	DOME_R_med=[]
-	original="/nfs/slac/g/ki/ki18/anja/SUBARU/%s/SCIENCE/ORIGINALS/SUPA*.fits" % (pprun,)
+	original="/u/ki/awright/data/%s/SCIENCE/ORIGINALS/SUPA*.fits" % (pprun,)
 	fls=glob(original)
 	fls=[os.path.basename(fl).split(".")[0] for fl in fls]
 
@@ -20,11 +20,11 @@ for pprun in ["2010-03-12_W-J-B","2010-11-04_W-J-B","2009-09-19_W-J-V","2010-03-
 	Lmask={}
 	Rmask={}
 	for chip in [1,2,6,7]:
-		maskfl="/nfs/slac/g/ki/ki18/anja/SUBARU/RADIAL_MASKS/SUBARU_10_3/RadialMask_10_3_%s.fits" % (chip)
+		maskfl="/u/ki/awright/data/RADIAL_MASKS/SUBARU_10_3/RadialMask_10_3_%s.fits" % (chip)
 		maskdata=n.asarray(pyfits.open(maskfl)[0].data,dtype=bool)
 		Lmask[chip]=maskdata.flatten()
 	for chip in [4,5,9,10]:
-		maskfl="/nfs/slac/g/ki/ki18/anja/SUBARU/RADIAL_MASKS/SUBARU_10_3/RadialMask_10_3_%s.fits" % (chip)
+		maskfl="/u/ki/awright/data/RADIAL_MASKS/SUBARU_10_3/RadialMask_10_3_%s.fits" % (chip)
 		maskdata=n.asarray(pyfits.open(maskfl)[0].data,dtype=bool)
 		Rmask[chip]=maskdata.flatten()
 
@@ -36,8 +36,8 @@ for pprun in ["2010-03-12_W-J-B","2010-11-04_W-J-B","2009-09-19_W-J-V","2010-03-
 		LSKY=n.array((0,))
 		for chip in [1,2,6,7]:
 			maskdata=Lmask[chip]
-			DOMEfl="/nfs/slac/g/ki/ki18/anja/SUBARU/%s/SCIENCE_norm_DOMEFLAT/%s_%sOCFN.fits" % (pprun,fl,chip)
-			SKYfl="/nfs/slac/g/ki/ki18/anja/SUBARU/%s/SCIENCE_norm_SKYFLAT/%s_%sOCFN.fits" % (pprun,fl,chip)
+			DOMEfl="/u/ki/awright/data/%s/SCIENCE_norm_DOMEFLAT/%s_%sOCFN.fits" % (pprun,fl,chip)
+			SKYfl="/u/ki/awright/data/%s/SCIENCE_norm_SKYFLAT/%s_%sOCFN.fits" % (pprun,fl,chip)
 			DOMEdata=pyfits.open(DOMEfl)[0].data
 			SKYdata=pyfits.open(SKYfl)[0].data
 			LDOME=n.append(LDOME,DOMEdata.flatten()[maskdata])
@@ -52,8 +52,8 @@ for pprun in ["2010-03-12_W-J-B","2010-11-04_W-J-B","2009-09-19_W-J-V","2010-03-
 		RSKY=n.array((0,))
 		for chip in [4,5,9,10]:
 			maskdata=Rmask[chip]
-			DOMEfl="/nfs/slac/g/ki/ki18/anja/SUBARU/%s/SCIENCE_norm_DOMEFLAT/%s_%sOCFN.fits" % (pprun,fl,chip)
-			SKYfl="/nfs/slac/g/ki/ki18/anja/SUBARU/%s/SCIENCE_norm_SKYFLAT/%s_%sOCFN.fits" % (pprun,fl,chip)
+			DOMEfl="/u/ki/awright/data/%s/SCIENCE_norm_DOMEFLAT/%s_%sOCFN.fits" % (pprun,fl,chip)
+			SKYfl="/u/ki/awright/data/%s/SCIENCE_norm_SKYFLAT/%s_%sOCFN.fits" % (pprun,fl,chip)
 			DOMEdata=pyfits.open(DOMEfl)[0].data
 			SKYdata=pyfits.open(SKYfl)[0].data
 			RDOME=n.append(RDOME,DOMEdata.flatten()[maskdata])

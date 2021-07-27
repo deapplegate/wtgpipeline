@@ -84,11 +84,11 @@ ds9e ../autosuppression_smoothed_chips/SUPA0135166_10OCFSI_smoothed.fits -region
 ## lastly do the subtraction:
 queue='medium'
 export ending=OCFSI
-export SUBARUDIR=/nfs/slac/g/ki/ki18/anja/SUBARU/
+export SUBARUDIR=/u/ki/awright/data/
 export cluster=MACS1115+01
 export filter=W-C-RC
 
-./batch_suppress.sh ${cluster} ${filter} /nfs/slac/g/ki/ki18/anja/SUBARU/${cluster}/${filter}/SCIENCE/autosuppression/ $ending $queue
+./batch_suppress.sh ${cluster} ${filter} /u/ki/awright/data/${cluster}/${filter}/SCIENCE/autosuppression/ $ending $queue
 ## remember I put the put_flags_in_weights.py script into the do_coadd_batch.sh script, so now everything should work ok
 
 ## redo the coadd
@@ -106,4 +106,4 @@ export cluster=RXJ2129 ; export detect_filter=${filter};export lensing_filter=${
 ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper PHOTO  2>&1 | tee -a OUT-adam_do_photometry_${cluster}_PHOTO.log
 ./adam_do_photometry.sh ${cluster} ${detect_filter} ${lensing_filter} aper MERGE STARS BIGMACSCALIB BIGMACSAPPLY 2>&1 | tee -a OUT-adam_do_photometry_${cluster}_allmodes.log
 
-for fl in `\ls /nfs/slac/g/ki/ki18/anja/SUBARU//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_*/coadd.fits` ; do ./adam_quicktools_fix_header_verify.py ${fl} ; ./SeeingClearly_for_coadds.py ${fl} ; done
+for fl in `\ls /u/ki/awright/data//MACS1115+01/W-C-RC/SCIENCE/coadd_MACS1115+01_*/coadd.fits` ; do ./adam_quicktools_fix_header_verify.py ${fl} ; ./SeeingClearly_for_coadds.py ${fl} ; done

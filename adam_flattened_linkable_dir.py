@@ -9,8 +9,8 @@ sys.path.append('/u/ki/awright/quick/pythons/')
 from adam_quicktools_ArgCleaner import ArgCleaner
 args=ArgCleaner(sys.argv)
 #from import_tools import *
-#SUBARUDIR="/nfs/slac/g/ki/ki18/anja/SUBARU/"
-#backup_main="/nfs/slac/g/ki/ki18/anja/SUBARU/backup_files/"
+#SUBARUDIR="/u/ki/awright/data/"
+#backup_main="/u/ki/awright/data/backup_files/"
 import os,shutil
 #os.walk
 #adam_flattened_linkable_dir.py

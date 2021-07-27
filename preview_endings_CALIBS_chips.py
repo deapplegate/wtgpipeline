@@ -3,8 +3,8 @@
 import sys,os,re
 from glob import glob
 def get_path_supa_chip_ending(im):                                                                                                                                                                       
-        '''example: im='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-S-Z+/SCIENCE/SUPA0128347_10OCFI.fits'
-        get_path_supa_chip_ending(im)= ('/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-S-Z+/SCIENCE', 'SUPA0128347', '10', 'OCFI')'''
+        '''example: im='/u/ki/awright/data/MACS1226+21/W-S-Z+/SCIENCE/SUPA0128347_10OCFI.fits'
+        get_path_supa_chip_ending(im)= ('/u/ki/awright/data/MACS1226+21/W-S-Z+/SCIENCE', 'SUPA0128347', '10', 'OCFI')'''
         path=os.path.dirname(im)
         basename=os.path.basename(im)
         name_match=re.match("SUPA([0-9]*)_([0-9]{1,2})([A-Z]*).fits",basename)
@@ -15,8 +15,8 @@ def get_path_supa_chip_ending(im):
 
 # for each path, I want to know if there are multiple endings for each supa, and what they are
 def get_supa_chip_endings(ims):
-        '''example: im='/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-S-Z+/SCIENCE/SUPA0128347_10OCFI.fits'
-        get_path_supa_chip_ending(im)= ('/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-S-Z+/SCIENCE', 'SUPA0128347', '10', 'OCFI')'''
+        '''example: im='/u/ki/awright/data/MACS1226+21/W-S-Z+/SCIENCE/SUPA0128347_10OCFI.fits'
+        get_path_supa_chip_ending(im)= ('/u/ki/awright/data/MACS1226+21/W-S-Z+/SCIENCE', 'SUPA0128347', '10', 'OCFI')'''
 	paths={}
 	endings={}
 	for im in ims:

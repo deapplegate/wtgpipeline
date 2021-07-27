@@ -558,7 +558,7 @@ def seeing_clearly(image,**kwargs):
 		#namespace.update(locals())
 		raise
 
-for img_name,plot_name in zip(["/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot1/coadd.fits","/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot0/coadd.fits"],["plt_seeing_macs1226_rot1","plt_seeing_macs1226_rot0"]):
+for img_name,plot_name in zip(["/u/ki/awright/data/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot1/coadd.fits","/u/ki/awright/data/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot0/coadd.fits"],["plt_seeing_macs1226_rot1","plt_seeing_macs1226_rot0"]):
 	print ' img_name=',img_name , ' plot_name=',plot_name
 	print "Using SeeingClearly to get seeing for: "+img_name
 	seeing,back_rms=seeing_clearly_withplot(img_name,checkplots=1,saveas=plot_name)
@@ -571,10 +571,10 @@ for img_name,plot_name in zip(["/nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-
 #RMS of the background in this image is: 0.0587957
 #
 # SeeingClearly.seeing_clearly got (in arcseconds): Seeing=0.6
-# img_name= /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot0/coadd.fits  plot_name= plt_seeing_macs1226_rot0
-#Using SeeingClearly to get seeing for: /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot0/coadd.fits
-#/afs/slac/u/ki/anja/software/ldacpipeline-0.12.20/bin/Linux_64/sex_theli /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot0/coadd.fits -c /u/ki/awright/InstallingSoftware/pythons/sextractimtools/seeing_clearly.sex.config -CATALOG_NAME /u/ki/awright/InstallingSoftware/pythons/sextractimtools/seeing_clearly-EWS8A1.cat -DETECT_MINAREA 2 -SEEING_FWHM 0.7 -ANALYSIS_THRESH 10.0 -DETECT_THRESH 10.0
-#called string was:  /afs/slac/u/ki/anja/software/ldacpipeline-0.12.20/bin/Linux_64/sex_theli /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot0/coadd.fits -c /u/ki/awright/InstallingSoftware/pythons/sextractimtools/seeing_clearly.sex.config -CATALOG_NAME /u/ki/awright/InstallingSoftware/pythons/sextractimtools/seeing_clearly-EWS8A1.cat -DETECT_MINAREA 2 -SEEING_FWHM 0.7 -ANALYSIS_THRESH 10.0 -DETECT_THRESH 10.0 > /u/ki/awright/InstallingSoftware/pythons/sextractimtools/coadd.log 2>&1
+# img_name= /u/ki/awright/data/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot0/coadd.fits  plot_name= plt_seeing_macs1226_rot0
+#Using SeeingClearly to get seeing for: /u/ki/awright/data/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot0/coadd.fits
+#/afs/slac/u/ki/anja/software/ldacpipeline-0.12.20/bin/Linux_64/sex_theli /u/ki/awright/data/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot0/coadd.fits -c /u/ki/awright/InstallingSoftware/pythons/sextractimtools/seeing_clearly.sex.config -CATALOG_NAME /u/ki/awright/InstallingSoftware/pythons/sextractimtools/seeing_clearly-EWS8A1.cat -DETECT_MINAREA 2 -SEEING_FWHM 0.7 -ANALYSIS_THRESH 10.0 -DETECT_THRESH 10.0
+#called string was:  /afs/slac/u/ki/anja/software/ldacpipeline-0.12.20/bin/Linux_64/sex_theli /u/ki/awright/data/MACS1226+21/W-C-RC/SCIENCE/coadd_MACS1226+21_gab4060-rot0/coadd.fits -c /u/ki/awright/InstallingSoftware/pythons/sextractimtools/seeing_clearly.sex.config -CATALOG_NAME /u/ki/awright/InstallingSoftware/pythons/sextractimtools/seeing_clearly-EWS8A1.cat -DETECT_MINAREA 2 -SEEING_FWHM 0.7 -ANALYSIS_THRESH 10.0 -DETECT_THRESH 10.0 > /u/ki/awright/InstallingSoftware/pythons/sextractimtools/coadd.log 2>&1
 #Hit ellipticity cut change for  plt_seeing_macs1226_rot0
 #	now at 0.15
 #RMS of the background in this image is: 0.0528193

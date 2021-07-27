@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-#adam-example#ipython -i Plot_Light_Cutter.py /nfs/slac/g/ki/ki18/anja/SUBARU/10_2_DARK/DARK/DARK_*.fits
+#adam-example#ipython -i Plot_Light_Cutter.py /u/ki/awright/data/10_2_DARK/DARK/DARK_*.fits
 import pyfits
 from matplotlib.pylab import *
 import sys

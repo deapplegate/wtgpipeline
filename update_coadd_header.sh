@@ -1,6 +1,6 @@
 #!/bin/bash
 set -xv
-#adam-example# ./update_coadd_header.sh /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-J-B SCIENCE MACS1115+01_all STATS coadd -1.0 AB '((((RA>(168.96708333-0.5))AND(RA<(168.96708333+0.5)))AND((DEC>(1.49805556-0.5))AND(DEC<(1.49805556+0.5))))AND(SEEING<1.9));' 2>&1 | tee -a OUT-uch.log4
+#adam-example# ./update_coadd_header.sh /u/ki/awright/data/MACS1115+01/W-J-B SCIENCE MACS1115+01_all STATS coadd -1.0 AB '((((RA>(168.96708333-0.5))AND(RA<(168.96708333+0.5)))AND((DEC>(1.49805556-0.5))AND(DEC<(1.49805556+0.5))))AND(SEEING<1.9));' 2>&1 | tee -a OUT-uch.log4
 
 #adam-tmp# source deactivate astroconda
 

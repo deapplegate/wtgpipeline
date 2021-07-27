@@ -1,9 +1,9 @@
 #!/bin/bash
 set -xv
 #adam-does# This code will call ds9 with individual chip exposures assembled into a mosaic with consistent scale limits based on the zscale of one of the chips.
-#adam-example# ./adam_quicktools_ds9_chips2mosaic.sh /nfs/slac/g/ki/ki18/anja/SUBARU/Zw2089/W-J-V_2010-03-12/SCIENCE/SUPA0119554 "OCF" "zscale"
-#adam-example# ./adam_quicktools_ds9_chips2mosaic.sh /nfs/slac/g/ki/ki18/anja/SUBARU/Zw2089/W-J-V_2010-03-12/SCIENCE/SUPA0119555 "OCF" "zscale"
-#adam-example# ./adam_quicktools_ds9_chips2mosaic.sh /nfs/slac/g/ki/ki18/anja/SUBARU/Zw2089/W-J-V_2010-03-12/SCIENCE/SUPA0119556 "OCF" "zscale"
+#adam-example# ./adam_quicktools_ds9_chips2mosaic.sh /u/ki/awright/data/Zw2089/W-J-V_2010-03-12/SCIENCE/SUPA0119554 "OCF" "zscale"
+#adam-example# ./adam_quicktools_ds9_chips2mosaic.sh /u/ki/awright/data/Zw2089/W-J-V_2010-03-12/SCIENCE/SUPA0119555 "OCF" "zscale"
+#adam-example# ./adam_quicktools_ds9_chips2mosaic.sh /u/ki/awright/data/Zw2089/W-J-V_2010-03-12/SCIENCE/SUPA0119556 "OCF" "zscale"
 supa=$1
 end=$2
 ## if you want something very simple, then 3rd input=zscale

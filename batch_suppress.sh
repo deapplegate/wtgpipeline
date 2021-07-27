@@ -10,7 +10,7 @@
 #
 #######
 
-#subaru=/nfs/slac/g/ki/ki18/anja/SUBARU
+#subaru=/u/ki/awright/data
 #subaru=/gpfs/slac/kipac/fs1/u/awright/SUBARU
 subaru=/gpfs/slac/kipac/fs1/u/awright/SUBARU/
 

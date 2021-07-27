@@ -4,7 +4,7 @@
 #        mask in difference coadds, but place regions in SUPA*_[0-9]OCF.fits images, so regions are placed on individual chip exposures with backmask.py
 # 	SUPAXXXXXXX-all.coadd.fits         : difference images for each exposure ("coadd_cluster_SUPAXXXXXXX"-"coadd_cluster_all")
 # 	SUPAXXXXXXX-all.coadd.smoothed.fits: smoothed difference images
-#adam-call_example# adam_make_backmask_ims.py /nfs/slac/g/ki/ki18/anja/SUBARU/MACS0416-24/W-C-RC/SCIENCE/
+#adam-call_example# adam_make_backmask_ims.py /u/ki/awright/data/MACS0416-24/W-C-RC/SCIENCE/
 #adam-comments# very useful
 
 #BEFORE RUNNING CODE (1): set make_smoothed if you want smoothed images for all types of coadd differences (all, gabodsid, gabrot)

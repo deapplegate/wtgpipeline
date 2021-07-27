@@ -107,7 +107,7 @@ fi
 ##################################################################
 #adam# use this to sort the downloaded data
 ###DARK Step (1)# make DARK dir if I haven't already
-###./cp_aux_data.sh /nfs/slac/g/ki/ki18/anja/SUBARU 10_3_DARK /nfs/slac/g/ki/ki18/anja/SUBARU/from_archive/darks
+###./cp_aux_data.sh /u/ki/awright/data 10_3_DARK /u/ki/awright/data/from_archive/darks
 ###./cp_aux_data.sh ${SUBARUDIR} [optional run directory] ${SUBARUDIR}/${run}_RAWDATA
 
 ##################################################################

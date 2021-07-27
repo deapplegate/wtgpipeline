@@ -187,13 +187,13 @@ if [ "${exit_stat}" -gt "0" ]; then
 	exit ${exit_stat};
 fi
 
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2${SCIENCEDIR}.log
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}_illum256.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2_illum256${SCIENCEDIR}.log
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}_fringe256.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2_fringe256${SCIENCEDIR}.log
+imstats -d 3 /u/ki/awright/data/2015-12-15_W-C-RC/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2${SCIENCEDIR}.log
+imstats -d 3 /u/ki/awright/data/2015-12-15_W-C-RC/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}_illum256.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2_illum256${SCIENCEDIR}.log
+imstats -d 3 /u/ki/awright/data/2015-12-15_W-C-RC/${SCIENCEDIR}/${SCIENCEDIR}_{1,2,3,4,5,6,7,8,9,10}_fringe256.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2_fringe256${SCIENCEDIR}.log
 
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2_norm${SCIENCEDIR}.log
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}_illum256.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2_norm_illum256${SCIENCEDIR}.log
-imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}_fringe256.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2_norm_fringe256${SCIENCEDIR}.log
-for chip in 1 2 3 4 5 6 7 8 9 10 ; do imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/${SCIENCEDIR}/SUPA0154*_${chip}OCFS.fits > wcrc_set2_OCFS_${chip}${SCIENCEDIR}.txt ; done
-for chip in 1 2 3 4 5 6 7 8 9 10 ; do imstats -d 3 /nfs/slac/g/ki/ki18/anja/SUBARU/2015-12-15_W-C-RC/${SCIENCEDIR}/OCF_IMAGES/SUPA0154*_${chip}OCF.fits > wcrc_set2_OCF_${chip}${SCIENCEDIR}.txt ;done
+imstats -d 3 /u/ki/awright/data/2015-12-15_W-C-RC/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2_norm${SCIENCEDIR}.log
+imstats -d 3 /u/ki/awright/data/2015-12-15_W-C-RC/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}_illum256.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2_norm_illum256${SCIENCEDIR}.log
+imstats -d 3 /u/ki/awright/data/2015-12-15_W-C-RC/${SCIENCEDIR}_norm/${SCIENCEDIR}_norm_{1,2,3,4,5,6,7,8,9,10}_fringe256.fits > wcrc_set2_SCIENCE_SKYFLAT_SET2_norm_fringe256${SCIENCEDIR}.log
+for chip in 1 2 3 4 5 6 7 8 9 10 ; do imstats -d 3 /u/ki/awright/data/2015-12-15_W-C-RC/${SCIENCEDIR}/SUPA0154*_${chip}OCFS.fits > wcrc_set2_OCFS_${chip}${SCIENCEDIR}.txt ; done
+for chip in 1 2 3 4 5 6 7 8 9 10 ; do imstats -d 3 /u/ki/awright/data/2015-12-15_W-C-RC/${SCIENCEDIR}/OCF_IMAGES/SUPA0154*_${chip}OCF.fits > wcrc_set2_OCF_${chip}${SCIENCEDIR}.txt ;done
 exit 0;

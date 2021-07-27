@@ -92,7 +92,7 @@ do
     #adam# makes: SCIENCE_weighted/ directory and all of it's contents, such as ~/data/A2744/W-S-I+_2008-08-01/SCIENCE_weighted/SUPA0100117_10OCF.weighted.fits
 
     #adam# masks the radial region surrounding the edges of the FOV of the image making it easier to see which parts don't need to be masked by hand
-    ./parallel_manager.sh ./science_weighted_apply_RADIAL_MASK_para.sh ${SUBARUDIR} /nfs/slac/g/ki/ki18/anja/SUBARU/MACS1115+01/W-C-RC_2010-03-12/SCIENCE_weighted/ OCFS
+    ./parallel_manager.sh ./science_weighted_apply_RADIAL_MASK_para.sh ${SUBARUDIR} /u/ki/awright/data/MACS1115+01/W-C-RC_2010-03-12/SCIENCE_weighted/ OCFS
     
     ###adam-SKIPPED###
     ###adam# fixed issue with stars landing on overscan regions, which previously masked horizontal lines. (don't need unless you see this issue appearing in the new data)
